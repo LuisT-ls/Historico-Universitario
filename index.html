@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Histórico Universitário</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Histórico Universitário</h1>
+
+      <div class="form-container">
+        <form id="disciplinaForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="periodo">Semestre:</label>
+              <input
+                type="text"
+                id="periodo"
+                required
+                placeholder="Ex: 2020.1"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="codigo">Código:</label>
+              <input
+                type="text"
+                id="codigo"
+                required
+                placeholder="Ex: CTIA01"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nome">Nome da Disciplina:</label>
+              <input type="text" id="nome" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="natureza">Natureza:</label>
+              <select id="natureza" required>
+                <option value="AC">AC - Atividade Complementar</option>
+                <option value="LV">LV - Componente Livre</option>
+                <option value="OB">OB - Obrigatória</option>
+                <option value="OG">OG - Optativa da Grande Área</option>
+                <option value="OH">OH - Optativa Humanística</option>
+                <option value="OP">OP - Optativa</option>
+                <option value="OX">OX - Optativa de Extensão</option>
+                <option value="OZ">OZ - Optativa Artística</option>
+              </select>
+            </div>
+
+            <div class="form-group trancamento-group">
+              <label for="trancamento">Trancamento:</label>
+              <input type="checkbox" id="trancamento" />
+            </div>
+          </div>
+
+          <div class="form-row campos-sem-trancamento">
+            <div class="form-group">
+              <label for="ch">Carga Horária:</label>
+              <input type="number" id="ch" required />
+            </div>
+
+            <div class="form-group">
+              <label for="nota">Nota:</label>
+              <input
+                type="number"
+                id="nota"
+                step="0.1"
+                min="0"
+                max="10"
+                required
+              />
+            </div>
+          </div>
+
+          <button type="submit">Adicionar Disciplina</button>
+        </form>
+      </div>
+
+      <div class="content-container">
+        <div class="table-container">
+          <h2>Disciplinas Cursadas</h2>
+          <table id="historicoTable">
+            <thead>
+              <tr>
+                <th>Semestre</th>
+                <th>Código</th>
+                <th>Disciplina</th>
+                <th>CH</th>
+                <th>NT</th>
+                <th>Nota</th>
+                <th>RES</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="historicoBody"></tbody>
+          </table>
+        </div>
+
+        <div class="resumo-container">
+          <div class="summary" id="resumo">
+            <h2>Resumo Geral</h2>
+            <div class="resumo-content">
+              <div class="metricas-gerais">
+                <h3>Métricas Gerais</h3>
+                <p>Média Geral: <span id="mediaGeral">0.0</span></p>
+                <p>Total de Horas: <span id="totalHoras">0</span></p>
+              </div>
+
+              <div class="horas-natureza">
+                <h3>Horas por Natureza</h3>
+                <div id="horasPorNatureza"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="legenda">
+            <h3>Requisitos para Formatura</h3>
+            <table class="requisitos-table">
+              <thead>
+                <tr>
+                  <th>Natureza</th>
+                  <th>Meta (h)</th>
+                  <th>Cursado (h)</th>
+                  <th>Falta (h)</th>
+                </tr>
+              </thead>
+              <tbody id="requisitosBody"></tbody>
+              <tfoot>
+                <tr>
+                  <td><strong>TOTAL</strong></td>
+                  <td>2400</td>
+                  <td id="totalCursado">0</td>
+                  <td id="totalFalta">2400</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
