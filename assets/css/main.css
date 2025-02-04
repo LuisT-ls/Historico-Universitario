@@ -1,57 +1,70 @@
-/* Base styles and resets */
+/* CSS Reset and Base Styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary: #64748b;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --background: #ffffff;
+  --surface: #f8fafc;
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --border: #e2e8f0;
+  --shadow: rgba(0, 0, 0, 0.1);
 }
 
 body {
-  background-color: #f5f7fa;
-  color: #2c3e50;
-  line-height: 1.6;
+  background-color: var(--surface);
+  color: var(--text);
+  line-height: 1.5;
 }
 
+/* Container and Layout */
 .container {
   max-width: 1200px;
   margin: 2rem auto;
   padding: 0 1.5rem;
 }
 
-/* Header styles */
 h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text);
   text-align: center;
-  color: #1a365d;
-  font-size: 2.5rem;
   margin-bottom: 2rem;
-  position: relative;
-  padding-bottom: 1rem;
+  animation: fadeInDown 0.6s ease-out;
 }
 
-h1::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100px;
-  height: 3px;
-  background: linear-gradient(to right, #4299e1, #2b6cb0);
-  border-radius: 2px;
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1.5rem;
 }
 
-/* Form styles */
+h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+/* Form Styles */
 .form-container {
-  background: white;
-  padding: 2rem;
+  background: var(--background);
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  box-shadow: 0 4px 6px var(--shadow);
   margin-bottom: 2rem;
-  transition: transform 0.3s ease;
-}
-
-.form-container:hover {
-  transform: translateY(-2px);
+  animation: fadeIn 0.6s ease-out;
 }
 
 .form-row {
@@ -66,52 +79,66 @@ h1::after {
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
-  color: #4a5568;
   font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 1rem;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-button[type='submit'] {
-  background: linear-gradient(to right, #4299e1, #2b6cb0);
+.trancamento-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.trancamento-group input[type='checkbox'] {
+  width: auto;
+}
+
+button {
+  background-color: var(--primary);
   color: white;
-  padding: 0.75rem 1.5rem;
   border: none;
+  padding: 0.75rem 1.5rem;
   border-radius: 6px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
+  transition: all 0.2s ease;
 }
 
-button[type='submit']:hover {
-  background: linear-gradient(to right, #2b6cb0, #2c5282);
+button:hover {
+  background-color: var(--primary-dark);
   transform: translateY(-1px);
 }
 
-/* Table styles */
+button:active {
+  transform: translateY(0);
+}
+
+/* Table Styles */
 .table-container {
-  background: white;
-  padding: 2rem;
+  background: var(--background);
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px var(--shadow);
   margin-bottom: 2rem;
+  animation: fadeIn 0.8s ease-out;
   overflow-x: auto;
 }
 
@@ -125,50 +152,58 @@ th,
 td {
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
 }
 
 th {
-  background-color: #f7fafc;
+  background-color: var(--surface);
   font-weight: 600;
-  color: #4a5568;
+  color: var(--text-secondary);
 }
 
 tr:hover {
-  background-color: #f8fafc;
+  background-color: var(--surface);
 }
 
-/* Summary styles */
+.periodo-header td {
+  background-color: #f1f5f9;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.75rem;
+}
+
+/* Resume Styles */
 .resumo-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 1.5rem;
+  animation: fadeIn 1s ease-out;
 }
 
 .summary,
 .legenda {
-  background: white;
-  padding: 2rem;
+  background: var(--background);
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px var(--shadow);
 }
 
 .resumo-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
-/* Utility classes */
+/* Utility Classes */
 .hidden {
   display: none;
 }
 
-/* Animation for adding new items */
+/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -176,36 +211,29 @@ tr:hover {
   }
 }
 
-tr {
-  animation: fadeIn 0.3s ease-out;
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Remove button styles */
+/* Button Styles */
 .remover {
-  background: #fc8181;
-  color: white;
-  border: none;
+  background-color: var(--danger);
   padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: 0.875rem;
 }
 
 .remover:hover {
-  background: #f56565;
-  transform: scale(1.05);
+  background-color: #dc2626;
 }
 
-/* Period header styles */
-.periodo-header td {
-  background: #edf2f7;
-  font-weight: 600;
-  color: #2d3748;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Responsive design */
+/* Responsive Design */
 @media (max-width: 768px) {
   .form-row {
     flex-direction: column;
@@ -224,51 +252,58 @@ tr {
     padding: 0 1rem;
   }
 
-  table {
-    font-size: 0.9rem;
-  }
-
-  th,
-  td {
-    padding: 0.75rem 0.5rem;
+  h1 {
+    font-size: 1.875rem;
   }
 }
 
-/* Progress indicators */
+/* Period Suggestions Styles */
+.periodos-sugeridos {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 4px 6px var(--shadow);
+}
+
+.periodo-sugerido {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.periodo-sugerido:hover {
+  background-color: var(--surface);
+}
+
+.periodo-atual {
+  background-color: #e0f2fe;
+  font-weight: 500;
+}
+
+/* Status Colors */
+tr[data-resultado='AP'] {
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+tr[data-resultado='RR'] {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+tr[data-resultado='TR'] {
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+/* Progress Indicators */
 .progress-bar {
-  width: 100%;
   height: 8px;
-  background: #e2e8f0;
+  background-color: var(--border);
   border-radius: 4px;
+  overflow: hidden;
   margin-top: 0.5rem;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(to right, #4299e1, #2b6cb0);
-  border-radius: 4px;
+  background-color: var(--primary);
   transition: width 0.3s ease;
-}
-
-/* Status badges */
-.status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.status-AP {
-  background: #c6f6d5;
-  color: #22543d;
-}
-
-.status-RR {
-  background: #fed7d7;
-  color: #822727;
-}
-
-.status-TR {
-  background: #e2e8f0;
-  color: #2d3748;
 }
