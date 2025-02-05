@@ -5,16 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Histórico Universitário</title>
     <link rel="stylesheet" href="./assets/css/main.css" />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
   </head>
   <body>
     <div class="container">
-      <h1>Histórico Universitário</h1>
+      <h1><i class="fas fa-graduation-cap"></i> Histórico Universitário</h1>
 
       <div class="form-container">
         <form id="disciplinaForm">
           <div class="form-row">
             <div class="form-group">
-              <label for="periodo">Semestre:</label>
+              <label for="periodo"
+                ><i class="fas fa-calendar-alt"></i> Semestre:</label
+              >
               <input
                 type="text"
                 id="periodo"
@@ -24,7 +31,7 @@
             </div>
 
             <div class="form-group">
-              <label for="codigo">Código:</label>
+              <label for="codigo"><i class="fas fa-hashtag"></i> Código:</label>
               <input
                 type="text"
                 id="codigo"
@@ -36,14 +43,18 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="nome">Nome da Disciplina:</label>
+              <label for="nome"
+                ><i class="fas fa-book"></i> Nome da Disciplina:</label
+              >
               <input type="text" id="nome" required />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="natureza">Natureza:</label>
+              <label for="natureza"
+                ><i class="fas fa-tasks"></i> Natureza:</label
+              >
               <select id="natureza" required>
                 <option value="AC">AC - Atividade Complementar</option>
                 <option value="LV">LV - Componente Livre</option>
@@ -57,19 +68,23 @@
             </div>
 
             <div class="form-group trancamento-group">
-              <label for="trancamento">Trancamento:</label>
+              <label for="trancamento">
+                <i class="fas fa-lock"></i> Trancamento:
+              </label>
               <input type="checkbox" id="trancamento" />
             </div>
           </div>
 
           <div class="form-row campos-sem-trancamento">
             <div class="form-group">
-              <label for="ch">Carga Horária:</label>
+              <label for="ch"
+                ><i class="fas fa-clock"></i> Carga Horária:</label
+              >
               <input type="number" id="ch" required />
             </div>
 
             <div class="form-group">
-              <label for="nota">Nota:</label>
+              <label for="nota"><i class="fas fa-star"></i> Nota:</label>
               <input
                 type="number"
                 id="nota"
@@ -81,24 +96,26 @@
             </div>
           </div>
 
-          <button type="submit">Adicionar Disciplina</button>
+          <button type="submit">
+            <i class="fas fa-plus-circle"></i> Adicionar Disciplina
+          </button>
         </form>
       </div>
 
       <div class="content-container">
         <div class="table-container">
-          <h2>Disciplinas Cursadas</h2>
+          <h2><i class="fas fa-list-alt"></i> Disciplinas Cursadas</h2>
           <table id="historicoTable">
             <thead>
               <tr>
-                <th>Semestre</th>
-                <th>Código</th>
-                <th>Disciplina</th>
-                <th>CH</th>
-                <th>NT</th>
-                <th>Nota</th>
-                <th>RES</th>
-                <th>Ações</th>
+                <th><i class="fas fa-calendar"></i> Semestre</th>
+                <th><i class="fas fa-hashtag"></i> Código</th>
+                <th><i class="fas fa-book"></i> Disciplina</th>
+                <th><i class="fas fa-clock"></i> CH</th>
+                <th><i class="fas fa-tag"></i> NT</th>
+                <th><i class="fas fa-star"></i> Nota</th>
+                <th><i class="fas fa-check-circle"></i> RES</th>
+                <th><i class="fas fa-cogs"></i> Ações</th>
               </tr>
             </thead>
             <tbody id="historicoBody"></tbody>
@@ -107,36 +124,46 @@
 
         <div class="resumo-container">
           <div class="summary" id="resumo">
-            <h2>Resumo Geral</h2>
+            <h2><i class="fas fa-chart-bar"></i> Resumo Geral</h2>
             <div class="resumo-content">
               <div class="metricas-gerais">
-                <h3>Métricas Gerais</h3>
-                <p>Média Geral: <span id="mediaGeral">0.0</span></p>
-                <p>Total de Horas: <span id="totalHoras">0</span></p>
+                <h3><i class="fas fa-chart-line"></i> Métricas Gerais</h3>
+                <p>
+                  <i class="fas fa-calculator"></i> Média Geral:
+                  <span id="mediaGeral">0.0</span>
+                </p>
+                <p>
+                  <i class="fas fa-hourglass-half"></i> Total de Horas:
+                  <span id="totalHoras">0</span>
+                </p>
               </div>
 
               <div class="horas-natureza">
-                <h3>Horas por Natureza</h3>
+                <h3><i class="fas fa-pie-chart"></i> Horas por Natureza</h3>
                 <div id="horasPorNatureza"></div>
               </div>
             </div>
           </div>
 
           <div class="legenda">
-            <h3>Requisitos para Formatura</h3>
+            <h3>
+              <i class="fas fa-graduation-cap"></i> Requisitos para Formatura
+            </h3>
             <table class="requisitos-table">
               <thead>
                 <tr>
-                  <th>Natureza</th>
-                  <th>Meta (h)</th>
-                  <th>Cursado (h)</th>
-                  <th>Falta (h)</th>
+                  <th><i class="fas fa-tag"></i> Natureza</th>
+                  <th><i class="fas fa-bullseye"></i> Meta (h)</th>
+                  <th><i class="fas fa-check"></i> Cursado (h)</th>
+                  <th><i class="fas fa-hourglass"></i> Falta (h)</th>
                 </tr>
               </thead>
               <tbody id="requisitosBody"></tbody>
               <tfoot>
                 <tr>
-                  <td><strong>TOTAL</strong></td>
+                  <td>
+                    <strong><i class="fas fa-sum"></i> TOTAL</strong>
+                  </td>
                   <td>2400</td>
                   <td id="totalCursado">0</td>
                   <td id="totalFalta">2400</td>
