@@ -1,6 +1,6 @@
 # Histórico Universitário 📚
 
-Uma aplicação web para gerenciar e acompanhar seu histórico acadêmico universitário, permitindo o controle de disciplinas cursadas, cálculo de médias e acompanhamento dos requisitos para formatura.
+Uma aplicação web para gerenciar e acompanhar seu histórico acadêmico universitário, criado com o objetivo específico da Universidade Federal da Bahia, inicialmente para a graduação BICTI, permitindo o controle de disciplinas cursadas, cálculo de médias e acompanhamento dos requisitos para formatura.
 
 ![Licença](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Versão](https://img.shields.io/badge/version-1.0.0-green.svg)
