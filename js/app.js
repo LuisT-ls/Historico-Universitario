@@ -6,6 +6,7 @@ import { atualizarResumo } from './modules/ui/resumo.js'
 import { atualizarRequisitos } from './modules/ui/requisitos.js'
 import { setupFormHandlers } from './modules/ui/formHandler.js'
 import { getPeriodoMaisRecente } from './modules/utils.js'
+import { setupFilterComponent } from './modules/ui/filter.js'
 
 class App {
   constructor() {
@@ -15,6 +16,7 @@ class App {
 
   init() {
     this.disciplinas = carregarDisciplinas()
+    setupFilterComponent()
 
     // Add this line to set initial period
     const periodoInput = document.getElementById('periodo')
