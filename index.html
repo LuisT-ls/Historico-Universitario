@@ -3,9 +3,54 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Open Graph Meta Tags -->
+    <meta
+      name="description"
+      content="Gerencie seu histórico universitário e acompanhe seu progresso acadêmico de forma eficiente. Ideal para estudantes do BICTI - UFBA."
+    />
+    <meta
+      name="keywords"
+      content="Histórico Universitário, BICTI, UFBA, disciplinas, graduação, progresso acadêmico"
+    />
+    <meta name="author" content="Luís Antonio Souza Teixeira" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+
+    <link
+      as="image"
+      href="https://historicoufba.vercel.app/imagem-preview.jpg"
+    />
+
+    <!-- Open Graph para redes sociais -->
+    <meta property="og:title" content="Histórico Universitário" />
+    <meta
+      property="og:description"
+      content="Acompanhe seu progresso acadêmico com facilidade!"
+    />
+    <meta
+      property="og:image"
+      content="https://historicoufba.vercel.app/assets/img/og-image.jpg"
+    />
+    <meta property="og:url" content="https://historicoufba.vercel.app/" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Histórico Universitário" />
+    <meta
+      name="twitter:description"
+      content="Gerencie suas disciplinas e requisitos para formatura."
+    />
+    <meta
+      name="twitter:image"
+      content="https://historicoufba.vercel.app/assets/img/og-image.jpg"
+    />
+
     <title>Histórico Universitário</title>
+
+    <!-- Estilos -->
     <link rel="stylesheet" href="./assets/css/main.css" />
-    <!-- Font Awesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -30,6 +75,20 @@
       href="./assets/img/favicon/favicon-16x16.png"
     />
     <link rel="manifest" href="./assets/img/favicon/site.webmanifest" />
+
+    <!-- Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-SEU_ID_AQUI"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'UA-SEU_ID_AQUI')
+    </script>
   </head>
   <body>
     <div class="container">
