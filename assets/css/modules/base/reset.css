@@ -1,0 +1,18 @@
+/* reset.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--surface);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Utility Classes */
+.hidden {
+  display: none;
+}

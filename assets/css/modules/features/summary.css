@@ -1,0 +1,54 @@
+/* Right Sidebar Styles */
+.resumo-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: sticky;
+  top: 2rem;
+}
+
+.summary,
+.legenda {
+  background: var(--background);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px var(--shadow);
+}
+
+.resumo-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.metricas-gerais,
+.horas-natureza {
+  padding: 1.25rem;
+  background: var(--surface);
+  border-radius: 8px;
+}
+
+.metricas-gerais p {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.metricas-gerais p:last-child {
+  margin-bottom: 0;
+}
+
+.requisitos-table {
+  font-size: 0.9rem;
+}
+
+.requisitos-table th,
+.requisitos-table td {
+  padding: 0.75rem;
+}
+
+.requisitos-table th .fas,
+.requisitos-table td .fas {
+  margin-right: 0.5rem;
+}

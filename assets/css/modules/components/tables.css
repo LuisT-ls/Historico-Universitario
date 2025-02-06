@@ -1,0 +1,48 @@
+/* Table Styles */
+.table-container {
+  background: var(--background);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px var(--shadow);
+  animation: fadeIn 0.8s ease-out;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+th,
+td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  background-color: var(--surface);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+th .fas {
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+}
+
+tr:hover {
+  background-color: var(--surface);
+}
+
+tr:hover .fas {
+  color: var(--icon-hover);
+}
+
+.periodo-header td {
+  background-color: #f1f5f9;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.75rem;
+}
