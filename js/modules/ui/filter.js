@@ -1,6 +1,8 @@
 // js/modules/ui/filter.js
+let filterContainer
+
 export function setupFilterComponent() {
-  const filterContainer = document.createElement('div')
+  filterContainer = document.createElement('div')
   filterContainer.className = 'filter-container'
   filterContainer.innerHTML = `
     <div class="filter-header">
