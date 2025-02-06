@@ -1,0 +1,11 @@
+# Permitir que todos os bots acessem a página principal
+User-agent: *
+Disallow: /admin/
+Disallow: /login/
+Disallow: /dashboard/
+
+# Permitir o acesso à página principal
+Allow: /
+
+# Definir o link do sitemap
+Sitemap: https://historicoufba.vercel.app/sitemap.xml
