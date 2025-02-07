@@ -8,7 +8,7 @@ export function setupFilterComponent() {
   filterContainer.innerHTML = `
     <div class="filter-header">
       <i class="fas fa-search"></i>
-      <h3>Buscar Disciplina</h3>
+      <h2>Buscar Disciplina</h2>
     </div>
     <div class="search-container">
       <i class="fas fa-search search-icon"></i>

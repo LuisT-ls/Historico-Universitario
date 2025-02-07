@@ -10,13 +10,19 @@
 .filter-header {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
-  color: #2c3e50;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .filter-header i {
-  margin-right: 0.5rem;
+  font-size: 1.5rem;
   color: #3498db;
+}
+
+.filter-header h2 {
+  font-size: 1.5rem;
+  line-height: 1.5rem;
+  margin: 0;
 }
 
 .search-container {
