@@ -578,13 +578,108 @@
       "natureza": "OB"
     },
     {
+      "codigo": "CTIA86",
+      "nome": "GESTÃO DE SISTEMAS DE GARANTIA DA QUALIDADE",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA87",
+      "nome": "CONTABILIDADE DE CUSTOS",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA88",
+      "nome": "PESQUISA OPERACIONAL",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA89",
+      "nome": "PRINCÍPIOS DE PROCESSOS CONTÍNUOS E DISCRETOS",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA90",
+      "nome": "ENGENHARIA DO TRABALHO",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA91",
+      "nome": "ENGENHARIA DA QUALIDADE",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA92",
+      "nome": "MODELAGEM PROBABILÍSTICA E SIMULAÇÃO DE SISTEMAS DE PRODUÇÃO",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA93",
+      "nome": "ENGENHARIA ECONÔMICA",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA94",
+      "nome": "AUTOMAÇÃO DE PROCESSOS",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA95",
+      "nome": "ENGENHARIA E DESENVOLVIMENTO DO PRODUTO",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA96",
+      "nome": "PROJETO DE FÁBRICA E PLANEJAMENTO INDUSTRIAL",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA97",
+      "nome": "LOGÍSTICA E CADEIA DE SUPRIMENTOS",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA98",
+      "nome": "PLANEJAMENTO DO PROJETO DE CONCLUSÃO DE CURSO",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA99",
+      "nome": "ESTÁGIO EM ENGENHARIA DE PRODUÇÃO",
+      "natureza": "OB"
+    },
+    {
       "codigo": "CTIA79",
       "nome": "DESENHO TÉCNICO I",
       "natureza": "OB"
     },
     {
+      "codigo": "CTIB01",
+      "nome": "PROJETO DE CONCLUSÃO DE CURSO",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB02",
+      "nome": "PRODUÇÃO ENXUTA",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB03",
+      "nome": "SISTEMAS DE APOIO À DECISÃO",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB04",
+      "nome": "LOGÍSTICA DE TRANSPORTES",
+      "natureza": "OP"
+    },
+    {
       "codigo": "CTIB05",
       "nome": "ENGENHARIA DA SUSTENTABILIDADE",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB06",
+      "nome": "TÓPICOS ESPECIAIS EM ENGENHARIA DE PRODUÇÃO",
       "natureza": "OP"
     },
     {
@@ -593,8 +688,13 @@
       "natureza": "OP"
     },
     {
-      "codigo": "CTIB56",
-      "nome": "GESTÃO DE ESTOQUES",
+      "codigo": "CTIA50",
+      "nome": "GESTÃO DA PRODUÇÃO",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB54",
+      "nome": "PRODUÇÃO LIMPA",
       "natureza": "OP"
     },
     {
@@ -602,6 +702,31 @@
       "nome": "GESTÃO DE PROJETOS",
       "natureza": "OP"
     },
+    {
+      "codigo": "CTIB56",
+      "nome": "GESTÃO DE ESTOQUES",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB57",
+      "nome": "LOGÍSTICA REVERSA",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB58",
+      "nome": "PLANEJAMENTO, PROGRAMAÇÃO E CONTROLE DA PRODUÇÃO",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB59",
+      "nome": "TECNOLOGIAS HABILITADORAS DA INDÚSTRIA 4.0",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB60",
+      "nome": "PROCESSOS DE FABRICAÇÃO I",
+      "natureza": "OP"
+    }
     {
       "codigo": "CTIB62",
       "nome": "LEAN SIX SIGMA",
