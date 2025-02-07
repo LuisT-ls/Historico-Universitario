@@ -46,4 +46,8 @@
   .social-links {
     justify-content: center;
   }
+
+  .form-group.course select {
+    width: 60%;
+  }
 }

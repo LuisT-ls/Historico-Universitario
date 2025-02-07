@@ -57,3 +57,19 @@
 .trancamento-group input[type='checkbox'] {
   width: auto;
 }
+
+/* Form Course */
+.form-group.course select {
+  width: 18%;
+  padding: 8px;
+  display: flex-basis;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--background-color);
+  font-family: var(--font-family);
+}
+
+.form-group.course select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
