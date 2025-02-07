@@ -1,94 +1,106 @@
-# Histórico Universitário 📚
+# Histórico Universitário UFBA
 
-Uma aplicação web para gerenciar e acompanhar seu histórico acadêmico universitário, criado com o objetivo específico da Universidade Federal da Bahia, inicialmente para a graduação BICTI, permitindo o controle de disciplinas cursadas, cálculo de médias e acompanhamento dos requisitos para formatura.
+![Preview do Projeto](imagem-preview.jpg)
 
-![Licença](https://img.shields.io/badge/license-MIT-blue.svg)
-![Versão](https://img.shields.io/badge/version-1.0.0-green.svg)
+Uma aplicação web para gerenciar e acompanhar o histórico acadêmico dos estudantes da Universidade Federal da Bahia (UFBA), com suporte inicial para os cursos de BICTI e Engenharia de Produção.
 
-## 🌟 Funcionalidades
+🔗 [Acesse o projeto](https://historicoufba.vercel.app/)
 
-- ✏️ Cadastro de disciplinas cursadas com informações detalhadas
-- 📊 Cálculo automático de média geral e por período
-- 📋 Acompanhamento de horas por natureza de disciplina
-- 📈 Visualização do progresso para formatura
-- 💾 Armazenamento local dos dados
-- 🎯 Controle de requisitos por tipo de disciplina
-- 🔄 Sugestão automática de períodos
-- 📱 Interface responsiva para todos os dispositivos
+## 📋 Sobre o Projeto
 
-## 🚀 Como Usar
+O Histórico Universitário UFBA é uma ferramenta que permite aos estudantes:
 
-1. Acesse a aplicação através do link: [Histórico Universitário](https://github.com/LuisT-ls/Historico-Universitario)
-2. Cadastre suas disciplinas usando o formulário
-3. Acompanhe seu progresso através dos resumos e tabelas
+- Registrar e gerenciar disciplinas cursadas
+- Acompanhar o progresso em direção à formatura
+- Calcular médias e carga horária total
+- Visualizar requisitos por natureza de componente
+- Buscar disciplinas específicas do seu curso
 
-### 📝 Cadastro de Disciplinas
+### 🎓 Cursos Suportados
 
-Para adicionar uma nova disciplina, preencha os seguintes campos:
+- BICTI (Bacharelado Interdisciplinar em Ciência, Tecnologia e Inovação)
+  - Total de horas necessárias: 2400h
+- Engenharia de Produção
+  - Total de horas necessárias: 3750h
 
-- **Semestre**: Período em que cursou (ex: 2024.1)
-- **Código**: Código da disciplina
-- **Nome**: Nome completo da disciplina
-- **Natureza**: Tipo da disciplina (OB, OP, AC, etc.)
-- **Carga Horária**: Total de horas da disciplina
-- **Nota**: Nota final obtida (0 a 10)
-- **Trancamento**: Marque se trancou a disciplina
+## 🚀 Funcionalidades
 
-## 💻 Tecnologias Utilizadas
+- **Seleção de Curso**: Escolha entre BICTI e Engenharia de Produção
+- **Gerenciamento de Disciplinas**:
+  - Adicionar disciplinas cursadas
+  - Registrar notas e carga horária
+  - Marcar disciplinas como trancadas
+- **Filtro e Busca**:
+  - Pesquisa por código ou nome da disciplina
+  - Filtragem específica por curso
+- **Resumo e Métricas**:
+  - Média geral
+  - Total de horas cursadas
+  - Horas restantes por natureza
+  - Progresso para formatura
+
+## 🛠️ Tecnologias Utilizadas
 
 - HTML5
-- CSS3
+- CSS3 (com organização modular)
 - JavaScript (ES6+)
 - LocalStorage para persistência de dados
+- Font Awesome para ícones
 
-## ⚙️ Requisitos do Sistema
+## 📁 Estrutura do Projeto
 
-O sistema armazena dados localmente e necessita dos seguintes requisitos:
+```
+.
+├── assets/
+│   ├── css/           # Estilos CSS organizados em módulos
+│   ├── data/         # Dados JSON das disciplinas
+│   └── img/          # Imagens e favicons
+├── js/
+│   ├── app.js        # Arquivo principal
+│   └── modules/      # Módulos JavaScript
+└── index.html        # Página principal
+```
 
-- Navegador web moderno com suporte a:
-  - LocalStorage
-  - JavaScript ES6+
-  - CSS Grid e Flexbox
-  - Animações CSS
+### 📊 Organização CSS
 
-## 📋 Natureza das Disciplinas
+- **Base**: Reset, tipografia, variáveis e animações
+- **Components**: Botões, formulários, ícones, tabelas
+- **Features**: Filtros, períodos, resumos
+- **Layout**: Container, footer, grid
+- **Utils**: Responsividade, status
 
-O sistema reconhece as seguintes naturezas de disciplinas:
+## 🚦 Como Usar
 
-- **AC**: Atividade Complementar (240h)
-- **LV**: Componente Livre (360h)
-- **OB**: Obrigatória (600h)
-- **OG**: Optativa da Grande Área (780h)
-- **OH**: Optativa Humanística (120h)
-- **OP**: Optativa (0h)
-- **OX**: Optativa de Extensão (180h)
-- **OZ**: Optativa Artística (120h)
+1. Acesse o [site do projeto](https://historicoufba.vercel.app/)
+2. Selecione seu curso (BICTI ou Engenharia de Produção)
+3. Adicione suas disciplinas cursadas:
+   - Preencha o semestre
+   - Insira código e nome da disciplina
+   - Selecione a natureza
+   - Informe carga horária e nota
+4. Acompanhe seu progresso no painel de resumo
 
-Total de horas necessárias para formatura: 2400h
-
-## 🔒 Privacidade e Dados
-
-- Todos os dados são armazenados localmente no seu navegador
-- Nenhuma informação é enviada para servidores externos
-- Os dados persistem entre sessões até que você limpe os dados do navegador
-
-## 🛠️ Instalação Local
+## 💻 Desenvolvimento Local
 
 1. Clone o repositório:
+
 ```bash
 git clone https://github.com/LuisT-ls/Historico-Universitario.git
 ```
 
-2. Navegue até o diretório:
+2. Abra o projeto:
+
 ```bash
 cd Historico-Universitario
 ```
 
-3. Abra o arquivo `index.html` em seu navegador ou use um servidor local
+3. Inicie um servidor local:
+
+- Use o Live Server do VS Code
+
+4. Acesse `http://localhost:5500` no navegador
 
 ## 🤝 Contribuindo
-
-Contribuições são sempre bem-vindas! Para contribuir:
 
 1. Faça um Fork do projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
@@ -96,31 +108,18 @@ Contribuições são sempre bem-vindas! Para contribuir:
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
-## 🐛 Reportando Problemas
+## 📝 Licença
 
-Encontrou um bug? Por favor, abra uma issue descrevendo:
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-1. O problema encontrado
-2. Passos para reproduzir
-3. Comportamento esperado
-4. Screenshots (se aplicável)
-5. Seu ambiente (navegador, sistema operacional)
+## 👨‍💻 Autor
 
-## 📜 Licença
+Luís Teixeira - [GitHub](https://github.com/LuisT-ls)
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+## 🎯 Status do Projeto
 
-## 📧 Contato
-
-Luis - [@LuisT-ls](https://github.com/LuisT-ls)
-
-Link do Projeto: [https://github.com/LuisT-ls/Historico-Universitario](https://github.com/LuisT-ls/Historico-Universitario)
-
-## 🙏 Agradecimentos
-
-- Todos os contribuidores que ajudarão a melhorar este projeto
-- A comunidade open source por suas ferramentas e inspiração
-- Professores e colegas que forneceram feedback valioso
+🚧 Em desenvolvimento contínuo...
 
 ---
-Desenvolvido com ❤️ para ajudar estudantes universitários a acompanharem seu progresso acadêmico.
+
+⌨️ com ❤️ por [Luis Silva](https://github.com/LuisT-ls)
