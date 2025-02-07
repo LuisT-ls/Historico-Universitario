@@ -50,4 +50,17 @@
   .form-group.course select {
     width: 60%;
   }
+
+  .watermark-container {
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .watermark-logo:hover {
+    width: 180px;
+  }
+
+  .logo-text {
+    font-size: 0.8rem;
+  }
 }

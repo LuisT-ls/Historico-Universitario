@@ -8,6 +8,7 @@
 @import './modules/components/tables.css';
 @import './modules/components/progress.css';
 @import './modules/components/icon.css';
+@import './modules/components/watermark.css';
 
 @import './modules/layout/container.css';
 @import './modules/layout/grid.css';
