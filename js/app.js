@@ -109,6 +109,28 @@ class App {
   }
 }
 
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker
+    .register('/sw.js')
+    .then(reg => {
+      console.log('Service Worker registrado!', reg)
+
+      reg.onupdatefound = () => {
+        const installingWorker = reg.installing
+        installingWorker.onstatechange = () => {
+          if (installingWorker.state === 'installed') {
+            if (navigator.serviceWorker.controller) {
+              console.log(
+                'Novo Service Worker disponível. Recarregue a página para atualizar.'
+              )
+            }
+          }
+        }
+      }
+    })
+    .catch(err => console.log('Erro ao registrar o Service Worker:', err))
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   new App()
 })

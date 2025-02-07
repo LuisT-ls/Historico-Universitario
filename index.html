@@ -7,17 +7,15 @@
     <!-- Open Graph Meta Tags -->
     <meta
       name="description"
-      content="Gerencie seu histórico universitário e acompanhe seu progresso acadêmico de forma eficiente. Ideal para estudantes do BICTI - UFBA."
+      content="Gerencie seu histórico universitário de maneira simples e eficiente! Acompanhe seu progresso acadêmico, visualize disciplinas e requisitos para formatura na UFBA."
     />
     <meta
       name="keywords"
-      content="https://historicoufba.vercel.app/, BICTI, UFBA, disciplinas, graduação, progresso acadêmico"
+      content="histórico universitário, UFBA, disciplinas UFBA, progresso acadêmico, notas UFBA, currículo acadêmico, controle acadêmico, sistema de histórico universitário"
     />
     <meta name="author" content="Luís Antonio Souza Teixeira" />
     <meta name="robots" content="index, follow" />
-    <meta name="x-robots-tag" content="index, follow" />
-    <meta name="googlebot" content="index, follow" />
-    <meta property="og:publisher" content="https://historicoufba.vercel.app/" />
+    <meta property="og:site_name" content="Histórico Universitário" />
 
     <link
       rel="alternate"
@@ -63,6 +61,10 @@
       name="twitter:image"
       content="https://historicoufba.vercel.app/assets/img/og-image.jpg"
     />
+    <meta
+      name="twitter:image:alt"
+      content="Histórico Universitário - Acompanhe seu progresso acadêmico"
+    />
 
     <!-- Meta tags IA -->
     <meta
@@ -82,16 +84,22 @@
       content="https://historicoufba.vercel.app/rules-dev"
     />
 
-    <title>Histórico Universitário - Acompanhe Seu Progresso Acadêmico</title>
+    <title>
+      Histórico Universitário UFBA - Gerencie Seu Progresso Acadêmico e
+      Disciplinas
+    </title>
 
     <!-- Estilos -->
-    <link rel="stylesheet" href="./assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/main.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      integrity="sha384-DYSOXHydmHiN+40t8bY18SUatMEVw53Rn5BkJ+eoCDOcgcKXSYTN5EiY2hNh4qcM"
+      crossorigin="anonymous"
     />
 
     <!-- Favicon -->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
@@ -109,7 +117,15 @@
       sizes="16x16"
       href="./assets/img/favicon/favicon-16x16.png"
     />
-    <link rel="manifest" href="./assets/img/favicon/site.webmanifest" />
+
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#000000" />
+
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
 
     <!-- Schema.org markup for WebSite -->
     <script type="application/ld+json">
@@ -118,7 +134,17 @@
         "@type": "WebSite",
         "url": "https://historicoufba.vercel.app/",
         "name": "Histórico Universitário - UFBA",
-        "description": "Aplicação web para gerenciar o histórico acadêmico universitário, controlando disciplinas, calculando médias e acompanhando requisitos de formatura."
+        "description": "Aplicação web para gerenciar o histórico acadêmico universitário, controlando disciplinas, calculando médias e acompanhando requisitos de formatura.",
+        "sameAs": [
+          "https://linkedin.com/luis-tei",
+          "https://twitter.com/luistls_",
+          "https://instagram.com/luis.tei"
+        ],
+        "publisher": {
+          "@type": "Organization",
+          "name": "Histórico Universitário",
+          "logo": "https://historicoufba.vercel.app/assets/img/logo.png"
+        }
       }
     </script>
 
