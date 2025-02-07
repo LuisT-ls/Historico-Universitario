@@ -122,4 +122,4 @@ Luís Teixeira - [GitHub](https://github.com/LuisT-ls)
 
 ---
 
-⌨️ com ❤️ por [Luis Teixeira](https://github.com/LuisT-ls)
+⌨️ com ❤️ por [Luís Teixeira](https://github.com/LuisT-ls)
