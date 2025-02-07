@@ -1,5 +1,6 @@
 // js/modules/ui/filter.js
 let filterContainer
+let currentCourse = 'BICTI' // Valor padrão
 
 export function setupFilterComponent() {
   filterContainer = document.createElement('div')
@@ -24,18 +25,27 @@ export function setupFilterComponent() {
   const form = document.querySelector('.form-container')
   form.parentNode.insertBefore(filterContainer, form)
 
+  // Adicionar listener para mudança de curso
+  const cursoSelect = document.getElementById('curso')
+  cursoSelect.addEventListener('change', e => {
+    currentCourse = e.target.value
+    // Limpar resultados quando mudar o curso
+    document.getElementById('searchResults').innerHTML = ''
+    document.getElementById('disciplineFilter').value = ''
+  })
+
   setupFilterHandlers()
 }
 
 async function setupFilterHandlers() {
   const filterInput = document.getElementById('disciplineFilter')
   const searchResults = document.getElementById('searchResults')
-  let disciplinasData = []
+  let disciplinasData = {}
 
   try {
     const response = await fetch('./assets/data/disciplinas.json')
     const data = await response.json()
-    disciplinasData = data.disciplinas
+    disciplinasData = data
   } catch (error) {
     console.error('Erro ao carregar disciplinas:', error)
     searchResults.innerHTML =
@@ -49,7 +59,10 @@ async function setupFilterHandlers() {
       return
     }
 
-    const matches = disciplinasData
+    // Usar apenas as disciplinas do curso atual
+    const disciplinasDoCurso = disciplinasData[currentCourse] || []
+
+    const matches = disciplinasDoCurso
       .filter(
         disciplina =>
           disciplina.nome.toLowerCase().includes(searchTerm) ||
