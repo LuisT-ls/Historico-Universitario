@@ -72,6 +72,11 @@ class App {
       cursoConfig.totalHoras
     )
 
+    document.getElementById('metaTotal').textContent = cursoConfig.totalHoras
+    document.getElementById('totalFalta').textContent =
+      cursoConfig.totalHoras -
+      this.disciplinas.reduce((total, disc) => total + (disc.ch || 0), 0)
+
     // Atualizar o select de natureza baseado no curso
     this.atualizarOpcoesNatureza()
   }
