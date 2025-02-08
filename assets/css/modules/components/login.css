@@ -1,0 +1,567 @@
+/* Variables */
+:root {
+  --primary-color: #4a90e2;
+  --primary-dark: #357abd;
+  --success-color: #28a745;
+  --error-color: #dc3545;
+  --text-color: #2c3e50;
+  --text-secondary: #6c757d;
+  --background-primary: #f8f9fa;
+  --background-secondary: #ffffff;
+  --border-color: #dee2e6;
+  --animation-duration: 0.3s;
+  --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --google-blue: #4285f4;
+}
+
+/* Background Animation */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.shapes {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  background: transparent;
+}
+
+.shapes::before,
+.shapes::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.shapes::before {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(#ffd1d1, #c7ecee);
+  top: -150px;
+  right: -150px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.shapes::after {
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(#81ecec, #6c5ce7);
+  bottom: -100px;
+  left: -100px;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+/* Login Box */
+.login-box {
+  background: var(--background-secondary);
+  border-radius: 16px;
+  box-shadow: var(--box-shadow);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  z-index: 1;
+  animation: slideUp 0.6s ease-out;
+}
+
+/* Header */
+.login-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.logo-animation {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-dark)
+  );
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s infinite;
+}
+
+.logo-animation i {
+  font-size: 2.5rem;
+  color: white;
+}
+
+/* Form Elements */
+.input-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+  margin-top: 1rem;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  transition: color var(--animation-duration);
+  z-index: 1;
+}
+
+.input-container input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all var(--animation-duration);
+  background: var(--background-primary);
+}
+
+.input-container.focused .input-icon {
+  color: var(--primary-color);
+}
+
+.login-header h1 {
+  color: var(--text-color);
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.login-header p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* Divider */
+.divider {
+  text-align: center;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: calc(50% - 30px);
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.divider span {
+  background-color: var(--background-secondary);
+  padding: 0 15px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Google Login Button */
+.google-login-button {
+  width: 100%;
+  padding: 0.8rem;
+  background: white;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  transition: all var(--animation-duration);
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+.google-login-button:hover {
+  background-color: #f8f9fa;
+  border-color: var(--google-blue);
+}
+
+.google-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 2.5rem;
+}
+
+.input-container {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  transition: color var(--animation-duration);
+}
+
+.input-container input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all var(--animation-duration);
+  background: var(--background-primary);
+}
+
+.input-container label {
+  position: absolute;
+  left: 0;
+  top: -1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  transition: all var(--animation-duration);
+  background: transparent;
+  padding: 0 0.25rem;
+}
+
+.input-container.focused label {
+  top: -3px;
+  left: 1rem;
+  transform: translateY(-50%) scale(0.85);
+  background: var(--background-secondary);
+  padding: 0 0.5rem;
+  color: var(--primary-color);
+}
+
+.input-container input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
+}
+
+.input-container input:focus + label {
+  color: var(--primary-color);
+}
+
+.input-container input::placeholder {
+  color: #aab2bd;
+  opacity: 1;
+}
+
+.input-container.focused .input-icon {
+  color: var(--primary-color);
+}
+
+/* Password Toggle Button */
+.toggle-password {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color var(--animation-duration);
+  z-index: 1;
+}
+
+.toggle-password:hover {
+  color: var(--primary-color);
+}
+
+/* Remember Me & Forgot Password */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.remember-me input[type='checkbox'] {
+  display: none;
+}
+
+.checkmark {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+  transition: all var(--animation-duration);
+}
+
+.remember-me input[type='checkbox']:checked + .checkmark {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.remember-me input[type='checkbox']:checked + .checkmark::after {
+  content: '\f00c';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  color: white;
+  font-size: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.label-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.forgot-password {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color var(--animation-duration);
+}
+
+.forgot-password:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* Login Button */
+.login-button {
+  width: 100%;
+  padding: 1rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--animation-duration);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-button .button-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all var(--animation-duration);
+}
+
+.login-button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+}
+
+.login-button:active {
+  transform: translateY(0);
+}
+
+.login-button.loading .button-content {
+  visibility: hidden;
+}
+
+.login-button.loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin: -10px 0 0 -10px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s infinite linear;
+}
+
+.login-button.success {
+  background: var(--success-color);
+}
+
+.login-button.success .button-content i {
+  animation: checkmark 0.5s ease-in-out;
+}
+
+/* Footer and Social Login */
+.login-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.login-footer p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.register-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all var(--animation-duration);
+}
+
+.register-link i {
+  transition: transform var(--animation-duration);
+}
+
+.register-link:hover {
+  color: var(--primary-dark);
+}
+
+.register-link:hover i {
+  transform: translateX(4px);
+}
+
+.social-login {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.social-login p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.social-login p::before,
+.social-login p::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 25%;
+  height: 1px;
+  background: var(--border-color);
+}
+
+.social-login p::before {
+  left: 0;
+}
+
+.social-login p::after {
+  right: 0;
+}
+
+.social-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.social-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: white;
+  cursor: pointer;
+  transition: all var(--animation-duration);
+}
+
+.social-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.social-button.google {
+  background: #db4437;
+}
+
+/* Input Focus Animation */
+.input-underline {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--primary-color);
+  transition: all var(--animation-duration);
+}
+
+.input-container.focused .input-underline {
+  width: 100%;
+  left: 0;
+}
+
+/* Error States */
+.input-container.error input {
+  border-color: var(--error-color);
+}
+
+.input-container.error .input-icon,
+.input-container.error label {
+  color: var(--error-color);
+}
+
+/* Hover Effects */
+.input-container:hover input:not(:focus) {
+  border-color: var(--primary-color);
+}
+
+/* Focus Styles */
+*:focus {
+  outline: none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
