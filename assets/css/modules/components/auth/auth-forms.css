@@ -1,0 +1,108 @@
+/* Form Elements */
+.input-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+  margin-top: 1rem;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  transition: color var(--animation-duration);
+  z-index: 1;
+}
+
+.input-container input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all var(--animation-duration);
+  background: var(--background-primary);
+}
+
+.input-container.focused .input-icon {
+  color: var(--primary-color);
+}
+
+.login-header h1 {
+  color: var(--text-color);
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.login-header p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 2.5rem;
+}
+
+.input-container {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  transition: color var(--animation-duration);
+}
+
+.input-container input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all var(--animation-duration);
+  background: var(--background-primary);
+}
+
+.input-container label {
+  position: absolute;
+  left: 0;
+  top: -1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  transition: all var(--animation-duration);
+  background: transparent;
+  padding: 0 0.25rem;
+}
+
+.input-container.focused label {
+  top: -3px;
+  left: 1rem;
+  transform: translateY(-50%) scale(0.85);
+  background: var(--background-secondary);
+  padding: 0 0.5rem;
+  color: var(--primary-color);
+}
+
+.input-container input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
+}
+
+.input-container input:focus + label {
+  color: var(--primary-color);
+}
+
+.input-container input::placeholder {
+  color: #aab2bd;
+  opacity: 1;
+}
+
+.input-container.focused .input-icon {
+  color: var(--primary-color);
+}

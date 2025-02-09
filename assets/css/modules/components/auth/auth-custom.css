@@ -1,0 +1,53 @@
+/* Input Focus Animation */
+.input-underline {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--primary-color);
+  transition: all var(--animation-duration);
+}
+
+.input-container.focused .input-underline {
+  width: 100%;
+  left: 0;
+}
+
+/* Error States */
+.input-container.error input {
+  border-color: var(--error-color);
+}
+
+.input-container.error .input-icon,
+.input-container.error label {
+  color: var(--error-color);
+}
+
+/* Hover Effects */
+.input-container:hover input:not(:focus) {
+  border-color: var(--primary-color);
+}
+
+/* Focus Styles */
+*:focus {
+  outline: none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}

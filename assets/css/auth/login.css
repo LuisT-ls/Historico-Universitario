@@ -1,0 +1,17 @@
+/* Importing all auth variables */
+@import url('../modules/base/auth/variables.css');
+@import url('../modules/base/animations.css');
+
+/* Importing all auth components */
+@import url('../modules/components/auth/auth-box.css');
+@import url('../modules/components/auth/auth-buttons.css');
+@import url('../modules/components/auth/auth-custom.css');
+@import url('../modules/components/auth/auth-forms.css');
+@import url('../modules/components/auth/auth-popups.css');
+
+/* Importing all auth layouts */
+@import url('../modules/layout/auth-layout.css');
+
+/* Importing all auth utilities */
+@import url('../modules/utils/auth-utils.css');
+@import url('../modules/utils/responsive.css');
