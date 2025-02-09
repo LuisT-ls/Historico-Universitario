@@ -102,6 +102,121 @@
         </div>
       </div>
     </div>
+    <div class="popup-overlay" id="forgotPasswordPopup">
+      <div class="popup-content">
+        <button class="close-popup">
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="popup-header">
+          <i class="fas fa-key"></i>
+          <h2>Recuperar Senha</h2>
+          <p>
+            Digite seu e-mail institucional para receber as instruções de
+            recuperação
+          </p>
+        </div>
+        <form id="forgotPasswordForm" class="popup-form">
+          <div class="form-group">
+            <div class="input-container">
+              <i class="fas fa-envelope input-icon"></i>
+              <input
+                type="email"
+                id="recoveryEmail"
+                required
+                placeholder="Digite seu e-mail institucional"
+              />
+              <label for="recoveryEmail">E-mail</label>
+              <div class="input-underline"></div>
+            </div>
+          </div>
+          <button type="submit" class="submit-button">
+            <span class="button-content">
+              <i class="fas fa-paper-plane"></i>
+              <span>Enviar instruções</span>
+            </span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="popup-overlay" id="registerPopup">
+      <div class="popup-content">
+        <button class="close-popup">
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="popup-header">
+          <i class="fas fa-user-plus"></i>
+          <h2>Criar Conta</h2>
+          <p>Preencha os dados abaixo para criar sua conta</p>
+        </div>
+        <form id="registerForm" class="popup-form">
+          <div class="form-group">
+            <div class="input-container">
+              <i class="fas fa-user input-icon"></i>
+              <input
+                type="text"
+                id="registerName"
+                required
+                placeholder="Digite seu nome completo"
+              />
+              <label for="registerName">Nome completo</label>
+              <div class="input-underline"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-container">
+              <i class="fas fa-envelope input-icon"></i>
+              <input
+                type="email"
+                id="registerEmail"
+                required
+                placeholder="Digite seu e-mail institucional"
+              />
+              <label for="registerEmail">E-mail institucional</label>
+              <div class="input-underline"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-container">
+              <i class="fas fa-lock input-icon"></i>
+              <input
+                type="password"
+                id="registerPassword"
+                required
+                placeholder="Digite sua senha"
+              />
+              <label for="registerPassword">Senha</label>
+              <button type="button" class="toggle-password">
+                <i class="fas fa-eye"></i>
+              </button>
+              <div class="input-underline"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-container">
+              <i class="fas fa-lock input-icon"></i>
+              <input
+                type="password"
+                id="confirmPassword"
+                required
+                placeholder="Confirme sua senha"
+              />
+              <label for="confirmPassword">Confirmar senha</label>
+              <button type="button" class="toggle-password">
+                <i class="fas fa-eye"></i>
+              </button>
+              <div class="input-underline"></div>
+            </div>
+          </div>
+          <button type="submit" class="submit-button">
+            <span class="button-content">
+              <i class="fas fa-user-plus"></i>
+              <span>Criar conta</span>
+            </span>
+          </button>
+        </form>
+      </div>
+    </div>
 
     <script src="js/modules/auth/login.js"></script>
   </body>
