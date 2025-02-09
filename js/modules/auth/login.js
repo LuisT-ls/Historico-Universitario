@@ -197,4 +197,16 @@ document.addEventListener('DOMContentLoaded', function () {
       })
     }
   })
+
+  // Implementar o banco de dados para abrir e fechar o menu do usuário
+  document.querySelector('.user-button').addEventListener('click', function () {
+    this.closest('.user-dropdown').classList.toggle('active')
+  })
+
+  // Fechar menu ao clicar fora
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.user-dropdown')) {
+      document.querySelector('.user-dropdown').classList.remove('active')
+    }
+  })
 })
