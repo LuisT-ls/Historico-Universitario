@@ -63,6 +63,18 @@
   .logo-text {
     font-size: 0.8rem;
   }
+
+  .stats-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container {
+    padding: 1rem;
+  }
+
+  .chart-wrapper {
+    height: 300px;
+  }
 }
 
 @media (max-width: 480px) {
