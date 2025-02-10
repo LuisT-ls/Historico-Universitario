@@ -4,6 +4,17 @@ export function setupFormHandlers(disciplinas, callbacks) {
   const trancamentoCheckbox = document.getElementById('trancamento')
   const camposSemTrancamento = document.querySelector('.campos-sem-trancamento')
 
+  // Create popup element
+  const popup = document.createElement('div')
+  popup.className = 'notification-popup'
+  document.body.appendChild(popup)
+
+  function showNotification(message) {
+    popup.textContent = message
+    popup.classList.add('show')
+    setTimeout(() => popup.classList.remove('show'), 3000)
+  }
+
   trancamentoCheckbox.addEventListener('change', e => {
     const campos = document.querySelector('.campos-sem-trancamento')
     const chInput = document.getElementById('ch')
@@ -22,6 +33,16 @@ export function setupFormHandlers(disciplinas, callbacks) {
 
   form.addEventListener('submit', function (e) {
     e.preventDefault()
+
+    const codigo = document.getElementById('codigo').value
+    const disciplinaExistente = disciplinas.find(
+      d => d.codigo === codigo && d.resultado !== 'TR'
+    )
+
+    if (disciplinaExistente) {
+      showNotification(`A disciplina ${codigo} já foi cursada!`)
+      return
+    }
 
     const disciplina = {
       periodo: document.getElementById('periodo').value,
