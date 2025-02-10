@@ -12,4 +12,14 @@
   --text-secondary: #475569;
   --border: #e2e8f0;
   --shadow: rgba(0, 0, 0, 0.1);
+
+  /* Footer */
+  --footer-bg: #f8fafc;
+  --footer-text: #334155;
+  --footer-heading: #1e293b;
+  --footer-border: #e2e8f0;
+  --footer-hover: #3b82f6;
+  --footer-secondary-text: #64748b;
+  --footer-gradient-start: #ffffff;
+  --footer-gradient-end: #f8fafc;
 }

@@ -122,3 +122,35 @@
     transform: translate(-10px, 10px) rotate(-5deg);
   }
 }
+
+/* Animation for social links footer */
+.social-links a[title='GitHub']:hover {
+  border-color: #333;
+}
+
+.social-links a[title='LinkedIn']:hover {
+  border-color: #0077b5;
+}
+
+.social-links a[title='Instagram']:hover {
+  border-color: #e4405f;
+}
+
+.social-links a[title='GitHub']:hover::before {
+  background: #333;
+}
+
+.social-links a[title='LinkedIn']:hover::before {
+  background: #0077b5;
+}
+
+.social-links a[title='Instagram']:hover::before {
+  background: linear-gradient(
+    45deg,
+    #f09433 0%,
+    #e6683c 25%,
+    #dc2743 50%,
+    #cc2366 75%,
+    #bc1888 100%
+  );
+}
