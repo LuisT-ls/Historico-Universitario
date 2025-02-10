@@ -11,8 +11,29 @@ export function atualizarRequisitos(
   const horasPorNatureza = {}
 
   disciplinasAprovadas.forEach(d => {
-    horasPorNatureza[d.natureza] = (horasPorNatureza[d.natureza] || 0) + d.ch
+    if (!horasPorNatureza[d.natureza]) {
+      horasPorNatureza[d.natureza] = 0
+    }
+    horasPorNatureza[d.natureza] += d.ch
   })
+
+  const naturezasParaLV = ['OX', 'OG', 'OH', 'OZ']
+  let totalExcessoLV = 0
+
+  naturezasParaLV.forEach(nat => {
+    if (horasPorNatureza[nat] && REQUISITOS[nat]) {
+      if (horasPorNatureza[nat] > REQUISITOS[nat]) {
+        const excesso = horasPorNatureza[nat] - REQUISITOS[nat]
+        totalExcessoLV += excesso
+        horasPorNatureza[nat] = REQUISITOS[nat]
+      }
+    }
+  })
+
+  if (!horasPorNatureza.LV) {
+    horasPorNatureza.LV = 0
+  }
+  horasPorNatureza.LV += totalExcessoLV
 
   let totalCursado = 0
 
