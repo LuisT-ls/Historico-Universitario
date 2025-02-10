@@ -3,6 +3,8 @@ export function setupFormHandlers(disciplinas, callbacks) {
   const form = document.getElementById('disciplinaForm')
   const trancamentoCheckbox = document.getElementById('trancamento')
   const camposSemTrancamento = document.querySelector('.campos-sem-trancamento')
+  const chInput = document.getElementById('ch')
+  const notaInput = document.getElementById('nota')
 
   // Create popup element
   const popup = document.createElement('div')
@@ -16,16 +18,12 @@ export function setupFormHandlers(disciplinas, callbacks) {
   }
 
   trancamentoCheckbox.addEventListener('change', e => {
-    const campos = document.querySelector('.campos-sem-trancamento')
-    const chInput = document.getElementById('ch')
-    const notaInput = document.getElementById('nota')
-
     if (e.target.checked) {
-      campos.classList.add('hidden')
+      camposSemTrancamento.style.display = 'none'
       chInput.removeAttribute('required')
       notaInput.removeAttribute('required')
     } else {
-      campos.classList.remove('hidden')
+      camposSemTrancamento.style.display = 'flex'
       chInput.setAttribute('required', '')
       notaInput.setAttribute('required', '')
     }
@@ -68,7 +66,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
     const periodoAtual = document.getElementById('periodo').value
     this.reset()
     document.getElementById('periodo').value = periodoAtual
-
-    camposSemTrancamento.classList.remove('hidden')
+    camposSemTrancamento.style.display = 'flex'
+    trancamentoCheckbox.checked = false
   })
 }
