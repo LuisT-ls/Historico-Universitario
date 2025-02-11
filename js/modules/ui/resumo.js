@@ -2,20 +2,21 @@
 import { compararPeriodos } from '../utils.js'
 
 export function atualizarResumo(disciplinas) {
+  // Filtragem de disciplinas válidas (aprovadas ou reprovadas, excluindo trancamentos)
+  const disciplinasValidas = disciplinas.filter(
+    d => d.resultado === 'AP' || d.resultado === 'RR'
+  )
   const disciplinasAprovadas = disciplinas.filter(d => d.resultado === 'AP')
   const totalDisciplinas = disciplinas.length
   const totalAprovacoes = disciplinasAprovadas.length
   const totalReprovacoes = disciplinas.filter(d => d.resultado === 'RR').length
   const totalTrancamentos = disciplinas.filter(d => d.resultado === 'TR').length
 
-  // Cálculos de CR, PCH e PCR
-  const somaCH = disciplinasAprovadas.reduce((sum, d) => sum + d.ch, 0)
-  const somaPCH = disciplinasAprovadas.reduce(
-    (sum, d) => sum + d.ch * d.nota,
-    0
-  )
-  const somaCR = disciplinasAprovadas.reduce((sum, d) => sum + d.ch / 15, 0) // CR = CH/15
-  const somaPCR = disciplinasAprovadas.reduce(
+  // Cálculos de CR, PCH e PCR incluindo reprovações
+  const somaCH = disciplinasValidas.reduce((sum, d) => sum + d.ch, 0)
+  const somaPCH = disciplinasValidas.reduce((sum, d) => sum + d.ch * d.nota, 0)
+  const somaCR = disciplinasValidas.reduce((sum, d) => sum + d.ch / 15, 0) // CR = CH/15
+  const somaPCR = disciplinasValidas.reduce(
     (sum, d) => sum + (d.ch / 15) * d.nota,
     0
   )
@@ -23,10 +24,11 @@ export function atualizarResumo(disciplinas) {
   // Coeficiente de Rendimento (CR)
   const coeficienteRendimento = somaCH > 0 ? (somaPCH / somaCH).toFixed(2) : 0
 
+  // Média geral
   const media =
-    disciplinasAprovadas.length > 0
-      ? disciplinasAprovadas.reduce((sum, d) => sum + d.nota, 0) /
-        disciplinasAprovadas.length
+    disciplinasValidas.length > 0
+      ? disciplinasValidas.reduce((sum, d) => sum + d.nota, 0) /
+        disciplinasValidas.length
       : 0
 
   const percentualAprovacao =
