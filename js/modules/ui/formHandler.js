@@ -33,12 +33,14 @@ export function setupFormHandlers(disciplinas, callbacks) {
     e.preventDefault()
 
     const codigo = document.getElementById('codigo').value
-    const disciplinaExistente = disciplinas.find(
-      d => d.codigo === codigo && d.resultado !== 'TR'
+
+    // Verifica se a disciplina já foi aprovada anteriormente
+    const disciplinaAprovada = disciplinas.find(
+      d => d.codigo === codigo && d.resultado === 'AP'
     )
 
-    if (disciplinaExistente) {
-      showNotification(`A disciplina ${codigo} já foi cursada!`)
+    if (disciplinaAprovada) {
+      showNotification(`A disciplina ${codigo} já foi cursada e aprovada!`)
       return
     }
 
