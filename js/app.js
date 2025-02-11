@@ -7,6 +7,7 @@ import { atualizarRequisitos } from './modules/ui/requisitos.js'
 import { setupFormHandlers } from './modules/ui/formHandler.js'
 import { getPeriodoMaisRecente } from './modules/utils.js'
 import { setupFilterComponent } from './modules/ui/filter.js'
+import { setupDateTime } from './modules/ui/datetime.js'
 
 class App {
   constructor() {
@@ -19,6 +20,7 @@ class App {
     this.setupCursoSelector()
     this.carregarDisciplinasDoCurso()
     setupFilterComponent()
+    setupDateTime()
 
     const periodoInput = document.getElementById('periodo')
     const periodoRecente = getPeriodoMaisRecente(this.disciplinas)

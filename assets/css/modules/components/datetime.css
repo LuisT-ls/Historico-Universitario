@@ -1,0 +1,15 @@
+.datetime-display {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  opacity: 0.8;
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s ease;
+}
+
+.datetime-display:hover {
+  opacity: 1;
+}
