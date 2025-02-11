@@ -80,6 +80,16 @@
   .chart-wrapper {
     height: 300px;
   }
+
+  .remover {
+    width: 32px;
+    height: 32px;
+    padding: 0.4rem;
+  }
+
+  .remover .fas {
+    font-size: 0.875rem;
+  }
 }
 
 @media (max-width: 480px) {

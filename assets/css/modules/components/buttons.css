@@ -30,18 +30,44 @@ button:active {
 /* Remove Button */
 .remover {
   background-color: var(--danger);
-  padding: 0.5rem 1rem;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem;
+  padding-left: 15px;
   font-size: 0.875rem;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  opacity: 0.85;
 }
 
 .remover:hover {
   background-color: #dc2626;
+  opacity: 1;
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+}
+
+.remover:active {
+  transform: scale(0.95);
+}
+
+.remover:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
 }
 
 .remover .fas {
   color: white;
-  font-size: 0.875rem;
+  font-size: 1rem;
+}
+
+.remover:hover .fas {
+  animation: shake 0.3s ease-in-out;
 }

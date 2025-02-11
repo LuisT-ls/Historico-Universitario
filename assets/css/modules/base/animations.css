@@ -123,6 +123,19 @@
   }
 }
 
+@keyframes shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(10deg);
+  }
+}
+
 /* Animation for social links footer */
 .social-links a[title='GitHub']:hover {
   border-color: #333;
