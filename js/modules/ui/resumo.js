@@ -8,6 +8,21 @@ export function atualizarResumo(disciplinas) {
   const totalReprovacoes = disciplinas.filter(d => d.resultado === 'RR').length
   const totalTrancamentos = disciplinas.filter(d => d.resultado === 'TR').length
 
+  // Cálculos de CR, PCH e PCR
+  const somaCH = disciplinasAprovadas.reduce((sum, d) => sum + d.ch, 0)
+  const somaPCH = disciplinasAprovadas.reduce(
+    (sum, d) => sum + d.ch * d.nota,
+    0
+  )
+  const somaCR = disciplinasAprovadas.reduce((sum, d) => sum + d.ch / 15, 0) // CR = CH/15
+  const somaPCR = disciplinasAprovadas.reduce(
+    (sum, d) => sum + (d.ch / 15) * d.nota,
+    0
+  )
+
+  // Coeficiente de Rendimento (CR)
+  const coeficienteRendimento = somaCH > 0 ? (somaPCH / somaCH).toFixed(2) : 0
+
   const media =
     disciplinasAprovadas.length > 0
       ? disciplinasAprovadas.reduce((sum, d) => sum + d.nota, 0) /
@@ -35,11 +50,51 @@ export function atualizarResumo(disciplinas) {
         
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="fas fa-graduation-cap"></i>
+            <i class="fas fa-chart-line"></i>
           </div>
           <div class="stat-content">
-            <h4>Total de Disciplinas</h4>
-            <p class="stat-value">${totalDisciplinas}</p>
+            <h4>Coeficiente de Rendimento</h4>
+            <p class="stat-value">${coeficienteRendimento}</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="stat-content">
+            <h4>Carga Horária Total</h4>
+            <p class="stat-value">${somaCH}h</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="stat-content">
+            <h4>Créditos Totais</h4>
+            <p class="stat-value">${somaCR.toFixed(1)}</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <div class="stat-content">
+            <h4>PCH (CH × Nota)</h4>
+            <p class="stat-value">${somaPCH.toFixed(1)}</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-chart-pie"></i>
+          </div>
+          <div class="stat-content">
+            <h4>PCR (CR × Nota)</h4>
+            <p class="stat-value">${somaPCR.toFixed(1)}</p>
           </div>
         </div>
 
