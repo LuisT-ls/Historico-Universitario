@@ -429,6 +429,11 @@
       "codigo": "CTIA27",
       "nome": "TÓPICOS ESPECIAIS EM ARTES E TECNOLOGIAS CONTEMPORÂNEAS",
       "natureza": "OZ"
+    },
+    {
+      "codigo": "CTIA82",
+      "nome": "ACCS: PRODUÇÃO E CIRCULAÇÃO DE DIVULGAÇÃO CIENTÍFICA",
+      "natureza": "OX"
     }
   ],
   "ENG_PROD": [
