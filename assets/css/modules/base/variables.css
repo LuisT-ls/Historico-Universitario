@@ -13,6 +13,12 @@
   --border: #e2e8f0;
   --shadow: rgba(0, 0, 0, 0.1);
 
+  /* Scrollbar WebKit */
+  --scrollbar-width: 10px;
+  --scrollbar-track: var(--surface);
+  --scrollbar-thumb: var(--primary);
+  --scrollbar-thumb-hover: var(--primary-dark);
+
   /* Footer */
   --footer-bg: #f8fafc;
   --footer-text: #334155;

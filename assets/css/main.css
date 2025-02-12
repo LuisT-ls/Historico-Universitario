@@ -2,6 +2,7 @@
 @import './modules/base/variables.css';
 @import './modules/base/typography.css';
 @import './modules/base/animations.css';
+@import './modules/base/scrollbar.css';
 
 @import './modules/components/buttons.css';
 @import './modules/components/forms.css';
