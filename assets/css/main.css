@@ -18,6 +18,7 @@
 
 @import './modules/utils/status.css';
 @import './modules/utils/responsive.css';
+@import './modules/utils/print.css';
 
 @import './modules/features/filter.css';
 @import './modules/features/period.css';
