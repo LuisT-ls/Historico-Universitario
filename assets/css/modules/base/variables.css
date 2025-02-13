@@ -19,6 +19,18 @@
   --scrollbar-thumb: var(--primary);
   --scrollbar-thumb-hover: var(--primary-dark);
 
+  /* Progress  Requisitos */
+  --progress-low: #dc2626;
+  --progress-medium: #f59e0b;
+  --progress-high: #10b981;
+  --header-bg: #f8fafc;
+  --row-hover: #f1f5f9;
+  --text-header: #1e293b;
+  --text-primary: #334155;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  --progress-bg: #e2e8f0;
+
   /* Footer */
   --footer-bg: #f8fafc;
   --footer-text: #334155;

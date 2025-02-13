@@ -121,4 +121,29 @@
   .logo-animation i {
     font-size: 2rem;
   }
+
+  .legenda {
+    padding: 0.75rem;
+  }
+
+  .requisitos-table {
+    font-size: 0.75rem;
+  }
+
+  .requisitos-table th,
+  .requisitos-table td {
+    padding: 0.375rem 0.25rem;
+  }
+
+  .natureza-descricao {
+    display: none;
+  }
+
+  .legenda h3 {
+    font-size: 1rem;
+  }
+
+  .natureza-info {
+    min-width: 40px;
+  }
 }
