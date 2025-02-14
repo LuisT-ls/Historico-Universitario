@@ -7,6 +7,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
   const chInput = document.getElementById('ch')
   const notaInput = document.getElementById('nota')
   const naturezaSelect = document.getElementById('natureza')
+  const notaContainer = notaInput.parentElement
 
   // Create popup element
   const popup = document.createElement('div')
@@ -28,6 +29,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
       dispensadaCheckbox.checked = false // Uncheck dispensada when trancamento is checked
     } else {
       camposSemTrancamento.style.display = 'flex'
+      notaContainer.style.display = 'block' // Show nota input when unchecking trancamento
       if (!dispensadaCheckbox.checked) {
         chInput.setAttribute('required', '')
         notaInput.setAttribute('required', '')
@@ -41,13 +43,13 @@ export function setupFormHandlers(disciplinas, callbacks) {
       naturezaSelect.value = 'LV' // Set natureza to Componente Livre
       naturezaSelect.disabled = true
       notaInput.value = '' // Clear nota
-      notaInput.disabled = true
+      notaContainer.style.display = 'none' // Hide the nota input container
       notaInput.removeAttribute('required')
       chInput.setAttribute('required', '') // CH still required
       trancamentoCheckbox.checked = false // Uncheck trancamento
     } else {
       naturezaSelect.disabled = false
-      notaInput.disabled = false
+      notaContainer.style.display = 'block'
       notaInput.setAttribute('required', '')
     }
   })
@@ -98,8 +100,8 @@ export function setupFormHandlers(disciplinas, callbacks) {
     this.reset()
     document.getElementById('periodo').value = periodoAtual
     camposSemTrancamento.style.display = 'flex'
+    notaContainer.style.display = 'block' // Show nota input after form reset
     trancamentoCheckbox.checked = false
     naturezaSelect.disabled = false
-    notaInput.disabled = false
   })
 }
