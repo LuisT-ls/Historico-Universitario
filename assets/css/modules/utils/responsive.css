@@ -3,6 +3,37 @@
   .content-container {
     grid-template-columns: 1fr 300px;
   }
+
+  .stats-cards {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .chart-wrapper {
+    height: 350px;
+  }
+
+  .summary,
+  .legenda {
+    padding: 1.25rem;
+  }
+
+  .metricas-gerais,
+  .horas-natureza {
+    padding: 1rem;
+  }
+
+  .requisitos-table th,
+  .requisitos-table td {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .natureza-descricao {
+    max-width: 100px;
+  }
+
+  .progress-cell {
+    min-width: 50px;
+  }
 }
 
 @media (max-width: 968px) {
@@ -16,40 +47,116 @@
 }
 
 @media (max-width: 768px) {
+  /* Formulário para inserir disciplinas */
+  .form-container {
+    padding: 1.5rem;
+  }
+
   .form-row {
     flex-direction: column;
     gap: 1rem;
   }
 
-  .container {
-    padding: 0 1rem;
+  .form-group {
+    min-width: 100%;
   }
 
-  h1 {
-    font-size: 1.875rem;
+  .form-group input,
+  .form-group select {
+    padding: 0.75rem;
   }
 
-  th .fas,
-  td .fas {
-    margin-right: 0.3rem;
-    font-size: 0.8rem;
+  .form-group.course select {
+    width: 100%;
   }
 
+  .trancamento-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-group label .fas {
+    font-size: 0.9rem;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    transform: translateY(0);
+  }
+
+  .table-container {
+    padding: 0.5rem;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+  }
+
+  th .fas {
+    font-size: 0.75rem;
+  }
+
+  #historicoTable td:nth-child(7) {
+    font-size: 0.875rem;
+  }
+
+  /* Footer */
   .footer {
-    padding: 3rem 0 1.5rem;
+    padding: 2rem 0 1rem;
+    margin-top: 2rem;
   }
 
   .footer-content {
-    padding: 0 1.5rem;
+    padding: 0 1rem;
+    grid-template-columns: 1fr;
     gap: 2rem;
+  }
+
+  .footer-section {
+    gap: 1rem;
   }
 
   .footer-section h3 {
     font-size: 1.1rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .footer-section h3::after {
+    width: 30px;
+  }
+
+  .footer-section:hover h3::after {
+    width: 40px;
+  }
+
+  .footer-section p {
+    font-size: 0.9rem;
+  }
+
+  .footer-bottom {
+    padding-top: 1rem;
+    margin-top: 2rem;
+  }
+
+  .footer-bottom p {
+    font-size: 0.8rem;
   }
 
   .social-links {
-    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .social-links a {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
   }
 
   .form-group.course select {
@@ -61,24 +168,59 @@
     right: 20px;
   }
 
+  .watermark-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logo-initials {
+    font-size: 1.2rem;
+  }
+
   .watermark-logo:hover {
-    width: 180px;
+    width: 160px;
+  }
+
+  .watermark-logo:hover .logo-initials {
+    transform: translateX(-50px);
   }
 
   .logo-text {
+    right: 50px;
+  }
+
+  .text-developer {
+    font-size: 0.6rem;
+  }
+
+  .text-name {
     font-size: 0.8rem;
   }
 
-  .stats-cards {
-    grid-template-columns: 1fr;
+  .resumo-container {
+    padding: 0.5rem;
+    gap: 1rem;
   }
 
-  .chart-container {
-    padding: 1rem;
+  .stats-cards {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .stat-icon i {
+    font-size: 1.25rem;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
   }
 
   .chart-wrapper {
-    height: 300px;
+    height: 250px;
   }
 
   .remover {
@@ -89,6 +231,107 @@
 
   .remover .fas {
     font-size: 0.875rem;
+  }
+
+  /* Filtro para as disciplinas */
+  .filter-container {
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+
+  .filter-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .filter-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .filter-header i {
+    font-size: 1.25rem;
+  }
+
+  .filter-input {
+    padding: 0.5rem 1rem 0.5rem 2.25rem;
+    font-size: 0.9rem;
+  }
+
+  .search-icon {
+    left: 0.5rem;
+    font-size: 1rem;
+  }
+
+  .search-results {
+    max-height: 200px;
+  }
+
+  .result-item {
+    padding: 0.5rem 0.75rem;
+    gap: 1rem;
+    grid-template-columns: auto 1fr;
+  }
+
+  .natureza {
+    display: none;
+  }
+
+  .codigo {
+    font-size: 0.8rem;
+  }
+
+  .nome {
+    font-size: 0.9rem;
+  }
+
+  .no-results {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .summary,
+  .legenda {
+    padding: 0.75rem;
+  }
+
+  .metricas-gerais,
+  .horas-natureza {
+    padding: 0.5rem;
+  }
+
+  .legenda h3 {
+    font-size: 0.875rem;
+  }
+
+  .requisitos-table {
+    font-size: 0.75rem;
+  }
+
+  .requisitos-table th {
+    font-size: 0.625rem;
+  }
+
+  .natureza-codigo {
+    font-size: 0.75rem;
+  }
+
+  .natureza-descricao {
+    font-size: 0.5625rem;
+    max-width: 60px;
+  }
+
+  .hours-number {
+    font-size: 0.75rem;
+  }
+
+  .progress-cell {
+    min-width: 30px;
+  }
+
+  .tooltip {
+    font-size: 0.625rem;
+    padding: 0.25rem 0.375rem;
   }
 }
 
