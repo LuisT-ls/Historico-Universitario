@@ -2,9 +2,11 @@
 export function setupFormHandlers(disciplinas, callbacks) {
   const form = document.getElementById('disciplinaForm')
   const trancamentoCheckbox = document.getElementById('trancamento')
+  const dispensadaCheckbox = document.getElementById('dispensada')
   const camposSemTrancamento = document.querySelector('.campos-sem-trancamento')
   const chInput = document.getElementById('ch')
   const notaInput = document.getElementById('nota')
+  const naturezaSelect = document.getElementById('natureza')
 
   // Create popup element
   const popup = document.createElement('div')
@@ -17,14 +19,35 @@ export function setupFormHandlers(disciplinas, callbacks) {
     setTimeout(() => popup.classList.remove('show'), 3000)
   }
 
+  // Handle trancamento checkbox
   trancamentoCheckbox.addEventListener('change', e => {
     if (e.target.checked) {
       camposSemTrancamento.style.display = 'none'
       chInput.removeAttribute('required')
       notaInput.removeAttribute('required')
+      dispensadaCheckbox.checked = false // Uncheck dispensada when trancamento is checked
     } else {
       camposSemTrancamento.style.display = 'flex'
-      chInput.setAttribute('required', '')
+      if (!dispensadaCheckbox.checked) {
+        chInput.setAttribute('required', '')
+        notaInput.setAttribute('required', '')
+      }
+    }
+  })
+
+  // Handle dispensada checkbox
+  dispensadaCheckbox.addEventListener('change', e => {
+    if (e.target.checked) {
+      naturezaSelect.value = 'LV' // Set natureza to Componente Livre
+      naturezaSelect.disabled = true
+      notaInput.value = '' // Clear nota
+      notaInput.disabled = true
+      notaInput.removeAttribute('required')
+      chInput.setAttribute('required', '') // CH still required
+      trancamentoCheckbox.checked = false // Uncheck trancamento
+    } else {
+      naturezaSelect.disabled = false
+      notaInput.disabled = false
       notaInput.setAttribute('required', '')
     }
   })
@@ -49,17 +72,23 @@ export function setupFormHandlers(disciplinas, callbacks) {
       codigo: document.getElementById('codigo').value,
       nome: document.getElementById('nome').value,
       natureza: document.getElementById('natureza').value,
-      trancamento: document.getElementById('trancamento').checked
+      trancamento: document.getElementById('trancamento').checked,
+      dispensada: document.getElementById('dispensada').checked
     }
 
-    if (!disciplina.trancamento) {
-      disciplina.ch = parseInt(document.getElementById('ch').value)
-      disciplina.nota = parseFloat(document.getElementById('nota').value)
-      disciplina.resultado = disciplina.nota >= 5 ? 'AP' : 'RR'
-    } else {
+    if (disciplina.trancamento) {
       disciplina.ch = 0
       disciplina.nota = 0
       disciplina.resultado = 'TR'
+    } else if (disciplina.dispensada) {
+      disciplina.ch = parseInt(document.getElementById('ch').value)
+      disciplina.nota = 0
+      disciplina.resultado = 'AP' // Dispensada counts as approved
+      disciplina.natureza = 'LV' // Force Componente Livre for dispensada
+    } else {
+      disciplina.ch = parseInt(document.getElementById('ch').value)
+      disciplina.nota = parseFloat(document.getElementById('nota').value)
+      disciplina.resultado = disciplina.nota >= 5 ? 'AP' : 'RR'
     }
 
     disciplinas.push(disciplina)
@@ -70,5 +99,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
     document.getElementById('periodo').value = periodoAtual
     camposSemTrancamento.style.display = 'flex'
     trancamentoCheckbox.checked = false
+    naturezaSelect.disabled = false
+    notaInput.disabled = false
   })
 }

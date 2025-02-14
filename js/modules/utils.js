@@ -1,11 +1,11 @@
 // js/modules/utils.js
-export function compararPeriodos(a, b) {
-  const [anoA, semA] = a.split('.')
-  const [anoB, semB] = b.split('.')
-  if (anoA === anoB) {
-    return parseInt(semA) - parseInt(semB)
+export function compararPeriodos(periodoA, periodoB) {
+  const [anoA, semestreA] = periodoA.split('.')
+  const [anoB, semestreB] = periodoB.split('.')
+  if (anoA !== anoB) {
+    return parseInt(anoA) - parseInt(anoB)
   }
-  return parseInt(anoA) - parseInt(anoB)
+  return parseInt(semestreA) - parseInt(semestreB)
 }
 
 export function getPeriodosUnicos(disciplinas) {

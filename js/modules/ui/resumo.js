@@ -2,29 +2,33 @@
 import { compararPeriodos } from '../utils.js'
 
 export function atualizarResumo(disciplinas) {
-  // Filtragem de disciplinas válidas (aprovadas ou reprovadas, excluindo trancamentos)
+  // Filtragem de disciplinas válidas (aprovadas ou reprovadas, excluindo trancamentos e dispensadas)
   const disciplinasValidas = disciplinas.filter(
-    d => d.resultado === 'AP' || d.resultado === 'RR'
+    d => (d.resultado === 'AP' || d.resultado === 'RR') && !d.dispensada
   )
   const disciplinasAprovadas = disciplinas.filter(d => d.resultado === 'AP')
-  const totalDisciplinas = disciplinas.length
-  const totalAprovacoes = disciplinasAprovadas.length
+  const totalDisciplinas = disciplinas.filter(d => !d.dispensada).length
+  const totalAprovacoes = disciplinasAprovadas.filter(d => !d.dispensada).length
   const totalReprovacoes = disciplinas.filter(d => d.resultado === 'RR').length
   const totalTrancamentos = disciplinas.filter(d => d.resultado === 'TR').length
+  const totalDispensadas = disciplinas.filter(d => d.dispensada).length
 
-  // Cálculos de CR, PCH e PCR incluindo reprovações
+  // Cálculos de CR, PCH e PCR excluindo disciplinas dispensadas
   const somaCH = disciplinasValidas.reduce((sum, d) => sum + d.ch, 0)
   const somaPCH = disciplinasValidas.reduce((sum, d) => sum + d.ch * d.nota, 0)
-  const somaCR = disciplinasValidas.reduce((sum, d) => sum + d.ch / 15, 0) // CR = CH/15
+  const somaCR = disciplinasValidas.reduce((sum, d) => sum + d.ch / 15, 0)
   const somaPCR = disciplinasValidas.reduce(
     (sum, d) => sum + (d.ch / 15) * d.nota,
     0
   )
 
-  // Coeficiente de Rendimento (CR)
+  // Total CH incluindo disciplinas dispensadas
+  const totalCH = disciplinasAprovadas.reduce((sum, d) => sum + d.ch, 0)
+
+  // Coeficiente de Rendimento (CR) - excluindo dispensadas
   const coeficienteRendimento = somaCH > 0 ? (somaPCH / somaCH).toFixed(2) : 0
 
-  // Média geral
+  // Média geral - excluindo dispensadas
   const media =
     disciplinasValidas.length > 0
       ? disciplinasValidas.reduce((sum, d) => sum + d.nota, 0) /
@@ -36,6 +40,7 @@ export function atualizarResumo(disciplinas) {
       ? ((totalAprovacoes / totalDisciplinas) * 100).toFixed(1)
       : 0
 
+  // Atualizar o conteúdo do resumo
   document.getElementById('resumo').innerHTML = `
     <h2><i class="fas fa-chart-bar"></i> Resumo Geral</h2>
     <div class="resumo-container">
@@ -66,7 +71,7 @@ export function atualizarResumo(disciplinas) {
           </div>
           <div class="stat-content">
             <h4>Carga Horária Total</h4>
-            <p class="stat-value">${somaCH}h</p>
+            <p class="stat-value">${totalCH}h</p>
           </div>
         </div>
 
@@ -165,15 +170,23 @@ export function atualizarResumo(disciplinas) {
 
 function criarGraficoProgresso(disciplinas) {
   const periodos = {}
-  disciplinas
-    .sort((a, b) => compararPeriodos(a.periodo, b.periodo))
-    .forEach(d => {
-      if (!periodos[d.periodo]) {
-        periodos[d.periodo] = { total: 0, aprovadas: 0 }
-      }
+
+  // Primeiro, ordena as disciplinas por período
+  const disciplinasOrdenadas = [...disciplinas].sort((a, b) =>
+    compararPeriodos(a.periodo, b.periodo)
+  )
+
+  // Depois, agrupa os dados
+  disciplinasOrdenadas.forEach(d => {
+    if (!periodos[d.periodo]) {
+      periodos[d.periodo] = { total: 0, aprovadas: 0 }
+    }
+    if (!d.dispensada) {
+      // Não conta disciplinas dispensadas no gráfico
       periodos[d.periodo].total++
       if (d.resultado === 'AP') periodos[d.periodo].aprovadas++
-    })
+    }
+  })
 
   const labels = Object.keys(periodos)
   const data = {
@@ -181,7 +194,8 @@ function criarGraficoProgresso(disciplinas) {
     total: labels.map(p => periodos[p].total)
   }
 
-  return new Chart(document.getElementById('progressoChart'), {
+  const ctx = document.getElementById('progressoChart').getContext('2d')
+  return new Chart(ctx, {
     type: 'bar',
     data: {
       labels: labels,
@@ -206,9 +220,6 @@ function criarGraficoProgresso(disciplinas) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        title: {
-          display: false
-        },
         legend: {
           position: 'bottom',
           labels: {
@@ -218,39 +229,13 @@ function criarGraficoProgresso(disciplinas) {
               size: 12
             }
           }
-        },
-        tooltip: {
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          titleColor: '#333',
-          bodyColor: '#666',
-          borderColor: '#ddd',
-          borderWidth: 1,
-          padding: 12,
-          boxPadding: 6,
-          usePointStyle: true
         }
       },
       scales: {
         y: {
           beginAtZero: true,
           ticks: {
-            stepSize: 1,
-            font: {
-              size: 12
-            }
-          },
-          grid: {
-            color: 'rgba(0, 0, 0, 0.05)'
-          }
-        },
-        x: {
-          grid: {
-            display: false
-          },
-          ticks: {
-            font: {
-              size: 12
-            }
+            stepSize: 1
           }
         }
       }
