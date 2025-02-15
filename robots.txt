@@ -1,11 +1,20 @@
-# Permitir que todos os bots acessem a página principal
 User-agent: *
+Allow: /
+Allow: /sitemap.xml
+Allow: /manifest.json
+Allow: /assets/img/
+Allow: /assets/css/
+Allow: /js/
+
+# Proteger áreas sensíveis
 Disallow: /admin/
 Disallow: /login/
 Disallow: /dashboard/
+Disallow: /api/
+Disallow: /temp/
+Disallow: /backup/
 
-# Permitir o acesso à página principal
-Allow: /
+# Crawl-delay para não sobrecarregar o servidor
+Crawl-delay: 10
 
-# Definir o link do sitemap
 Sitemap: https://historicoufba.vercel.app/sitemap.xml
