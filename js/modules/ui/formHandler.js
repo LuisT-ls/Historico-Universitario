@@ -6,6 +6,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
   const camposSemTrancamento = document.querySelector('.campos-sem-trancamento')
   const chInput = document.getElementById('ch')
   const notaInput = document.getElementById('nota')
+  const codigoInput = document.getElementById('codigo')
   const naturezaSelect = document.getElementById('natureza')
   const notaContainer = notaInput.parentElement
 
@@ -20,58 +21,120 @@ export function setupFormHandlers(disciplinas, callbacks) {
     setTimeout(() => popup.classList.remove('show'), 3000)
   }
 
-  // Handle trancamento checkbox
-  trancamentoCheckbox.addEventListener('change', e => {
-    if (e.target.checked) {
-      camposSemTrancamento.style.display = 'none'
-      chInput.removeAttribute('required')
-      notaInput.removeAttribute('required')
-      dispensadaCheckbox.checked = false // Uncheck dispensada when trancamento is checked
+  // Função para atualizar a visibilidade do campo de nota
+  function updateNotaVisibility() {
+    const isDispensada = dispensadaCheckbox.checked
+    const isTrancamento = trancamentoCheckbox.checked
+
+    if (isDispensada || isTrancamento) {
+      notaContainer.style.display = 'none'
+      notaInput.value = ''
     } else {
-      camposSemTrancamento.style.display = 'flex'
-      notaContainer.style.display = 'block' // Show nota input when unchecking trancamento
-      if (!dispensadaCheckbox.checked) {
-        chInput.setAttribute('required', '')
+      notaContainer.style.display = 'block'
+    }
+  }
+
+  // Função para atualizar o campo de código com base na natureza
+  function updateCodigoField() {
+    const isAC = naturezaSelect.value === 'AC'
+
+    if (isAC) {
+      codigoInput.placeholder = 'Ex: CTIA01 ou AC'
+      codigoInput.value = ''
+      codigoInput.removeAttribute('required') // Remove a obrigatoriedade
+    } else {
+      codigoInput.placeholder = 'Ex: CTIA01 ou AC'
+      codigoInput.setAttribute('required', '') // Adiciona a obrigatoriedade
+    }
+  }
+
+  // Atualizar campos obrigatórios
+  function updateRequiredFields() {
+    const isAC = naturezaSelect.value === 'AC'
+    const isTrancamento = trancamentoCheckbox.checked
+    const isDispensada = dispensadaCheckbox.checked
+
+    if (isAC) {
+      codigoInput.removeAttribute('required')
+      notaInput.removeAttribute('required')
+    } else {
+      if (!isTrancamento && !isDispensada) {
+        codigoInput.setAttribute('required', '')
         notaInput.setAttribute('required', '')
       }
     }
+
+    if (isTrancamento) {
+      chInput.removeAttribute('required')
+    } else {
+      chInput.setAttribute('required', '')
+    }
+
+    updateNotaVisibility()
+  }
+
+  // Listener para mudança de natureza
+  naturezaSelect.addEventListener('change', e => {
+    updateCodigoField() // Atualiza o campo de código com base na natureza
+    updateRequiredFields()
+
+    // Garantir que a nota seja visível ao mudar para naturezas não-AC
+    if (
+      e.target.value !== 'AC' &&
+      !dispensadaCheckbox.checked &&
+      !trancamentoCheckbox.checked
+    ) {
+      notaContainer.style.display = 'block'
+    }
   })
 
-  // Handle dispensada checkbox
+  trancamentoCheckbox.addEventListener('change', e => {
+    if (e.target.checked) {
+      camposSemTrancamento.style.display = 'none'
+      dispensadaCheckbox.checked = false
+    } else {
+      camposSemTrancamento.style.display = 'flex'
+    }
+    updateRequiredFields()
+  })
+
   dispensadaCheckbox.addEventListener('change', e => {
     if (e.target.checked) {
-      naturezaSelect.value = 'LV' // Set natureza to Componente Livre
+      naturezaSelect.value = 'LV'
       naturezaSelect.disabled = true
-      notaInput.value = '' // Clear nota
-      notaContainer.style.display = 'none' // Hide the nota input container
-      notaInput.removeAttribute('required')
-      chInput.setAttribute('required', '') // CH still required
-      trancamentoCheckbox.checked = false // Uncheck trancamento
+      notaInput.value = ''
+      notaContainer.style.display = 'none'
+      trancamentoCheckbox.checked = false
     } else {
       naturezaSelect.disabled = false
-      notaContainer.style.display = 'block'
-      notaInput.setAttribute('required', '')
+      // Mostrar nota apenas se não for AC
+      if (naturezaSelect.value !== 'AC') {
+        notaContainer.style.display = 'block'
+      }
     }
+    updateRequiredFields()
   })
 
   form.addEventListener('submit', function (e) {
     e.preventDefault()
 
-    const codigo = document.getElementById('codigo').value
+    const isAC = naturezaSelect.value === 'AC'
+    const codigo = isAC ? 'AC' : document.getElementById('codigo').value
 
-    // Verifica se a disciplina já foi aprovada anteriormente
-    const disciplinaAprovada = disciplinas.find(
-      d => d.codigo === codigo && d.resultado === 'AP'
-    )
+    if (!isAC) {
+      const disciplinaAprovada = disciplinas.find(
+        d => d.codigo === codigo && d.resultado === 'AP'
+      )
 
-    if (disciplinaAprovada) {
-      showNotification(`A disciplina ${codigo} já foi cursada e aprovada!`)
-      return
+      if (disciplinaAprovada) {
+        showNotification(`A disciplina ${codigo} já foi cursada e aprovada!`)
+        return
+      }
     }
 
     const disciplina = {
       periodo: document.getElementById('periodo').value,
-      codigo: document.getElementById('codigo').value,
+      codigo: codigo,
       nome: document.getElementById('nome').value,
       natureza: document.getElementById('natureza').value,
       trancamento: document.getElementById('trancamento').checked,
@@ -85,8 +148,12 @@ export function setupFormHandlers(disciplinas, callbacks) {
     } else if (disciplina.dispensada) {
       disciplina.ch = parseInt(document.getElementById('ch').value)
       disciplina.nota = 0
-      disciplina.resultado = 'AP' // Dispensada counts as approved
-      disciplina.natureza = 'LV' // Force Componente Livre for dispensada
+      disciplina.resultado = 'AP'
+      disciplina.natureza = 'LV'
+    } else if (isAC) {
+      disciplina.ch = parseInt(document.getElementById('ch').value)
+      disciplina.nota = null
+      disciplina.resultado = 'AP'
     } else {
       disciplina.ch = parseInt(document.getElementById('ch').value)
       disciplina.nota = parseFloat(document.getElementById('nota').value)
@@ -100,8 +167,13 @@ export function setupFormHandlers(disciplinas, callbacks) {
     this.reset()
     document.getElementById('periodo').value = periodoAtual
     camposSemTrancamento.style.display = 'flex'
-    notaContainer.style.display = 'block' // Show nota input after form reset
+    notaContainer.style.display = 'block'
     trancamentoCheckbox.checked = false
     naturezaSelect.disabled = false
+    codigoInput.disabled = false
+
+    updateRequiredFields()
   })
+
+  updateRequiredFields()
 }

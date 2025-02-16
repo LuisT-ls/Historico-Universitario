@@ -4,16 +4,23 @@ import { compararPeriodos } from '../utils.js'
 export function atualizarResumo(disciplinas) {
   // Filtragem de disciplinas válidas (aprovadas ou reprovadas, excluindo trancamentos e dispensadas)
   const disciplinasValidas = disciplinas.filter(
-    d => (d.resultado === 'AP' || d.resultado === 'RR') && !d.dispensada
+    d =>
+      (d.resultado === 'AP' || d.resultado === 'RR') &&
+      !d.dispensada &&
+      d.natureza !== 'AC'
   )
   const disciplinasAprovadas = disciplinas.filter(d => d.resultado === 'AP')
-  const totalDisciplinas = disciplinas.filter(d => !d.dispensada).length
-  const totalAprovacoes = disciplinasAprovadas.filter(d => !d.dispensada).length
+  const totalDisciplinas = disciplinas.filter(
+    d => !d.dispensada && d.natureza !== 'AC'
+  ).length
+  const totalAprovacoes = disciplinasAprovadas.filter(
+    d => !d.dispensada && d.natureza !== 'AC'
+  ).length
   const totalReprovacoes = disciplinas.filter(d => d.resultado === 'RR').length
   const totalTrancamentos = disciplinas.filter(d => d.resultado === 'TR').length
   const totalDispensadas = disciplinas.filter(d => d.dispensada).length
 
-  // Cálculos de CR, PCH e PCR excluindo disciplinas dispensadas
+  // Cálculos de CR, PCH e PCR excluindo disciplinas dispensadas e AC
   const somaCH = disciplinasValidas.reduce((sum, d) => sum + d.ch, 0)
   const somaPCH = disciplinasValidas.reduce((sum, d) => sum + d.ch * d.nota, 0)
   const somaCR = disciplinasValidas.reduce((sum, d) => sum + d.ch / 15, 0)
@@ -22,13 +29,13 @@ export function atualizarResumo(disciplinas) {
     0
   )
 
-  // Total CH incluindo disciplinas dispensadas
+  // Total CH incluindo disciplinas aprovadas (incluindo AC) e dispensadas
   const totalCH = disciplinasAprovadas.reduce((sum, d) => sum + d.ch, 0)
 
-  // Coeficiente de Rendimento (CR) - excluindo dispensadas
+  // Coeficiente de Rendimento (CR) - excluindo dispensadas e AC
   const coeficienteRendimento = somaCH > 0 ? (somaPCH / somaCH).toFixed(2) : 0
 
-  // Média geral - excluindo dispensadas
+  // Média geral - excluindo dispensadas e AC
   const media =
     disciplinasValidas.length > 0
       ? disciplinasValidas.reduce((sum, d) => sum + d.nota, 0) /
@@ -40,7 +47,6 @@ export function atualizarResumo(disciplinas) {
       ? ((totalAprovacoes / totalDisciplinas) * 100).toFixed(1)
       : 0
 
-  // Atualizar o conteúdo do resumo
   document.getElementById('resumo').innerHTML = `
     <h2><i class="fas fa-chart-bar"></i> Resumo Geral</h2>
     <div class="resumo-container">
