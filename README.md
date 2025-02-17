@@ -38,6 +38,7 @@ O Histórico Universitário UFBA é uma ferramenta que permite aos estudantes:
   - Total de horas cursadas
   - Horas restantes por natureza
   - Progresso para formatura
+- **Autenticação de Usuário**: Login e gerenciamento de sessão
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -53,12 +54,31 @@ O Histórico Universitário UFBA é uma ferramenta que permite aos estudantes:
 .
 ├── assets/
 │   ├── css/           # Estilos CSS organizados em módulos
-│   ├── data/         # Dados JSON das disciplinas
-│   └── img/          # Imagens e favicons
+│   │   ├── auth/      # Estilos específicos para autenticação
+│   │   │   └── login.css
+│   │   ├── main.css   # Estilos principais
+│   │   └── modules/   # Módulos CSS organizados por funcionalidade
+│   │       ├── base/  # Estilos base como reset, tipografia, variáveis e animações
+│   │       ├── components/ # Componentes reutilizáveis como botões, formulários, ícones, etc.
+│   │       ├── features/   # Estilos específicos para funcionalidades como filtros, períodos, resumos
+│   │       ├── layout/     # Estilos de layout como container, footer, grid
+│   │       └── utils/      # Utilitários como responsividade, status, etc.
+│   ├── data/          # Dados JSON das disciplinas
+│   └── img/           # Imagens e favicons
 ├── js/
-│   ├── app.js        # Arquivo principal
-│   └── modules/      # Módulos JavaScript
-└── index.html        # Página principal
+│   ├── app.js         # Arquivo principal
+│   └── modules/       # Módulos JavaScript
+│       ├── auth/      # Módulos de autenticação
+│       ├── constants.js # Constantes do projeto
+│       ├── storage.js  # Gerenciamento de LocalStorage
+│       ├── ui/         # Módulos de interface do usuário
+│       └── utils.js    # Utilitários JavaScript
+├── index.html         # Página principal
+├── login.html         # Página de login
+├── manifest.json      # Arquivo de configuração para PWA
+├── robots.txt         # Arquivo para configuração de robôs de busca
+├── sitemap.xml        # Mapa do site para SEO
+└── sw.js              # Service Worker para funcionalidades offline
 ```
 
 ### 📊 Organização CSS
@@ -72,13 +92,14 @@ O Histórico Universitário UFBA é uma ferramenta que permite aos estudantes:
 ## 🚦 Como Usar
 
 1. Acesse o [site do projeto](https://historicoufba.vercel.app/)
-2. Selecione seu curso (BICTI ou Engenharia de Produção)
-3. Adicione suas disciplinas cursadas:
+2. Faça login na plataforma
+3. Selecione seu curso (BICTI ou Engenharia de Produção)
+4. Adicione suas disciplinas cursadas:
    - Preencha o semestre
    - Insira código e nome da disciplina
    - Selecione a natureza
    - Informe carga horária e nota
-4. Acompanhe seu progresso no painel de resumo
+5. Acompanhe seu progresso no painel de resumo
 
 ## 💻 Desenvolvimento Local
 
@@ -123,3 +144,7 @@ Luís Teixeira - [GitHub](https://github.com/LuisT-ls)
 ---
 
 ⌨️ com ❤️ por [Luís Teixeira](https://github.com/LuisT-ls)
+
+```
+
+```
