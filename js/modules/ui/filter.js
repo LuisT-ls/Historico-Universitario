@@ -52,6 +52,11 @@ async function setupFilterHandlers() {
       '<div class="no-results">Erro ao carregar disciplinas</div>'
   }
 
+  // Selecionar o texto quando o input recebe foco
+  filterInput.addEventListener('focus', () => {
+    filterInput.select()
+  })
+
   filterInput.addEventListener('input', e => {
     const searchTerm = e.target.value.toLowerCase().trim()
     if (searchTerm.length < 2) {
@@ -73,7 +78,7 @@ async function setupFilterHandlers() {
     displayResults(matches, searchResults)
   })
 
-  // Close results when clicking outside
+  // Fechar resultados ao clicar fora
   document.addEventListener('click', e => {
     if (!filterContainer.contains(e.target)) {
       searchResults.innerHTML = ''
