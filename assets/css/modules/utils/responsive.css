@@ -159,6 +159,11 @@
     font-size: 1rem;
   }
 
+  #qrcode img {
+    width: 150px !important;
+    height: 150px !important;
+  }
+
   .form-group.course select {
     width: 60%;
   }

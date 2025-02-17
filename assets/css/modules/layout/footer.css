@@ -133,3 +133,38 @@
 .social-links a:hover i {
   color: white;
 }
+
+.donation-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+}
+
+.donation-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+#qrcode {
+  background-color: white;
+  padding: 0.75rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.donation-info {
+  font-size: 0.9rem;
+  color: var(--footer-secondary-text);
+  text-align: center;
+  max-width: 250px;
+  line-height: 1.5;
+}
+
+.donation-section h3 i {
+  color: #ff6b6b;
+  animation: heartbeat 1.5s ease-in-out infinite;
+}

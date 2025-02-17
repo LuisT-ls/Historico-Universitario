@@ -136,3 +136,77 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', () => {
   new App()
 })
+
+// Função para gerar uma string do PIX
+function generatePixString(
+  pixKey,
+  merchantName = 'Luis Teixeira',
+  merchantCity = 'Salvador'
+) {
+  // Função auxiliar para calcular CRC16
+  function crc16(str) {
+    const crcTable = Array(256)
+      .fill()
+      .map((_, i) => {
+        let r = i << 8
+        for (let j = 0; j < 8; j++) {
+          r = ((r << 1) ^ (r & 0x8000 ? 0x1021 : 0)) & 0xffff
+        }
+        return r
+      })
+
+    let crc = 0xffff
+    for (let i = 0; i < str.length; i++) {
+      crc = (crc << 8) ^ crcTable[((crc >> 8) ^ str.charCodeAt(i)) & 0xff]
+    }
+    return crc & 0xffff
+  }
+
+  // Função para formatar campos do PIX
+  function formatPixField(id, content) {
+    const len = content.length.toString().padStart(2, '0')
+    return `${id}${len}${content}`
+  }
+
+  // Montagem do payload do PIX
+  const payload = [
+    formatPixField('00', '01'),
+    formatPixField('01', '12'),
+    formatPixField(
+      '26',
+      [
+        formatPixField('00', 'br.gov.bcb.pix'), // PIX GUI
+        formatPixField('01', pixKey) // PIX Key
+      ].join('')
+    ),
+    formatPixField('52', '0000'),
+    formatPixField('53', '986'),
+    formatPixField('58', 'BR'),
+    formatPixField('59', merchantName),
+    formatPixField('60', merchantCity),
+    formatPixField('62', formatPixField('05', ''))
+  ].join('')
+
+  // Adiciona o CRC16
+  const pixCode = `${payload}6304`
+  const crc = crc16(pixCode).toString(16).toUpperCase().padStart(4, '0')
+
+  return pixCode + crc
+}
+
+// Listener para quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', function () {
+  // Payload copiado do Nubank
+  const pixCode =
+    '00020126420014BR.GOV.BCB.PIX0120luisps4.lt@gmail.com5204000053039865802BR5925Luis Antonio Souza Teixei6009SAO PAULO62140510RskQDQkmPG63044276'
+
+  // Gera o QR Code
+  new QRCode(document.getElementById('qrcode'), {
+    text: pixCode,
+    width: 180,
+    height: 180,
+    colorDark: '#000000',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  })
+})
