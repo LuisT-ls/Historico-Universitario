@@ -175,8 +175,8 @@ function generatePixString(
     formatPixField(
       '26',
       [
-        formatPixField('00', 'br.gov.bcb.pix'), // PIX GUI
-        formatPixField('01', pixKey) // PIX Key
+        formatPixField('00', 'br.gov.bcb.pix'),
+        formatPixField('01', pixKey)
       ].join('')
     ),
     formatPixField('52', '0000'),
@@ -194,19 +194,55 @@ function generatePixString(
   return pixCode + crc
 }
 
-// Listener para quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function () {
-  // Payload copiado do Nubank
   const pixCode =
     '00020126420014BR.GOV.BCB.PIX0120luisps4.lt@gmail.com5204000053039865802BR5925Luis Antonio Souza Teixei6009SAO PAULO62140510RskQDQkmPG63044276'
 
-  // Gera o QR Code
-  new QRCode(document.getElementById('qrcode'), {
+  // Configuração do QR Code com suporte a acessibilidade
+  const qrCodeContainer = document.getElementById('qrcode')
+
+  // Cria um elemento div para servir como label ARIA
+  const qrLabel = document.createElement('div')
+  qrLabel.setAttribute('id', 'qr-label')
+  qrLabel.setAttribute('class', 'sr-only') // Classe para leitores de tela
+  qrLabel.textContent = 'QR Code para doação via PIX para Luis Teixeira'
+
+  // Adiciona o label antes do QR code
+  qrCodeContainer.appendChild(qrLabel)
+
+  // Configura o QR code com acessibilidade
+  new QRCode(qrCodeContainer, {
     text: pixCode,
     width: 180,
     height: 180,
     colorDark: '#000000',
     colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.H
+    correctLevel: QRCode.CorrectLevel.H,
+    // Função de callback para adicionar atributos de acessibilidade
+    onRender: function () {
+      const qrImage = qrCodeContainer.querySelector('img')
+      if (qrImage) {
+        qrImage.setAttribute('alt', 'QR Code para doação via PIX')
+        qrImage.setAttribute('aria-labelledby', 'qr-label')
+        qrImage.setAttribute('role', 'img')
+      }
+    }
   })
 })
+
+// Adicione estes estilos ao seu CSS
+const style = document.createElement('style')
+style.textContent = `
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+`
+document.head.appendChild(style)
