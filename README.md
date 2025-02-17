@@ -143,8 +143,5 @@ Luís Teixeira - [GitHub](https://github.com/LuisT-ls)
 
 ---
 
-⌨️ com ❤️ por [Luís Teixeira](https://github.com/LuisT-ls)
+⌨️ Feito com ❤️ por [Luís Teixeira](https://github.com/LuisT-ls)
 
-```
-
-```
