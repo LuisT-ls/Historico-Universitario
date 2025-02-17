@@ -217,7 +217,10 @@ document.addEventListener('DOMContentLoaded', function () {
       if (mutation.addedNodes.length) {
         const qrImage = document.querySelector('#qrcode img')
         if (qrImage && !qrImage.hasAttribute('alt')) {
-          qrImage.setAttribute('alt', 'QR Code para doação via PIX')
+          qrImage.setAttribute(
+            'alt',
+            'QR Code para doação via PIX. Escaneie este código para fazer uma doação de qualquer valor.'
+          )
           qrImage.setAttribute('role', 'img')
           observer.disconnect()
         }
