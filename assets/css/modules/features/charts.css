@@ -64,7 +64,7 @@
 }
 
 .stat-content h3 {
-  color: #444;
+  color: #333;
   font-size: 0.875rem;
   margin-bottom: 0.25rem;
 }
@@ -78,7 +78,7 @@
 
 .stat-percentage {
   font-size: 0.875rem;
-  color: #1a8c5e;
+  color: #0f5c3e;
   margin-left: 0.5rem;
 }
 
