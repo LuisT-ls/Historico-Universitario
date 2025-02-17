@@ -3,9 +3,9 @@
   top: 0.75rem;
   right: 0.75rem;
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: var(--text-header);
   font-weight: 400;
-  opacity: 0.8;
+  opacity: 0.9;
   letter-spacing: 0.02em;
   transition: opacity 0.2s ease;
 }
