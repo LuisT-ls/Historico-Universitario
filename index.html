@@ -361,18 +361,36 @@
       <div class="content-container">
         <div class="table-container">
           <h2><i class="fas fa-list-alt"></i> Disciplinas Cursadas</h2>
-          <table id="historicoTable">
+          <table
+            id="historicoTable"
+            role="grid"
+            aria-label="Histórico de disciplinas cursadas"
+          >
             <thead>
               <tr>
-                <th><i class="fas fa-calendar"></i> Semestre</th>
-                <th><i class="fas fa-hashtag"></i> Código</th>
-                <th><i class="fas fa-book"></i> Disciplina</th>
-                <th><i class="fas fa-clock"></i> CH</th>
-                <th><i class="fas fa-tag"></i> NT</th>
-                <th><i class="fas fa-star"></i> Nota</th>
-                <th><i class="fas fa-calculator"></i> PCH</th>
-                <th><i class="fas fa-check-circle"></i> RES</th>
-                <th><i class="fas fa-cogs"></i> Ações</th>
+                <th scope="col" id="col-semestre">
+                  <i class="fas fa-calendar"></i> Semestre
+                </th>
+                <th scope="col" id="col-codigo">
+                  <i class="fas fa-hashtag"></i> Código
+                </th>
+                <th scope="col" id="col-disciplina">
+                  <i class="fas fa-book"></i> Disciplina
+                </th>
+                <th scope="col" id="col-ch"><i class="fas fa-clock"></i> CH</th>
+                <th scope="col" id="col-nt"><i class="fas fa-tag"></i> NT</th>
+                <th scope="col" id="col-nota">
+                  <i class="fas fa-star"></i> Nota
+                </th>
+                <th scope="col" id="col-pch">
+                  <i class="fas fa-calculator"></i> PCH
+                </th>
+                <th scope="col" id="col-res">
+                  <i class="fas fa-check-circle"></i> RES
+                </th>
+                <th scope="col" id="col-acoes">
+                  <i class="fas fa-cogs"></i> Ações
+                </th>
               </tr>
             </thead>
             <tbody id="historicoBody"></tbody>
@@ -406,24 +424,36 @@
             <h3>
               <i class="fas fa-graduation-cap"></i> Requisitos para Formatura
             </h3>
-            <table class="requisitos-table">
+            <table
+              class="requisitos-table"
+              role="grid"
+              aria-label="Requisitos de carga horária para formatura"
+            >
               <thead>
                 <tr>
-                  <th><i class="fas fa-tag"></i> Natureza</th>
-                  <th><i class="fas fa-bullseye"></i> Meta (h)</th>
-                  <th><i class="fas fa-check"></i> Cursado (h)</th>
-                  <th><i class="fas fa-hourglass"></i> Falta (h)</th>
+                  <th scope="col" id="req-natureza">
+                    <i class="fas fa-tag"></i> Natureza
+                  </th>
+                  <th scope="col" id="req-meta">
+                    <i class="fas fa-bullseye"></i> Meta (h)
+                  </th>
+                  <th scope="col" id="req-cursado">
+                    <i class="fas fa-check"></i> Cursado (h)
+                  </th>
+                  <th scope="col" id="req-falta">
+                    <i class="fas fa-hourglass"></i> Falta (h)
+                  </th>
                 </tr>
               </thead>
               <tbody id="requisitosBody"></tbody>
               <tfoot>
                 <tr>
-                  <td>
-                    <strong><i class="fas fa-sum"></i> TOTAL</strong>
-                  </td>
-                  <td id="metaTotal">2400</td>
-                  <td id="totalCursado">0</td>
-                  <td id="totalFalta">2400</td>
+                  <th scope="row" id="total-row">
+                    <i class="fas fa-sum"></i> TOTAL
+                  </th>
+                  <td headers="req-meta total-row" id="metaTotal">2400</td>
+                  <td headers="req-cursado total-row" id="totalCursado">0</td>
+                  <td headers="req-falta total-row" id="totalFalta">2400</td>
                 </tr>
               </tfoot>
             </table>
