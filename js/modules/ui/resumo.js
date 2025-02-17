@@ -56,7 +56,7 @@ export function atualizarResumo(disciplinas) {
             <i class="fas fa-calculator"></i>
           </div>
           <div class="stat-content">
-            <h4>Média Geral</h4>
+            <h3>Média Geral</h3>
             <p class="stat-value">${media.toFixed(2)}</p>
           </div>
         </div>
@@ -66,7 +66,7 @@ export function atualizarResumo(disciplinas) {
             <i class="fas fa-chart-line"></i>
           </div>
           <div class="stat-content">
-            <h4>Coeficiente de Rendimento</h4>
+            <h3>Coeficiente de Rendimento</h3>
             <p class="stat-value">${coeficienteRendimento}</p>
           </div>
         </div>
@@ -76,7 +76,7 @@ export function atualizarResumo(disciplinas) {
             <i class="fas fa-clock"></i>
           </div>
           <div class="stat-content">
-            <h4>Carga Horária Total</h4>
+            <h3>Carga Horária Total</h4>
             <p class="stat-value">${totalCH}h</p>
           </div>
         </div>
@@ -86,7 +86,7 @@ export function atualizarResumo(disciplinas) {
             <i class="fas fa-star"></i>
           </div>
           <div class="stat-content">
-            <h4>Créditos Totais</h4>
+            <h3>Créditos Totais</h3>
             <p class="stat-value">${somaCR.toFixed(1)}</p>
           </div>
         </div>
@@ -96,7 +96,7 @@ export function atualizarResumo(disciplinas) {
             <i class="fas fa-chart-bar"></i>
           </div>
           <div class="stat-content">
-            <h4>PCH (CH × Nota)</h4>
+            <h3>PCH (CH × Nota)</h3>
             <p class="stat-value">${somaPCH.toFixed(1)}</p>
           </div>
         </div>
@@ -106,7 +106,7 @@ export function atualizarResumo(disciplinas) {
             <i class="fas fa-chart-pie"></i>
           </div>
           <div class="stat-content">
-            <h4>PCR (CR × Nota)</h4>
+            <h3>PCR (CR × Nota)</h3>
             <p class="stat-value">${somaPCR.toFixed(1)}</p>
           </div>
         </div>
@@ -116,7 +116,7 @@ export function atualizarResumo(disciplinas) {
             <i class="fas fa-check-circle"></i>
           </div>
           <div class="stat-content">
-            <h4>Aprovações</h4>
+            <h3>Aprovações</h3>
             <p class="stat-value">${totalAprovacoes}
               <span class="stat-percentage">${percentualAprovacao}%</span>
             </p>
@@ -128,7 +128,7 @@ export function atualizarResumo(disciplinas) {
             <i class="fas fa-exclamation-circle"></i>
           </div>
           <div class="stat-content">
-            <h4>Reprovações</h4>
+            <h3>Reprovações</h3>
             <p class="stat-value">${totalReprovacoes}</p>
           </div>
         </div>
