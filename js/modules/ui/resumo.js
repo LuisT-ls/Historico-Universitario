@@ -134,26 +134,26 @@ export function atualizarResumo(disciplinas) {
         </div>
       </div>
 
-      <div class="chart-section">
-        <div class="chart-container">
-          <div class="chart-header">
-            <h3><i class="fas fa-chart-bar"></i> Progresso por Semestre</h3>
-            <div class="chart-actions">
-              <button class="chart-toggle active" data-chart="bar">
-                <i class="fas fa-chart-bar"></i>
-              </button>
-              <button class="chart-toggle" data-chart="line">
-                <i class="fas fa-chart-line"></i>
-              </button>
-            </div>
+    <div class="chart-section">
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3><i class="fas fa-chart-bar"></i> Progresso por Semestre</h3>
+          <div class="chart-actions">
+            <button class="chart-toggle active" data-chart="bar" aria-label="Alternar para gráfico de barras">
+              <i class="fas fa-chart-bar"></i>
+            </button>
+            <button class="chart-toggle" data-chart="line" aria-label="Alternar para gráfico de linhas">
+              <i class="fas fa-chart-line"></i>
+            </button>
           </div>
-          <div class="chart-wrapper">
-            <canvas id="progressoChart"></canvas>
-          </div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="progressoChart"></canvas>
         </div>
       </div>
     </div>
-  `
+  </div>
+`
 
   const chart = criarGraficoProgresso(disciplinas)
 
