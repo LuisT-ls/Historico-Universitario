@@ -201,36 +201,37 @@ document.addEventListener('DOMContentLoaded', function () {
   // Configuração do QR Code com suporte a acessibilidade
   const qrCodeContainer = document.getElementById('qrcode')
 
-  // Cria um elemento div para servir como label ARIA
-  const qrLabel = document.createElement('div')
-  qrLabel.setAttribute('id', 'qr-label')
-  qrLabel.setAttribute('class', 'sr-only') // Classe para leitores de tela
-  qrLabel.textContent = 'QR Code para doação via PIX para Luis Teixeira'
-
-  // Adiciona o label antes do QR code
-  qrCodeContainer.appendChild(qrLabel)
-
-  // Configura o QR code com acessibilidade
-  new QRCode(qrCodeContainer, {
+  // Cria o QR code
+  const qrcode = new QRCode(qrCodeContainer, {
     text: pixCode,
     width: 180,
     height: 180,
     colorDark: '#000000',
     colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.H,
-    // Função de callback para adicionar atributos de acessibilidade
-    onRender: function () {
-      const qrImage = qrCodeContainer.querySelector('img')
-      if (qrImage) {
-        qrImage.setAttribute('alt', 'QR Code para doação via PIX')
-        qrImage.setAttribute('aria-labelledby', 'qr-label')
-        qrImage.setAttribute('role', 'img')
+    correctLevel: QRCode.CorrectLevel.H
+  })
+
+  // Adiciona o atributo alt à imagem após ela ser gerada
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      if (mutation.addedNodes.length) {
+        const qrImage = document.querySelector('#qrcode img')
+        if (qrImage && !qrImage.hasAttribute('alt')) {
+          qrImage.setAttribute('alt', 'QR Code para doação via PIX')
+          qrImage.setAttribute('role', 'img')
+          observer.disconnect()
+        }
       }
-    }
+    })
+  })
+
+  observer.observe(qrCodeContainer, {
+    childList: true,
+    subtree: true
   })
 })
 
-// Adicione estes estilos ao seu CSS
+// Adiciona os estilos necessários
 const style = document.createElement('style')
 style.textContent = `
 .sr-only {
