@@ -100,13 +100,10 @@ export function setupFormHandlers(disciplinas, callbacks) {
 
   dispensadaCheckbox.addEventListener('change', e => {
     if (e.target.checked) {
-      naturezaSelect.value = 'LV'
-      naturezaSelect.disabled = true
       notaInput.value = ''
       notaContainer.style.display = 'none'
       trancamentoCheckbox.checked = false
     } else {
-      naturezaSelect.disabled = false
       // Mostrar nota apenas se não for AC
       if (naturezaSelect.value !== 'AC') {
         notaContainer.style.display = 'block'
@@ -149,7 +146,6 @@ export function setupFormHandlers(disciplinas, callbacks) {
       disciplina.ch = parseInt(document.getElementById('ch').value)
       disciplina.nota = 0
       disciplina.resultado = 'AP'
-      disciplina.natureza = 'LV'
     } else if (isAC) {
       disciplina.ch = parseInt(document.getElementById('ch').value)
       disciplina.nota = null
