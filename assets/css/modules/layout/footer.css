@@ -168,3 +168,44 @@
   color: #ff6b6b;
   animation: heartbeat 1.5s ease-in-out infinite;
 }
+
+/* Links legais */
+.footer-bottom .legal-link {
+  color: #3498db;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+  padding: 0 5px;
+  position: relative;
+}
+
+.footer-bottom .legal-link:hover {
+  color: #2980b9;
+}
+
+.footer-bottom .legal-link:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: #2980b9;
+  transform: scaleX(0);
+  transition: transform 0.2s ease-in-out;
+}
+
+.footer-bottom .legal-link:hover:after {
+  transform: scaleX(1);
+}
+
+/* Ícone para indicar que o link abre em nova aba */
+.footer-bottom .legal-link:hover:before {
+  content: '\f08e';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 0.8em;
+  margin-right: 4px;
+  position: absolute;
+  top: -15px;
+  right: -12px;
+}

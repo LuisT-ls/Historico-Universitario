@@ -4,7 +4,9 @@ const urlsToCache = [
   './assets/css/main.css',
   './assets/img/favicon/favicon-32x32.png',
   './assets/img/favicon/favicon-16x16.png',
-  './js/app.js'
+  './js/app.js',
+  './legal/terms.html',
+  './legal/privacy.html'
 ]
 
 // Instala o Service Worker e armazena os arquivos em cache

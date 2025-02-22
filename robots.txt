@@ -2,6 +2,8 @@ User-agent: *
 Allow: /
 Allow: /sitemap.xml
 Allow: /manifest.json
+Allow: /legal/terms.html
+Allow: /legal/privacy.html
 Allow: /assets/img/
 Allow: /assets/css/
 Allow: /js/

@@ -6,6 +6,8 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
+  "privacy_policy_url": "/legal/privacy.html",
+  "terms_of_service_url": "/legal/terms.html",
   "icons": [
     {
       "src": "./assets/img/favicon/android-chrome-192x192.png",
