@@ -250,3 +250,17 @@ style.textContent = `
 }
 `
 document.head.appendChild(style)
+
+// Input sanitization
+function sanitizeInput(input) {
+  const div = document.createElement('div')
+  div.textContent = input
+  return div.innerHTML
+}
+
+// CSRF protection
+function addCSRFToken() {
+  const token = Math.random().toString(36).substr(2)
+  localStorage.setItem('csrf_token', token)
+  return token
+}

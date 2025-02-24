@@ -253,8 +253,16 @@
       <!-- Escolha do Curso -->
       <div class="form-row">
         <div class="form-group course">
-          <label for="curso"><i class="fas fa-university"></i> Curso:</label>
-          <select id="curso" required>
+          <label id="curso-label" for="curso">
+            <i class="fas fa-university" aria-hidden="true"></i>
+            Curso:
+          </label>
+          <select
+            id="curso"
+            required
+            aria-required="true"
+            aria-describedby="curso-help"
+          >
             <option value="BICTI">BICTI</option>
             <option value="ENG_PROD">Engenharia de Produção</option>
           </select>
@@ -265,13 +273,17 @@
         <form id="disciplinaForm">
           <div class="form-row">
             <div class="form-group">
-              <label for="periodo"
-                ><i class="fas fa-calendar-alt"></i> Semestre:</label
-              >
+              <label id="periodo-label" for="periodo">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                Semestre:
+              </label>
               <input
                 type="text"
                 id="periodo"
                 required
+                aria-required="true"
+                aria-labelledby="periodo-label"
+                aria-describedby="periodo-help"
                 placeholder="Ex: 2020.1"
               />
             </div>
