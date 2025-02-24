@@ -8,11 +8,13 @@ import { setupFormHandlers } from './modules/ui/formHandler.js'
 import { getPeriodoMaisRecente } from './modules/utils.js'
 import { setupFilterComponent } from './modules/ui/filter.js'
 import { setupDateTime } from './modules/ui/datetime.js'
+import { csrfProtection } from './modules/security/csrf.js'
 
 class App {
   constructor() {
     this.disciplinas = []
     this.cursoAtual = 'BICTI' // valor padrão
+    csrfProtection.init()
     this.init()
   }
 
@@ -54,11 +56,29 @@ class App {
     })
 
     window.app = {
-      removerDisciplina: this.removerDisciplina.bind(this)
+      removerDisciplina: function (index) {
+        const token = csrfProtection.getToken()
+        const app = document.querySelector('body').__appInstance
+        app.removerDisciplina(index, token)
+      }
     }
   }
 
-  removerDisciplina(index) {
+  validarOperacao(token) {
+    return csrfProtection.validateToken(token)
+  }
+
+  removerDisciplina(index, token) {
+    // Verifica o token CSRF antes de permitir a operação
+    if (!this.validarOperacao(token)) {
+      console.error('Erro de validação CSRF: Operação não autorizada')
+      alert(
+        'Erro de segurança: Operação não autorizada. A página será recarregada.'
+      )
+      window.location.reload()
+      return
+    }
+
     this.disciplinas.splice(index, 1)
     salvarDisciplinas(this.disciplinas, this.cursoAtual)
     this.atualizarTudo()
@@ -134,7 +154,8 @@ if ('serviceWorker' in navigator) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  new App()
+  const appInstance = new App()
+  document.querySelector('body').__appInstance = appInstance
 })
 
 // Função para gerar uma string do PIX
