@@ -165,6 +165,23 @@ body {
   transform: translate(-50%, -50%) rotate(12deg);
 }
 
+/* Botão de dark mode no light mode */
+html:not(.dark-mode) .dark-mode-button i.fa-moon {
+  color: #2c3e50;
+}
+
+html:not(.dark-mode) .dark-mode-button {
+  background-color: #e8e9ea;
+  color: #121212;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid #d0d0d0;
+}
+
+html:not(.dark-mode) .dark-mode-button:hover {
+  background-color: #d8d8d8;
+  color: #0056b3;
+}
+
 /* Botão de "Adicionar Disciplina" */
 .dark-mode button[type='submit'] {
   background-color: var(--success);
