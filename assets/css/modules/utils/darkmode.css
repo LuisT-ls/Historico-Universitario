@@ -105,11 +105,6 @@ body {
   color: var(--primary);
 }
 
-.dark-mode .footer-bottom {
-  background-color: var(--background);
-  border-top: 1px solid var(--footer-border);
-}
-
 /* Dark Mode Toggle Button - Improved Design */
 .dark-mode-toggle {
   position: fixed;
@@ -271,10 +266,6 @@ html:not(.dark-mode) .dark-mode-button:hover {
 .dark-mode .chart-toggle:hover {
   background-color: var(--text);
   color: white;
-}
-
-.dark-mode .watermark-logo {
-  background-color: var(--surface-light);
 }
 
 .dark-mode .watermark-logo .logo-initials {
