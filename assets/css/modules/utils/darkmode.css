@@ -12,11 +12,13 @@ body {
 
 /* Specific dark mode styles for elements that might need them */
 .dark-mode .watermark-logo {
-  background-color: var(--surface-light);
+  background: linear-gradient(145deg, #121212, #2c3e50);
+  box-shadow: 5px 5px 10px #121212, -5px -5px 10px #2c3e50;
 }
 
 .dark-mode .logo-ring {
   border-color: var(--primary);
+  background: linear-gradient(145deg, #121212, #2c3e50);
 }
 
 .dark-mode table {
