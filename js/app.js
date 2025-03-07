@@ -9,7 +9,7 @@ import { getPeriodoMaisRecente } from './modules/utils.js'
 import { setupFilterComponent } from './modules/ui/filter.js'
 import { setupDateTime } from './modules/ui/datetime.js'
 import DarkModeManager from './modules/ui/darkmode.js'
-import { csrfProtection } from './modules/security/csrf.js'
+import { csrfProtection } from './modules/security/firebase-csrf.js'
 
 class App {
   constructor() {
