@@ -1,9 +1,14 @@
+/* Importing all modules */
+
+/* Importing all base */
 @import './modules/base/reset.css';
 @import './modules/base/variables.css';
+@import './modules/base/var-darkmode.css';
 @import './modules/base/typography.css';
 @import './modules/base/animations.css';
 @import './modules/base/scrollbar.css';
 
+/* Importing all components */
 @import './modules/components/buttons.css';
 @import './modules/components/forms.css';
 @import './modules/components/tables.css';
@@ -13,14 +18,18 @@
 @import './modules/components/notification-popup.css';
 @import './modules/components/datetime.css';
 
+/* Importing all layouts */
 @import './modules/layout/container.css';
 @import './modules/layout/grid.css';
 @import './modules/layout/footer.css';
 
+/* Importing all utils */
 @import './modules/utils/status.css';
 @import './modules/utils/responsive.css';
 @import './modules/utils/print.css';
+@import './modules/utils/darkmode.css';
 
+/* Importing all features */
 @import './modules/features/filter.css';
 @import './modules/features/period.css';
 @import './modules/features/summary.css';

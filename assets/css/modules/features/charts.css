@@ -126,6 +126,11 @@
   transition: all 0.2s ease;
 }
 
+.chart-toggle:hover {
+  background: #f0f7ff;
+  border-color: #2e7eed;
+}
+
 .chart-toggle i {
   color: #666;
 }

@@ -1,0 +1,68 @@
+/* Dark Mode Variables */
+:root.dark-mode {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --secondary: #94a3b8;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --background: #0f172a;
+  --surface: #1e293b;
+  --text: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border: #334155;
+  --shadow: rgba(0, 0, 0, 0.25);
+
+  /* Scrollbar WebKit */
+  --scrollbar-width: 10px;
+  --scrollbar-track: var(--surface);
+  --scrollbar-thumb: var(--primary);
+  --scrollbar-thumb-hover: var(--primary-dark);
+
+  /* Progress Requisitos */
+  --progress-low: #ef4444;
+  --progress-medium: #f59e0b;
+  --progress-high: #10b981;
+  --header-bg: #1e293b;
+  --row-hover: #334155;
+  --text-header: #f8fafc;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --progress-bg: #334155;
+
+  /* Footer */
+  --footer-bg: #1e293b;
+  --footer-text: #e2e8f0;
+  --footer-heading: #f8fafc;
+  --footer-border: #334155;
+  --footer-hover: #60a5fa;
+  --footer-secondary-text: #94a3b8;
+  --footer-gradient-start: #0f172a;
+  --footer-gradient-end: #1e293b;
+}
+
+/* Dark mode transitions */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Specific dark mode styles for elements that might need them */
+.dark-mode .watermark-logo {
+  background-color: var(--surface);
+}
+
+.dark-mode .logo-ring {
+  border-color: var(--primary);
+}
+
+.dark-mode table {
+  border-color: var(--border);
+}
+
+.dark-mode .table-container,
+.dark-mode .resumo-container,
+.dark-mode .form-container {
+  background-color: var(--surface);
+  border-color: var(--border);
+}

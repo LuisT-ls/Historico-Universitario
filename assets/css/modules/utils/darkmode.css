@@ -1,0 +1,284 @@
+/* Dark Mode Toggle Button - Improved Design */
+.dark-mode-toggle {
+  position: fixed;
+  top: 40px;
+  right: 20px;
+  z-index: 100;
+}
+
+.dark-mode-button {
+  background-color: var(--surface);
+  color: var(--text);
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  outline: none;
+  overflow: hidden;
+  position: relative;
+  padding: 0;
+}
+
+/* Add subtle gradient */
+.dark-mode-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(0, 0, 0, 0.1)
+  );
+  z-index: -1;
+}
+
+/* Enhanced hover effects */
+.dark-mode-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+  background-color: var(--primary);
+  color: white;
+}
+
+.dark-mode-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* Focus state for accessibility */
+.dark-mode-button:focus {
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.4),
+    0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Icon styling - improved centering */
+.dark-mode-button i {
+  font-size: 1.4rem;
+  transition: transform 0.5s ease;
+  display: block;
+  line-height: 0;
+  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.dark-mode-button:hover i {
+  transform: translate(-50%, -50%) rotate(12deg);
+}
+
+/* Light mode specific */
+html:not(.dark-mode) .dark-mode-button {
+  background-color: #e8e9ea;
+  color: #121212;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid #d0d0d0;
+}
+
+html:not(.dark-mode) .dark-mode-button:hover {
+  background-color: #d8d8d8;
+  color: #0056b3;
+}
+
+/* Light mode moon icon specific adjustments */
+html:not(.dark-mode) .dark-mode-button i.fa-moon {
+  color: #2c3e50;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode specific */
+html.dark-mode .dark-mode-button {
+  background-color: #2d3748;
+  color: #f8f9fa;
+}
+
+html.dark-mode .dark-mode-button:hover {
+  background-color: #1a202c;
+  color: #ffc107;
+}
+
+/* Animation for icon change */
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.dark-mode-button i.fa-sun,
+.dark-mode-button i.fa-moon {
+  animation: spin 0.5s ease-in-out;
+}
+
+.dark-mode-button::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dark-mode-toggle {
+    top: 15px;
+    right: 15px;
+  }
+
+  .dark-mode-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .dark-mode-button::after {
+    width: 34px;
+    height: 34px;
+  }
+
+  .dark-mode-button i {
+    font-size: 1.2rem;
+  }
+}
+
+/* Adjustment for small screens */
+@media (max-width: 480px) {
+  .dark-mode-toggle {
+    top: 10px;
+    right: 10px;
+  }
+
+  .dark-mode-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .dark-mode-button::after {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* Ensure positioning with user section */
+.user-section:not([style*='display: none']) + .dark-mode-toggle {
+  right: 80px;
+}
+
+.dark-mode .filter-container {
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.dark-mode #curso {
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.dark-mode .form-container,
+.dark-mode .content-container {
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.dark-mode input,
+.dark-mode select,
+.dark-mode button {
+  background-color: var(--background);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.dark-mode button:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+.dark-mode table {
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.dark-mode table td {
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.dark-mode .periodo-header td {
+  background-color: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark-mode table tr:hover {
+  background-color: var(--row-hover);
+}
+
+html.dark-mode select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8' fill='%23f8f9fa' viewBox='0 0 16 16'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>");
+}
+
+.dark-mode .chart-toggle {
+  background-color: var(--text);
+  color: var(--text);
+  border-color: var(--text);
+}
+
+.dark-mode .chart-toggle:hover {
+  background-color: var(--text);
+  color: white;
+}
+
+.dark-mode .watermark-logo {
+  background-color: var(--surface);
+}
+
+.dark-mode .watermark-logo .logo-initials {
+  color: var(--primary);
+}
+
+.dark-mode .logo-initials {
+  color: var(--text);
+}
+
+.dark-mode .footer {
+  background-color: var(--footer-bg);
+  color: var(--footer-text);
+  border-color: var(--footer-border);
+}
+
+.dark-mode .footer h3 {
+  color: var(--footer-heading);
+}
+
+.dark-mode .footer a {
+  background-color: var(--footer-bg);
+}
+
+.dark-mode .footer-bottom {
+  background-color: var(--background);
+  border-color: var(--footer-border);
+}

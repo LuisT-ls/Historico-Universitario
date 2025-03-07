@@ -8,6 +8,7 @@ import { setupFormHandlers } from './modules/ui/formHandler.js'
 import { getPeriodoMaisRecente } from './modules/utils.js'
 import { setupFilterComponent } from './modules/ui/filter.js'
 import { setupDateTime } from './modules/ui/datetime.js'
+import DarkModeManager from './modules/ui/darkmode.js'
 import { csrfProtection } from './modules/security/csrf.js'
 
 class App {
@@ -15,6 +16,7 @@ class App {
     this.disciplinas = []
     this.cursoAtual = 'BICTI' // valor padrão
     csrfProtection.init()
+    this.darkModeManager = new DarkModeManager()
     this.init()
   }
 
