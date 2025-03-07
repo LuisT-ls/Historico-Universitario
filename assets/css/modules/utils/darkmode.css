@@ -107,6 +107,10 @@ body {
   color: var(--primary);
 }
 
+.dark-mode .footer i {
+  color: var(--primary-dark);
+}
+
 /* Dark Mode Toggle Button - Improved Design */
 .dark-mode-toggle {
   position: fixed;
