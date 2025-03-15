@@ -297,3 +297,175 @@ html:not(.dark-mode) .dark-mode-button:hover {
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
 }
+
+/* Ajustes para elementos do simulador */
+:root.dark-mode .simulation-container {
+  background-color: var(--surface);
+  border-color: var(--border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+:root.dark-mode .simulation-header {
+  border-bottom-color: var(--border);
+}
+
+:root.dark-mode .simulation-header::after {
+  background-color: var(--primary);
+}
+
+/* Formulário e campos de entrada */
+:root.dark-mode .simulation-form-container {
+  background-color: var(--surface-light);
+  border-color: var(--border);
+}
+
+:root.dark-mode .simulation-form-container input,
+:root.dark-mode .simulation-form-container select {
+  background-color: var(--background);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+:root.dark-mode .simulation-form-container input:focus,
+:root.dark-mode .simulation-form-container select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+:root.dark-mode .simulation-form-container input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Cards de impacto */
+:root.dark-mode .impact-card {
+  background-color: var(--surface-light);
+  border-color: var(--border);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+:root.dark-mode .impact-card h4 {
+  border-bottom-color: var(--border);
+}
+
+:root.dark-mode .impact-value:not(:last-child) {
+  border-bottom-color: var(--border);
+}
+
+:root.dark-mode .impact-value .label {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .impact-value .value {
+  color: var(--text);
+}
+
+:root.dark-mode .impact-value .value.positive {
+  color: var(--success);
+}
+
+:root.dark-mode .impact-value .value.negative {
+  color: var(--danger);
+}
+
+/* Tabela de disciplinas simuladas */
+:root.dark-mode .simulation-table-container {
+  background-color: var(--surface-light);
+  border-color: var(--border);
+}
+
+:root.dark-mode .data-table th {
+  background-color: var(--header-bg);
+  color: var(--text-header);
+  border-bottom-color: var(--border);
+}
+
+:root.dark-mode .data-table td {
+  border-bottom-color: var(--border);
+}
+
+:root.dark-mode .data-table tr:hover td {
+  background-color: var(--row-hover);
+}
+
+/* Estado das disciplinas simuladas */
+:root.dark-mode .simulada-aprovada {
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+:root.dark-mode .simulada-aprovada:hover {
+  background-color: rgba(34, 197, 94, 0.15) !important;
+}
+
+:root.dark-mode .simulada-reprovada {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+:root.dark-mode .simulada-reprovada:hover {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Botões e ações */
+:root.dark-mode .btn-action {
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+:root.dark-mode .btn-action:hover {
+  background-color: var(--surface-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Detalhes de horas faltantes */
+:root.dark-mode .horas-faltantes-detalhes {
+  border-top-color: var(--border);
+}
+
+:root.dark-mode .detalhes-header {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .natureza-tipo {
+  color: var(--text);
+}
+
+:root.dark-mode .natureza-horas {
+  color: var(--primary);
+}
+
+:root.dark-mode .sem-pendencias {
+  color: var(--success);
+}
+
+/* Notificações */
+:root.dark-mode .simulation-notification {
+  background-color: var(--success);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark-mode .simulation-notification.error {
+  background-color: var(--danger);
+}
+
+/* Mensagem de tabela vazia */
+:root.dark-mode .empty-message {
+  color: var(--text-secondary);
+  background-color: var(--surface);
+  border-color: var(--border);
+}
+
+/* Animation para botão de simulação */
+:root.dark-mode .btn-simulation {
+  background-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+:root.dark-mode .btn-simulation:hover {
+  background-color: var(--primary-dark);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+}
+
+:root.dark-mode .btn-simulation:focus {
+  animation: pulse 1.5s infinite;
+}

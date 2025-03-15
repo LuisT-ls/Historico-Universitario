@@ -36,6 +36,13 @@
   padding: 4px 0;
 }
 
+/* Efeito de highlight */
+:root.dark-mode .simulator-highlight {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3), 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Simulador */
 .simulation-container {
   background-color: var(--surface);
   border-radius: 12px;
