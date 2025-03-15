@@ -344,6 +344,7 @@ html:not(.dark-mode) .dark-mode-button:hover {
 }
 
 :root.dark-mode .impact-card h4 {
+  color: var(--text-header);
   border-bottom-color: var(--border);
 }
 
