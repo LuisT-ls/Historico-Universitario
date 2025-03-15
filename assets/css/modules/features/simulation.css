@@ -34,18 +34,6 @@
   font-weight: 500;
   font-style: italic;
   padding: 4px 0;
-} /* assets/css/modules/features/simulation.css */
-
-/* Animação de entrada do simulador */
-@keyframes simulator-appear {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .simulation-container {
@@ -57,10 +45,9 @@
   color: var(--text);
   border: 1px solid var(--border);
   transition: all 0.3s ease;
-  /* Removido overflow: hidden para evitar cortes */
   width: 100%;
   max-width: 100%;
-  scroll-margin-top: 20px; /* Adiciona margem para o scroll automático parar um pouco acima */
+  scroll-margin-top: 20px;
   animation: simulator-appear 0.4s ease-out;
 }
 
@@ -428,21 +415,6 @@
   font-size: 1rem;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
   animation: attention-pulse 2s infinite;
-}
-
-@keyframes attention-pulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
-  }
-  50% {
-    transform: scale(1.02);
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
-  }
 }
 
 .btn-simulation::before {
