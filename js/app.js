@@ -9,6 +9,7 @@ import { getPeriodoMaisRecente } from './modules/utils.js'
 import { setupFilterComponent } from './modules/ui/filter.js'
 import { setupDateTime } from './modules/ui/datetime.js'
 import DarkModeManager from './modules/ui/darkmode.js'
+import { SimulationUI } from './modules/ui/simulation-ui.js'
 import { csrfProtection } from './modules/security/firebase-csrf.js'
 
 class App {
@@ -17,6 +18,7 @@ class App {
     this.cursoAtual = 'BICTI' // valor padrão
     csrfProtection.init()
     this.darkModeManager = new DarkModeManager()
+    this.simulation = null
     this.init()
   }
 
@@ -34,6 +36,9 @@ class App {
 
     this.setupEventListeners()
     this.atualizarTudo()
+
+    // Inicializa o simulador após carregar tudo
+    this.initSimulation()
   }
 
   setupCursoSelector() {
@@ -42,6 +47,17 @@ class App {
       this.cursoAtual = e.target.value
       this.carregarDisciplinasDoCurso()
       this.atualizarTudo()
+
+      // Atualiza o simulador quando o curso é alterado
+      if (this.simulation) {
+        this.simulation.simulator.cursoAtual = this.cursoAtual
+        this.simulation.updateNaturezaOptions()
+
+        // Se estiver em modo de simulação, atualiza a visualização
+        if (this.simulation.isSimulationMode) {
+          this.simulation.atualizarSimulacao()
+        }
+      }
     })
   }
 
@@ -51,17 +67,29 @@ class App {
 
   setupEventListeners() {
     setupFormHandlers(this.disciplinas, {
-      onSubmit: () => {
+      onSubmit: disciplina => {
         salvarDisciplinas(this.disciplinas, this.cursoAtual)
         this.atualizarTudo()
+
+        // Atualiza o simulador quando uma nova disciplina é adicionada
+        if (this.simulation && this.simulation.isSimulationMode) {
+          this.simulation.simulator.disciplinasCursadas = this.disciplinas
+          this.simulation.atualizarSimulacao()
+        }
       }
     })
 
     window.app = {
-      removerDisciplina: function (index) {
+      removerDisciplina: index => {
         const token = csrfProtection.getToken()
-        const app = document.querySelector('body').__appInstance
-        app.removerDisciplina(index, token)
+        this.removerDisciplina(index, token)
+      },
+      simulation: {
+        removerDisciplinaSimulada: index => {
+          if (this.simulation) {
+            this.simulation.removerDisciplinaSimulada(index)
+          }
+        }
       }
     }
   }
@@ -84,6 +112,12 @@ class App {
     this.disciplinas.splice(index, 1)
     salvarDisciplinas(this.disciplinas, this.cursoAtual)
     this.atualizarTudo()
+
+    // Atualiza o simulador quando uma disciplina é removida
+    if (this.simulation && this.simulation.isSimulationMode) {
+      this.simulation.simulator.disciplinasCursadas = this.disciplinas
+      this.simulation.atualizarSimulacao()
+    }
   }
 
   atualizarTudo() {
@@ -130,6 +164,11 @@ class App {
       option.textContent = naturezaLabels[natureza]
       naturezaSelect.appendChild(option)
     })
+  }
+
+  // Inicializa o simulador
+  initSimulation() {
+    this.simulation = new SimulationUI(this)
   }
 }
 
@@ -270,6 +309,204 @@ style.textContent = `
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Estilos para o simulador */
+.simulation-container {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+  padding: 20px;
+}
+
+.simulation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.simulation-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.simulation-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 992px) {
+  .simulation-content {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.simulation-form-container {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.simulation-results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.impact-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.impact-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.impact-card h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.impact-values {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.impact-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  font-weight: 500;
+  color: #555;
+}
+
+.value {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.value.positive {
+  color: #2ecc71;
+}
+
+.value.negative {
+  color: #e74c3c;
+}
+
+.simulation-table-container {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-secondary {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-action {
+  background-color: #f1f1f1;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-simulation {
+  background-color: #9b59b6;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+  font-weight: 500;
+  display: block;
+  width: 100%;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+  font-style: italic;
+}
+
+.simulada-aprovada {
+  background-color: rgba(46, 204, 113, 0.1);
+}
+
+.simulada-reprovada {
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+.simulation-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 4px;
+  background-color: #2ecc71;
+  color: white;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.simulation-notification.error {
+  background-color: #e74c3c;
+}
+
+.simulation-notification.show {
+  opacity: 1;
+}
+
+/* Ajustes para quando o simulador está ativo */
+.content-container.simulation-active .table-container,
+.content-container.simulation-active .resumo-container {
+  opacity: 0.7;
+  pointer-events: none;
 }
 `
 document.head.appendChild(style)
