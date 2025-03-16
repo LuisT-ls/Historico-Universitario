@@ -415,7 +415,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 17.4%;
+  width: 17.4% !important;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -448,6 +448,27 @@
 
 .btn-simulation:hover::before {
   left: 100%;
+}
+
+/* Ajuste para telas médias */
+@media (max-width: 992px) {
+  .btn-simulation {
+    width: 30% !important;
+  }
+}
+
+/* Ajuste para telas pequenas */
+@media (max-width: 768px) {
+  .btn-simulation {
+    width: 35% !important;
+  }
+}
+
+/* Ajuste para telas muito pequenas */
+@media (max-width: 576px) {
+  .btn-simulation {
+    width: 60% !important;
+  }
 }
 
 .empty-message {
