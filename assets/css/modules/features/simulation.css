@@ -373,7 +373,7 @@
 }
 
 .btn-secondary:hover {
-  background-color: #dc2626; /* Vermelho mais escuro */
+  background-color: #dc2626;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
@@ -406,7 +406,7 @@
   background-color: var(--primary);
   color: white;
   border: none;
-  padding: 14px 24px;
+  padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
   margin-top: 24px;
@@ -415,11 +415,11 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 100%;
+  width: 17.4%;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  font-size: 1rem;
+  font-size: 0.9rem;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
   animation: attention-pulse 2s infinite;
 }
@@ -791,7 +791,7 @@ button:disabled:hover {
   .hide-on-mobile {
     display: none;
   }
-  
+
   .show-on-mobile {
     display: initial;
   }
