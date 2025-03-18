@@ -24,5 +24,16 @@ export const CURSOS = {
       AC: 360
     },
     totalHoras: 3750
+  },
+  ENG_ELET: {
+    nome: 'Engenharia Elétrica',
+    requisitos: {
+      AC: 340,
+      OB: 2910,
+      OP: 300,
+      OX: 240,
+      OZ: 120
+    },
+    totalHoras: 3910
   }
 }

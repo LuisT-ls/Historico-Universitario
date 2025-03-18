@@ -782,5 +782,362 @@
       "nome": "LÍNGUA BRASILEIRA DE SINAIS (LIBRAS)",
       "natureza": "OZ"
     }
+  ],
+  "ENG_ELET": [
+    {
+      "codigo": "CTIA01",
+      "nome": "INTRODUÇÃO À COMPUTAÇÃO",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA02",
+      "nome": "BASES EPISTEMOLÓGICAS DA CIÊNCIA",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA03",
+      "nome": "BASES MATEMÁTICAS PARA CIÊNCIA, TECNOLOGIA E INOVAÇÃO",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA04",
+      "nome": "ELEMENTOS ACADÊMICOS E PROFISSIONAIS EM C, T E I",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA05",
+      "nome": "LÍNGUA PORTUGUESA, PODER E DIVERSIDADE CULTURAL",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA67",
+      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE I",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA07",
+      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO E SOCIEDADE",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA08",
+      "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO I",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA10",
+      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE II",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA31",
+      "nome": "CÁLCULO A",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA49",
+      "nome": "GEOMETRIA ANALÍTICA",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA11",
+      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO, SOCIEDADE E AMBIENTE",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA45",
+      "nome": "FÍSICA I",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA66",
+      "nome": "CÁLCULO B",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA80",
+      "nome": "EMPREENDEDORISMO",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA28",
+      "nome": "ÁLGEBRA LINEAR",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA33",
+      "nome": "CÁLCULO C",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA46",
+      "nome": "FÍSICA II",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA60",
+      "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO II",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA85",
+      "nome": "ADMINISTRAÇÃO E ECONOMIA",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA47",
+      "nome": "FÍSICA III",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA53",
+      "nome": "INTRODUÇÃO À LÓGICA DE PROGRAMAÇÃO",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA59",
+      "nome": "QUÍMICA",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA72",
+      "nome": "MÉTODOS ESTATÍSTICOS",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA77",
+      "nome": "MECÂNICA GERAL I",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA34",
+      "nome": "CÁLCULO NUMÉRICO",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA36",
+      "nome": "CIÊNCIA DOS MATERIAIS",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA74",
+      "nome": "ANÁLISE DE CIRCUITOS I",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA78",
+      "nome": "MECÂNICA DOS FLUIDOS I",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA79",
+      "nome": "DESENHO TÉCNICO I",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB65",
+      "nome": "PROJETO DE CIRCUITOS LÓGICOS PARA ENGENHARIAS",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB66",
+      "nome": "SINAIS E SISTEMAS",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB67",
+      "nome": "MATERIAIS ELÉTRICOS",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB68",
+      "nome": "FUNDAMENTOS DE ELETROMAGNETISMO APLICADO",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB69",
+      "nome": "ANÁLISE DE CIRCUITOS II",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB70",
+      "nome": "MODELAGEM E CONTROLE DE SISTEMAS",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB71",
+      "nome": "CONVERSÃO DE ENERGIA",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB72",
+      "nome": "INSTALAÇÕES ELÉTRICAS PREDIAIS",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB73",
+      "nome": "ELETRÔNICA ANALÓGICA",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB74",
+      "nome": "SISTEMAS ELÉTRICOS DE POTÊNCIA I",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB75",
+      "nome": "PRINCÍPIOS DE COMUNICAÇÕES",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB76",
+      "nome": "MÁQUINAS ELÉTRICAS",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB77",
+      "nome": "INSTRUMENTAÇÃO ELETRÔNICA",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB81",
+      "nome": "PLANEJAMENTO DO PROJETO DE CONCLUSÃO CURSO EM ENG. ELÉTRICA",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB78",
+      "nome": "GERAÇÃO, TRANSMISSÃO E DISTRIBUIÇÃO DE ENERGIA",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB82",
+      "nome": "PROJETO DE CONCLUSÃO DE CURSO EM ENGENHARIA ELÉTRICA",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIB84",
+      "nome": "ESTÁGIO EM ENGENHARIA ELÉTRICA",
+      "natureza": "OB"
+    },
+    {
+      "codigo": "CTIA71",
+      "nome": "ACCS: A MATEMÁTICA FINANCEIRA E A ESTATÍSTICA NO COTIDIANO",
+      "natureza": "OX"
+    },
+    {
+      "codigo": "CTIA62",
+      "nome": "ACCS: OFICINA DE MODELAGEM DE NEGÓCIOS E INSERÇÃO DIGITAL",
+      "natureza": "OX"
+    },
+    {
+      "codigo": "CTIA81",
+      "nome": "ACCS: RECICLAGEM DE PLÁSTICOS",
+      "natureza": "OX"
+    },
+    {
+      "codigo": "CTIA63",
+      "nome": "ACCS: STEM - CIÊNCIA, TECNOLOGIA E INOVAÇÃO NAS ESCOLAS",
+      "natureza": "OX"
+    },
+    {
+      "codigo": "CTIA82",
+      "nome": "ACCS: PRODUÇÃO E CIRCULAÇÃO DE DIVULGAÇÃO CIENTÍFICA",
+      "natureza": "OX"
+    },
+    {
+      "codigo": "CTIB89",
+      "nome": "ACIONAMENTOS ELÉTRICOS",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIA94",
+      "nome": "AUTOMAÇÃO DE PROCESSOS",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB80",
+      "nome": "COMUNICAÇÃO DE DADOS E REDES DE COMPUTADORES",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB83",
+      "nome": "EFICIÊNCIA ENERGÉTICA",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB90",
+      "nome": "ELETRÔNICA DE POTÊNCIA",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIA14",
+      "nome": "ESTUDOS DAS CULTURAS",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIA65",
+      "nome": "FERRAMENTAS DIGITAIS PARA A PESQUISA ACADÊMICA",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIA84",
+      "nome": "FÍSICA IV",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB87",
+      "nome": "INSTALAÇÕES ELÉTRICAS INDUSTRIAIS",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIA17",
+      "nome": "INTRODUÇÃO À HISTÓRIA DAS CIÊNCIAS",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB86",
+      "nome": "PROTEÇÃO DE SISTEMAS DE ENERGIA",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB85",
+      "nome": "QUALIDADE DE ENERGIA",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB79",
+      "nome": "REDES MÓVEIS E INTERNET DAS COISAS",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIB88",
+      "nome": "SISTEMAS ELÉTRICOS DE POTÊNCIA II",
+      "natureza": "OP"
+    },
+    {
+      "codigo": "CTIA22",
+      "nome": "LEITURA DE TEXTOS EM LÍNGUA ESPANHOLA I",
+      "natureza": "OZ"
+    },
+    {
+      "codigo": "CTIA23",
+      "nome": "LEITURA DE TEXTOS EM LÍNGUA ESPANHOLA II",
+      "natureza": "OZ"
+    },
+    {
+      "codigo": "CTIA24",
+      "nome": "LEITURA DE TEXTOS EM LÍNGUA INGLESA I",
+      "natureza": "OZ"
+    },
+    {
+      "codigo": "CTIA25",
+      "nome": "LEITURA DE TEXTOS EM LÍNGUA INGLESA II",
+      "natureza": "OZ"
+    },
+    {
+      "codigo": "CTIA26",
+      "nome": "LÍNGUA BRASILEIRA DE SINAIS (LIBRAS)",
+      "natureza": "OZ"
+    }
   ]
 }
