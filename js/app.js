@@ -45,6 +45,7 @@ class App {
     const cursoSelect = document.getElementById('curso')
     cursoSelect.addEventListener('change', e => {
       this.cursoAtual = e.target.value
+      console.log(`Curso alterado para: ${this.cursoAtual}`) // Log para debug
       this.carregarDisciplinasDoCurso()
       this.atualizarTudo()
 
@@ -62,7 +63,9 @@ class App {
   }
 
   carregarDisciplinasDoCurso() {
+    console.log(`Carregando disciplinas do curso: ${this.cursoAtual}`) // Log para debug
     this.disciplinas = carregarDisciplinas(this.cursoAtual)
+    console.log(`${this.disciplinas.length} disciplinas carregadas`) // Log para debug
   }
 
   setupEventListeners() {
