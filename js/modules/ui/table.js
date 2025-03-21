@@ -1,10 +1,13 @@
 // js/modules/ui/table.js
-import { compararPeriodos } from '../utils.js'
-
 export function atualizarTabela(disciplinas, removerDisciplina) {
   const tbody = document.getElementById('historicoBody')
-  tbody.appendChild(criarCabecalhoTabela())
   tbody.innerHTML = ''
+
+  if (disciplinas.length === 0) {
+    tbody.innerHTML =
+      '<tr><td colspan="9" class="empty-table">Nenhuma disciplina cadastrada</td></tr>'
+    return
+  }
 
   const disciplinasPorPeriodo = {}
   disciplinas.forEach(disc => {
@@ -32,7 +35,7 @@ export function atualizarTabela(disciplinas, removerDisciplina) {
     disciplinasDoPeriodo.sort((a, b) => {
       if (a.codigo < b.codigo) return -1
       if (a.codigo > b.codigo) return 1
-      const statusOrder = { AP: 0, TR: 1, RP: 2 }
+      const statusOrder = { AP: 0, TR: 1, RR: 2 } // Correção de RP para RR
       return statusOrder[a.resultado] - statusOrder[b.resultado]
     })
 
@@ -41,7 +44,9 @@ export function atualizarTabela(disciplinas, removerDisciplina) {
       const tr = document.createElement('tr')
 
       // Calcula o PCH (Produto Carga Horária = CH × Nota)
-      const pch = disc.trancamento ? '-' : (disc.ch * disc.nota).toFixed(1)
+      const pch = disc.trancamento
+        ? '-'
+        : (disc.ch * (disc.nota || 0)).toFixed(1)
 
       tr.innerHTML = `
         <td>${disc.periodo}</td>
@@ -64,7 +69,7 @@ export function atualizarTabela(disciplinas, removerDisciplina) {
       // Adiciona classes para estilização baseada no resultado
       if (disc.resultado === 'AP') {
         tr.classList.add('aprovada')
-      } else if (disc.resultado === 'RP') {
+      } else if (disc.resultado === 'RR') {
         tr.classList.add('reprovada')
       } else if (disc.resultado === 'TR') {
         tr.classList.add('trancada')
