@@ -20,7 +20,7 @@ export function atualizarRequisitos(
   })
 
   // Handle LV excess hours calculation
-  const naturezasParaLV = ['OX', 'OG', 'OH', 'OZ']
+  const naturezasParaLV = ['OX', 'OG', 'OH', 'OZ', 'OB']
   let totalExcessoLV = 0
 
   naturezasParaLV.forEach(nat => {
@@ -98,6 +98,7 @@ export function atualizarRequisitos(
       <div class="progress-fill" style="width: ${totalPercent}%"></div>
     </div>
   `
+
   document.getElementById('totalFalta').textContent = totalFalta
   document.getElementById('metaTotal').textContent = TOTAL_HORAS_NECESSARIAS
 }

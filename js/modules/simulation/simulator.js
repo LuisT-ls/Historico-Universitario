@@ -192,24 +192,64 @@ export class Simulator {
     const horasFaltantes = {}
     let totalHorasFaltantes = 0
 
+    const horasPorNaturezaAjustado = { ...horasPorNaturezaProjetada }
+    const naturezasParaLV = ['OX', 'OG', 'OH', 'OZ', 'OB']
+    let totalExcessoLV = 0
+
+    naturezasParaLV.forEach(nat => {
+      if (horasPorNaturezaAjustado[nat] && requisitos[nat]) {
+        if (horasPorNaturezaAjustado[nat] > requisitos[nat]) {
+          const excesso = horasPorNaturezaAjustado[nat] - requisitos[nat]
+          totalExcessoLV += excesso
+          horasPorNaturezaAjustado[nat] = requisitos[nat]
+        }
+      }
+    })
+
+    if (!horasPorNaturezaAjustado.LV) {
+      horasPorNaturezaAjustado.LV = 0
+    }
+    horasPorNaturezaAjustado.LV += totalExcessoLV
+
     // Calcular horas faltantes por natureza
     Object.keys(requisitos).forEach(natureza => {
       const horasRequisito = requisitos[natureza]
-      const horasCompletas = horasPorNaturezaProjetada[natureza] || 0
+      const horasCompletas = horasPorNaturezaAjustado[natureza] || 0
       horasFaltantes[natureza] = Math.max(0, horasRequisito - horasCompletas)
       totalHorasFaltantes += horasFaltantes[natureza]
     })
 
-    // Estimativa de semestres restantes (média de 300h por semestre)
-    const mediaHorasPorSemestre = 300
-    const semestresRestantes = Math.ceil(
-      totalHorasFaltantes / mediaHorasPorSemestre
+    // Estimativa baseada em 5-6 disciplinas de 60h por semestre
+    const disciplinasPorSemestre = {
+      min: 5, // mínimo de disciplinas por semestre
+      max: 6 // máximo de disciplinas por semestre
+    }
+
+    const horasPorSemestre = {
+      min: disciplinasPorSemestre.min * 60, // 5 disciplinas de 60h = 300h
+      max: disciplinasPorSemestre.max * 60 // 6 disciplinas de 60h = 360h
+    }
+
+    // Calcular semestres restantes
+    const semestresRestantesMax = Math.ceil(
+      totalHorasFaltantes / horasPorSemestre.min
     )
+    const semestresRestantesMin = Math.ceil(
+      totalHorasFaltantes / horasPorSemestre.max
+    )
+
+    // Se os valores são iguais, retorna apenas um número, caso contrário retorna um intervalo
+    const semestresRestantes =
+      semestresRestantesMin === semestresRestantesMax
+        ? semestresRestantesMin
+        : { min: semestresRestantesMin, max: semestresRestantesMax }
 
     return {
       horasFaltantes,
       totalHorasFaltantes,
-      semestresRestantes
+      semestresRestantes,
+      disciplinasPorSemestre,
+      horasPorSemestre
     }
   }
 

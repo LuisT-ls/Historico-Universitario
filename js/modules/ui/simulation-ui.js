@@ -552,17 +552,64 @@ export class SimulationUI {
     document.getElementById(
       'horas-faltantes'
     ).textContent = `${impacto.tempoRestante.totalHorasFaltantes}h`
-    document.getElementById('semestres-restantes').textContent =
-      impacto.tempoRestante.semestresRestantes
+
+    // Exibição de semestres restantes
+    const semestresRestantesEl = document.getElementById('semestres-restantes')
+    if (typeof impacto.tempoRestante.semestresRestantes === 'object') {
+      // Se for um intervalo de semestres (min a max)
+      semestresRestantesEl.textContent = `${impacto.tempoRestante.semestresRestantes.min} a ${impacto.tempoRestante.semestresRestantes.max}`
+    } else {
+      // Se for um único valor
+      semestresRestantesEl.textContent =
+        impacto.tempoRestante.semestresRestantes
+    }
+
+    // Adicionar informação sobre o cálculo - 5-6 disciplinas por semestre
+    this.atualizarInfoCalculoSemestres(impacto.tempoRestante)
 
     // Calcula a previsão de formatura
     const previsao = this.calcularPrevisaoFormatura(
-      impacto.tempoRestante.semestresRestantes
+      // Usando o valor máximo para previsão mais conservadora
+      typeof impacto.tempoRestante.semestresRestantes === 'object'
+        ? impacto.tempoRestante.semestresRestantes.max
+        : impacto.tempoRestante.semestresRestantes
     )
     document.getElementById('previsao-formatura').textContent = previsao
 
     // Exibe detalhes das horas faltantes por natureza
     this.mostrarDetalheHorasFaltantes(impacto.tempoRestante.horasFaltantes)
+  }
+
+  // Método para mostrar informações sobre o cálculo de semestres
+  atualizarInfoCalculoSemestres(tempoRestante) {
+    // Verificar se o elemento já existe
+    let infoElement = document.getElementById('info-calculo-semestres')
+
+    if (!infoElement) {
+      // Criar o elemento se não existir
+      infoElement = document.createElement('div')
+      infoElement.id = 'info-calculo-semestres'
+      infoElement.className = 'info-calculo'
+
+      // Inserir após o elemento de semestres restantes
+      const semestresEl = document
+        .getElementById('semestres-restantes')
+        .closest('.impact-value')
+      semestresEl.parentNode.insertBefore(infoElement, semestresEl.nextSibling)
+    }
+
+    // Atualizar o conteúdo
+    const minDisc = tempoRestante.disciplinasPorSemestre?.min || 5
+    const maxDisc = tempoRestante.disciplinasPorSemestre?.max || 6
+    const minHoras = tempoRestante.horasPorSemestre?.min || minDisc * 60
+    const maxHoras = tempoRestante.horasPorSemestre?.max || maxDisc * 60
+
+    infoElement.innerHTML = `
+    <div class="info-text">
+      <i class="fas fa-info-circle"></i> 
+      Baseado em ${minDisc}-${maxDisc} disciplinas por semestre (${minHoras}-${maxHoras}h)
+    </div>
+  `
   }
 
   // Exibe detalhes das horas faltantes por natureza
