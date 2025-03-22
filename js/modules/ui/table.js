@@ -1,4 +1,6 @@
 // js/modules/ui/table.js
+import { compararPeriodos } from '../utils.js'
+
 export function atualizarTabela(disciplinas, removerDisciplina) {
   const tbody = document.getElementById('historicoBody')
   tbody.innerHTML = ''
