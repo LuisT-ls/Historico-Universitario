@@ -161,3 +161,89 @@ button:focus {
 :root.dark-mode .remover:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.4);
 }
+
+/* Estilos para o botão de acesso à ementa */
+.btn-ementa {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background-color: var(--secondary, #0ea5e9);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-ementa:hover {
+  background-color: var(--secondary-dark, #0369a1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-ementa:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3);
+}
+
+.btn-ementa:active {
+  transform: translateY(0);
+}
+
+.btn-ementa i {
+  font-size: 1rem;
+}
+
+.btn-ementa-fixed {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 100;
+}
+
+.form-row .btn-ementa {
+  height: 42px;
+  margin-top: 1.5rem;
+}
+
+.btn-ementa-floating {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-ementa-floating i {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.btn-ementa-floating .btn-text {
+  display: none;
+}
+
+/* Estilos para o botão ao lado do seletor de curso */
+.curso-ementa-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.curso-ementa-container .form-group {
+  margin-bottom: 0;
+}
+
+.curso-ementa-container .btn-ementa {
+  margin-bottom: 1rem;
+}

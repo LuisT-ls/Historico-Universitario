@@ -1,0 +1,555 @@
+/* Modal da ementa */
+.ementa-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+  padding: 2rem 1rem;
+}
+
+.ementa-content {
+  background-color: var(--background);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 1100px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px var(--shadow);
+  overflow: hidden;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cabeçalho do modal */
+.ementa-header {
+  padding: 1.25rem 1.5rem;
+  background-color: var(--primary);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ementa-header h2 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.ementa-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ementa-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* Controles de busca e filtro */
+.ementa-controls {
+  padding: 1rem 1.5rem;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-container input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: var(--background);
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+
+.search-container input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  outline: none;
+}
+
+.search-container input::placeholder {
+  color: var(--text-secondary);
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+}
+
+.filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.filter-group select {
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--background);
+  font-size: 0.9rem;
+  color: var(--text);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1rem;
+}
+
+.filter-group select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  outline: none;
+}
+
+/* Corpo da ementa */
+.ementa-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background-color: var(--background);
+}
+
+.ementa-loading,
+.ementa-message,
+.ementa-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.ementa-loading i,
+.ementa-message i {
+  font-size: 2.5rem;
+  color: var(--secondary);
+}
+
+.ementa-error i {
+  color: var(--danger);
+}
+
+.ementa-message p,
+.ementa-error p {
+  font-size: 1.1rem;
+  max-width: 400px;
+  margin: 0;
+  color: var(--text);
+}
+
+/* Seções da ementa */
+.ementa-section {
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px var(--shadow);
+}
+
+.ementa-section-header {
+  background-color: var(--surface);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.ementa-section-header:hover {
+  background-color: var(--row-hover);
+}
+
+.ementa-section-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-header);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-toggle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  transition: transform 0.3s ease;
+}
+
+.ementa-section-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background-color: var(--background);
+}
+
+/* Badges */
+.natureza-badge {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 6px;
+  color: white;
+  min-width: 28px;
+}
+
+.natureza-OB {
+  background-color: var(--primary);
+}
+
+.natureza-OG {
+  background-color: var(--progress-high);
+}
+
+.natureza-OH {
+  background-color: #8b5cf6;
+}
+
+.natureza-OX {
+  background-color: var(--warning);
+}
+
+.natureza-OZ {
+  background-color: #ec4899;
+}
+
+.natureza-LV {
+  background-color: #6366f1;
+}
+
+.natureza-AC {
+  background-color: var(--secondary);
+}
+
+.count-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: var(--surface-light, var(--border));
+  color: var(--text-secondary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  margin-left: auto;
+}
+
+/* Grade de disciplinas */
+.disciplinas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.disciplina-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  background-color: var(--surface);
+  position: relative;
+}
+
+.disciplina-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px var(--shadow);
+  transform: translateY(-2px);
+}
+
+.disciplina-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--surface-light, var(--surface));
+  border-bottom: 1px solid var(--border);
+}
+
+.disciplina-codigo {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-header);
+}
+
+.disciplina-ch {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background-color: var(--surface-light, var(--background));
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.disciplina-nome {
+  padding: 1rem;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+  line-height: 1.4;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+}
+
+.disciplina-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+  background-color: var(--surface-light, var(--surface));
+}
+
+.disciplina-natureza {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.btn-adicionar-disciplina {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.btn-adicionar-disciplina:hover {
+  color: var(--primary-dark);
+  background-color: rgba(37, 99, 235, 0.1);
+}
+
+.btn-adicionar-disciplina.added {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: var(--success);
+}
+
+/* Rodapé do modal */
+.ementa-footer {
+  padding: 1rem 1.5rem;
+  background-color: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ementa-footer p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.ementa-footer p span {
+  font-weight: 700;
+  color: var(--text-header);
+}
+
+/* Impedir rolagem do body quando o modal está aberto */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Animação para o botão de adicionar */
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.btn-adicionar-disciplina.added i {
+  animation: checkmark 0.3s forwards;
+}
+
+/* Tooltips para informações adicionais */
+.disciplina-card .tooltip-text {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  background-color: var(--text);
+  color: var(--background);
+  font-size: 0.8rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  z-index: 10;
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+  transform: translateY(5px);
+}
+
+.disciplina-card:hover .tooltip-text {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-5px);
+}
+
+/* Adiciona uma seta ao tooltip */
+.disciplina-card .tooltip-text::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 10px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--text) transparent transparent transparent;
+}
+
+/* Animação de carregamento */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ementa-loading i {
+  animation: spin 1s linear infinite;
+}
+
+/* Estilo para disciplinas sem dados de carga horária */
+.disciplina-card[data-cargahoraria='0'] .disciplina-ch,
+.disciplina-card:not([data-cargahoraria]) .disciplina-ch {
+  background-color: var(--warning);
+  color: white;
+}
+
+/* Estilo para abrir/fechar todas as seções */
+.ementa-controls .toggle-all-sections {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.ementa-controls .toggle-all-sections:hover {
+  background-color: var(--surface-light, var(--border));
+  color: var(--text);
+}
+
+/* Estilos para a rolagem (scrollbar) dentro do modal */
+.ementa-body::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-width);
+}
+
+.ementa-body::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+.ementa-body::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 20px;
+  border: 2px solid var(--scrollbar-track);
+}
+
+.ementa-body::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+/* Estilo para destacar disciplinas recentemente adicionadas */
+@keyframes highlight-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+}
+
+.highlighted-card {
+  animation: highlight-pulse 1.5s ease-out;
+}

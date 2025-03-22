@@ -7,6 +7,7 @@ import { atualizarRequisitos } from './modules/ui/requisitos.js'
 import { setupFormHandlers } from './modules/ui/formHandler.js'
 import { getPeriodoMaisRecente } from './modules/utils.js'
 import { setupFilterComponent } from './modules/ui/filter.js'
+import { inicializarEmenta } from './modules/ui/ementa.js'
 import { setupDateTime } from './modules/ui/datetime.js'
 import DarkModeManager from './modules/ui/darkmode.js'
 import { SimulationUI } from './modules/ui/simulation-ui.js'
@@ -27,6 +28,7 @@ class App {
     this.carregarDisciplinasDoCurso()
     setupFilterComponent()
     setupDateTime()
+    inicializarEmenta()
 
     const periodoInput = document.getElementById('periodo')
     const periodoRecente = getPeriodoMaisRecente(this.disciplinas)
