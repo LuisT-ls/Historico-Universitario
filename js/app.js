@@ -44,8 +44,17 @@ class App {
   setupCursoSelector() {
     const cursoSelect = document.getElementById('curso')
     cursoSelect.addEventListener('change', e => {
+      // Garante que salvamos as disciplinas do curso atual antes de trocar
+      console.log(
+        `Salvando disciplinas antes da troca de curso. Curso: ${this.cursoAtual}, Qtd: ${this.disciplinas.length}`
+      )
+      salvarDisciplinas(this.disciplinas, this.cursoAtual)
+
+      // Agora mudamos o curso atual
       this.cursoAtual = e.target.value
-      console.log(`Curso alterado para: ${this.cursoAtual}`) // Log para debug
+      console.log(`Curso alterado para: ${this.cursoAtual}`)
+
+      // Carregamos as disciplinas do novo curso
       this.carregarDisciplinasDoCurso()
       this.atualizarTudo()
 
@@ -63,14 +72,26 @@ class App {
   }
 
   carregarDisciplinasDoCurso() {
-    console.log(`Carregando disciplinas do curso: ${this.cursoAtual}`) // Log para debug
+    console.log(`Carregando disciplinas do curso: ${this.cursoAtual}`)
     this.disciplinas = carregarDisciplinas(this.cursoAtual)
-    console.log(`${this.disciplinas.length} disciplinas carregadas`) // Log para debug
+    console.log(`${this.disciplinas.length} disciplinas carregadas`)
   }
 
   setupEventListeners() {
     setupFormHandlers(this.disciplinas, {
       onSubmit: disciplina => {
+        // Garantir que a disciplina esteja no array atual
+        if (!this.disciplinas.includes(disciplina)) {
+          console.log(
+            'Disciplina não encontrada no array principal, adicionando novamente'
+          )
+          this.disciplinas.push(disciplina)
+        }
+
+        console.log(
+          `Disciplina adicionada ao curso ${this.cursoAtual}. Total: ${this.disciplinas.length}`,
+          disciplina
+        )
         salvarDisciplinas(this.disciplinas, this.cursoAtual)
         this.atualizarTudo()
 
@@ -113,6 +134,9 @@ class App {
     }
 
     this.disciplinas.splice(index, 1)
+    console.log(
+      `Disciplina removida. Restam ${this.disciplinas.length} disciplinas no curso ${this.cursoAtual}`
+    )
     salvarDisciplinas(this.disciplinas, this.cursoAtual)
     this.atualizarTudo()
 

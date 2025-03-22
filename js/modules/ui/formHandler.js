@@ -156,8 +156,16 @@ export function setupFormHandlers(disciplinas, callbacks) {
       disciplina.resultado = disciplina.nota >= 5 ? 'AP' : 'RR'
     }
 
+    // Adiciona a disciplina ao array passado por referência
     disciplinas.push(disciplina)
-    callbacks.onSubmit(disciplina)
+    console.log(
+      `Disciplina adicionada: ${disciplina.codigo}, Array agora tem ${disciplinas.length} itens`
+    )
+
+    // Chama o callback após adicionar a disciplina
+    if (callbacks && typeof callbacks.onSubmit === 'function') {
+      callbacks.onSubmit(disciplina)
+    }
 
     const periodoAtual = document.getElementById('periodo').value
     this.reset()
