@@ -1,28 +1,62 @@
-/* Filtro para as disciplinas */
+/* Filtro para as disciplinas - Design elegante e moderno */
 .filter-container {
   margin: 1.5rem 0;
-  background: #f8f9fa;
+  background-color: var(--background);
   padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.filter-container:focus-within {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary);
 }
 
 .filter-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.filter-header::after {
+  content: '';
+  position: absolute;
+  bottom: -0.75rem;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, var(--primary), transparent);
+  opacity: 0.25;
 }
 
 .filter-header i {
-  font-size: 1.5rem;
-  color: #3498db;
+  font-size: 1.25rem;
+  color: var(--primary);
+  background-color: rgba(37, 99, 235, 0.1);
+  padding: 0.75rem;
+  border-radius: 50%;
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.filter-container:focus-within .filter-header i {
+  transform: rotate(-10deg);
+  background-color: rgba(37, 99, 235, 0.15);
 }
 
 .filter-header h2 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   line-height: 1.5rem;
   margin: 0;
+  font-weight: 600;
+  color: var(--text-header);
 }
 
 .search-container {
@@ -32,83 +66,413 @@
 
 .filter-input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 2px solid #e9ecef;
-  border-radius: 6px;
+  padding: 1rem 1.25rem 1rem 3rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: white;
+  background-color: var(--background);
+  color: var(--text);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  font-family: inherit;
 }
 
 .filter-input:focus {
-  border-color: #3498db;
+  border-color: var(--primary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.filter-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
 }
 
 .search-icon {
   position: absolute;
-  left: 0.75rem;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #95a5a6;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1rem;
+  line-height: 1;
 }
 
+.filter-input:focus + .search-icon {
+  color: var(--primary);
+}
+
+/* Resultados de busca elegantes */
 .search-results {
   position: absolute;
-  top: calc(100% + 5px);
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
-  background: white;
-  border-radius: 6px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-height: 300px;
+  background: var(--background);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  max-height: 360px;
   overflow-y: auto;
   z-index: 1000;
+  border: 1px solid var(--border);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  visibility: hidden;
+}
+
+.search-results:not(:empty) {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
 }
 
 .result-item {
-  padding: 0.75rem 1rem;
+  padding: 0.9rem 1.25rem;
   cursor: pointer;
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 1.5rem;
+  gap: 1.25rem;
   align-items: center;
-  border-bottom: 1px solid #f0f2f5;
+  border-bottom: 1px solid var(--border);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .result-item:last-child {
   border-bottom: none;
 }
 
+.result-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--primary);
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
+}
+
 .result-item:hover {
-  background-color: #f8f9fa;
+  background-color: var(--row-hover);
+}
+
+.result-item:hover::before {
+  transform: scaleY(1);
 }
 
 .codigo {
   font-weight: 600;
-  color: #2c3e50;
-  padding: 0.25rem 0.5rem;
-  background: #e9ecef;
-  border-radius: 4px;
+  color: var(--text-header);
+  padding: 0.35rem 0.75rem;
+  background-color: var(--surface);
+  border-radius: 6px;
   font-size: 0.9rem;
+  display: inline-block;
+  min-width: 80px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.result-item:hover .codigo {
+  background-color: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
 }
 
 .nome {
-  color: #34495e;
+  color: var(--text);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .natureza {
-  color: #7f8c8d;
-  font-size: 0.9rem;
-  padding: 0.25rem 0.5rem;
-  background: #f8f9fa;
-  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  background-color: var(--surface-light, var(--surface));
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
 .no-results {
-  padding: 1rem;
+  padding: 1.5rem;
   text-align: center;
-  color: #7f8c8d;
+  color: var(--text-secondary);
   font-style: italic;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.no-results i {
+  font-size: 1.5rem;
+  opacity: 0.5;
+}
+
+/* Estilização da barra de rolagem */
+.search-results::-webkit-scrollbar {
+  width: 8px;
+}
+
+.search-results::-webkit-scrollbar-track {
+  background: var(--surface);
+  border-radius: 0 10px 10px 0;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+  background-color: var(--primary);
+  border-radius: 10px;
+  border: 2px solid var(--surface);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .filter-container {
+    padding: 1.25rem;
+  }
+
+  .filter-header i {
+    padding: 0.6rem;
+    font-size: 1rem;
+  }
+
+  .filter-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .filter-input {
+    padding: 0.85rem 1rem 0.85rem 2.75rem;
+  }
+
+  .result-item {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'codigo natureza'
+      'nome nome';
+    gap: 0.5rem 1rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .codigo {
+    grid-area: codigo;
+  }
+
+  .nome {
+    grid-area: nome;
+    white-space: normal;
+  }
+
+  .natureza {
+    grid-area: natureza;
+  }
+}
+
+/* Animações e interações */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.result-item:active {
+  transform: scale(0.98);
+}
+
+/* Modo escuro */
+:root.dark-mode .filter-container {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+:root.dark-mode .filter-header i {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+:root.dark-mode .filter-input {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark-mode .search-results {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark-mode .resultado-nao-encontrado {
+  border-top: 1px solid var(--border);
+}
+
+/* Feedback de resultado selecionado */
+.result-item.selected {
+  background-color: rgba(37, 99, 235, 0.08);
+}
+
+.result-item.selected::before {
+  transform: scaleY(1);
+}
+
+.result-item.selected .codigo {
+  background-color: rgba(37, 99, 235, 0.15);
+  color: var(--primary);
+}
+
+/* Estilos complementares para busca de disciplinas */
+
+/* Estilo para destacar termos de busca */
+.result-item mark {
+  background-color: rgba(37, 99, 235, 0.2);
+  color: var(--primary-dark);
+  padding: 0 0.15rem;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+:root.dark-mode .result-item mark {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: var(--primary);
+}
+
+/* Destaque para campos preenchidos */
+.campo-destacado {
+  animation: campo-pulse 2s ease;
+}
+
+@keyframes campo-pulse {
+  0%,
+  100% {
+    background-color: var(--background);
+  }
+  30% {
+    background-color: rgba(37, 99, 235, 0.1);
+  }
+}
+
+/* Notificação de seleção */
+.selected-notification {
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--success);
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  z-index: 1001;
+  pointer-events: none;
+  font-size: 0.9rem;
+}
+
+.selected-notification.show {
+  bottom: -50px;
+  opacity: 1;
+}
+
+.selected-notification i {
+  font-size: 1.1rem;
+}
+
+/* Estilo para focus nos resultados */
+.result-item:focus {
+  outline: none;
+  background-color: rgba(37, 99, 235, 0.08);
+}
+
+.result-item.selected {
+  background-color: rgba(37, 99, 235, 0.08);
+}
+
+/* Ícone de loading enquanto busca */
+.search-loading {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: translateY(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+/* Animação ao deletar texto do input */
+.filter-input.clearing {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(1px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-2px);
+  }
+  40%,
+  60% {
+    transform: translateX(2px);
+  }
+}
+
+/* Melhoria no placeholder */
+.filter-input::placeholder {
+  transition: opacity 0.2s ease;
+}
+
+.filter-input:focus::placeholder {
+  opacity: 0.4;
+}
+
+/* Estado de foco para o container */
+.filter-container.focused {
+  border-color: var(--primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Estilo para disciplinas selecionadas recentemente */
+.recently-selected {
+  position: relative;
+}
+
+.recently-selected::after {
+  content: 'Selecionada recentemente';
+  position: absolute;
+  right: 1rem;
+  bottom: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--primary);
+  opacity: 0.7;
 }
