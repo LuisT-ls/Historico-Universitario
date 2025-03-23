@@ -209,6 +209,10 @@
     width: 100%;
   }
 
+  .filter-search-icon {
+    height: 1rem !important;
+  }
+
   .disciplinas-grid {
     grid-template-columns: 1fr;
   }
