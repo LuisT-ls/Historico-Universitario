@@ -97,11 +97,12 @@
   font-size: 1rem;
   transition: all 0.3s ease;
   pointer-events: none;
-  display: flex;
+  width: 1rem;
+  height: 2.4rem;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 1rem;
-  line-height: 1;
+  line-height: 0;
 }
 
 .filter-input:focus + .search-icon {
@@ -330,149 +331,4 @@
 .result-item.selected .codigo {
   background-color: rgba(37, 99, 235, 0.15);
   color: var(--primary);
-}
-
-/* Estilos complementares para busca de disciplinas */
-
-/* Estilo para destacar termos de busca */
-.result-item mark {
-  background-color: rgba(37, 99, 235, 0.2);
-  color: var(--primary-dark);
-  padding: 0 0.15rem;
-  border-radius: 2px;
-  font-weight: 600;
-}
-
-:root.dark-mode .result-item mark {
-  background-color: rgba(59, 130, 246, 0.3);
-  color: var(--primary);
-}
-
-/* Destaque para campos preenchidos */
-.campo-destacado {
-  animation: campo-pulse 2s ease;
-}
-
-@keyframes campo-pulse {
-  0%,
-  100% {
-    background-color: var(--background);
-  }
-  30% {
-    background-color: rgba(37, 99, 235, 0.1);
-  }
-}
-
-/* Notificação de seleção */
-.selected-notification {
-  position: absolute;
-  bottom: -60px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: var(--success);
-  color: white;
-  padding: 0.75rem 1.25rem;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  opacity: 0;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-  z-index: 1001;
-  pointer-events: none;
-  font-size: 0.9rem;
-}
-
-.selected-notification.show {
-  bottom: -50px;
-  opacity: 1;
-}
-
-.selected-notification i {
-  font-size: 1.1rem;
-}
-
-/* Estilo para focus nos resultados */
-.result-item:focus {
-  outline: none;
-  background-color: rgba(37, 99, 235, 0.08);
-}
-
-.result-item.selected {
-  background-color: rgba(37, 99, 235, 0.08);
-}
-
-/* Ícone de loading enquanto busca */
-.search-loading {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-secondary);
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: translateY(-50%) rotate(0deg);
-  }
-  100% {
-    transform: translateY(-50%) rotate(360deg);
-  }
-}
-
-/* Animação ao deletar texto do input */
-.filter-input.clearing {
-  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-}
-
-@keyframes shake {
-  10%,
-  90% {
-    transform: translateX(-1px);
-  }
-  20%,
-  80% {
-    transform: translateX(1px);
-  }
-  30%,
-  50%,
-  70% {
-    transform: translateX(-2px);
-  }
-  40%,
-  60% {
-    transform: translateX(2px);
-  }
-}
-
-/* Melhoria no placeholder */
-.filter-input::placeholder {
-  transition: opacity 0.2s ease;
-}
-
-.filter-input:focus::placeholder {
-  opacity: 0.4;
-}
-
-/* Estado de foco para o container */
-.filter-container.focused {
-  border-color: var(--primary);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-/* Estilo para disciplinas selecionadas recentemente */
-.recently-selected {
-  position: relative;
-}
-
-.recently-selected::after {
-  content: 'Selecionada recentemente';
-  position: absolute;
-  right: 1rem;
-  bottom: 0.5rem;
-  font-size: 0.7rem;
-  color: var(--primary);
-  opacity: 0.7;
 }
