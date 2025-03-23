@@ -9,6 +9,9 @@ export function inicializarEmenta() {
   // Criar o modal da ementa (inicialmente oculto)
   criarModalEmenta()
 
+  // Adicionar os estilos de animação das ementas
+  adicionarEstilosAnimacao()
+
   // Configurar eventos
   setupEventListeners()
 }
@@ -41,15 +44,40 @@ function adicionarBotaoEmenta() {
           border-radius: 6px;
           font-weight: 500;
           cursor: pointer;
-          transition: background-color 0.2s ease;
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .btn-ementa::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(255, 255, 255, 0.1);
+          transform: translateX(-100%);
+          transition: transform 0.5s ease;
         }
         
         .btn-ementa:hover {
           background-color: var(--secondary-dark, #0369a1);
+          transform: translateY(-2px);
+          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-ementa:hover::before {
+          transform: translateX(100%);
         }
         
         .btn-ementa i {
           margin-right: 0.5rem;
+          transition: transform 0.3s ease;
+        }
+        
+        .btn-ementa:hover i {
+          transform: rotate(-10deg);
         }
         
         @media (max-width: 768px) {
@@ -136,7 +164,8 @@ function setupEventListeners() {
   })
 
   // Botão para fechar a ementa
-  document.getElementById('ementa-close').addEventListener('click', () => {
+  document.getElementById('ementa-close').addEventListener('click', e => {
+    e.preventDefault()
     fecharEmenta()
   })
 
@@ -176,28 +205,145 @@ function setupEventListeners() {
   })
 }
 
+// Adicionar estilos dinâmicos para os efeitos visuais
+function adicionarEstilosAnimacao() {
+  const styleElement = document.createElement('style')
+  styleElement.textContent = `
+    /* Animação de fade para o modal */
+    #ementa-modal {
+      transition: opacity 0.3s ease;
+    }
+    
+    /* Animação para o conteúdo do modal */
+    .ementa-content {
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+    }
+    
+    /* Animação para as seções de conteúdo */
+    .ementa-section-content {
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+      opacity: 1;
+    }
+    
+    /* Efeito de close do modal */
+    #ementa-modal.closing .ementa-content {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    
+    /* Estilo para inputs destacados após adição */
+    .campo-destacado {
+      animation: highlightField 2s ease;
+    }
+    
+    @keyframes highlightField {
+      0%, 100% { background-color: var(--background); }
+      50% { background-color: rgba(37, 99, 235, 0.1); }
+    }
+    
+    /* Notificação de disciplina adicionada */
+    .ementa-notification {
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--success);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+      z-index: 1001;
+    }
+    
+    .ementa-notification.show {
+      bottom: 20px;
+      opacity: 1;
+    }
+    
+    .ementa-notification i {
+      font-size: 1.25rem;
+    }
+    
+    /* Transição suave para cards */
+    .disciplina-card {
+      transition: all 0.5s ease;
+    }
+  `
+
+  document.head.appendChild(styleElement)
+}
+
 // Abre o modal da ementa e carrega os dados
 function abrirEmenta() {
   const modal = document.getElementById('ementa-modal')
+
+  // Reset e preparação para animação
+  modal.style.opacity = '0'
   modal.style.display = 'flex'
   document.body.classList.add('modal-open')
 
-  // Atualiza o título com o curso atual
-  atualizarTituloCurso()
+  // Animação de entrada
+  setTimeout(() => {
+    modal.style.opacity = '1'
 
-  // Carrega os dados das disciplinas
-  carregarDisciplinas()
+    // Animação da caixa de conteúdo
+    const content = modal.querySelector('.ementa-content')
+    content.style.transform = 'translateY(-20px)'
+    content.style.opacity = '0'
 
-  // Reseta os filtros
-  document.getElementById('ementa-search').value = ''
-  document.getElementById('ementa-filter-natureza').value = 'todas'
+    setTimeout(() => {
+      content.style.transform = 'translateY(0)'
+      content.style.opacity = '1'
+
+      // Atualiza o título com o curso atual
+      atualizarTituloCurso()
+
+      // Carrega os dados das disciplinas
+      carregarDisciplinas()
+
+      // Reseta os filtros
+      document.getElementById('ementa-search').value = ''
+      document.getElementById('ementa-filter-natureza').value = 'todas'
+
+      // Foca no campo de busca após carregar
+      setTimeout(() => {
+        document.getElementById('ementa-search').focus()
+      }, 500)
+    }, 100)
+  }, 50)
 }
 
 // Fecha o modal da ementa
 function fecharEmenta() {
   const modal = document.getElementById('ementa-modal')
-  modal.style.display = 'none'
-  document.body.classList.remove('modal-open')
+  const content = modal.querySelector('.ementa-content')
+
+  // Animação de saída
+  content.style.transform = 'translateY(0)'
+  content.style.opacity = '1'
+
+  setTimeout(() => {
+    content.style.transform = 'translateY(20px)'
+    content.style.opacity = '0'
+
+    setTimeout(() => {
+      modal.style.opacity = '0'
+
+      setTimeout(() => {
+        modal.style.display = 'none'
+        document.body.classList.remove('modal-open')
+
+        // Reset dos estilos
+        content.style.transform = ''
+        content.style.opacity = ''
+      }, 200)
+    }, 150)
+  }, 50)
 }
 
 // Atualiza o título do modal com o nome do curso atual
@@ -304,7 +450,7 @@ function renderizarDisciplinas(disciplinas) {
       secaoNatureza.innerHTML = `
         <div class="ementa-section-header">
           <h3>
-            <i class="fas fa-chevron-down section-toggle"></i>
+            <span class="section-toggle"><i class="fas fa-chevron-down"></i></span>
             <span class="natureza-badge natureza-${natureza}">${natureza}</span>
             ${naturezaLabels[natureza]}
             <span class="count-badge">${disciplinasOrdenadas.length}</span>
@@ -335,7 +481,7 @@ function renderizarDisciplinas(disciplinas) {
           <div class="disciplina-footer">
             <div class="disciplina-natureza">${natureza}</div>
             <button class="btn-adicionar-disciplina" title="Adicionar ao histórico">
-              <i class="fas fa-plus-circle"></i>
+              <i class="fas fa-plus"></i>
             </button>
           </div>
         `
@@ -343,24 +489,34 @@ function renderizarDisciplinas(disciplinas) {
         // Adiciona evento para adicionar a disciplina ao histórico
         disciplinaCard
           .querySelector('.btn-adicionar-disciplina')
-          .addEventListener('click', () => {
-            adicionarDisciplinaAoHistorico(disc)
-            // Feedback visual
-            const btn = disciplinaCard.querySelector(
-              '.btn-adicionar-disciplina'
-            )
-            btn.innerHTML = '<i class="fas fa-check"></i>'
-            btn.classList.add('added')
+          .addEventListener('click', e => {
+            e.stopPropagation() // Previne a propagação do evento
+
+            // Efeito de clique e feedback visual
+            const btn = e.currentTarget
+            btn.innerHTML =
+              '<i class="fas fa-plus" style="transform: scale(0.7); opacity: 0.5;"></i>'
+
             setTimeout(() => {
-              btn.innerHTML = '<i class="fas fa-plus-circle"></i>'
-              btn.classList.remove('added')
-            }, 2000)
+              // Efeito de transição para o check
+              btn.innerHTML = '<i class="fas fa-check"></i>'
+              btn.classList.add('added')
+
+              // Adiciona a disciplina
+              adicionarDisciplinaAoHistorico(disc)
+
+              // Remove o feedback visual após um tempo
+              setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-plus"></i>'
+                btn.classList.remove('added')
+              }, 1500)
+            }, 100)
           })
 
         disciplinasGrid.appendChild(disciplinaCard)
       })
 
-      // Adiciona evento para expandir/recolher a seção ao clicar em todo o cabeçalho
+      // Adiciona evento para expandir/recolher a seção ao clicar no cabeçalho
       const sectionHeader = secaoNatureza.querySelector(
         '.ementa-section-header'
       )
@@ -373,12 +529,34 @@ function renderizarDisciplinas(disciplinas) {
         const content = sectionHeader.nextElementSibling
         const icon = sectionHeader.querySelector('.section-toggle')
 
+        // Toggle da classe active para estilização
+        sectionHeader.classList.toggle('active')
+
         if (content.style.maxHeight) {
+          // Fechando a seção
           content.style.maxHeight = null
-          icon.classList.replace('fa-chevron-up', 'fa-chevron-down')
+          content.style.opacity = '0'
+
+          // Remove a classe active para o header
+          sectionHeader.classList.remove('active')
+
+          setTimeout(() => {
+            if (!content.style.maxHeight) {
+              content.style.display = 'none'
+            }
+          }, 300)
         } else {
-          content.style.maxHeight = content.scrollHeight + 'px'
-          icon.classList.replace('fa-chevron-down', 'fa-chevron-up')
+          // Abrindo a seção
+          content.style.display = 'block'
+          content.style.opacity = '0'
+
+          // Adiciona a classe active para o header
+          sectionHeader.classList.add('active')
+
+          setTimeout(() => {
+            content.style.maxHeight = content.scrollHeight + 'px'
+            content.style.opacity = '1'
+          }, 50)
         }
       })
 
@@ -388,8 +566,15 @@ function renderizarDisciplinas(disciplinas) {
       if (natureza === ordemNaturezas[0]) {
         const content = secaoNatureza.querySelector('.ementa-section-content')
         const icon = secaoNatureza.querySelector('.section-toggle')
+        const header = secaoNatureza.querySelector('.ementa-section-header')
+
+        // Adiciona classe active ao cabeçalho
+        header.classList.add('active')
+
+        // Configura visibilidade e estilo
+        content.style.display = 'block'
+        content.style.opacity = '1'
         content.style.maxHeight = content.scrollHeight + 'px'
-        icon.classList.replace('fa-chevron-down', 'fa-chevron-up')
       }
     }
   })
@@ -397,6 +582,18 @@ function renderizarDisciplinas(disciplinas) {
   // Atualiza o contador total
   document.getElementById('ementa-total-disciplinas').textContent =
     disciplinas.length
+
+  // Adiciona animação de entrada para todos os cards
+  const allCards = document.querySelectorAll('.disciplina-card')
+  allCards.forEach((card, index) => {
+    card.style.opacity = '0'
+    card.style.transform = 'translateY(15px)'
+
+    setTimeout(() => {
+      card.style.opacity = '1'
+      card.style.transform = 'translateY(0)'
+    }, 30 * (index % 10)) // Efeito escalonado em grupos para performance
+  })
 }
 
 // Filtra as disciplinas de acordo com os critérios selecionados
@@ -424,11 +621,21 @@ function filtrarDisciplinas() {
       naturezaFiltro === 'todas' || natureza === naturezaFiltro
 
     const isVisible = matchesSearch && matchesNatureza
-    card.style.display = isVisible ? 'flex' : 'none'
 
     if (isVisible) {
+      card.style.display = 'flex'
+      card.style.opacity = '1'
+      card.style.transform = 'translateY(0)'
       disciplinasVisiveis++
       secaoVisivel.add(natureza)
+    } else {
+      card.style.opacity = '0'
+      card.style.transform = 'translateY(10px)'
+      setTimeout(() => {
+        if (card.style.opacity === '0') {
+          card.style.display = 'none'
+        }
+      }, 200)
     }
   })
 
@@ -450,7 +657,10 @@ function filtrarDisciplinas() {
         content.style.maxHeight = content.scrollHeight + 'px'
       }
     } else {
-      secao.style.display = 'none'
+      secao.style.opacity = '0'
+      setTimeout(() => {
+        secao.style.display = 'none'
+      }, 300)
     }
   })
 
@@ -466,21 +676,54 @@ function filtrarDisciplinas() {
     disciplinasVisiveis
 }
 
-// Adiciona a disciplina selecionada ao formulário
+// Adiciona a disciplina selecionada ao formulário com notificação elegante
 function adicionarDisciplinaAoHistorico(disciplina) {
-  // Preenche o formulário com os dados da disciplina
-  document.getElementById('codigo').value = disciplina.codigo
-  document.getElementById('nome').value = disciplina.nome
-  document.getElementById('natureza').value = disciplina.natureza
-  document.getElementById('ch').value = disciplina.ch || 60
+  // Cria notificação de confirmação
+  const notification = document.createElement('div')
+  notification.className = 'ementa-notification'
+  notification.innerHTML = `
+    <i class="fas fa-check-circle"></i>
+    <span>${disciplina.codigo} - ${disciplina.nome}</span>
+  `
 
-  // Fecha o modal da ementa
-  fecharEmenta()
+  document.querySelector('.ementa-content').appendChild(notification)
 
-  // Foca no campo de semestre
-  document.getElementById('periodo').focus()
+  // Anima a notificação
+  setTimeout(() => {
+    notification.classList.add('show')
 
-  // Realiza um scroll suave até o formulário
-  const formContainer = document.querySelector('.form-container')
-  formContainer.scrollIntoView({ behavior: 'smooth' })
+    // Preenche o formulário com os dados da disciplina
+    document.getElementById('codigo').value = disciplina.codigo
+    document.getElementById('nome').value = disciplina.nome
+    document.getElementById('natureza').value = disciplina.natureza
+    document.getElementById('ch').value = disciplina.ch || 60
+
+    // Remove a notificação e fecha o modal após um tempo
+    setTimeout(() => {
+      notification.classList.remove('show')
+
+      setTimeout(() => {
+        notification.remove()
+        fecharEmenta()
+
+        // Foca no campo de semestre
+        document.getElementById('periodo').focus()
+
+        // Realiza um scroll suave até o formulário
+        const formContainer = document.querySelector('.form-container')
+        formContainer.scrollIntoView({ behavior: 'smooth' })
+
+        // Destaque visual nos campos preenchidos
+        const camposPreenchidos = ['codigo', 'nome', 'natureza', 'ch']
+        camposPreenchidos.forEach(campo => {
+          const element = document.getElementById(campo)
+          element.classList.add('campo-destacado')
+
+          setTimeout(() => {
+            element.classList.remove('campo-destacado')
+          }, 2000)
+        })
+      }, 300)
+    }, 1500)
+  }, 100)
 }
