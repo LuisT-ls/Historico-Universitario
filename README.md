@@ -2,7 +2,7 @@
 
 ![Preview do Projeto](imagem-preview.jpg)
 
-Uma aplicação web para gerenciar e acompanhar o histórico acadêmico dos estudantes da Universidade Federal da Bahia (UFBA), com suporte inicial para os cursos de BICTI e Engenharia de Produção.
+Uma aplicação web para gerenciar e acompanhar o histórico acadêmico dos estudantes da Universidade Federal da Bahia (UFBA), com suporte inicial para os cursos de BICTI, Engenharia de Produção e Engenharia Elétrica.
 
 🔗 [Acesse o projeto](https://historicoufba.vercel.app/)
 
@@ -15,6 +15,7 @@ O Histórico Universitário UFBA é uma ferramenta que permite aos estudantes:
 - Calcular médias e carga horária total
 - Visualizar requisitos por natureza de componente
 - Buscar disciplinas específicas do seu curso
+- Acessar lista de ementas do curso
 
 ### 🎓 Cursos Suportados
 
@@ -22,10 +23,12 @@ O Histórico Universitário UFBA é uma ferramenta que permite aos estudantes:
   - Total de horas necessárias: 2400h
 - Engenharia de Produção
   - Total de horas necessárias: 3750h
+- Engenharia Elétrica
+  - Total de horas necessárias: 3910h
 
 ## 🚀 Funcionalidades
 
-- **Seleção de Curso**: Escolha entre BICTI e Engenharia de Produção
+- **Seleção de Curso**: Escolha entre BICTI, Engenharia de Produção ou Engenharia Elétrica
 - **Gerenciamento de Disciplinas**:
   - Adicionar disciplinas cursadas
   - Registrar notas e carga horária
@@ -38,6 +41,7 @@ O Histórico Universitário UFBA é uma ferramenta que permite aos estudantes:
   - Total de horas cursadas
   - Horas restantes por natureza
   - Progresso para formatura
+- **Planilha de Ementas**: Visualização de ementas do curso
 - **Autenticação de Usuário**: Login e gerenciamento de sessão
 
 ## 🛠️ Tecnologias Utilizadas
@@ -53,47 +57,66 @@ O Histórico Universitário UFBA é uma ferramenta que permite aos estudantes:
 ```
 .
 ├── assets/
-│   ├── css/           # Estilos CSS organizados em módulos
-│   │   ├── auth/      # Estilos específicos para autenticação
-│   │   │   └── login.css
-│   │   ├── main.css   # Estilos principais
-│   │   └── modules/   # Módulos CSS organizados por funcionalidade
-│   │       ├── base/  # Estilos base como reset, tipografia, variáveis e animações
-│   │       ├── components/ # Componentes reutilizáveis como botões, formulários, ícones, etc.
-│   │       ├── features/   # Estilos específicos para funcionalidades como filtros, períodos, resumos
-│   │       ├── layout/     # Estilos de layout como container, footer, grid
-│   │       └── utils/      # Utilitários como responsividade, status, etc.
-│   ├── data/          # Dados JSON das disciplinas
-│   └── img/           # Imagens e favicons
+│   ├── css/             # Estilos CSS organizados em módulos
+│   │   ├── auth/        # Estilos específicos para autenticação
+│   │   ├── main.css     # Estilos principais
+│   │   └── modules/     # Módulos CSS organizados por funcionalidade
+│   │       ├── base/         # Estilos base como reset, tipografia, variáveis e animações
+│   │       ├── components/   # Componentes reutilizáveis
+│   │       │   ├── auth/     # Estilos para componentes de autenticação
+│   │       ├── features/      # Estilos específicos para funcionalidades
+│   │       ├── layout/        # Estilos de layout
+│   │       └── utils/         # Utilitários
+│   ├── data/            # Dados JSON das disciplinas
+│   │   └── disciplinas.json
+│   └── img/             # Imagens e favicons
+│       ├── favicon/     # Ícones de favoritos
+│       ├── logo.png     # Logotipo do projeto
+│       └── og-image.jpg # Imagem para Open Graph (compartilhamento em redes sociais)
 ├── js/
-│   ├── app.js         # Arquivo principal
-│   └── modules/       # Módulos JavaScript
-│       ├── auth/      # Módulos de autenticação
+│   ├── app.js           # Arquivo principal
+│   └── modules/         # Módulos JavaScript
+│       ├── auth/        # Funcionalidades de autenticação
+│       │   ├── firebase/       # Integração com Firebase para autenticação
+│       │   ├── index.js        # Módulo de autenticação principal
+│       │   └── profile-manager.js # Gerenciamento de perfis de usuário
 │       ├── constants.js # Constantes do projeto
-│       ├── storage.js  # Gerenciamento de LocalStorage
-│       ├── ui/         # Módulos de interface do usuário
-│       └── utils.js    # Utilitários JavaScript
-├── index.html         # Página principal
-├── login.html         # Página de login
-├── manifest.json      # Arquivo de configuração para PWA
-├── robots.txt         # Arquivo para configuração de robôs de busca
-├── sitemap.xml        # Mapa do site para SEO
-└── sw.js              # Service Worker para funcionalidades offline
+│       ├── firebase/    # Configuração e integração com Firebase
+│       ├── security/    # Módulos relacionados à segurança
+│       ├── simulation/  # Simulação de cálculos e cenários
+│       ├── storage.js   # Manipulação de armazenamento local
+│       ├── ui/          # Componentes e interações da interface do usuário
+│       └── utils.js     # Utilitários JavaScript
+├── legal/              # Documentação legal
+│   ├── css/            # Estilos para páginas legais
+│   │   └── legal.css
+│   ├── privacy.html    # Página de política de privacidade
+│   └── terms.html      # Página de termos de uso
+├── index.html          # Página principal
+├── login.html          # Página de login
+├── manifest.json       # Arquivo de configuração para PWA
+├── robots.txt          # Arquivo para configuração de robôs de busca
+├── sitemap.xml         # Mapa do site para SEO
+├── sw.js               # Service Worker para funcionalidades offline
+├── imagem-preview.jpg  # Imagem de pré-visualização
+├── LICENSE             # Licença do projeto
+└── README.md           # Documentação do projeto
+
 ```
 
 ### 📊 Organização CSS
 
-- **Base**: Reset, tipografia, variáveis e animações
-- **Components**: Botões, formulários, ícones, tabelas
-- **Features**: Filtros, períodos, resumos
+- **Base**: Reset, tipografia, variáveis, scrollbar e animações
+- **Components**: Botões, formulários, ícones, tabelas, notificações, logomarca, progressos e data e hora
+- **Features**: Filtros, períodos, resumos, ementa, simulação, sumário, gráficos
 - **Layout**: Container, footer, grid
-- **Utils**: Responsividade, status
+- **Utils**: Responsividade, status, impressão, usuário, dark mode
 
 ## 🚦 Como Usar
 
 1. Acesse o [site do projeto](https://historicoufba.vercel.app/)
 2. Faça login na plataforma
-3. Selecione seu curso (BICTI ou Engenharia de Produção)
+3. Selecione seu curso (BICTI, Engenharia de Produção ou Engenharia Elétrica)
 4. Adicione suas disciplinas cursadas:
    - Preencha o semestre
    - Insira código e nome da disciplina
@@ -135,7 +158,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 👨‍💻 Autor
 
-Luís Teixeira - [GitHub](https://github.com/LuisT-ls)
+Luís Antonio Souza Teixeira - [GitHub](https://github.com/LuisT-ls)
 
 ## 🎯 Status do Projeto
 
@@ -144,4 +167,3 @@ Luís Teixeira - [GitHub](https://github.com/LuisT-ls)
 ---
 
 ⌨️ Feito com ❤️ por [Luís Teixeira](https://github.com/LuisT-ls)
-
