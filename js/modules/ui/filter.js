@@ -20,7 +20,7 @@ export function setupFilterComponent() {
         class="filter-input"
         autocomplete="off"
       />
-      <i class="fas fa-search search-icon" aria-hidden="true"></i>
+      <i class="fas fa-search filter-search-icon" aria-hidden="true"></i>
       <div id="searchResults" class="search-results"></div>
     </div>
   `

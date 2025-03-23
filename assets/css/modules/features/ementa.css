@@ -125,6 +125,10 @@
   align-items: center;
 }
 
+.ementa-controls .search-icon {
+  height: auto;
+}
+
 .search-container {
   position: relative;
   width: 100%;
@@ -152,13 +156,26 @@
   color: var(--text-secondary);
 }
 
-.search-icon {
+.ementa-controls .search-icon {
+  left: 0.75rem;
+  font-size: 0.95rem;
+  height: auto;
+}
+
+/* Estilo quando o input está em foco */
+input:focus + .search-icon {
+  color: var(--primary);
+}
+
+.ementa-search-icon {
   position: absolute;
   left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-secondary);
   pointer-events: none;
+  font-size: 0.95rem;
+  display: inline-block;
 }
 
 .filter-container {

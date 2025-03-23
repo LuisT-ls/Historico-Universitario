@@ -112,7 +112,7 @@ function criarModalEmenta() {
       <div class="ementa-controls">
         <div class="search-container">
           <input type="text" id="ementa-search" placeholder="Buscar disciplina por código ou nome..." aria-label="Buscar disciplina">
-          <i class="fas fa-search search-icon"></i>
+          <i class="fas fa-search ementa-search-icon"></i>
         </div>
         
         <div class="filter-container">

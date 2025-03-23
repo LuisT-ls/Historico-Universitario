@@ -88,7 +88,7 @@
   opacity: 0.7;
 }
 
-.search-icon {
+.filter-search-icon {
   position: absolute;
   left: 1rem;
   top: 50%;
@@ -97,15 +97,20 @@
   font-size: 1rem;
   transition: all 0.3s ease;
   pointer-events: none;
-  width: 1rem;
-  height: 2.4rem;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
+  width: 1rem;
+  height: 2.4rem;
   line-height: 0;
 }
 
-.filter-input:focus + .search-icon {
+/* Estilo quando o input está em foco */
+.filter-input:focus + .filter-search-icon {
+  color: var(--primary);
+}
+
+#ementa-search:focus + .ementa-search-icon {
   color: var(--primary);
 }
 
