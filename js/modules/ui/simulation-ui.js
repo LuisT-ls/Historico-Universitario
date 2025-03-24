@@ -338,11 +338,11 @@ export class SimulationUI {
           } else {
             // Valores padrão comuns
             if (codigo.includes('CTIA')) {
-              chInput.value = 68
+              chInput.value = 60
             } else if (codigo.includes('MAT')) {
               chInput.value = 102
             } else {
-              chInput.value = 68 // valor padrão
+              chInput.value = 60 // valor padrão
             }
           }
         }
