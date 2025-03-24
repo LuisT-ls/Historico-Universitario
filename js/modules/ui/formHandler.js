@@ -1,4 +1,3 @@
-// js/modules/ui/formHandler.js
 export function setupFormHandlers(disciplinas, callbacks) {
   const form = document.getElementById('disciplinaForm')
   const trancamentoCheckbox = document.getElementById('trancamento')
@@ -48,22 +47,27 @@ export function setupFormHandlers(disciplinas, callbacks) {
     }
   }
 
-  // Atualizar campos obrigatórios
+  // Função melhorada para atualizar campos obrigatórios
   function updateRequiredFields() {
     const isAC = naturezaSelect.value === 'AC'
     const isTrancamento = trancamentoCheckbox.checked
     const isDispensada = dispensadaCheckbox.checked
 
+    // Código: obrigatório para qualquer natureza exceto AC
     if (isAC) {
       codigoInput.removeAttribute('required')
-      notaInput.removeAttribute('required')
     } else {
-      if (!isTrancamento && !isDispensada) {
-        codigoInput.setAttribute('required', '')
-        notaInput.setAttribute('required', '')
-      }
+      codigoInput.setAttribute('required', '')
     }
 
+    // Nota: obrigatória para qualquer natureza exceto AC, trancamento ou dispensada
+    if (isAC || isTrancamento || isDispensada) {
+      notaInput.removeAttribute('required')
+    } else {
+      notaInput.setAttribute('required', '')
+    }
+
+    // CH: obrigatória exceto para trancamento
     if (isTrancamento) {
       chInput.removeAttribute('required')
     } else {
@@ -71,12 +75,19 @@ export function setupFormHandlers(disciplinas, callbacks) {
     }
 
     updateNotaVisibility()
+
+    // Log para debug
+    console.log('Campos atualizados:')
+    console.log('- Natureza:', naturezaSelect.value)
+    console.log('- Código obrigatório:', codigoInput.hasAttribute('required'))
+    console.log('- Nota obrigatória:', notaInput.hasAttribute('required'))
+    console.log('- CH obrigatória:', chInput.hasAttribute('required'))
   }
 
   // Listener para mudança de natureza
   naturezaSelect.addEventListener('change', e => {
     updateCodigoField() // Atualiza o campo de código com base na natureza
-    updateRequiredFields()
+    updateRequiredFields() // Atualiza campos obrigatórios
 
     // Garantir que a nota seja visível ao mudar para naturezas não-AC
     if (
@@ -114,6 +125,15 @@ export function setupFormHandlers(disciplinas, callbacks) {
 
   form.addEventListener('submit', function (e) {
     e.preventDefault()
+
+    // Forçar uma última verificação dos campos obrigatórios
+    updateRequiredFields()
+
+    // Verificar a validade do formulário antes de processá-lo
+    if (!this.checkValidity()) {
+      this.reportValidity()
+      return
+    }
 
     const isAC = naturezaSelect.value === 'AC'
     const codigo = isAC ? 'AC' : document.getElementById('codigo').value
@@ -176,8 +196,10 @@ export function setupFormHandlers(disciplinas, callbacks) {
     naturezaSelect.disabled = false
     codigoInput.disabled = false
 
+    // Importante: atualizar campos obrigatórios após reset do formulário
     updateRequiredFields()
   })
 
+  // Inicializar os campos obrigatórios na carga do formulário
   updateRequiredFields()
 }
