@@ -12,6 +12,7 @@ import { setupDateTime } from './modules/ui/datetime.js'
 import DarkModeManager from './modules/ui/darkmode.js'
 import { SimulationUI } from './modules/ui/simulation-ui.js'
 import { csrfProtection } from './modules/security/firebase-csrf.js'
+import { setupExportButton } from './modules/ui/export.js'
 
 class App {
   constructor() {
@@ -29,6 +30,7 @@ class App {
     setupFilterComponent()
     setupDateTime()
     inicializarEmenta()
+    setupExportButton()
 
     const periodoInput = document.getElementById('periodo')
     const periodoRecente = getPeriodoMaisRecente(this.disciplinas)
@@ -41,6 +43,7 @@ class App {
 
     // Inicializa o simulador após carregar tudo
     this.initSimulation()
+    window.app.__appInstance = this
   }
 
   setupCursoSelector() {

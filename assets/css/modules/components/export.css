@@ -1,0 +1,153 @@
+/* Estilos para o componente de exportação */
+
+.table-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.export-container {
+  position: relative;
+  display: inline-block;
+}
+
+.export-button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+.export-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.export-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5);
+}
+
+.export-button i {
+  font-size: 14px;
+}
+
+.export-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px var(--shadow);
+  border-radius: 4px;
+  padding: 8px 0;
+  z-index: 100;
+  min-width: 180px;
+  display: none;
+  margin-top: 5px;
+}
+
+.export-menu.show {
+  display: block;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.export-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 15px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.export-option:hover {
+  background-color: var(--row-hover);
+}
+
+.export-option i {
+  width: 20px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.export-option[data-format='pdf'] i {
+  color: #e74c3c;
+}
+
+.export-option[data-format='txt'] i {
+  color: var(--primary);
+}
+
+.export-option[data-format='docx'] i {
+  color: #217346; /* Cor do Excel */
+}
+
+/* Notificação de exportação */
+.export-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 4px;
+  background-color: var(--success);
+  color: white;
+  z-index: 1000;
+  box-shadow: 0 4px 12px var(--shadow);
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s, transform 0.3s;
+  font-size: 14px;
+  font-weight: 500;
+  max-width: 300px;
+}
+
+.export-notification.error {
+  background-color: var(--danger);
+}
+
+.export-notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Animação de fade in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modo escuro é manipulado automaticamente através das variáveis CSS */
+
+/* Responsividade */
+@media screen and (max-width: 768px) {
+  .table-header-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .export-container {
+    align-self: flex-end;
+  }
+}
