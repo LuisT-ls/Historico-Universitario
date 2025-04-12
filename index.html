@@ -372,7 +372,14 @@
 
       <div class="content-container">
         <div class="table-container">
-          <h2><i class="fas fa-list-alt"></i> Disciplinas Cursadas</h2>
+          <div class="table-header">
+            <h2><i class="fas fa-list-alt"></i> Disciplinas Cursadas</h2>
+            <div class="clean-table-container">
+              <button id="limparTabelaBtn" class="btn-clean" type="button">
+                <i class="fas fa-trash-alt"></i> Limpar Histórico
+              </button>
+            </div>
+          </div>
           <table
             id="historicoTable"
             role="grid"
@@ -481,11 +488,11 @@
           <p>
             O Histórico Universitário é uma ferramenta desenvolvida para
             auxiliar estudantes do BICTI (Bacharelado Interdisciplinar em
-            Ciência, Tecnologia e Inovação), Engenharia de Produção e Engenharia Elétrica
-            da UFBA no acompanhamento do seu progresso acadêmico. Com ela, é
-            possível gerenciar disciplinas cursadas, monitorar os requisitos
-            para a formatura e planejar a trajetória acadêmica de forma mais
-            eficiente.
+            Ciência, Tecnologia e Inovação), Engenharia de Produção e Engenharia
+            Elétrica da UFBA no acompanhamento do seu progresso acadêmico. Com
+            ela, é possível gerenciar disciplinas cursadas, monitorar os
+            requisitos para a formatura e planejar a trajetória acadêmica de
+            forma mais eficiente.
           </p>
         </div>
 
@@ -561,6 +568,42 @@
         </p>
       </div>
     </footer>
+
+    <div
+      id="confirmacaoModal"
+      class="modal"
+      role="dialog"
+      aria-labelledby="modalTitle"
+      aria-describedby="modalDescription"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">
+            <i class="fas fa-exclamation-triangle"></i> Confirmação
+          </h2>
+          <span class="close" aria-label="Fechar" role="button" tabindex="0"
+            >&times;</span
+          >
+        </div>
+        <div class="modal-body" id="modalDescription">
+          <p>
+            Você está prestes a remover
+            <strong>todas as disciplinas</strong> do seu histórico.
+          </p>
+          <p class="warning-text">
+            Esta ação é <strong>irreversível</strong> e todos os dados serão
+            perdidos.
+          </p>
+          <p>Tem certeza que deseja continuar?</p>
+        </div>
+        <div class="modal-footer">
+          <button id="cancelarLimparBtn" class="btn-secondary">Cancelar</button>
+          <button id="confirmarLimparBtn" class="btn-danger">
+            Confirmar Exclusão
+          </button>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="js/app.js"></script>
   </body>

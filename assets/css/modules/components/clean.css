@@ -1,0 +1,168 @@
+/* Estilos para o botão de limpar tabela */
+.clean-table-container {
+  display: flex;
+  justify-content: flex-end;
+  margin: 10px 0;
+}
+
+.btn-clean {
+  background-color: var(--danger);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.btn-clean:hover {
+  background-color: #dc2626; /* Uma tonalidade mais escura de vermelho */
+}
+
+.btn-clean i {
+  font-size: 16px;
+}
+
+/* Estilos para o modal de confirmação */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.3s;
+}
+
+.modal-content {
+  background-color: var(--background);
+  margin: 15% auto;
+  padding: 0;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px var(--shadow);
+  width: 90%;
+  max-width: 500px;
+  animation: slideDown 0.3s;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: var(--surface);
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-header h2 i {
+  color: var(--danger);
+}
+
+.modal-body {
+  padding: 20px;
+  color: var(--text);
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  background-color: var(--surface);
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.close {
+  color: var(--text-secondary);
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: var(--text);
+}
+
+.warning-text {
+  color: var(--danger);
+  font-weight: 500;
+}
+
+.btn-secondary {
+  background-color: var(--secondary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-secondary:hover {
+  background-color: #475569; /* Tonalidade mais escura de cinza */
+}
+
+.btn-danger:hover {
+  background-color: #dc2626; /* Tonalidade mais escura de vermelho */
+}
+
+/* Animações para o modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Ajustes para modo escuro */
+:root.dark-mode .modal-content {
+  background-color: var(--surface);
+}
+
+:root.dark-mode .modal-header,
+:root.dark-mode .modal-footer {
+  background-color: var(--surface-light);
+}

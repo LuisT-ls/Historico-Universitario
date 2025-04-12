@@ -13,6 +13,7 @@ import DarkModeManager from './modules/ui/darkmode.js'
 import { SimulationUI } from './modules/ui/simulation-ui.js'
 import { csrfProtection } from './modules/security/firebase-csrf.js'
 import { setupExportButton } from './modules/ui/export.js'
+import { setupCleanTableButton } from './modules/ui/cleanTable.js'
 
 class App {
   constructor() {
@@ -31,6 +32,7 @@ class App {
     setupDateTime()
     inicializarEmenta()
     setupExportButton()
+    setupCleanTableButton()
 
     const periodoInput = document.getElementById('periodo')
     const periodoRecente = getPeriodoMaisRecente(this.disciplinas)
@@ -119,7 +121,8 @@ class App {
             this.simulation.removerDisciplinaSimulada(index)
           }
         }
-      }
+      },
+      csrfProtection: csrfProtection
     }
   }
 

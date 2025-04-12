@@ -18,6 +18,7 @@
 @import './modules/components/notification-popup.css';
 @import './modules/components/datetime.css';
 @import './modules/components/export.css';
+@import './modules/components/clean.css';
 
 /* Importing all layouts */
 @import './modules/layout/container.css';
