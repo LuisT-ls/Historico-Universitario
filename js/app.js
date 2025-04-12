@@ -14,6 +14,7 @@ import { SimulationUI } from './modules/ui/simulation-ui.js'
 import { csrfProtection } from './modules/security/firebase-csrf.js'
 import { setupExportButton } from './modules/ui/export.js'
 import { setupCleanTableButton } from './modules/ui/cleanTable.js'
+import { setupTableHeader } from './modules/ui/tableHeader.js'
 
 class App {
   constructor() {
@@ -33,6 +34,7 @@ class App {
     inicializarEmenta()
     setupExportButton()
     setupCleanTableButton()
+    setupTableHeader()
 
     const periodoInput = document.getElementById('periodo')
     const periodoRecente = getPeriodoMaisRecente(this.disciplinas)

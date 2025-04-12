@@ -1,0 +1,208 @@
+/* Estilos para o cabeçalho da tabela e botões de ação */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+
+.table-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-header h2 i {
+  color: var(--primary);
+}
+
+/* Container de ações (botões) */
+.table-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Estilo base para os botões de ação */
+.action-button {
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-button:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.action-button i {
+  font-size: 14px;
+}
+
+/* Botão de exportação */
+.export-button {
+  background-color: var(--primary);
+  color: white;
+}
+
+.export-button:hover {
+  background-color: var(--primary-dark, #1e40af);
+}
+
+/* Botão de limpar histórico */
+.clean-button {
+  background-color: var(--danger);
+  color: white;
+}
+
+.clean-button:hover {
+  background-color: #dc2626;
+}
+
+/* Container de exportação e menu dropdown */
+.export-container {
+  position: relative;
+}
+
+.export-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: var(--surface, white);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 180px;
+  z-index: 100;
+  display: none;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.export-menu.show {
+  display: block;
+  animation: fadeIn 0.2s ease;
+}
+
+.export-option {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 10px 15px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  transition: background-color 0.2s;
+}
+
+.export-option:hover {
+  background-color: var(--row-hover, #f3f4f6);
+}
+
+.export-option i {
+  width: 20px;
+  text-align: center;
+}
+
+.export-option[data-format='pdf'] i {
+  color: #e53e3e; /* Vermelho para PDF */
+}
+
+.export-option[data-format='txt'] i {
+  color: #3182ce; /* Azul para TXT */
+}
+
+.export-option[data-format='docx'] i {
+  color: #2f855a; /* Verde para Excel/CSV */
+}
+
+/* Notificação de exportação */
+.export-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 4px;
+  background-color: var(--success, #38a169);
+  color: white;
+  z-index: 1001;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+}
+
+.export-notification.error {
+  background-color: var(--danger, #e53e3e);
+}
+
+.export-notification.info {
+  background-color: var(--primary, #3182ce);
+}
+
+.export-notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Animação de fade in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .table-actions {
+    width: 100%;
+  }
+
+  .action-button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .export-menu {
+    width: 100%;
+    left: 0;
+    right: 0;
+  }
+}
+
+/* Suporte para tema escuro */
+:root.dark-mode .export-menu {
+  background-color: var(--surface-dark, #1f2937);
+  border-color: var(--border-dark, #374151);
+}
+
+:root.dark-mode .export-option:hover {
+  background-color: var(--surface-light, #374151);
+}

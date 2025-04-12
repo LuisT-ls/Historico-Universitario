@@ -19,6 +19,7 @@
 @import './modules/components/datetime.css';
 @import './modules/components/export.css';
 @import './modules/components/clean.css';
+@import './modules/components/table-header.css';
 
 /* Importing all layouts */
 @import './modules/layout/container.css';
