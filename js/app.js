@@ -15,6 +15,7 @@ import { csrfProtection } from './modules/security/firebase-csrf.js'
 import { setupExportButton } from './modules/ui/export.js'
 import { setupCleanTableButton } from './modules/ui/cleanTable.js'
 import { setupTableHeader } from './modules/ui/tableHeader.js'
+// import { initializeHistoricoImporter } from './modules/historico-importer.js'
 
 class App {
   constructor() {
@@ -35,6 +36,9 @@ class App {
     setupExportButton()
     setupCleanTableButton()
     setupTableHeader()
+
+    // Inicializar o importador de histórico
+    // this.historicoImporter = initializeHistoricoImporter(this)
 
     const periodoInput = document.getElementById('periodo')
     const periodoRecente = getPeriodoMaisRecente(this.disciplinas)
