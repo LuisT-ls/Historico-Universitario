@@ -25,6 +25,7 @@
 @import './modules/layout/container.css';
 @import './modules/layout/grid.css';
 @import './modules/layout/footer.css';
+@import './modules/layout/header.css';
 
 /* Importing all utils */
 @import './modules/utils/status.css';

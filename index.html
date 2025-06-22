@@ -197,297 +197,501 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   </head>
   <body>
-    <div class="container">
-      <time class="datetime-display" id="current-datetime"></time>
-
-      <h1><i class="fas fa-graduation-cap"></i> Histórico Universitário</h1>
+    <!-- Header -->
+    <header class="site-header">
+      <time class="datetime-display" id="current-datetime" datetime=""></time>
 
       <!-- Seção de usuário (inicialmente oculta) -->
-      <div class="user-section" style="display: none">
+      <nav
+        class="user-navigation"
+        style="display: none"
+        aria-label="Navegação do usuário"
+      >
         <div class="user-dropdown">
-          <button class="user-button">
+          <button
+            class="user-button"
+            aria-expanded="false"
+            aria-haspopup="true"
+          >
             <i class="fas fa-user-circle"></i>
             <span class="user-greeting"
               >Olá, <span class="user-name">Usuário</span></span
             >
             <i class="fas fa-chevron-down"></i>
           </button>
-          <div class="user-menu">
-            <a href="#" class="menu-item">
-              <i class="fas fa-user-cog"></i>
-              Minha Conta
-            </a>
-            <a href="#" class="menu-item">
-              <i class="fas fa-key"></i>
-              Alterar Senha
-            </a>
-            <button class="menu-item logout-button">
-              <i class="fas fa-sign-out-alt"></i>
-              Sair
-            </button>
-          </div>
+          <ul class="user-menu" role="menu">
+            <li role="none">
+              <a href="#" class="menu-item" role="menuitem">
+                <i class="fas fa-user-cog"></i>
+                Minha Conta
+              </a>
+            </li>
+            <li role="none">
+              <a href="#" class="menu-item" role="menuitem">
+                <i class="fas fa-key"></i>
+                Alterar Senha
+              </a>
+            </li>
+            <li role="none">
+              <button class="menu-item logout-button" role="menuitem">
+                <i class="fas fa-sign-out-alt"></i>
+                Sair
+              </button>
+            </li>
+          </ul>
         </div>
-      </div>
+      </nav>
 
-      <!-- Logomarca -->
-      <div class="watermark-container">
+      <!-- Logomarca e informações do desenvolvedor -->
+      <aside
+        class="watermark-container"
+        aria-label="Informações do desenvolvedor"
+      >
         <a
           href="https://github.com/LuisT-ls"
           target="_blank"
           class="watermark-link"
           title="Desenvolvido por Luís Teixeira"
-          anchor="LT Luís Teixeira"
+          aria-label="Visitar perfil do desenvolvedor Luís Teixeira no GitHub"
         >
           <div class="watermark-logo">
-            <div class="logo-ring"></div>
-            <div class="logo-initials">LT</div>
+            <div class="logo-ring" aria-hidden="true"></div>
+            <div class="logo-initials" aria-hidden="true">LT</div>
             <div class="logo-text">
               <span class="text-developer">Desenvolvido por</span>
               <span class="text-name">Luís Teixeira</span>
             </div>
           </div>
         </a>
-      </div>
+      </aside>
+    </header>
 
-      <!-- Escolha do Curso -->
-      <div class="form-row">
-        <div class="form-group course">
-          <label id="curso-label" for="curso">
-            <i class="fas fa-university" aria-hidden="true"></i>
-            Curso:
-          </label>
-          <select
-            id="curso"
-            required
-            aria-required="true"
-            aria-describedby="curso-help"
-          >
-            <option value="BICTI">BICTI</option>
-            <option value="ENG_PROD">Engenharia de Produção</option>
-            <option value="ENG_ELET">Engenharia Elétrica</option>
-          </select>
-        </div>
-      </div>
+    <main class="container" role="main">
+      <header class="page-header">
+        <h1>
+          <i class="fas fa-graduation-cap" aria-hidden="true"></i> Histórico
+          Universitário UFBA
+        </h1>
+        <p class="page-description">
+          Gerencie seu histórico acadêmico, monitore seu progresso e acompanhe
+          os requisitos para formatura nos cursos de BICTI, Engenharia de
+          Produção e Engenharia Elétrica da UFBA.
+        </p>
+      </header>
 
-      <!-- Escolha da Disciplina -->
-      <div class="form-container">
-        <form id="disciplinaForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label id="periodo-label" for="periodo">
-                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-                Semestre:
-              </label>
-              <input
-                type="text"
-                id="periodo"
-                required
-                aria-required="true"
-                aria-labelledby="periodo-label"
-                aria-describedby="periodo-help"
-                placeholder="Ex: 2025.1"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="codigo"><i class="fas fa-hashtag"></i> Código:</label>
-              <input
-                type="text"
-                id="codigo"
-                required
-                placeholder="Ex: CTIA01 ou AC"
-              />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="nome"
-                ><i class="fas fa-book"></i> Nome da Disciplina:</label
-              >
-              <input
-                type="text"
-                id="nome"
-                required
-                placeholder="Ex: Introdução a Computação"
-              />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="natureza"
-                ><i class="fas fa-tasks"></i> Natureza:</label
-              >
-              <select id="natureza" required>
-                <option value="AC">AC - Atividade Complementar</option>
-                <option value="LV">LV - Componente Livre</option>
-                <option value="OB">OB - Obrigatória</option>
-                <option value="OG">OG - Optativa da Grande Área</option>
-                <option value="OH">OH - Optativa Humanística</option>
-                <option value="OP">OP - Optativa</option>
-                <option value="OX">OX - Optativa de Extensão</option>
-                <option value="OZ">OZ - Optativa Artística</option>
-              </select>
-            </div>
-
-            <div class="form-group trancamento-group">
-              <label for="trancamento">
-                <i class="fas fa-lock"></i> Trancamento:
-              </label>
-              <input type="checkbox" id="trancamento" />
-              <label for="dispensada" style="margin-left: 1rem">
-                <i class="fas fa-check-double"></i> Dispensada:
-              </label>
-              <input type="checkbox" id="dispensada" />
-            </div>
-          </div>
-
-          <div class="form-row campos-sem-trancamento">
-            <div class="form-group">
-              <label for="ch"
-                ><i class="fas fa-clock"></i> Carga Horária:</label
-              >
-              <input type="number" id="ch" required placeholder="Ex: 60" />
-            </div>
-
-            <div class="form-group">
-              <label for="nota"><i class="fas fa-star"></i> Nota:</label>
-              <input
-                type="number"
-                id="nota"
-                step="0.1"
-                min="0"
-                max="10"
-                required
-                placeholder="Ex: 10"
-              />
-            </div>
-          </div>
-
-          <button type="submit">
-            <i class="fas fa-plus-circle"></i> Adicionar Disciplina
-          </button>
-        </form>
-      </div>
-
-      <!-- Tabela de Histórico -->
-      <div class="content-container">
-        <div class="table-container">
-          <div class="table-header">
-            <h2><i class="fas fa-list-alt"></i> Disciplinas Cursadas</h2>
-            <div class="clean-table-container">
-              <button id="limparTabelaBtn" class="btn-clean" type="button">
-                <i class="fas fa-trash-alt"></i> Limpar Histórico
-              </button>
-            </div>
-          </div>
-          <table
-            id="historicoTable"
-            role="grid"
-            aria-label="Histórico de disciplinas cursadas"
-          >
-            <thead>
-              <tr>
-                <th scope="col" id="col-semestre">
-                  <i class="fas fa-calendar"></i> Semestre
-                </th>
-                <th scope="col" id="col-codigo">
-                  <i class="fas fa-hashtag"></i> Código
-                </th>
-                <th scope="col" id="col-disciplina">
-                  <i class="fas fa-book"></i> Disciplina
-                </th>
-                <th scope="col" id="col-ch"><i class="fas fa-clock"></i> CH</th>
-                <th scope="col" id="col-nt"><i class="fas fa-tag"></i> NT</th>
-                <th scope="col" id="col-nota">
-                  <i class="fas fa-star"></i> Nota
-                </th>
-                <th scope="col" id="col-pch">
-                  <i class="fas fa-calculator"></i> PCH
-                </th>
-                <th scope="col" id="col-res">
-                  <i class="fas fa-check-circle"></i> RES
-                </th>
-                <th scope="col" id="col-acoes">
-                  <i class="fas fa-cogs"></i> Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody id="historicoBody"></tbody>
-          </table>
-        </div>
-
-        <div class="resumo-container">
-          <div class="summary" id="resumo">
-            <h2><i class="fas fa-chart-bar"></i> Resumo Geral</h2>
-            <div class="resumo-content">
-              <div class="metricas-gerais">
-                <h3><i class="fas fa-chart-line"></i> Métricas Gerais</h3>
-                <p>
-                  <i class="fas fa-calculator"></i> Média Geral:
-                  <span id="mediaGeral">0.0</span>
-                </p>
-                <p>
-                  <i class="fas fa-hourglass-half"></i> Total de Horas:
-                  <span id="totalHoras">0</span>
-                </p>
-              </div>
-
-              <div class="horas-natureza">
-                <h3><i class="fas fa-pie-chart"></i> Horas por Natureza</h3>
-                <div id="horasPorNatureza"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="legenda">
-            <h3>
-              <i class="fas fa-graduation-cap"></i> Requisitos para Formatura
-            </h3>
-            <table
-              class="requisitos-table"
-              role="grid"
-              aria-label="Requisitos de carga horária para formatura"
+      <!-- Seção de configuração do curso -->
+      <section class="course-selection" aria-labelledby="course-section-title">
+        <h2 id="course-section-title" class="sr-only">Seleção de Curso</h2>
+        <div class="form-row">
+          <div class="form-group course">
+            <label id="curso-label" for="curso">
+              <i class="fas fa-university" aria-hidden="true"></i>
+              Curso:
+            </label>
+            <select
+              id="curso"
+              required
+              aria-required="true"
+              aria-describedby="curso-help"
             >
-              <thead>
-                <tr>
-                  <th scope="col" id="req-natureza">
-                    <i class="fas fa-tag"></i> Natureza
-                  </th>
-                  <th scope="col" id="req-meta">
-                    <i class="fas fa-bullseye"></i> Meta (h)
-                  </th>
-                  <th scope="col" id="req-cursado">
-                    <i class="fas fa-check"></i> Cursado (h)
-                  </th>
-                  <th scope="col" id="req-falta">
-                    <i class="fas fa-hourglass"></i> Falta (h)
-                  </th>
-                </tr>
-              </thead>
-              <tbody id="requisitosBody"></tbody>
-              <tfoot>
-                <tr>
-                  <th scope="row" id="total-row">
-                    <i class="fas fa-sum"></i> TOTAL
-                  </th>
-                  <td headers="req-meta total-row" id="metaTotal">2400</td>
-                  <td headers="req-cursado total-row" id="totalCursado">0</td>
-                  <td headers="req-falta total-row" id="totalFalta">2400</td>
-                </tr>
-              </tfoot>
-            </table>
+              <option value="BICTI">
+                BICTI - Bacharelado Interdisciplinar em Ciência, Tecnologia e
+                Inovação
+              </option>
+              <option value="ENG_PROD">Engenharia de Produção</option>
+              <option value="ENG_ELET">Engenharia Elétrica</option>
+            </select>
+            <small id="curso-help" class="form-help"
+              >Selecione seu curso na UFBA para calcular os requisitos
+              corretos</small
+            >
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+      <!-- Seção de adição de disciplinas -->
+      <section class="discipline-form" aria-labelledby="discipline-form-title">
+        <header>
+          <h2 id="discipline-form-title">
+            <i class="fas fa-plus-circle" aria-hidden="true"></i>
+            Adicionar Disciplina
+          </h2>
+          <p>
+            Insira os dados da disciplina cursada para adicionar ao seu
+            histórico acadêmico.
+          </p>
+        </header>
+
+        <div class="form-container">
+          <form id="disciplinaForm" aria-labelledby="discipline-form-title">
+            <fieldset>
+              <legend class="sr-only">Informações da Disciplina</legend>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label id="periodo-label" for="periodo">
+                    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                    Semestre:
+                  </label>
+                  <input
+                    type="text"
+                    id="periodo"
+                    required
+                    aria-required="true"
+                    aria-labelledby="periodo-label"
+                    aria-describedby="periodo-help"
+                    placeholder="Ex: 2025.1"
+                  />
+                  <small id="periodo-help" class="form-help"
+                    >Formato: AAAA.S (ex: 2025.1)</small
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label for="codigo"
+                    ><i class="fas fa-hashtag" aria-hidden="true"></i>
+                    Código:</label
+                  >
+                  <input
+                    type="text"
+                    id="codigo"
+                    required
+                    aria-describedby="codigo-help"
+                    placeholder="Ex: CTIA01 ou AC"
+                  />
+                  <small id="codigo-help" class="form-help"
+                    >Código oficial da disciplina</small
+                  >
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="nome"
+                    ><i class="fas fa-book" aria-hidden="true"></i> Nome da
+                    Disciplina:</label
+                  >
+                  <input
+                    type="text"
+                    id="nome"
+                    required
+                    aria-describedby="nome-help"
+                    placeholder="Ex: Introdução a Computação"
+                  />
+                  <small id="nome-help" class="form-help"
+                    >Nome completo da disciplina</small
+                  >
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="natureza"
+                    ><i class="fas fa-tasks" aria-hidden="true"></i>
+                    Natureza:</label
+                  >
+                  <select
+                    id="natureza"
+                    required
+                    aria-describedby="natureza-help"
+                  >
+                    <option value="">Selecione a natureza</option>
+                    <option value="AC">AC - Atividade Complementar</option>
+                    <option value="LV">LV - Componente Livre</option>
+                    <option value="OB">OB - Obrigatória</option>
+                    <option value="OG">OG - Optativa da Grande Área</option>
+                    <option value="OH">OH - Optativa Humanística</option>
+                    <option value="OP">OP - Optativa</option>
+                    <option value="OX">OX - Optativa de Extensão</option>
+                    <option value="OZ">OZ - Optativa Artística</option>
+                  </select>
+                  <small id="natureza-help" class="form-help"
+                    >Classificação da disciplina no currículo</small
+                  >
+                </div>
+
+                <fieldset class="form-group trancamento-group">
+                  <legend>Status da Disciplina</legend>
+                  <div class="checkbox-group">
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="trancamento" />
+                      <label for="trancamento">
+                        <i class="fas fa-lock" aria-hidden="true"></i>
+                        Trancamento
+                      </label>
+                    </div>
+                    <div class="checkbox-item">
+                      <input type="checkbox" id="dispensada" />
+                      <label for="dispensada">
+                        <i class="fas fa-check-double" aria-hidden="true"></i>
+                        Dispensada
+                      </label>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+
+              <div class="form-row campos-sem-trancamento">
+                <div class="form-group">
+                  <label for="ch"
+                    ><i class="fas fa-clock" aria-hidden="true"></i> Carga
+                    Horária:</label
+                  >
+                  <input
+                    type="number"
+                    id="ch"
+                    required
+                    min="1"
+                    max="300"
+                    aria-describedby="ch-help"
+                    placeholder="Ex: 60"
+                  />
+                  <small id="ch-help" class="form-help"
+                    >Carga horária em horas</small
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label for="nota"
+                    ><i class="fas fa-star" aria-hidden="true"></i> Nota:</label
+                  >
+                  <input
+                    type="number"
+                    id="nota"
+                    step="0.1"
+                    min="0"
+                    max="10"
+                    required
+                    aria-describedby="nota-help"
+                    placeholder="Ex: 10.0"
+                  />
+                  <small id="nota-help" class="form-help"
+                    >Nota final (0 a 10)</small
+                  >
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                  <i class="fas fa-plus-circle" aria-hidden="true"></i>
+                  Adicionar Disciplina
+                </button>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </section>
+
+      <!-- Seção do histórico de disciplinas -->
+      <section class="academic-history" aria-labelledby="history-section-title">
+        <div class="content-container">
+          <article class="table-container">
+            <header class="table-header">
+              <h2 id="history-section-title">
+                <i class="fas fa-list-alt" aria-hidden="true"></i>
+                Disciplinas Cursadas
+              </h2>
+              <div class="table-actions">
+                <button
+                  id="limparTabelaBtn"
+                  class="btn-clean"
+                  type="button"
+                  aria-describedby="clean-help"
+                >
+                  <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                  Limpar Histórico
+                </button>
+                <small id="clean-help" class="sr-only"
+                  >Remove todas as disciplinas do histórico</small
+                >
+              </div>
+            </header>
+
+            <div class="table-wrapper">
+              <table
+                id="historicoTable"
+                role="grid"
+                aria-label="Histórico de disciplinas cursadas"
+                aria-describedby="table-description"
+              >
+                <caption id="table-description" class="sr-only">
+                  Tabela contendo todas as disciplinas cursadas, com informações
+                  sobre semestre, código, nome, carga horária, nota e resultado
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col" id="col-semestre">
+                      <i class="fas fa-calendar" aria-hidden="true"></i>
+                      <span>Semestre</span>
+                    </th>
+                    <th scope="col" id="col-codigo">
+                      <i class="fas fa-hashtag" aria-hidden="true"></i>
+                      <span>Código</span>
+                    </th>
+                    <th scope="col" id="col-disciplina">
+                      <i class="fas fa-book" aria-hidden="true"></i>
+                      <span>Disciplina</span>
+                    </th>
+                    <th scope="col" id="col-ch">
+                      <i class="fas fa-clock" aria-hidden="true"></i>
+                      <span>CH</span>
+                    </th>
+                    <th scope="col" id="col-nt">
+                      <i class="fas fa-tag" aria-hidden="true"></i>
+                      <span>NT</span>
+                    </th>
+                    <th scope="col" id="col-nota">
+                      <i class="fas fa-star" aria-hidden="true"></i>
+                      <span>Nota</span>
+                    </th>
+                    <th scope="col" id="col-pch">
+                      <i class="fas fa-calculator" aria-hidden="true"></i>
+                      <span>PCH</span>
+                    </th>
+                    <th scope="col" id="col-res">
+                      <i class="fas fa-check-circle" aria-hidden="true"></i>
+                      <span>RES</span>
+                    </th>
+                    <th scope="col" id="col-acoes">
+                      <i class="fas fa-cogs" aria-hidden="true"></i>
+                      <span>Ações</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="historicoBody">
+                  <!-- Conteúdo será preenchido dinamicamente -->
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <!-- Seção de resumo e métricas -->
+          <aside class="resumo-container" aria-labelledby="summary-title">
+            <section class="summary" id="resumo">
+              <header>
+                <h2 id="summary-title">
+                  <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                  Resumo Geral
+                </h2>
+              </header>
+
+              <div class="resumo-content">
+                <article class="metricas-gerais">
+                  <h3>
+                    <i class="fas fa-chart-line" aria-hidden="true"></i>
+                    Métricas Gerais
+                  </h3>
+                  <dl class="metrics-list">
+                    <dt>
+                      <i class="fas fa-calculator" aria-hidden="true"></i> Média
+                      Geral:
+                    </dt>
+                    <dd id="mediaGeral">0.0</dd>
+
+                    <dt>
+                      <i class="fas fa-hourglass-half" aria-hidden="true"></i>
+                      Total de Horas:
+                    </dt>
+                    <dd id="totalHoras">0</dd>
+                  </dl>
+                </article>
+
+                <article class="horas-natureza">
+                  <h3>
+                    <i class="fas fa-pie-chart" aria-hidden="true"></i> Horas
+                    por Natureza
+                  </h3>
+                  <div
+                    id="horasPorNatureza"
+                    role="region"
+                    aria-label="Distribuição de horas por tipo de disciplina"
+                  ></div>
+                </article>
+              </div>
+            </section>
+
+            <!-- Seção de requisitos para formatura -->
+            <section
+              class="graduation-requirements"
+              aria-labelledby="requirements-title"
+            >
+              <header>
+                <h3 id="requirements-title">
+                  <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                  Requisitos para Formatura
+                </h3>
+                <p>
+                  Acompanhe seu progresso em relação aos requisitos mínimos de
+                  carga horária para conclusão do curso.
+                </p>
+              </header>
+
+              <div class="table-wrapper">
+                <table
+                  class="requisitos-table"
+                  role="grid"
+                  aria-label="Requisitos de carga horária para formatura"
+                  aria-describedby="requirements-description"
+                >
+                  <caption id="requirements-description" class="sr-only">
+                    Tabela mostrando os requisitos de carga horária por natureza
+                    de disciplina, horas já cursadas e horas restantes para
+                    formatura
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col" id="req-natureza">
+                        <i class="fas fa-tag" aria-hidden="true"></i>
+                        <span>Natureza</span>
+                      </th>
+                      <th scope="col" id="req-meta">
+                        <i class="fas fa-bullseye" aria-hidden="true"></i>
+                        <span>Meta (h)</span>
+                      </th>
+                      <th scope="col" id="req-cursado">
+                        <i class="fas fa-check" aria-hidden="true"></i>
+                        <span>Cursado (h)</span>
+                      </th>
+                      <th scope="col" id="req-falta">
+                        <i class="fas fa-hourglass" aria-hidden="true"></i>
+                        <span>Falta (h)</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="requisitosBody">
+                    <!-- Conteúdo será preenchido dinamicamente -->
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <th scope="row" id="total-row">
+                        <i class="fas fa-sum" aria-hidden="true"></i>
+                        <span>TOTAL</span>
+                      </th>
+                      <td headers="req-meta total-row" id="metaTotal">2400</td>
+                      <td headers="req-cursado total-row" id="totalCursado">
+                        0
+                      </td>
+                      <td headers="req-falta total-row" id="totalFalta">
+                        2400
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" role="contentinfo">
       <div class="footer-content">
-        <div class="footer-section">
-          <h3><i class="fas fa-info-circle"></i> Sobre o Projeto</h3>
+        <section class="footer-section">
+          <h3>
+            <i class="fas fa-info-circle" aria-hidden="true"></i> Sobre o
+            Projeto
+          </h3>
           <p>
             O Histórico Universitário é uma ferramenta desenvolvida para
             auxiliar estudantes do BICTI (Bacharelado Interdisciplinar em
@@ -497,54 +701,67 @@
             requisitos para a formatura e planejar a trajetória acadêmica de
             forma mais eficiente.
           </p>
-        </div>
+        </section>
 
-        <div class="footer-section">
-          <h3><i class="fas fa-user"></i> Desenvolvedor</h3>
-          <p>Desenvolvido por Luís Teixeira</p>
-          <div class="social-links">
-            <a
-              href="https://github.com/LuisT-ls"
-              target="_blank"
-              title="GitHub"
-              anchor="LS Luís Teixeira"
+        <section class="footer-section">
+          <h3><i class="fas fa-user" aria-hidden="true"></i> Desenvolvedor</h3>
+          <address>
+            <p>Desenvolvido por <strong>Luís Teixeira</strong></p>
+            <nav
+              class="social-links"
+              aria-label="Redes sociais do desenvolvedor"
             >
-              <i class="fab fa-github"></i>
-            </a>
-            <a
-              href="https://linkedin.com/in/luis-tei"
-              target="_blank"
-              title="LinkedIn"
-              anchor="LS Luís Teixeira"
-            >
-              <i class="fab fa-linkedin"></i>
-            </a>
-            <a
-              href="https://instagram.com/luis.tei"
-              target="_blank"
-              title="Instagram"
-              anchor="LS Luís Teixeira"
-            >
-              <i class="fab fa-instagram"></i>
-            </a>
-          </div>
-        </div>
-
-        <div class="footer-section donation-section">
-          <h3><i class="fas fa-heart"></i> Apoie o Projeto</h3>
-          <div class="donation-container">
-            <div id="qrcode">
-              <span class="sr-only"
-                >QR Code para doação via PIX. Escaneie este código para fazer
-                uma doação de qualquer valor.</span
+              <a
+                href="https://github.com/LuisT-ls"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Perfil no GitHub"
+                aria-label="Visitar perfil do Luís Teixeira no GitHub"
               >
-            </div>
+                <i class="fab fa-github" aria-hidden="true"></i>
+                <span class="sr-only">GitHub</span>
+              </a>
+              <a
+                href="https://linkedin.com/in/luis-tei"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Perfil no LinkedIn"
+                aria-label="Visitar perfil do Luís Teixeira no LinkedIn"
+              >
+                <i class="fab fa-linkedin" aria-hidden="true"></i>
+                <span class="sr-only">LinkedIn</span>
+              </a>
+              <a
+                href="https://instagram.com/luis.tei"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Perfil no Instagram"
+                aria-label="Visitar perfil do Luís Teixeira no Instagram"
+              >
+                <i class="fab fa-instagram" aria-hidden="true"></i>
+                <span class="sr-only">Instagram</span>
+              </a>
+            </nav>
+          </address>
+        </section>
+
+        <section class="footer-section donation-section">
+          <h3>
+            <i class="fas fa-heart" aria-hidden="true"></i> Apoie o Projeto
+          </h3>
+          <div class="donation-container">
+            <figure id="qrcode">
+              <figcaption class="sr-only">
+                QR Code para doação via PIX. Escaneie este código para fazer uma
+                doação de qualquer valor.
+              </figcaption>
+            </figure>
             <p class="donation-info">
               Escaneie o QR Code usando o app do seu banco para fazer uma
               transferência PIX de qualquer valor.
             </p>
           </div>
-        </div>
+        </section>
       </div>
 
       <div class="footer-bottom">
@@ -556,7 +773,7 @@
             target="_blank"
             rel="noopener noreferrer"
             class="legal-link"
-            aria-label="Termos de Uso"
+            aria-label="Ler Termos de Uso"
             >Termos de Uso</a
           >
           |
@@ -565,7 +782,7 @@
             target="_blank"
             rel="noopener noreferrer"
             class="legal-link"
-            aria-label="Política de Privacidade"
+            aria-label="Ler Política de Privacidade"
             >Política de Privacidade</a
           >
         </p>
