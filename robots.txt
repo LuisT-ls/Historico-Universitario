@@ -19,4 +19,4 @@ Disallow: /backup/
 # Crawl-delay para não sobrecarregar o servidor
 Crawl-delay: 10
 
-Sitemap: https://historicoufba.vercel.app/sitemap.xml
+Sitemap: https://historicoacademico.vercel.app/sitemap.xml

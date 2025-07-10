@@ -1,14 +1,14 @@
-# Histórico Universitário UFBA
+# Histórico Universitário
 
 ![Preview do Projeto](imagem-preview.jpg)
 
-Uma aplicação web para gerenciar e acompanhar o histórico acadêmico dos estudantes da Universidade Federal da Bahia (UFBA), com suporte inicial para os cursos de BICTI, Engenharia de Produção e Engenharia Elétrica.
+Uma aplicação web para gerenciar e acompanhar o histórico acadêmico dos estudantes universitários, com suporte inicial para os cursos de BICTI, Engenharia de Produção e Engenharia Elétrica.
 
-🔗 [Acesse o projeto](https://historicoufba.vercel.app/)
+🔗 [Acesse o projeto](https://historicoacademico.vercel.app/)
 
 ## 📋 Sobre o Projeto
 
-O Histórico Universitário UFBA é uma ferramenta que permite aos estudantes:
+O Histórico Universitário é uma ferramenta que permite aos estudantes:
 
 - Registrar e gerenciar disciplinas cursadas
 - Acompanhar o progresso em direção à formatura
@@ -114,7 +114,7 @@ O Histórico Universitário UFBA é uma ferramenta que permite aos estudantes:
 
 ## 🚦 Como Usar
 
-1. Acesse o [site do projeto](https://historicoufba.vercel.app/)
+1. Acesse o [site do projeto](https://historicoacademico.vercel.app/)
 2. Faça login na plataforma
 3. Selecione seu curso (BICTI, Engenharia de Produção ou Engenharia Elétrica)
 4. Adicione suas disciplinas cursadas:

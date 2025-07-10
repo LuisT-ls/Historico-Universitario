@@ -1,6 +1,6 @@
 {
   "name": "Histórico Universitário",
-  "short_name": "Histórico UFBA",
+  "short_name": "Histórico",
   "description": "Gerencie seu histórico acadêmico universitário de forma simples e eficiente.",
   "start_url": "./index.html",
   "display": "standalone",
