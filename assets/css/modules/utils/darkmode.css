@@ -114,7 +114,7 @@ body {
 /* Dark Mode Toggle Button - Improved Design */
 .dark-mode-toggle {
   position: fixed;
-  top: 40px;
+  top: 75px;
   right: 20px;
   z-index: 100;
 }
