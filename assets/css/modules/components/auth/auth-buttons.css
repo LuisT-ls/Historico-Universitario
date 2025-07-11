@@ -61,7 +61,7 @@
 /* Password Toggle Button */
 .toggle-password {
   position: absolute;
-  right: 1rem;
+  right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -70,11 +70,23 @@
   cursor: pointer;
   padding: 0.5rem;
   transition: color var(--animation-duration);
-  z-index: 1;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
 }
 
 .toggle-password:hover {
   color: var(--primary-color);
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.toggle-password:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
 }
 
 /* Google Login Button */
@@ -92,16 +104,43 @@
   transition: all var(--animation-duration);
   font-size: 1rem;
   color: var(--text-color);
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
 }
 
 .google-login-button:hover {
   background-color: #f8f9fa;
   border-color: var(--google-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.google-login-button:active {
+  transform: translateY(0);
+}
+
+.google-login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.google-login-button.success {
+  background: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.google-login-button.error {
+  background: var(--error-color);
+  border-color: var(--error-color);
+  color: white;
 }
 
 .google-icon {
   width: 18px;
   height: 18px;
+  flex-shrink: 0;
 }
 
 /* Social Buttons */

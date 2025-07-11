@@ -8,6 +8,7 @@
 @import url('../modules/components/auth/auth-custom.css');
 @import url('../modules/components/auth/auth-forms.css');
 @import url('../modules/components/auth/auth-popups.css');
+@import url('../modules/components/auth/auth-notifications.css');
 
 /* Importing all auth layouts */
 @import url('../modules/layout/auth-layout.css');

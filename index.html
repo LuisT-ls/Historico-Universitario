@@ -199,39 +199,45 @@
     <header class="site-header">
       <time class="datetime-display" id="current-datetime" datetime=""></time>
 
-      <!-- Seção de usuário (inicialmente oculta) -->
-      <nav
-        class="user-navigation"
-        style="display: none"
-        aria-label="Navegação do usuário"
-      >
+      <!-- Seção de usuário -->
+      <nav class="user-navigation" aria-label="Navegação do usuário">
         <div class="user-dropdown">
           <button
             class="user-button"
             aria-expanded="false"
             aria-haspopup="true"
+            id="userButton"
           >
             <i class="fas fa-user-circle"></i>
             <span class="user-greeting"
-              >Olá, <span class="user-name">Usuário</span></span
+              >Olá, <span class="user-name" id="userName">Usuário</span></span
             >
             <i class="fas fa-chevron-down"></i>
           </button>
           <ul class="user-menu" role="menu">
             <li role="none">
-              <a href="#" class="menu-item" role="menuitem">
+              <a href="profile.html" class="menu-item" role="menuitem">
                 <i class="fas fa-user-cog"></i>
-                Minha Conta
+                Meu Perfil
               </a>
             </li>
             <li role="none">
-              <a href="#" class="menu-item" role="menuitem">
+              <a
+                href="#"
+                class="menu-item"
+                role="menuitem"
+                id="changePasswordBtn"
+              >
                 <i class="fas fa-key"></i>
                 Alterar Senha
               </a>
             </li>
             <li role="none">
-              <button class="menu-item logout-button" role="menuitem">
+              <button
+                class="menu-item logout-button"
+                role="menuitem"
+                id="logoutBtn"
+              >
                 <i class="fas fa-sign-out-alt"></i>
                 Sair
               </button>
@@ -823,6 +829,12 @@
       </div>
     </div>
 
+    <!-- Firebase Scripts -->
+    <script type="module" src="js/modules/firebase/config.js"></script>
+    <script type="module" src="js/modules/firebase/auth.js"></script>
+    <script type="module" src="js/modules/firebase/data.js"></script>
+    <script type="module" src="js/modules/settings.js"></script>
+    <script type="module" src="js/modules/main.js"></script>
     <script type="module" src="js/app.js"></script>
   </body>
 </html>

@@ -1,169 +1,167 @@
-# Histórico Universitário
+# 📚 Histórico Universitário
 
-![Preview do Projeto](imagem-preview.jpg)
-
-Uma aplicação web para gerenciar e acompanhar o histórico acadêmico dos estudantes universitários, com suporte inicial para os cursos de BICTI, Engenharia de Produção e Engenharia Elétrica.
-
-🔗 [Acesse o projeto](https://historicoacademico.vercel.app/)
-
-## 📋 Sobre o Projeto
-
-O Histórico Universitário é uma ferramenta que permite aos estudantes:
-
-- Registrar e gerenciar disciplinas cursadas
-- Acompanhar o progresso em direção à formatura
-- Calcular médias e carga horária total
-- Visualizar requisitos por natureza de componente
-- Buscar disciplinas específicas do seu curso
-- Acessar lista de ementas do curso
-
-### 🎓 Cursos Suportados
-
-- BICTI (Bacharelado Interdisciplinar em Ciência, Tecnologia e Inovação)
-  - Total de horas necessárias: 2400h
-- Engenharia de Produção
-  - Total de horas necessárias: 3750h
-- Engenharia Elétrica
-  - Total de horas necessárias: 3910h
+Sistema web para gerenciamento de histórico acadêmico universitário com autenticação Firebase e armazenamento em nuvem.
 
 ## 🚀 Funcionalidades
 
-- **Seleção de Curso**: Escolha entre BICTI, Engenharia de Produção ou Engenharia Elétrica
-- **Gerenciamento de Disciplinas**:
-  - Adicionar disciplinas cursadas
-  - Registrar notas e carga horária
-  - Marcar disciplinas como trancadas
-- **Filtro e Busca**:
-  - Pesquisa por código ou nome da disciplina
-  - Filtragem específica por curso
-- **Resumo e Métricas**:
-  - Média geral
-  - Total de horas cursadas
-  - Horas restantes por natureza
-  - Progresso para formatura
-- **Planilha de Ementas**: Visualização de ementas do curso
-- **Autenticação de Usuário**: Login e gerenciamento de sessão
+### ✅ Autenticação e Perfil
 
-## 🛠️ Tecnologias Utilizadas
+- Login com email/senha e Google
+- Perfil do usuário com informações pessoais
+- Configurações de tema (claro/escuro/automático)
+- Notificações e privacidade
+- Exportação de dados
 
-- HTML5
-- CSS3 (com organização modular)
-- JavaScript (ES6+)
-- LocalStorage para persistência de dados
-- Font Awesome para ícones
+### ✅ Gestão Acadêmica
+
+- Adicionar/remover disciplinas
+- Cálculo automático de CR
+- Acompanhamento de requisitos de formatura
+- Estatísticas acadêmicas
+- Histórico completo
+
+### ✅ Cursos Suportados
+
+- **BICTI** - Bacharelado Interdisciplinar em Ciência, Tecnologia e Inovação
+- **Engenharia de Produção**
+- **Engenharia Elétrica**
+
+## 🛠️ Tecnologias
+
+- **Frontend:** HTML5, CSS3, JavaScript (ES6+)
+- **Backend:** Firebase (Authentication, Firestore)
+- **UI/UX:** Font Awesome, CSS Grid/Flexbox
+- **Deploy:** Vercel
 
 ## 📁 Estrutura do Projeto
 
 ```
-.
 ├── assets/
-│   ├── css/             # Estilos CSS organizados em módulos
-│   │   ├── auth/        # Estilos específicos para autenticação
-│   │   ├── main.css     # Estilos principais
-│   │   └── modules/     # Módulos CSS organizados por funcionalidade
-│   │       ├── base/         # Estilos base como reset, tipografia, variáveis e animações
-│   │       ├── components/   # Componentes reutilizáveis
-│   │       │   ├── auth/     # Estilos para componentes de autenticação
-│   │       ├── features/      # Estilos específicos para funcionalidades
-│   │       ├── layout/        # Estilos de layout
-│   │       └── utils/         # Utilitários
-│   ├── data/            # Dados JSON das disciplinas
-│   │   └── disciplinas.json
-│   └── img/             # Imagens e favicons
-│       ├── favicon/     # Ícones de favoritos
-│       ├── logo.png     # Logotipo do projeto
-│       └── og-image.jpg # Imagem para Open Graph (compartilhamento em redes sociais)
+│   ├── css/
+│   │   ├── main.css
+│   │   ├── profile.css
+│   │   └── modules/
+│   └── img/
 ├── js/
-│   ├── app.js           # Arquivo principal
-│   └── modules/         # Módulos JavaScript
-│       ├── auth/        # Funcionalidades de autenticação
-│       │   ├── firebase/       # Integração com Firebase para autenticação
-│       │   ├── index.js        # Módulo de autenticação principal
-│       │   └── profile-manager.js # Gerenciamento de perfis de usuário
-│       ├── constants.js # Constantes do projeto
-│       ├── firebase/    # Configuração e integração com Firebase
-│       ├── security/    # Módulos relacionados à segurança
-│       ├── simulation/  # Simulação de cálculos e cenários
-│       ├── storage.js   # Manipulação de armazenamento local
-│       ├── ui/          # Componentes e interações da interface do usuário
-│       └── utils.js     # Utilitários JavaScript
-├── legal/              # Documentação legal
-│   ├── css/            # Estilos para páginas legais
-│   │   └── legal.css
-│   ├── privacy.html    # Página de política de privacidade
-│   └── terms.html      # Página de termos de uso
-├── index.html          # Página principal
-├── login.html          # Página de login
-├── manifest.json       # Arquivo de configuração para PWA
-├── robots.txt          # Arquivo para configuração de robôs de busca
-├── sitemap.xml         # Mapa do site para SEO
-├── sw.js               # Service Worker para funcionalidades offline
-├── imagem-preview.jpg  # Imagem de pré-visualização
-├── LICENSE             # Licença do projeto
-└── README.md           # Documentação do projeto
-
+│   ├── app.js
+│   └── modules/
+│       ├── firebase/
+│       ├── ui/
+│       └── utils/
+├── docs/
+│   ├── documentation/
+│   └── test-pages/
+├── index.html
+├── login.html
+├── profile.html
+└── firestore.rules
 ```
 
-### 📊 Organização CSS
+## 🔧 Configuração
 
-- **Base**: Reset, tipografia, variáveis, scrollbar e animações
-- **Components**: Botões, formulários, ícones, tabelas, notificações, logomarca, progressos e data e hora
-- **Features**: Filtros, períodos, resumos, ementa, simulação, sumário, gráficos
-- **Layout**: Container, footer, grid
-- **Utils**: Responsividade, status, impressão, usuário, dark mode
+### 1. Firebase Setup
 
-## 🚦 Como Usar
+1. Crie um projeto no [Firebase Console](https://console.firebase.google.com)
+2. Ative Authentication (Email/Password e Google)
+3. Crie um banco Firestore
+4. Configure as regras de segurança (`firestore.rules`)
 
-1. Acesse o [site do projeto](https://historicoacademico.vercel.app/)
-2. Faça login na plataforma
-3. Selecione seu curso (BICTI, Engenharia de Produção ou Engenharia Elétrica)
-4. Adicione suas disciplinas cursadas:
-   - Preencha o semestre
-   - Insira código e nome da disciplina
-   - Selecione a natureza
-   - Informe carga horária e nota
-5. Acompanhe seu progresso no painel de resumo
+### 2. Configuração das Regras
 
-## 💻 Desenvolvimento Local
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    // ... outras regras
+  }
+}
+```
 
-1. Clone o repositório:
+### 3. Variáveis de Ambiente
+
+Configure as credenciais do Firebase em `js/modules/firebase/config.js`
+
+## 🚀 Deploy
+
+### Vercel (Recomendado)
 
 ```bash
-git clone https://github.com/LuisT-ls/Historico-Universitario.git
+npm install -g vercel
+vercel
 ```
 
-2. Abra o projeto:
+### GitHub Pages
 
-```bash
-cd Historico-Universitario
+1. Faça push para o repositório
+2. Ative GitHub Pages nas configurações
+3. Configure o domínio customizado (opcional)
+
+## 📖 Documentação
+
+- **Configuração Firebase:** `docs/documentation/CONFIGURACAO_FIRESTORE.md`
+- **Resolução de Problemas:** `docs/documentation/RESOLVER_PERMISSOES.md`
+- **Testes:** `docs/test-pages/`
+
+## 🔍 Testes
+
+### Páginas de Teste
+
+- `docs/test-pages/test-profile.html` - Teste do perfil
+- `docs/test-pages/test-firestore.html` - Teste das regras do Firestore
+
+### Como Testar
+
+1. Acesse as páginas de teste
+2. Verifique as funcionalidades
+3. Teste autenticação e logout
+4. Valide as regras do Firestore
+
+## 🐛 Solução de Problemas
+
+### Erro de Permissões
+
+```
+FirebaseError: Missing or insufficient permissions.
 ```
 
-3. Inicie um servidor local:
+**Solução:** Configure as regras do Firestore conforme `docs/documentation/RESOLVER_PERMISSOES.md`
 
-- Use o Live Server do VS Code
+### Logout Não Funciona
 
-4. Acesse `http://localhost:5500` no navegador
+**Solução:** Verifique o console do navegador para logs detalhados
 
-## 🤝 Contribuindo
+### Tema Não Persiste
 
-1. Faça um Fork do projeto
+**Solução:** Verifique se o localStorage está funcionando
+
+## 🤝 Contribuição
+
+1. Fork o projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
 3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
-## 📝 Licença
+## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
 
-## 👨‍💻 Autor
+## 👨‍💻 Desenvolvedor
 
-Luís Antonio Souza Teixeira - [GitHub](https://github.com/LuisT-ls)
+**Luís Teixeira**
 
-## 🎯 Status do Projeto
+- GitHub: [@LuisT-ls](https://github.com/LuisT-ls)
+- LinkedIn: [luis-tei](https://linkedin.com/in/luis-tei)
 
-🚧 Em desenvolvimento contínuo...
+## 🙏 Agradecimentos
+
+- Firebase pela infraestrutura
+- Font Awesome pelos ícones
+- Comunidade open source
 
 ---
 
-⌨️ Feito com ❤️ por [Luís Teixeira](https://github.com/LuisT-ls)
+⭐ **Se este projeto te ajudou, considere dar uma estrela!**

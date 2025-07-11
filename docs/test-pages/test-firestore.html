@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teste Firestore - Histórico Universitário</title>
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <style>
+      .test-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+      }
+
+      .test-button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        cursor: pointer;
+        margin: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .test-button:hover {
+        background: #5a6fd8;
+      }
+
+      .test-button.danger {
+        background: #dc3545;
+      }
+
+      .test-button.danger:hover {
+        background: #c82333;
+      }
+
+      .test-button.success {
+        background: #28a745;
+      }
+
+      .test-button.success:hover {
+        background: #218838;
+      }
+
+      .log-area {
+        background: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 1rem;
+        margin-top: 1rem;
+        font-family: monospace;
+        font-size: 0.85rem;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .status {
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        margin: 0.5rem 0;
+        font-weight: 500;
+      }
+
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .status.info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1><i class="fas fa-database"></i> Teste das Regras do Firestore</h1>
+
+      <div class="test-section">
+        <h3><i class="fas fa-user"></i> Status da Autenticação</h3>
+        <div id="authStatus">Verificando...</div>
+        <button class="test-button" onclick="checkAuth()">
+          <i class="fas fa-sync"></i> Verificar Autenticação
+        </button>
+      </div>
+
+      <div class="test-section">
+        <h3><i class="fas fa-shield-alt"></i> Testes de Permissão</h3>
+        <button class="test-button" onclick="testReadUser()">
+          <i class="fas fa-eye"></i> Testar Leitura do Usuário
+        </button>
+        <button class="test-button" onclick="testWriteUser()">
+          <i class="fas fa-edit"></i> Testar Escrita do Usuário
+        </button>
+        <button class="test-button danger" onclick="testReadOtherUser()">
+          <i class="fas fa-user-times"></i> Testar Leitura de Outro Usuário
+          (Deve Falhar)
+        </button>
+        <button class="test-button" onclick="testCreateDiscipline()">
+          <i class="fas fa-plus"></i> Testar Criar Disciplina
+        </button>
+      </div>
+
+      <div class="test-section">
+        <h3><i class="fas fa-list"></i> Logs de Teste</h3>
+        <button class="test-button" onclick="clearLogs()">
+          <i class="fas fa-trash"></i> Limpar Logs
+        </button>
+        <div id="logArea" class="log-area"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { auth, db } from './js/modules/firebase/config.js'
+      import {
+        doc,
+        getDoc,
+        setDoc,
+        updateDoc
+      } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js'
+      import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js'
+
+      let currentUser = null
+
+      // Função para adicionar logs
+      function addLog(message, type = 'info') {
+        const logArea = document.getElementById('logArea')
+        const timestamp = new Date().toLocaleTimeString()
+        const logEntry = document.createElement('div')
+        logEntry.innerHTML = `<span style="color: #666;">[${timestamp}]</span> <span style="color: ${
+          type === 'error'
+            ? '#dc3545'
+            : type === 'success'
+            ? '#28a745'
+            : '#007bff'
+        };">${message}</span>`
+        logArea.appendChild(logEntry)
+        logArea.scrollTop = logArea.scrollHeight
+      }
+
+      // Função para atualizar status de autenticação
+      function updateAuthStatus() {
+        const authStatus = document.getElementById('authStatus')
+        if (currentUser) {
+          authStatus.innerHTML = `
+            <div class="status success">
+              <i class="fas fa-check-circle"></i> 
+              Autenticado como: ${currentUser.email} (${currentUser.uid})
+            </div>
+          `
+        } else {
+          authStatus.innerHTML = `
+            <div class="status error">
+              <i class="fas fa-times-circle"></i> 
+              Não autenticado
+            </div>
+          `
+        }
+      }
+
+      // Verificar autenticação
+      function checkAuth() {
+        addLog('Verificando status de autenticação...')
+        updateAuthStatus()
+      }
+
+      // Testar leitura do usuário atual
+      async function testReadUser() {
+        if (!currentUser) {
+          addLog('❌ Usuário não autenticado', 'error')
+          return
+        }
+
+        try {
+          addLog('🔍 Testando leitura do documento do usuário...')
+          const userDoc = await getDoc(doc(db, 'users', currentUser.uid))
+
+          if (userDoc.exists()) {
+            addLog('✅ Leitura do usuário bem-sucedida', 'success')
+            addLog(`📄 Dados: ${JSON.stringify(userDoc.data(), null, 2)}`)
+          } else {
+            addLog('⚠️ Documento do usuário não encontrado', 'info')
+          }
+        } catch (error) {
+          addLog(`❌ Erro na leitura: ${error.message}`, 'error')
+        }
+      }
+
+      // Testar escrita do usuário atual
+      async function testWriteUser() {
+        if (!currentUser) {
+          addLog('❌ Usuário não autenticado', 'error')
+          return
+        }
+
+        try {
+          addLog('✏️ Testando escrita do documento do usuário...')
+          const testData = {
+            testField: `Teste em ${new Date().toLocaleString()}`,
+            updatedAt: new Date()
+          }
+
+          await updateDoc(doc(db, 'users', currentUser.uid), testData)
+          addLog('✅ Escrita do usuário bem-sucedida', 'success')
+        } catch (error) {
+          addLog(`❌ Erro na escrita: ${error.message}`, 'error')
+        }
+      }
+
+      // Testar leitura de outro usuário (deve falhar)
+      async function testReadOtherUser() {
+        if (!currentUser) {
+          addLog('❌ Usuário não autenticado', 'error')
+          return
+        }
+
+        try {
+          addLog('🔍 Testando leitura de outro usuário (deve falhar)...')
+          const otherUserId = 'outro-usuario-id'
+          const userDoc = await getDoc(doc(db, 'users', otherUserId))
+
+          if (userDoc.exists()) {
+            addLog('⚠️ Acesso inesperado a outro usuário!', 'error')
+          } else {
+            addLog('✅ Acesso negado corretamente', 'success')
+          }
+        } catch (error) {
+          if (error.code === 'permission-denied') {
+            addLog('✅ Acesso negado corretamente (esperado)', 'success')
+          } else {
+            addLog(`❌ Erro inesperado: ${error.message}`, 'error')
+          }
+        }
+      }
+
+      // Testar criar disciplina
+      async function testCreateDiscipline() {
+        if (!currentUser) {
+          addLog('❌ Usuário não autenticado', 'error')
+          return
+        }
+
+        try {
+          addLog('📚 Testando criação de disciplina...')
+          const disciplineData = {
+            userId: currentUser.uid,
+            name: 'Disciplina de Teste',
+            code: 'TEST001',
+            credits: 4,
+            grade: 8.5,
+            status: 'completed',
+            semester: '2024.1',
+            createdAt: new Date()
+          }
+
+          await setDoc(
+            doc(db, 'disciplines', `test-${Date.now()}`),
+            disciplineData
+          )
+          addLog('✅ Criação de disciplina bem-sucedida', 'success')
+        } catch (error) {
+          addLog(`❌ Erro na criação: ${error.message}`, 'error')
+        }
+      }
+
+      // Limpar logs
+      function clearLogs() {
+        document.getElementById('logArea').innerHTML = ''
+        addLog('🧹 Logs limpos')
+      }
+
+      // Configurar listener de autenticação
+      onAuthStateChanged(auth, user => {
+        currentUser = user
+        updateAuthStatus()
+        addLog(
+          `🔐 Status de autenticação alterado: ${user ? 'Logado' : 'Deslogado'}`
+        )
+      })
+
+      // Expor funções globalmente
+      window.checkAuth = checkAuth
+      window.testReadUser = testReadUser
+      window.testWriteUser = testWriteUser
+      window.testReadOtherUser = testReadOtherUser
+      window.testCreateDiscipline = testCreateDiscipline
+      window.clearLogs = clearLogs
+
+      // Inicializar
+      addLog('🚀 Teste do Firestore iniciado')
+      checkAuth()
+    </script>
+  </body>
+</html>

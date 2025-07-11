@@ -25,6 +25,12 @@
   background: var(--background-primary);
 }
 
+/* Ajuste para inputs de senha com toggle */
+.input-container input[type='password'],
+.input-container input[type='text'] {
+  padding-right: 3rem;
+}
+
 .input-container.focused .input-icon {
   color: var(--primary-color);
 }

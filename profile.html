@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfil - Histórico Universitário</title>
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/profile.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="assets/img/favicon/favicon.ico"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="site-header">
+      <div class="header-content">
+        <div class="header-left">
+          <a href="index.html" class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Histórico Universitário</span>
+          </a>
+        </div>
+
+        <div class="header-right">
+          <nav class="main-nav">
+            <a href="index.html" class="nav-link">
+              <i class="fas fa-home"></i>
+              <span>Início</span>
+            </a>
+            <a href="profile.html" class="nav-link active">
+              <i class="fas fa-user"></i>
+              <span>Perfil</span>
+            </a>
+          </nav>
+
+          <div class="user-menu">
+            <button class="user-button" id="userButton">
+              <i class="fas fa-user-circle"></i>
+              <span id="userName">Usuário</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="user-dropdown">
+              <div class="user-info">
+                <div class="user-avatar">
+                  <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-details">
+                  <span class="user-name" id="dropdownUserName">Usuário</span>
+                  <span class="user-email" id="dropdownUserEmail"
+                    >usuario@email.com</span
+                  >
+                </div>
+              </div>
+              <div class="dropdown-menu">
+                <a href="profile.html" class="dropdown-item">
+                  <i class="fas fa-user-edit"></i>
+                  <span>Editar Perfil</span>
+                </a>
+                <a href="#" class="dropdown-item" id="changePasswordBtn">
+                  <i class="fas fa-key"></i>
+                  <span>Alterar Senha</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item logout-btn" id="logoutBtn">
+                  <i class="fas fa-sign-out-alt"></i>
+                  <span>Sair</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <div class="profile-header">
+          <h1>Meu Perfil</h1>
+          <p>Gerencie suas informações pessoais e configurações da conta</p>
+        </div>
+
+        <div class="profile-content">
+          <!-- Informações Pessoais -->
+          <section class="profile-section">
+            <div class="section-header">
+              <h2><i class="fas fa-user"></i> Informações Pessoais</h2>
+              <p>Atualize seus dados pessoais e acadêmicos</p>
+            </div>
+
+            <form id="profileForm" class="profile-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fullName">Nome Completo</label>
+                  <input type="text" id="fullName" name="fullName" required />
+                </div>
+                <div class="form-group">
+                  <label for="email">E-mail</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    disabled
+                    placeholder="Seu e-mail será exibido aqui"
+                  />
+                  <small>O e-mail não pode ser alterado</small>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="institution">Instituição</label>
+                  <input
+                    type="text"
+                    id="institution"
+                    name="institution"
+                    placeholder="Nome da sua universidade"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="course">Curso</label>
+                  <input
+                    type="text"
+                    id="course"
+                    name="course"
+                    placeholder="Ex: Engenharia de Produção"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="enrollment">Matrícula</label>
+                  <input
+                    type="text"
+                    id="enrollment"
+                    name="enrollment"
+                    placeholder="Número de matrícula"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="startYear">Ano de Ingresso</label>
+                  <input
+                    type="number"
+                    id="startYear"
+                    name="startYear"
+                    min="2000"
+                    max="2030"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="startSemester">Semestre de Ingresso</label>
+                  <select id="startSemester" name="startSemester">
+                    <option value="1">1º Semestre</option>
+                    <option value="2">2º Semestre</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save"></i>
+                  Salvar Alterações
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <!-- Configurações da Conta -->
+          <section class="profile-section">
+            <div class="section-header">
+              <h2><i class="fas fa-cog"></i> Configurações da Conta</h2>
+              <p>Gerencie suas preferências e configurações</p>
+            </div>
+
+            <div class="settings-grid">
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h3>Tema</h3>
+                  <p>Escolha entre tema claro ou escuro</p>
+                </div>
+                <div class="setting-control">
+                  <select id="themeSelect" class="form-select">
+                    <option value="light">Tema Claro</option>
+                    <option value="dark">Tema Escuro</option>
+                    <option value="auto">Automático</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h3>Notificações</h3>
+                  <p>Receber notificações sobre atualizações</p>
+                </div>
+                <div class="setting-control">
+                  <label class="switch">
+                    <input type="checkbox" id="notificationsToggle" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h3>Privacidade</h3>
+                  <p>Visibilidade dos seus dados</p>
+                </div>
+                <div class="setting-control">
+                  <select id="privacySelect" class="form-select">
+                    <option value="private">Privado</option>
+                    <option value="public">Público</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Estatísticas -->
+          <section class="profile-section">
+            <div class="section-header">
+              <h2><i class="fas fa-chart-bar"></i> Estatísticas</h2>
+              <p>Resumo do seu progresso acadêmico</p>
+            </div>
+
+            <div class="stats-grid" id="statsGrid">
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fas fa-book"></i>
+                </div>
+                <div class="stat-content">
+                  <h3>Disciplinas</h3>
+                  <div class="stat-value" id="totalDisciplines">0</div>
+                  <div class="stat-label">Total cadastradas</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                  <h3>Concluídas</h3>
+                  <div class="stat-value" id="completedDisciplines">0</div>
+                  <div class="stat-label">Disciplinas finalizadas</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                  <h3>Em Andamento</h3>
+                  <div class="stat-value" id="inProgressDisciplines">0</div>
+                  <div class="stat-label">Disciplinas atuais</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-content">
+                  <h3>Média Geral</h3>
+                  <div class="stat-value" id="averageGrade">0.0</div>
+                  <div class="stat-label">Nota média</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Ações da Conta -->
+          <section class="profile-section">
+            <div class="section-header">
+              <h2><i class="fas fa-shield-alt"></i> Segurança da Conta</h2>
+              <p>Ações importantes para proteger sua conta</p>
+            </div>
+
+            <div class="account-actions">
+              <div class="action-card">
+                <div class="action-icon">
+                  <i class="fas fa-key"></i>
+                </div>
+                <div class="action-content">
+                  <h3>Alterar Senha</h3>
+                  <p>Atualize sua senha para manter a conta segura</p>
+                  <button class="btn btn-secondary" id="changePasswordAction">
+                    Alterar Senha
+                  </button>
+                </div>
+              </div>
+
+              <div class="action-card">
+                <div class="action-icon">
+                  <i class="fas fa-download"></i>
+                </div>
+                <div class="action-content">
+                  <h3>Exportar Dados</h3>
+                  <p>Faça backup dos seus dados acadêmicos</p>
+                  <button class="btn btn-secondary" id="exportDataBtn">
+                    Exportar
+                  </button>
+                </div>
+              </div>
+
+              <div class="action-card danger">
+                <div class="action-icon">
+                  <i class="fas fa-trash"></i>
+                </div>
+                <div class="action-content">
+                  <h3>Excluir Conta</h3>
+                  <p>Exclua permanentemente sua conta e todos os dados</p>
+                  <button class="btn btn-danger" id="deleteAccountBtn">
+                    Excluir Conta
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal de Alteração de Senha -->
+    <div class="modal-overlay" id="changePasswordModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fas fa-key"></i> Alterar Senha</h3>
+          <button class="modal-close" id="closePasswordModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <form id="changePasswordForm" class="modal-form">
+          <div class="form-group">
+            <label for="currentPassword">Senha Atual</label>
+            <input type="password" id="currentPassword" required />
+          </div>
+
+          <div class="form-group">
+            <label for="newPassword">Nova Senha</label>
+            <input type="password" id="newPassword" required minlength="6" />
+          </div>
+
+          <div class="form-group">
+            <label for="confirmNewPassword">Confirmar Nova Senha</label>
+            <input
+              type="password"
+              id="confirmNewPassword"
+              required
+              minlength="6"
+            />
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="cancelPasswordChange"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i>
+              Alterar Senha
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div class="modal-overlay" id="deleteAccountModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>
+            <i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão
+          </h3>
+          <button class="modal-close" id="closeDeleteModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p><strong>Atenção!</strong> Esta ação não pode ser desfeita.</p>
+          <p>Todos os seus dados acadêmicos serão permanentemente excluídos.</p>
+          <p>Digite "EXCLUIR" para confirmar:</p>
+
+          <div class="form-group">
+            <input
+              type="text"
+              id="deleteConfirmation"
+              placeholder="Digite EXCLUIR"
+            />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="cancelDelete">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            id="confirmDelete"
+            disabled
+          >
+            <i class="fas fa-trash"></i>
+            Excluir Conta
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/modules/firebase/config.js"></script>
+    <script type="module" src="js/modules/settings.js"></script>
+    <script type="module" src="js/modules/profile.js"></script>
+  </body>
+</html>

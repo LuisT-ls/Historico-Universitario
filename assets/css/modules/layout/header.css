@@ -1,4 +1,17 @@
 /* Header Styles */
+/* Site Header */
+.site-header {
+  position: relative;
+  background: var(--background);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  z-index: 100;
+}
+
 /* DateTime Display */
 .datetime-display {
   font-size: 0.875rem;

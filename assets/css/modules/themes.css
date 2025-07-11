@@ -1,0 +1,278 @@
+/* Theme Variables */
+:root {
+  /* Light Theme (Default) */
+  --primary-color: #667eea;
+  --primary-dark: #5a6fd8;
+  --secondary-color: #764ba2;
+  --success-color: #28a745;
+  --error-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+
+  /* Background Colors */
+  --background-primary: #ffffff;
+  --background-secondary: #f8f9fa;
+  --background-tertiary: #e9ecef;
+
+  /* Text Colors */
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+
+  /* Border Colors */
+  --border-color: #e0e0e0;
+  --border-light: #f0f0f0;
+
+  /* Shadow Colors */
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.15);
+  --shadow-heavy: rgba(0, 0, 0, 0.2);
+
+  /* Google Colors */
+  --google-blue: #4285f4;
+  --google-red: #db4437;
+  --google-yellow: #f4b400;
+  --google-green: #0f9d58;
+}
+
+/* Dark Theme */
+.theme-dark {
+  /* Background Colors */
+  --background-primary: #1a1a1a;
+  --background-secondary: #2d2d2d;
+  --background-tertiary: #404040;
+
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --text-muted: #999999;
+
+  /* Border Colors */
+  --border-color: #404040;
+  --border-light: #2d2d2d;
+
+  /* Shadow Colors */
+  --shadow-light: rgba(255, 255, 255, 0.1);
+  --shadow-medium: rgba(255, 255, 255, 0.15);
+  --shadow-heavy: rgba(255, 255, 255, 0.2);
+}
+
+/* Auto Theme - Follows System Preference */
+.theme-auto {
+  /* Will be applied based on system preference */
+}
+
+/* Theme Transitions */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Dark Theme Specific Styles */
+.theme-dark body {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+}
+
+.theme-dark .login-container {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+.theme-dark .login-box {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.theme-dark .profile-section {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.theme-dark .setting-item {
+  background: var(--background-tertiary);
+  border-color: var(--border-color);
+}
+
+.theme-dark .setting-item:hover {
+  background: var(--background-secondary);
+}
+
+.theme-dark .modal-content {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.theme-dark .notification {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.theme-dark input,
+.theme-dark select,
+.theme-dark textarea {
+  background: var(--background-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.theme-dark input:focus,
+.theme-dark select:focus,
+.theme-dark textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.theme-dark .btn-secondary {
+  background: var(--background-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.theme-dark .btn-secondary:hover {
+  background: var(--background-secondary);
+  border-color: var(--primary-color);
+}
+
+/* Dark theme for specific components */
+.theme-dark .user-dropdown {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.theme-dark .dropdown-item {
+  color: var(--text-primary);
+}
+
+.theme-dark .dropdown-item:hover {
+  background: var(--background-tertiary);
+}
+
+.theme-dark .popup-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Dark theme for tables */
+.theme-dark table {
+  background: var(--background-secondary);
+}
+
+.theme-dark th,
+.theme-dark td {
+  border-color: var(--border-color);
+}
+
+.theme-dark tr:hover {
+  background: var(--background-tertiary);
+}
+
+/* Dark theme for form elements */
+.theme-dark .input-container input {
+  background: var(--background-tertiary);
+  color: var(--text-primary);
+}
+
+.theme-dark .input-container input::placeholder {
+  color: var(--text-muted);
+}
+
+.theme-dark .form-select {
+  background: var(--background-tertiary);
+  color: var(--text-primary);
+}
+
+/* Dark theme for buttons */
+.theme-dark .btn {
+  color: var(--text-primary);
+}
+
+.theme-dark .btn-primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.theme-dark .btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+/* Dark theme for notifications */
+.theme-dark .notification {
+  background: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+.theme-dark .notification-close {
+  color: var(--text-secondary);
+}
+
+.theme-dark .notification-close:hover {
+  background: var(--background-tertiary);
+  color: var(--text-primary);
+}
+
+/* Dark theme for modals */
+.theme-dark .modal-header {
+  border-bottom-color: var(--border-color);
+}
+
+.theme-dark .modal-footer {
+  border-top-color: var(--border-color);
+}
+
+/* Dark theme for switches */
+.theme-dark .slider {
+  background-color: var(--border-color);
+}
+
+.theme-dark input:checked + .slider {
+  background-color: var(--primary-color);
+}
+
+/* Dark theme for cards */
+.theme-dark .stat-card {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    var(--secondary-color) 100%
+  );
+}
+
+.theme-dark .action-card {
+  background: var(--background-secondary);
+  border-color: var(--border-color);
+}
+
+.theme-dark .action-card:hover {
+  border-color: var(--primary-color);
+}
+
+/* Dark theme for navigation */
+.theme-dark .site-header {
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.theme-dark .nav-link {
+  color: var(--text-primary);
+}
+
+.theme-dark .nav-link:hover,
+.theme-dark .nav-link.active {
+  color: var(--primary-color);
+}
+
+/* Dark theme for footer */
+.theme-dark .footer {
+  background: var(--background-secondary);
+  border-top: 1px solid var(--border-color);
+}
+
+/* Responsive dark theme */
+@media (max-width: 768px) {
+  .theme-dark .login-box {
+    background: var(--background-secondary);
+  }
+
+  .theme-dark .profile-section {
+    background: var(--background-secondary);
+  }
+}
