@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Domínio OAuth - Firebase</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .error-box {
+            background: rgba(255, 0, 0, 0.1);
+            border-left: 4px solid #f44336;
+        }
+        
+        .warning-box {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+        }
+        
+        .test-button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .test-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .log-area {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .status.success {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .status.error {
+            background: #f44336;
+            color: white;
+        }
+        
+        .status.warning {
+            background: #ffc107;
+            color: black;
+        }
+        
+        .steps {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .steps ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .steps li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Teste de Domínio OAuth - Firebase</h1>
+        
+        <div class="info-box">
+            <h3>📋 Informações do Domínio</h3>
+            <p><strong>Domínio Atual:</strong> <span id="current-domain"></span></p>
+            <p><strong>URL Completa:</strong> <span id="current-url"></span></p>
+            <p><strong>Protocolo:</strong> <span id="current-protocol"></span></p>
+        </div>
+        
+        <div class="info-box">
+            <h3>🎯 Teste de Autenticação</h3>
+            <button class="test-button" onclick="testGoogleAuth()">Testar Login Google</button>
+            <button class="test-button" onclick="checkAuthState()">Verificar Estado Auth</button>
+            <button class="test-button" onclick="clearLogs()">Limpar Logs</button>
+        </div>
+        
+        <div class="info-box">
+            <h3>📊 Status dos Testes</h3>
+            <div id="test-status"></div>
+        </div>
+        
+        <div class="log-area" id="log-area">
+            Logs aparecerão aqui...
+        </div>
+        
+        <div class="steps">
+            <h3>📝 Passos para Resolver o Problema</h3>
+            <ol>
+                <li>Acesse o <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+                <li>Selecione seu projeto</li>
+                <li>Vá para <strong>Authentication > Settings</strong></li>
+                <li>Na seção <strong>Authorized domains</strong>, adicione: <code>historicoacademico.vercel.app</code></li>
+                <li>Aguarde alguns minutos e teste novamente</li>
+            </ol>
+        </div>
+        
+        <div class="info-box warning-box">
+            <h3>⚠️ Notas Importantes</h3>
+            <ul>
+                <li>O domínio deve ser adicionado exatamente como aparece no erro</li>
+                <li>Pode levar alguns minutos para as mudanças propagarem</li>
+                <li>Teste em modo incógnito para descartar problemas de cache</li>
+                <li>Verifique se o Google OAuth está habilitado no Firebase</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvOkJgJqXJqXJqXJqXJqXJqXJqXJqXJqX",
+            authDomain: "historico-academico.firebaseapp.com",
+            projectId: "historico-academico",
+            storageBucket: "historico-academico.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef123456"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // Funções globais
+        window.testGoogleAuth = async function() {
+            log('🔐 Iniciando teste de login com Google...');
+            
+            try {
+                const result = await signInWithPopup(auth, provider);
+                log('✅ Login bem-sucedido!');
+                log(`👤 Usuário: ${result.user.email}`);
+                updateStatus('success', 'Login Google funcionando');
+            } catch (error) {
+                log(`❌ Erro no login: ${error.code}`);
+                log(`📝 Mensagem: ${error.message}`);
+                
+                if (error.code === 'auth/unauthorized-domain') {
+                    updateStatus('error', 'Domínio não autorizado');
+                    log('💡 Solução: Adicione o domínio no Firebase Console');
+                } else {
+                    updateStatus('error', `Erro: ${error.code}`);
+                }
+            }
+        };
+
+        window.checkAuthState = function() {
+            log('🔍 Verificando estado da autenticação...');
+            
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    log('✅ Usuário autenticado');
+                    log(`📧 Email: ${user.email}`);
+                    log(`🆔 UID: ${user.uid}`);
+                    updateStatus('success', 'Usuário autenticado');
+                } else {
+                    log('❌ Nenhum usuário autenticado');
+                    updateStatus('warning', 'Nenhum usuário autenticado');
+                }
+            });
+        };
+
+        window.clearLogs = function() {
+            document.getElementById('log-area').textContent = 'Logs limpos...';
+        };
+
+        // Funções auxiliares
+        function log(message) {
+            const logArea = document.getElementById('log-area');
+            const timestamp = new Date().toLocaleTimeString();
+            logArea.textContent += `[${timestamp}] ${message}\n`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function updateStatus(type, message) {
+            const statusDiv = document.getElementById('test-status');
+            const statusElement = document.createElement('span');
+            statusElement.className = `status ${type}`;
+            statusElement.textContent = message;
+            statusDiv.appendChild(statusElement);
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mostrar informações do domínio
+            document.getElementById('current-domain').textContent = window.location.hostname;
+            document.getElementById('current-url').textContent = window.location.href;
+            document.getElementById('current-protocol').textContent = window.location.protocol;
+            
+            log('🚀 Teste de domínio OAuth iniciado');
+            log(`🌐 Domínio: ${window.location.hostname}`);
+            log('📋 Use os botões acima para testar a autenticação');
+        });
+    </script>
+</body>
+</html> 

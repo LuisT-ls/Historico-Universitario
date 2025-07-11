@@ -1,0 +1,66 @@
+// Script para verificar configuração de domínio OAuth
+// Execute este código no console do navegador
+
+console.log('🔍 Verificação de Domínio OAuth - Firebase')
+console.log('==========================================')
+
+// Informações do domínio atual
+console.log('📋 Informações do Domínio:')
+console.log(`   Domínio: ${window.location.hostname}`)
+console.log(`   URL: ${window.location.href}`)
+console.log(`   Protocolo: ${window.location.protocol}`)
+console.log('')
+
+// Verificar se está em HTTPS (recomendado para produção)
+if (window.location.protocol === 'https:') {
+  console.log('✅ Protocolo HTTPS detectado')
+} else {
+  console.log('⚠️  Protocolo HTTP detectado (HTTPS recomendado para produção)')
+}
+
+// Verificar se é um domínio conhecido
+const currentDomain = window.location.hostname
+const knownDomains = ['historicoacademico.vercel.app', 'localhost', '127.0.0.1']
+
+if (knownDomains.includes(currentDomain)) {
+  console.log(`✅ Domínio reconhecido: ${currentDomain}`)
+} else {
+  console.log(`⚠️  Domínio não reconhecido: ${currentDomain}`)
+  console.log('💡 Adicione este domínio no Firebase Console')
+}
+
+console.log('')
+console.log('📝 Próximos Passos:')
+console.log('1. Acesse: https://console.firebase.google.com/')
+console.log('2. Selecione seu projeto')
+console.log('3. Vá para Authentication > Settings')
+console.log('4. Adicione o domínio na seção "Authorized domains"')
+console.log('5. Aguarde alguns minutos e teste novamente')
+console.log('')
+
+// Função para testar login (se Firebase estiver disponível)
+if (typeof firebase !== 'undefined') {
+  console.log('🔐 Firebase detectado - Teste de login disponível')
+  console.log('Execute: testGoogleLogin() para testar')
+
+  window.testGoogleLogin = async function () {
+    try {
+      const auth = firebase.auth()
+      const provider = new firebase.auth.GoogleAuthProvider()
+      const result = await auth.signInWithPopup(provider)
+      console.log('✅ Login bem-sucedido!', result.user.email)
+    } catch (error) {
+      console.error('❌ Erro no login:', error.code, error.message)
+
+      if (error.code === 'auth/unauthorized-domain') {
+        console.log('💡 Solução: Adicione o domínio no Firebase Console')
+      }
+    }
+  }
+} else {
+  console.log('⚠️  Firebase não detectado')
+  console.log('💡 Certifique-se de que o Firebase SDK está carregado')
+}
+
+console.log('==========================================')
+console.log('✅ Verificação concluída')

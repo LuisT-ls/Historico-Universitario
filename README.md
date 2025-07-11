@@ -129,6 +129,23 @@ FirebaseError: Missing or insufficient permissions.
 
 **Solução:** Configure as regras do Firestore conforme `docs/documentation/RESOLVER_PERMISSOES.md`
 
+### Erro de Domínio OAuth
+
+```
+FirebaseError: Firebase: Error (auth/unauthorized-domain).
+```
+
+**Solução:**
+
+1. Acesse o [Firebase Console](https://console.firebase.google.com/)
+2. Vá para **Authentication > Settings**
+3. Na seção **Authorized domains**, adicione seu domínio:
+   - Para produção: `historicoacademico.vercel.app`
+   - Para desenvolvimento: `localhost` e `127.0.0.1`
+4. Aguarde alguns minutos e teste novamente
+
+**Arquivo de teste:** Use `test-oauth-domain.html` para verificar se o domínio está configurado corretamente.
+
 ### Logout Não Funciona
 
 **Solução:** Verifique o console do navegador para logs detalhados
