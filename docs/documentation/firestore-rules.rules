@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Permitir acesso apenas para usuários autenticados aos seus próprios dados
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Permitir acesso para dados acadêmicos do usuário
+    match /users/{userId}/academic_records/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Permitir acesso para configurações do usuário
+    match /users/{userId}/settings/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Permitir acesso para histórico do usuário
+    match /users/{userId}/history/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Negar acesso a todos os outros documentos
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+} 

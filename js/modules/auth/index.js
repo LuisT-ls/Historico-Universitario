@@ -42,20 +42,20 @@ document.addEventListener('DOMContentLoaded', function () {
   document
     .getElementById('loginForm')
     .addEventListener('submit', async function (e) {
-      e.preventDefault()
-      const button = this.querySelector('.login-button')
+    e.preventDefault()
+    const button = this.querySelector('.login-button')
       const email = document.getElementById('email').value
       const password = document.getElementById('password').value
 
-      button.classList.add('loading')
+    button.classList.add('loading')
       button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...'
 
       try {
         const result = await authService.loginWithEmail(email, password)
 
         if (result.success) {
-          button.classList.remove('loading')
-          button.classList.add('success')
+      button.classList.remove('loading')
+      button.classList.add('success')
           button.innerHTML = '<i class="fas fa-check"></i> Sucesso!'
 
           // Configurar serviço de dados
@@ -146,14 +146,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         showNotification(errorMessage, 'error')
 
-        setTimeout(() => {
+      setTimeout(() => {
           button.disabled = false
           button.classList.remove('error')
           button.innerHTML =
             '<img src="https://www.google.com/favicon.ico" alt="Google" class="google-icon" /><span>Continuar com Google</span>'
         }, 3000)
       }
-    })
+  })
 
   // Popup functionality
   const forgotPasswordLink = document.querySelector('.forgot-password')
@@ -167,8 +167,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function openPopup(popup) {
     console.log('Tentando abrir popup:', popup)
     if (popup) {
-      popup.classList.add('active')
-      document.body.style.overflow = 'hidden'
+    popup.classList.add('active')
+    document.body.style.overflow = 'hidden'
       console.log('Popup aberto com sucesso')
     } else {
       console.error('Popup não encontrado')
@@ -226,19 +226,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const result = await authService.resetPassword(email)
 
         if (result.success) {
-          button.innerHTML = '<i class="fas fa-check"></i> E-mail enviado!'
+        button.innerHTML = '<i class="fas fa-check"></i> E-mail enviado!'
           showNotification(
             'E-mail de recuperação enviado com sucesso!',
             'success'
           )
 
-          setTimeout(() => {
-            closePopup(forgotPasswordPopup)
-            button.disabled = false
-            button.innerHTML =
-              '<span class="button-content"><i class="fas fa-paper-plane"></i><span>Enviar instruções</span></span>'
-            this.reset()
-          }, 2000)
+        setTimeout(() => {
+          closePopup(forgotPasswordPopup)
+          button.disabled = false
+          button.innerHTML =
+            '<span class="button-content"><i class="fas fa-paper-plane"></i><span>Enviar instruções</span></span>'
+          this.reset()
+        }, 2000)
         } else {
           throw new Error(result.error)
         }
@@ -285,22 +285,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const result = await authService.registerUser(name, email, password)
 
         if (result.success) {
-          button.innerHTML = '<i class="fas fa-check"></i> Conta criada!'
+        button.innerHTML = '<i class="fas fa-check"></i> Conta criada!'
           showNotification('Conta criada com sucesso!', 'success')
 
           // Configurar serviço de dados
           dataService.setCurrentUser(result.user)
 
-          setTimeout(() => {
-            closePopup(registerPopup)
-            button.disabled = false
-            button.innerHTML =
-              '<span class="button-content"><i class="fas fa-user-plus"></i><span>Criar conta</span></span>'
-            this.reset()
+        setTimeout(() => {
+          closePopup(registerPopup)
+          button.disabled = false
+          button.innerHTML =
+            '<span class="button-content"><i class="fas fa-user-plus"></i><span>Criar conta</span></span>'
+          this.reset()
 
             // Redirecionar para a página principal
             window.location.href = '/index.html'
-          }, 2000)
+        }, 2000)
         } else {
           throw new Error(result.error)
         }

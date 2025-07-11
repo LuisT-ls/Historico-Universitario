@@ -54,6 +54,15 @@ class AuthService {
       return { success: true, user: this.currentUser }
     } catch (error) {
       console.error('Erro no login com Google:', error)
+
+      // Tratamento específico para erro de domínio não autorizado
+      if (error.code === 'auth/unauthorized-domain') {
+        return {
+          success: false,
+          error: 'Domínio não autorizado. Entre em contato com o suporte.'
+        }
+      }
+
       return { success: false, error: this.getErrorMessage(error.code) }
     }
   }
@@ -225,9 +234,10 @@ class AuthService {
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error)
       if (error.code === 'permission-denied') {
-        return { 
-          success: false, 
-          error: 'Erro de permissão. Verifique se as regras do Firestore estão configuradas corretamente.' 
+        return {
+          success: false,
+          error:
+            'Erro de permissão. Verifique se as regras do Firestore estão configuradas corretamente.'
         }
       }
       return { success: false, error: error.message }
@@ -264,21 +274,28 @@ class AuthService {
   // Traduzir mensagens de erro
   getErrorMessage(errorCode) {
     const errorMessages = {
-      'auth/user-not-found': 'Usuário não encontrado.',
-      'auth/wrong-password': 'Senha incorreta.',
-      'auth/invalid-email': 'E-mail inválido.',
+      'auth/user-not-found': 'Usuário não encontrado. Verifique seu email.',
+      'auth/wrong-password': 'Senha incorreta. Tente novamente.',
+      'auth/invalid-email': 'E-mail inválido. Verifique o formato.',
       'auth/weak-password': 'A senha deve ter pelo menos 6 caracteres.',
-      'auth/email-already-in-use': 'Este e-mail já está em uso.',
-      'auth/too-many-requests':
-        'Muitas tentativas. Tente novamente mais tarde.',
+      'auth/email-already-in-use':
+        'Este email já está cadastrado. Tente fazer login.',
+      'auth/invalid-credential':
+        'Credenciais inválidas. Verifique email e senha.',
+      'auth/too-many-requests': 'Muitas tentativas. Aguarde alguns minutos.',
       'auth/network-request-failed': 'Erro de conexão. Verifique sua internet.',
+      'auth/unauthorized-domain':
+        'Domínio não autorizado. Entre em contato com o suporte.',
       'auth/popup-closed-by-user': 'Login cancelado pelo usuário.',
-      'auth/cancelled-popup-request': 'Login cancelado.',
+      'auth/cancelled-popup-request': 'Login cancelado. Tente novamente.',
       'auth/account-exists-with-different-credential':
-        'Conta já existe com credenciais diferentes.'
+        'Email já associado a outra conta.',
+      'auth/operation-not-allowed': 'Método de login não habilitado.',
+      'auth/user-disabled':
+        'Conta desabilitada. Entre em contato com o suporte.'
     }
 
-    return errorMessages[errorCode] || 'Ocorreu um erro inesperado.'
+    return errorMessages[errorCode] || `Erro: ${errorCode}`
   }
 }
 

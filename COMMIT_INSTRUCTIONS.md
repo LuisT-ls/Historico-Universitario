@@ -8,7 +8,6 @@
 - ✅ Data e hora restauradas no header
 - ✅ Logout melhorado com logs detalhados
 - ✅ Arquivos organizados em pastas
-- ✅ Solução para erro de domínio OAuth criada
 
 ### 📁 **Estrutura Organizada**
 
@@ -18,14 +17,11 @@
 │   │   ├── CONFIGURACAO_FIRESTORE.md
 │   │   ├── RESOLVER_PERMISSOES.md
 │   │   ├── SOLUCAO_RAPIDA.md
-│   │   ├── REVERTER_MUDANCAS.md
-│   │   ├── SOLUCAO_OAUTH_PASSO_A_PASSO.md
-│   │   └── RESUMO_SOLUCAO_OAUTH.md
+│   │   └── REVERTER_MUDANCAS.md
 │   └── test-pages/
 │       ├── test-profile.html
 │       ├── test-firestore.html
-│       ├── test-login.html
-│       └── test-oauth-quick.html
+│       └── test-login.html
 ├── firestore.rules
 ├── .gitignore
 └── README.md
@@ -113,12 +109,6 @@ git push origin main
 - **Problema:** Erro "Missing or insufficient permissions"
 - **Solução:** Configurar regras conforme `docs/documentation/RESOLVER_PERMISSOES.md`
 - **Status:** Documentado
-
-### ❌ **Domínio OAuth**
-
-- **Problema:** Erro "auth/unauthorized-domain"
-- **Solução:** Adicionar domínio no Firebase Console conforme `docs/documentation/SOLUCAO_OAUTH_PASSO_A_PASSO.md`
-- **Status:** Documentado com guia completo
 
 ## 📝 **Mensagem de Commit Sugerida**
 
