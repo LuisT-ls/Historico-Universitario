@@ -10,7 +10,7 @@
 ### 2. ❌ Erro de Permissões do Firestore
 
 **Erro:** `Missing or insufficient permissions`
-**Solução:** Configurar regras de segurança do Firestore
+**Solução:** Configurar regras de segurança do Firestore (incluindo coleção `disciplines`)
 
 ### 3. ❌ Erros de Autenticação
 
@@ -37,9 +37,39 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Permitir acesso apenas para usuários autenticados aos seus próprios dados
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+
+    // Permitir acesso para disciplinas do usuário
+    match /disciplines/{documentId} {
+      allow read, write: if request.auth != null &&
+        (resource == null || resource.data.userId == request.auth.uid);
+    }
+
+    // Permitir acesso para histórico acadêmico do usuário
+    match /academicHistory/{documentId} {
+      allow read, write: if request.auth != null &&
+        (documentId == request.auth.uid ||
+         (resource != null && resource.data.userId == request.auth.uid));
+    }
+
+    // Permitir acesso para requisitos de formatura do usuário
+    match /graduationRequirements/{documentId} {
+      allow read, write: if request.auth != null &&
+        (documentId == request.auth.uid ||
+         (resource != null && resource.data.userId == request.auth.uid));
+    }
+
+    // Permitir acesso para resumos do usuário
+    match /summaries/{documentId} {
+      allow read, write: if request.auth != null &&
+        (documentId == request.auth.uid ||
+         (resource != null && resource.data.userId == request.auth.uid));
+    }
+
+    // Negar acesso a todos os outros documentos
     match /{document=**} {
       allow read, write: if false;
     }
@@ -63,6 +93,7 @@ service cloud.firestore {
 - ✅ `INSTRUCOES_RAPIDAS.md` - Solução em 5 minutos
 - ✅ `CONFIGURAR_FIRESTORE.md` - Configuração do Firestore
 - ✅ `SOLUCAO_RAPIDA_FIRESTORE.md` - Solução em 3 minutos
+- ✅ `ATUALIZAR_REGRAS_DISCIPLINAS.md` - Solução para disciplinas
 - ✅ `firestore-rules.rules` - Arquivo de regras
 
 ## 📋 Checklist Final
@@ -81,6 +112,7 @@ service cloud.firestore {
 - [ ] Teste em modo incógnito
 - [ ] Login com Google funcionando
 - [ ] Login com email/senha funcionando
+- [ ] Adicionar disciplinas funcionando
 - [ ] Sem erros no console
 
 ## 🔧 Arquivos Modificados
@@ -95,6 +127,7 @@ service cloud.firestore {
 - `docs/documentation/INSTRUCOES_RAPIDAS.md`
 - `docs/documentation/CONFIGURAR_FIRESTORE.md`
 - `docs/documentation/SOLUCAO_RAPIDA_FIRESTORE.md`
+- `docs/documentation/ATUALIZAR_REGRAS_DISCIPLINAS.md`
 - `docs/documentation/firestore-rules.rules`
 - `docs/documentation/RESUMO_SOLUCOES.md`
 

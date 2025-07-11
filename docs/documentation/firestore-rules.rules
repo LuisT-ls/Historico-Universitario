@@ -6,6 +6,33 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
     
+    // Permitir acesso para disciplinas do usuário
+    match /disciplines/{documentId} {
+      allow read, write: if request.auth != null && 
+        (resource == null || resource.data.userId == request.auth.uid);
+    }
+    
+    // Permitir acesso para histórico acadêmico do usuário
+    match /academicHistory/{documentId} {
+      allow read, write: if request.auth != null && 
+        (documentId == request.auth.uid || 
+         (resource != null && resource.data.userId == request.auth.uid));
+    }
+    
+    // Permitir acesso para requisitos de formatura do usuário
+    match /graduationRequirements/{documentId} {
+      allow read, write: if request.auth != null && 
+        (documentId == request.auth.uid || 
+         (resource != null && resource.data.userId == request.auth.uid));
+    }
+    
+    // Permitir acesso para resumos do usuário
+    match /summaries/{documentId} {
+      allow read, write: if request.auth != null && 
+        (documentId == request.auth.uid || 
+         (resource != null && resource.data.userId == request.auth.uid));
+    }
+    
     // Permitir acesso para dados acadêmicos do usuário
     match /users/{userId}/academic_records/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
