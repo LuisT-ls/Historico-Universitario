@@ -158,11 +158,23 @@ class AuthService {
       }
     } catch (error) {
       console.error('Erro ao carregar dados do usuário:', error)
-      if (error.code === 'permission-denied') {
+
+      // Tratamento específico para erros de permissão
+      if (
+        error.code === 'permission-denied' ||
+        error.message.includes('Missing or insufficient permissions')
+      ) {
         console.error(
-          'Erro de permissão: Verifique se as regras do Firestore estão configuradas corretamente'
+          'Erro de permissão: As regras do Firestore não estão configuradas corretamente. ' +
+            'Acesse o Firebase Console > Firestore Database > Rules e configure as regras de segurança.'
+        )
+
+        // Retornar erro mais amigável
+        throw new Error(
+          'Erro de configuração do banco de dados. Entre em contato com o suporte.'
         )
       }
+
       throw error
     }
   }
