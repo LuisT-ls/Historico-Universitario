@@ -196,6 +196,27 @@ class MainApp {
 
   async loadUserData() {
     try {
+      // Verificar e sincronizar dados locais primeiro
+      console.log('Verificando dados locais para sincronização...')
+      const syncResult = await dataService.checkAndSyncLocalData()
+      if (syncResult.success && syncResult.hasLocalData) {
+        console.log(
+          `Sincronizadas ${syncResult.totalDisciplines} disciplinas do localStorage para o Firestore`
+        )
+        this.showNotification(
+          'Dados locais sincronizados com sucesso!',
+          'success'
+        )
+      }
+
+      // Sincronizar dados do Firestore para localStorage
+      console.log('Sincronizando dados do Firestore para localStorage...')
+      const firestoreSyncResult =
+        await dataService.syncLocalStorageWithFirestore()
+      if (firestoreSyncResult.success) {
+        console.log('Dados do Firestore sincronizados com localStorage')
+      }
+
       // Carregar disciplinas do usuário
       const disciplinesResult = await dataService.getUserDisciplines()
       if (disciplinesResult.success) {
@@ -216,6 +237,7 @@ class MainApp {
       }
     } catch (error) {
       console.error('Erro ao carregar dados:', error)
+      this.showNotification('Erro ao carregar dados: ' + error.message, 'error')
     }
   }
 

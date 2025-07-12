@@ -382,6 +382,139 @@ class DataService {
       return { success: false, error: error.message }
     }
   }
+
+  // Sincronizar dados do localStorage com Firestore
+  async syncLocalStorageWithFirestore() {
+    try {
+      this.checkAuth()
+
+      // Buscar disciplinas do Firestore
+      const disciplinesResult = await this.getUserDisciplines()
+      if (disciplinesResult.success) {
+        const firestoreDisciplines = disciplinesResult.data
+
+        // Agrupar disciplinas por curso
+        const disciplinesByCourse = {}
+        firestoreDisciplines.forEach(discipline => {
+          const curso = discipline.curso || 'BICTI' // Default
+          if (!disciplinesByCourse[curso]) {
+            disciplinesByCourse[curso] = []
+          }
+          disciplinesByCourse[curso].push(discipline)
+        })
+
+        // Salvar no localStorage para cada curso
+        Object.keys(disciplinesByCourse).forEach(curso => {
+          const disciplinas = disciplinesByCourse[curso]
+          localStorage.setItem(
+            `disciplinas_${curso}`,
+            JSON.stringify(disciplinas)
+          )
+          console.log(
+            `Sincronizadas ${disciplinas.length} disciplinas para o curso ${curso}`
+          )
+        })
+
+        return { success: true, data: disciplinesByCourse }
+      } else {
+        return { success: false, error: disciplinesResult.error }
+      }
+    } catch (error) {
+      console.error('Erro ao sincronizar dados:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Sincronizar dados do localStorage para Firestore
+  async syncLocalStorageToFirestore() {
+    try {
+      this.checkAuth()
+
+      const courses = ['BICTI', 'BCC', 'BSI', 'BEC'] // Cursos disponíveis
+      let totalDisciplines = 0
+
+      for (const curso of courses) {
+        const localDisciplines = localStorage.getItem(`disciplinas_${curso}`)
+        if (localDisciplines) {
+          try {
+            const disciplines = JSON.parse(localDisciplines)
+            if (Array.isArray(disciplines) && disciplines.length > 0) {
+              // Adicionar cada disciplina ao Firestore
+              for (const discipline of disciplines) {
+                const disciplineData = {
+                  ...discipline,
+                  curso: curso,
+                  userId: this.currentUser.uid,
+                  createdAt: new Date(),
+                  updatedAt: new Date()
+                }
+
+                // Remover campos que não devem ser salvos no Firestore
+                delete disciplineData.id
+
+                await this.addDiscipline(disciplineData)
+                totalDisciplines++
+              }
+
+              // Limpar localStorage após sincronização
+              localStorage.removeItem(`disciplinas_${curso}`)
+              console.log(
+                `Sincronizadas ${disciplines.length} disciplinas do curso ${curso}`
+              )
+            }
+          } catch (error) {
+            console.error(
+              `Erro ao processar disciplinas do curso ${curso}:`,
+              error
+            )
+          }
+        }
+      }
+
+      return { success: true, totalDisciplines }
+    } catch (error) {
+      console.error('Erro ao sincronizar localStorage para Firestore:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Verificar se há dados no localStorage que precisam ser sincronizados
+  async checkAndSyncLocalData() {
+    try {
+      this.checkAuth()
+
+      const courses = ['BICTI', 'BCC', 'BSI', 'BEC']
+      let hasLocalData = false
+
+      for (const curso of courses) {
+        const localDisciplines = localStorage.getItem(`disciplinas_${curso}`)
+        if (localDisciplines) {
+          try {
+            const disciplines = JSON.parse(localDisciplines)
+            if (Array.isArray(disciplines) && disciplines.length > 0) {
+              hasLocalData = true
+              break
+            }
+          } catch (error) {
+            console.error(
+              `Erro ao verificar dados locais do curso ${curso}:`,
+              error
+            )
+          }
+        }
+      }
+
+      if (hasLocalData) {
+        console.log('Dados locais encontrados, iniciando sincronização...')
+        return await this.syncLocalStorageToFirestore()
+      }
+
+      return { success: true, hasLocalData: false }
+    } catch (error) {
+      console.error('Erro ao verificar dados locais:', error)
+      return { success: false, error: error.message }
+    }
+  }
 }
 
 // Instância global do serviço de dados
