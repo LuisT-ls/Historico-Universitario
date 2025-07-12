@@ -109,23 +109,55 @@ class DataService {
     try {
       this.checkAuth()
 
-      const q = query(
-        collection(db, 'disciplines'),
-        where('userId', '==', this.currentUser.uid),
-        orderBy('createdAt', 'desc')
-      )
+      // Primeiro, tentar com ordenação (se o índice existir)
+      try {
+        const q = query(
+          collection(db, 'disciplines'),
+          where('userId', '==', this.currentUser.uid),
+          orderBy('createdAt', 'desc')
+        )
 
-      const querySnapshot = await getDocs(q)
-      const disciplines = []
+        const querySnapshot = await getDocs(q)
+        const disciplines = []
 
-      querySnapshot.forEach(doc => {
-        disciplines.push({
-          id: doc.id,
-          ...doc.data()
+        querySnapshot.forEach(doc => {
+          disciplines.push({
+            id: doc.id,
+            ...doc.data()
+          })
         })
-      })
 
-      return { success: true, data: disciplines }
+        return { success: true, data: disciplines }
+      } catch (indexError) {
+        // Se o índice não existir, buscar sem ordenação
+        console.log('Índice não encontrado, buscando sem ordenação...')
+
+        const q = query(
+          collection(db, 'disciplines'),
+          where('userId', '==', this.currentUser.uid)
+        )
+
+        const querySnapshot = await getDocs(q)
+        const disciplines = []
+
+        querySnapshot.forEach(doc => {
+          disciplines.push({
+            id: doc.id,
+            ...doc.data()
+          })
+        })
+
+        // Ordenar no cliente
+        disciplines.sort((a, b) => {
+          const dateA =
+            a.createdAt?.toDate?.() || new Date(a.createdAt) || new Date(0)
+          const dateB =
+            b.createdAt?.toDate?.() || new Date(b.createdAt) || new Date(0)
+          return dateB - dateA
+        })
+
+        return { success: true, data: disciplines }
+      }
     } catch (error) {
       console.error('Erro ao buscar disciplinas:', error)
       return { success: false, error: error.message }
