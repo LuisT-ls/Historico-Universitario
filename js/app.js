@@ -23,15 +23,54 @@ class App {
     this.cursoAtual = 'BICTI' // valor padrão
     this.lastSyncTime = null
     this.syncInterval = null
+    this.removalsRegistry = new Set() // Registro de disciplinas removidas
     csrfProtection.init()
     this.darkModeManager = new DarkModeManager()
     this.simulation = null
     this.init()
   }
 
+  // Registrar disciplina removida
+  registrarRemocao(disciplinaRemovida) {
+    const key = `${disciplinaRemovida.codigo}_${this.cursoAtual}`
+    this.removalsRegistry.add(key)
+
+    // Salvar no localStorage para persistir entre sessões
+    const removals = JSON.parse(
+      localStorage.getItem('removalsRegistry') || '[]'
+    )
+    removals.push(key)
+    localStorage.setItem('removalsRegistry', JSON.stringify(removals))
+
+    console.log(
+      `Disciplina ${disciplinaRemovida.codigo} registrada como removida`
+    )
+  }
+
+  // Verificar se disciplina foi removida
+  foiRemovida(disciplina) {
+    const key = `${disciplina.codigo}_${this.cursoAtual}`
+    return this.removalsRegistry.has(key)
+  }
+
+  // Carregar registro de remoções
+  carregarRegistroRemocoes() {
+    try {
+      const removals = JSON.parse(
+        localStorage.getItem('removalsRegistry') || '[]'
+      )
+      this.removalsRegistry = new Set(removals)
+      console.log(`Carregadas ${removals.length} remoções do registro`)
+    } catch (error) {
+      console.error('Erro ao carregar registro de remoções:', error)
+      this.removalsRegistry = new Set()
+    }
+  }
+
   init() {
     this.setupCursoSelector()
     this.carregarDisciplinasDoCurso()
+    this.carregarRegistroRemocoes() // Carregar registro de remoções
     setupFilterComponent()
     setupDateTime()
     inicializarEmenta()
@@ -82,19 +121,20 @@ class App {
       }
 
       console.log('Verificando sincronização automática...')
-      
+
       // Buscar disciplinas do Firestore
       const disciplinesResult = await window.dataService.getUserDisciplines()
       if (disciplinesResult.success) {
         const firestoreDisciplines = disciplinesResult.data
 
-        // Filtrar disciplinas válidas
+        // Filtrar disciplinas válidas e não removidas
         const validDisciplines = firestoreDisciplines.filter(
           discipline =>
             discipline.codigo &&
             discipline.nome &&
             discipline.codigo.trim() !== '' &&
-            discipline.nome.trim() !== ''
+            discipline.nome.trim() !== '' &&
+            !this.foiRemovida(discipline) // Não incluir disciplinas removidas
         )
 
         // Agrupar por curso
@@ -114,7 +154,7 @@ class App {
         // Comparar quantidade de disciplinas
         if (cursoAtualDisciplinas.length !== localDisciplinas.length) {
           console.log('Mudanças detectadas, atualizando dados locais...')
-          
+
           // Atualizar localStorage
           Object.keys(disciplinesByCourse).forEach(curso => {
             const disciplinas = disciplinesByCourse[curso]
@@ -241,6 +281,9 @@ class App {
 
     // Salvar no localStorage
     salvarDisciplinas(this.disciplinas, this.cursoAtual)
+
+    // Registrar a remoção
+    this.registrarRemocao(disciplinaRemovida)
 
     // Sincronizar com Firestore em background
     this.sincronizarRemocaoDisciplina(disciplinaRemovida)

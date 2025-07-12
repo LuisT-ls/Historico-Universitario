@@ -449,7 +449,7 @@ class DataService {
     }
   }
 
-  // Sincronizar dados do localStorage com Firestore
+  // Sincronizar dados do localStorage com Firestore (versão otimizada)
   async syncLocalStorageWithFirestore() {
     try {
       this.checkAuth()
@@ -467,6 +467,45 @@ class DataService {
             discipline.codigo.trim() !== '' &&
             discipline.nome.trim() !== ''
         )
+
+        // Verificar se há dados locais que indicam remoções
+        const courses = ['BICTI', 'BCC', 'BSI', 'BEC']
+        let hasLocalRemovals = false
+
+        for (const curso of courses) {
+          const localDisciplines = localStorage.getItem(`disciplinas_${curso}`)
+          if (localDisciplines) {
+            try {
+              const localDisciplinesArray = JSON.parse(localDisciplines)
+              if (Array.isArray(localDisciplinesArray)) {
+                // Se há dados locais, verificar se há menos disciplinas que no Firestore
+                const firestoreDisciplinesForCourse = validDisciplines.filter(
+                  d => d.curso === curso
+                )
+
+                if (
+                  localDisciplinesArray.length <
+                  firestoreDisciplinesForCourse.length
+                ) {
+                  hasLocalRemovals = true
+                  console.log(`Detectadas remoções locais no curso ${curso}`)
+                  break
+                }
+              }
+            } catch (error) {
+              console.error(
+                `Erro ao verificar dados locais do curso ${curso}:`,
+                error
+              )
+            }
+          }
+        }
+
+        // Se há remoções locais, não sobrescrever com dados do Firestore
+        if (hasLocalRemovals) {
+          console.log('Remoções locais detectadas, mantendo dados locais')
+          return { success: true, data: null, localRemovals: true }
+        }
 
         // Agrupar disciplinas por curso
         const disciplinesByCourse = {}
