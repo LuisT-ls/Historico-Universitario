@@ -153,3 +153,4 @@ export {
   syncAfterDisciplineAdded,
   syncAfterDisciplineRemoved
 }
+ 

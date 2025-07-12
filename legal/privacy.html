@@ -4,158 +4,500 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Política de Privacidade - Histórico Universitário</title>
-    <meta
-      name="description"
-      content="Política de privacidade do sistema Histórico Universitário"
-    />
-    <link rel="stylesheet" href="css/legal.css" />
+    <link rel="stylesheet" href="assets/css/modules/base/auth/variables.css" />
+    <link rel="stylesheet" href="assets/css/modules/layout/auth-layout.css" />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      href="assets/css/modules/components/auth/auth-box.css"
     />
+    <link
+      rel="stylesheet"
+      href="assets/css/modules/components/auth/auth-forms.css"
+    />
+    <link
+      rel="stylesheet"
+      href="assets/css/modules/components/auth/auth-buttons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="assets/css/modules/components/auth/auth-custom.css"
+    />
+    <link rel="stylesheet" href="assets/css/modules/themes.css" />
+    <link rel="stylesheet" href="assets/css/modules/utils/auth-utils.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      .privacy-content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: var(--background-secondary);
+        border-radius: 16px;
+        box-shadow: var(--box-shadow);
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+      }
 
-    <!-- Favicon -->
-    <link
-      rel="shortcut icon"
-      href="../assets/img/favicon/favicon.ico"
-      type="image/x-icon"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="../assets/img/favicon/apple-touch-icon.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="../assets/img/favicon/favicon-32x32.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="../assets/img/favicon/favicon-16x16.png"
-    />
+      .privacy-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid var(--border-color);
+      }
+
+      .privacy-header h1 {
+        color: var(--primary-color);
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+      }
+
+      .privacy-header p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        margin: 0;
+      }
+
+      .privacy-section {
+        margin-bottom: 2.5rem;
+      }
+
+      .privacy-section h2 {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        border-left: 4px solid var(--primary-color);
+        padding-left: 1rem;
+      }
+
+      .privacy-section h3 {
+        color: var(--text-primary);
+        font-size: 1.3rem;
+        margin-bottom: 0.8rem;
+        font-weight: 600;
+      }
+
+      .privacy-section p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        text-align: justify;
+      }
+
+      .privacy-section ul {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        padding-left: 2rem;
+      }
+
+      .privacy-section li {
+        margin-bottom: 0.5rem;
+      }
+
+      .highlight {
+        background: rgba(102, 126, 234, 0.1);
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid var(--primary-color);
+        margin: 1rem 0;
+      }
+
+      .contact-info {
+        background: var(--background-tertiary);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin: 2rem 0;
+      }
+
+      .contact-info h3 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+      }
+
+      .contact-info p {
+        margin-bottom: 0.5rem;
+      }
+
+      .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.8rem 1.5rem;
+        border: 2px solid var(--primary-color);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+      }
+
+      .back-button:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .last-updated {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+      }
+
+      @media (max-width: 768px) {
+        .privacy-content {
+          margin: 1rem;
+          padding: 1.5rem;
+        }
+
+        .privacy-header h1 {
+          font-size: 2rem;
+        }
+
+        .privacy-section h2 {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div class="legal-container">
-      <header class="legal-header">
-        <h1><i class="fas fa-user-shield"></i> Política de Privacidade</h1>
-        <p class="last-updated">Última atualização: 12 de Abril de 2025</p>
-      </header>
-
-      <div class="legal-content">
-        <h2>1. Armazenamento Local de Dados</h2>
-        <p>
-          O Histórico Universitário opera com total privacidade através do
-          armazenamento local:
-        </p>
-        <ul>
-          <li>
-            Todos os dados são armazenados exclusivamente no localStorage do seu
-            navegador
-          </li>
-          <li>Nenhum dado pessoal ou acadêmico é transmitido pela internet</li>
-          <li>Não utilizamos servidores para armazenamento de dados</li>
-          <li>Não mantemos banco de dados dos usuários</li>
-        </ul>
-
-        <h2>2. Dados Armazenados Localmente</h2>
-        <p>Os seguintes dados são salvos apenas no seu dispositivo:</p>
-        <ul>
-          <li>Informações das disciplinas cursadas</li>
-          <li>Notas e carga horária</li>
-          <li>Preferências do usuário</li>
-          <li>Configurações da aplicação</li>
-        </ul>
-
-        <h2>3. Persistência e Remoção dos Dados</h2>
-        <p>Sobre o armazenamento e remoção de dados:</p>
-        <ul>
-          <li>Os dados permanecem salvos até que você os remova</li>
-          <li>
-            Para remover todos os seus dados, você pode:
-            <ul>
-              <li>
-                Utilizar o botão "Limpar Histórico" na interface principal, que
-                após confirmação excluirá todas as disciplinas cadastradas
-              </li>
-              <li>
-                Limpar manualmente o localStorage do seu navegador através das
-                configurações do navegador
-              </li>
-            </ul>
-          </li>
-          <li>Recarregar a página ou usar a tecla Shift não apaga os dados</li>
-          <li>
-            Navegação anônima/privativa não mantém os dados após fechar o
-            navegador
-          </li>
-        </ul>
-
-        <h2>4. Backup e Portabilidade de Dados</h2>
-        <p>
-          O sistema oferece opções para garantir a portabilidade de seus dados:
-        </p>
-        <ul>
-          <li>
-            Você pode exportar seus dados usando o botão "Exportar Histórico"
-            disponível na interface
-          </li>
-          <li>Formatos de exportação incluem PDF, TXT e CSV/Excel</li>
-          <li>
-            Recomendamos fazer backup dos dados regularmente antes de realizar a
-            limpeza do histórico
-          </li>
-        </ul>
-
-        <h2>5. Recomendações de Privacidade</h2>
-        <p>Para proteger seus dados, recomendamos:</p>
-        <ul>
-          <li>Usar apenas em dispositivos pessoais e confiáveis</li>
-          <li>Não acessar em computadores públicos ou compartilhados</li>
-          <li>
-            Utilizar o botão "Limpar Histórico" ao finalizar o uso em
-            dispositivos compartilhados
-          </li>
-          <li>
-            Fazer backup regular dos seus dados usando a opção de exportação
-          </li>
-        </ul>
-
-        <h2>6. Armazenamento em Cache e Análise</h2>
-        <p>Informações sobre cache e rastreamento:</p>
-        <ul>
-          <li>
-            Utilizamos Service Worker para armazenar arquivos em cache,
-            permitindo que o aplicativo funcione offline e carregue mais
-            rapidamente
-          </li>
-          <li>
-            O cache armazena apenas arquivos da aplicação (HTML, CSS,
-            JavaScript, imagens), não seus dados acadêmicos
-          </li>
-          <li>
-            Utilizamos Google Analytics apenas para análise anônima de uso
-          </li>
-          <li>Não utilizamos cookies para rastreamento de usuários</li>
-          <li>Não coletamos dados de identificação pessoal</li>
-          <li>Não compartilhamos informações com terceiros</li>
-        </ul>
+    <div class="login-container">
+      <div class="login-background">
+        <div class="shapes"></div>
       </div>
 
-      <footer class="legal-footer">
-        <p>
-          Para dúvidas sobre privacidade, entre em contato através do
-          <a href="mailto:luisps4.lt@gmail.com">luisps4.lt@gmail.com</a>
-        </p>
-        <p>
-          <a href="/"
-            ><i class="fas fa-home"></i> Voltar para a página inicial</a
-          >
-        </p>
-      </footer>
+      <div class="privacy-content">
+        <div class="privacy-header">
+          <h1><i class="fas fa-shield-alt"></i> Política de Privacidade</h1>
+          <p>Protegemos seus dados com transparência e responsabilidade</p>
+        </div>
+
+        <div class="privacy-section">
+          <h2>1. Informações Gerais</h2>
+          <p>
+            Esta Política de Privacidade descreve como o
+            <strong>Histórico Universitário</strong> coleta, usa e protege suas
+            informações pessoais. Ao usar nosso aplicativo, você concorda com as
+            práticas descritas nesta política.
+          </p>
+
+          <div class="highlight">
+            <p><strong>Última atualização:</strong> Julho de 2025</p>
+            <p><strong>Versão:</strong> 2.0</p>
+          </div>
+        </div>
+
+        <div class="privacy-section">
+          <h2>2. Informações que Coletamos</h2>
+
+          <h3>2.1 Informações de Conta</h3>
+          <ul>
+            <li>
+              <strong>Nome completo:</strong> Para identificação e
+              personalização
+            </li>
+            <li>
+              <strong>E-mail institucional:</strong> Para autenticação e
+              comunicação
+            </li>
+            <li>
+              <strong>Senha:</strong> Criptografada para segurança da conta
+            </li>
+          </ul>
+
+          <h3>2.2 Dados Acadêmicos</h3>
+          <ul>
+            <li>
+              <strong>Disciplinas cursadas:</strong> Código, nome, nota, carga
+              horária
+            </li>
+            <li>
+              <strong>Períodos acadêmicos:</strong> Semestres e anos letivos
+            </li>
+            <li>
+              <strong>Resultados acadêmicos:</strong> Aprovações, reprovações,
+              trancamentos
+            </li>
+            <li>
+              <strong>Atividades complementares:</strong> Horas e tipos de
+              atividades
+            </li>
+          </ul>
+
+          <h3>2.3 Dados de Uso</h3>
+          <ul>
+            <li><strong>Logs de acesso:</strong> Data e hora de login</li>
+            <li><strong>Preferências:</strong> Configurações do usuário</li>
+            <li>
+              <strong>Dispositivos:</strong> Informações básicas do navegador
+            </li>
+          </ul>
+        </div>
+
+        <div class="privacy-section">
+          <h2>3. Como Usamos suas Informações</h2>
+
+          <h3>3.1 Funcionalidades Principais</h3>
+          <ul>
+            <li>
+              <strong>Gerenciamento acadêmico:</strong> Organizar e visualizar
+              disciplinas
+            </li>
+            <li>
+              <strong>Cálculos acadêmicos:</strong> Média geral, CR, PCH, PCR
+            </li>
+            <li><strong>Relatórios:</strong> Gerar estatísticas e gráficos</li>
+            <li>
+              <strong>Sincronização:</strong> Manter dados atualizados entre
+              dispositivos
+            </li>
+          </ul>
+
+          <h3>3.2 Melhorias do Serviço</h3>
+          <ul>
+            <li>
+              <strong>Análise de uso:</strong> Identificar funcionalidades mais
+              utilizadas
+            </li>
+            <li>
+              <strong>Correção de bugs:</strong> Resolver problemas técnicos
+            </li>
+            <li>
+              <strong>Novas funcionalidades:</strong> Desenvolver melhorias
+              baseadas no uso
+            </li>
+          </ul>
+
+          <h3>3.3 Comunicação</h3>
+          <ul>
+            <li>
+              <strong>Notificações importantes:</strong> Atualizações de
+              segurança
+            </li>
+            <li>
+              <strong>Suporte técnico:</strong> Resposta a solicitações de ajuda
+            </li>
+            <li>
+              <strong>Recuperação de conta:</strong> Processo de reset de senha
+            </li>
+          </ul>
+        </div>
+
+        <div class="privacy-section">
+          <h2>4. Compartilhamento de Dados</h2>
+
+          <div class="highlight">
+            <p>
+              <strong>Importante:</strong> Não vendemos, alugamos ou
+              compartilhamos seus dados pessoais com terceiros para fins
+              comerciais.
+            </p>
+          </div>
+
+          <h3>4.1 Serviços Essenciais</h3>
+          <ul>
+            <li>
+              <strong>Firebase (Google):</strong> Autenticação e armazenamento
+              seguro
+            </li>
+            <li>
+              <strong>Vercel:</strong> Hospedagem e distribuição do aplicativo
+            </li>
+          </ul>
+
+          <h3>4.2 Requisitos Legais</h3>
+          <ul>
+            <li><strong>Ordem judicial:</strong> Quando exigido por lei</li>
+            <li>
+              <strong>Proteção de direitos:</strong> Para defender nossos
+              direitos
+            </li>
+            <li><strong>Segurança:</strong> Para prevenir fraudes ou abusos</li>
+          </ul>
+        </div>
+
+        <div class="privacy-section">
+          <h2>5. Segurança dos Dados</h2>
+
+          <h3>5.1 Medidas de Proteção</h3>
+          <ul>
+            <li>
+              <strong>Criptografia:</strong> Dados transmitidos e armazenados
+              com criptografia
+            </li>
+            <li>
+              <strong>Autenticação segura:</strong> Login com Google e
+              e-mail/senha
+            </li>
+            <li>
+              <strong>Controle de acesso:</strong> Apenas você acessa seus dados
+            </li>
+            <li>
+              <strong>Backup seguro:</strong> Dados protegidos em servidores
+              confiáveis
+            </li>
+          </ul>
+
+          <h3>5.2 Sua Responsabilidade</h3>
+          <ul>
+            <li><strong>Senha forte:</strong> Use senhas únicas e seguras</li>
+            <li>
+              <strong>Logout:</strong> Sempre faça logout em dispositivos
+              compartilhados
+            </li>
+            <li>
+              <strong>Dispositivos seguros:</strong> Mantenha seus dispositivos
+              atualizados
+            </li>
+          </ul>
+        </div>
+
+        <div class="privacy-section">
+          <h2>6. Seus Direitos</h2>
+
+          <h3>6.1 Acesso e Controle</h3>
+          <ul>
+            <li>
+              <strong>Visualizar dados:</strong> Acesse todas as suas
+              informações
+            </li>
+            <li>
+              <strong>Corrigir dados:</strong> Atualize informações incorretas
+            </li>
+            <li>
+              <strong>Excluir dados:</strong> Remova suas informações quando
+              desejar
+            </li>
+            <li>
+              <strong>Exportar dados:</strong> Baixe seus dados em formato
+              legível
+            </li>
+          </ul>
+
+          <h3>6.2 Como Exercer seus Direitos</h3>
+          <ul>
+            <li>
+              <strong>Através do aplicativo:</strong> Use as funcionalidades de
+              gerenciamento
+            </li>
+            <li><strong>Contato direto:</strong> Entre em contato conosco</li>
+            <li>
+              <strong>Prazo de resposta:</strong> Até 30 dias para solicitações
+            </li>
+          </ul>
+        </div>
+
+        <div class="privacy-section">
+          <h2>7. Cookies e Tecnologias</h2>
+
+          <h3>7.1 Cookies Essenciais</h3>
+          <ul>
+            <li><strong>Autenticação:</strong> Manter você logado</li>
+            <li><strong>Preferências:</strong> Lembrar suas configurações</li>
+            <li><strong>Segurança:</strong> Proteger contra ataques</li>
+          </ul>
+
+          <h3>7.2 Controle de Cookies</h3>
+          <p>
+            Você pode controlar cookies através das configurações do seu
+            navegador. Note que desabilitar cookies essenciais pode afetar o
+            funcionamento do aplicativo.
+          </p>
+        </div>
+
+        <div class="privacy-section">
+          <h2>8. Retenção de Dados</h2>
+
+          <h3>8.1 Período de Retenção</h3>
+          <ul>
+            <li>
+              <strong>Dados ativos:</strong> Mantidos enquanto sua conta estiver
+              ativa
+            </li>
+            <li><strong>Conta inativa:</strong> Dados mantidos por 2 anos</li>
+            <li>
+              <strong>Exclusão:</strong> Dados removidos permanentemente após
+              solicitação
+            </li>
+          </ul>
+
+          <h3>8.2 Backup e Recuperação</h3>
+          <p>
+            Mantemos backups por até 30 dias para recuperação em caso de
+            problemas técnicos. Após este período, os backups são excluídos
+            permanentemente.
+          </p>
+        </div>
+
+        <div class="privacy-section">
+          <h2>9. Menores de Idade</h2>
+
+          <div class="highlight">
+            <p>
+              <strong>Importante:</strong> Nosso aplicativo não é destinado a
+              menores de 13 anos. Não coletamos intencionalmente dados de
+              crianças menores de 13 anos.
+            </p>
+          </div>
+
+          <p>
+            Se você é pai ou responsável e acredita que seu filho forneceu dados
+            pessoais, entre em contato conosco imediatamente.
+          </p>
+        </div>
+
+        <div class="privacy-section">
+          <h2>10. Alterações na Política</h2>
+
+          <p>
+            Podemos atualizar esta Política de Privacidade periodicamente.
+            Notificaremos sobre mudanças significativas através de:
+          </p>
+          <ul>
+            <li>
+              <strong>Notificação no aplicativo:</strong> Alerta visível na
+              interface
+            </li>
+            <li>
+              <strong>E-mail:</strong> Comunicação direta para usuários ativos
+            </li>
+            <li>
+              <strong>Data de vigência:</strong> Nova política entra em vigor na
+              data especificada
+            </li>
+          </ul>
+        </div>
+
+        <div class="contact-info">
+          <h3><i class="fas fa-envelope"></i> Entre em Contato</h3>
+          <p><strong>Para questões sobre privacidade:</strong></p>
+          <p><strong>E-mail:</strong> luishg213@outlook.com</p>
+          <p>
+            <strong>Assunto:</strong> Política de Privacidade - Histórico
+            Universitário
+          </p>
+          <p><strong>Prazo de resposta:</strong> Até 5 dias úteis</p>
+        </div>
+
+        <div style="text-align: center">
+          <a href="login.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Login
+          </a>
+        </div>
+
+        <div class="last-updated">
+          <p><strong>Última atualização:</strong> Julho de 2025</p>
+          <p><strong>Versão da política:</strong> 2.0</p>
+        </div>
+      </div>
     </div>
   </body>
 </html>
