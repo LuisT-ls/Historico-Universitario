@@ -116,35 +116,18 @@ cd Historico-Universitario
 
 ### 3. Configure as Credenciais
 
-**⚠️ IMPORTANTE: Nunca commite credenciais reais no repositório!**
+Edite `js/modules/firebase/config.js`:
 
-1. **Copie o template:**
-
-   ```bash
-   cp js/modules/firebase/config-template.js js/modules/firebase/config.js
-   ```
-
-2. **Edite `js/modules/firebase/config.js` com suas credenciais:**
-
-   ```javascript
-   const firebaseConfig = {
-     apiKey: 'sua-api-key',
-     authDomain: 'seu-projeto.firebaseapp.com',
-     projectId: 'seu-projeto-id',
-     storageBucket: 'seu-projeto.appspot.com',
-     messagingSenderId: '123456789',
-     appId: 'seu-app-id'
-   }
-   ```
-
-3. **Para produção, use variáveis de ambiente:**
-   ```javascript
-   const firebaseConfig = {
-     apiKey: process.env.FIREBASE_API_KEY,
-     authDomain: process.env.FIREBASE_AUTH_DOMAIN
-     // ... outras configurações
-   }
-   ```
+```javascript
+const firebaseConfig = {
+  apiKey: 'sua-api-key',
+  authDomain: 'seu-projeto.firebaseapp.com',
+  projectId: 'seu-projeto-id',
+  storageBucket: 'seu-projeto.appspot.com',
+  messagingSenderId: '123456789',
+  appId: 'seu-app-id'
+}
+```
 
 ### 4. Deploy
 
