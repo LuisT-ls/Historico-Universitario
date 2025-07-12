@@ -115,15 +115,16 @@ class DataService {
     }
   }
 
-  // Buscar disciplinas do usuário
+  // Buscar disciplinas do usuário (versão temporária sem índice composto)
   async getUserDisciplines() {
     try {
       this.checkAuth()
 
+      // Versão temporária: buscar apenas por userId (sem filtro por curso)
       const q = query(
         collection(db, 'disciplines'),
-        where('userId', '==', this.currentUser.uid),
-        orderBy('createdAt', 'desc')
+        where('userId', '==', this.currentUser.uid)
+        // Removido orderBy temporariamente para evitar erro de índice
       )
 
       const querySnapshot = await getDocs(q)
@@ -136,6 +137,14 @@ class DataService {
         })
       })
 
+      // Ordenar no JavaScript em vez de no Firestore
+      disciplines.sort((a, b) => {
+        if (a.createdAt && b.createdAt) {
+          return b.createdAt.toDate() - a.createdAt.toDate()
+        }
+        return 0
+      })
+
       return { success: true, data: disciplines }
     } catch (error) {
       console.error('Erro ao buscar disciplinas:', error)
@@ -143,16 +152,16 @@ class DataService {
     }
   }
 
-  // Carregar disciplinas por curso (para compatibilidade com sistema existente)
+  // Carregar disciplinas por curso (versão temporária sem índice composto)
   async loadDisciplinesByCourse(curso) {
     try {
       this.checkAuth()
 
+      // Versão temporária: buscar todas e filtrar no JavaScript
       const q = query(
         collection(db, 'disciplines'),
-        where('userId', '==', this.currentUser.uid),
-        where('curso', '==', curso),
-        orderBy('createdAt', 'desc')
+        where('userId', '==', this.currentUser.uid)
+        // Removido filtro por curso temporariamente
       )
 
       const querySnapshot = await getDocs(q)
@@ -160,9 +169,20 @@ class DataService {
 
       querySnapshot.forEach(doc => {
         const data = doc.data()
-        // Remover campos do Firestore para compatibilidade com localStorage
-        const { id, userId, createdAt, updatedAt, ...discipline } = data
-        disciplines.push(discipline)
+        // Filtrar por curso no JavaScript
+        if (data.curso === curso) {
+          // Remover campos do Firestore para compatibilidade com localStorage
+          const { id, userId, createdAt, updatedAt, ...discipline } = data
+          disciplines.push(discipline)
+        }
+      })
+
+      // Ordenar por data de criação
+      disciplines.sort((a, b) => {
+        if (a.createdAt && b.createdAt) {
+          return new Date(b.createdAt) - new Date(a.createdAt)
+        }
+        return 0
       })
 
       return { success: true, data: disciplines }
