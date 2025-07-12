@@ -12,6 +12,7 @@ import {
   deleteDoc,
   orderBy
 } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js'
+import { cleanDisciplineData } from './data-fix.js'
 
 class DataService {
   constructor() {
@@ -234,7 +235,28 @@ class DataService {
           // Remover campos do Firestore para compatibilidade
           const { id, userId, createdAt, updatedAt, ...cleanDiscipline } =
             discipline
-          disciplinesByCourse[curso].push(cleanDiscipline)
+
+          // Filtrar disciplinas inválidas (com campos obrigatórios null/undefined)
+          if (cleanDiscipline.nome && cleanDiscipline.codigo) {
+            // Garantir que campos obrigatórios tenham valores padrão se estiverem null
+            const validDiscipline = {
+              nome: cleanDiscipline.nome || '',
+              codigo: cleanDiscipline.codigo || '',
+              periodo: cleanDiscipline.periodo || '',
+              natureza: cleanDiscipline.natureza || '',
+              creditos: cleanDiscipline.creditos || 0,
+              horas: cleanDiscipline.horas || 0,
+              nota: cleanDiscipline.nota || 0,
+              status: cleanDiscipline.status || 'completed',
+              curso: cleanDiscipline.curso || curso,
+              resultado: cleanDiscipline.resultado || '',
+              dispensada: cleanDiscipline.dispensada || false,
+              trancamento: cleanDiscipline.trancamento || false,
+              ch: cleanDiscipline.ch || 0
+            }
+
+            disciplinesByCourse[curso].push(validDiscipline)
+          }
         })
 
         // Salvar no localStorage
