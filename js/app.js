@@ -81,6 +81,9 @@ class App {
     // Inicializar sincronização automática
     this.iniciarSincronizacaoAutomatica()
 
+    // Verificar e corrigir estatísticas
+    this.verificarEstatisticas()
+
     // Inicializar o importador de histórico
     // this.historicoImporter = initializeHistoricoImporter(this)
 
@@ -449,6 +452,78 @@ class App {
   // Inicializa o simulador
   initSimulation() {
     this.simulation = new SimulationUI(this)
+  }
+
+  // Limpar dados duplicados e corrigir estatísticas
+  async limparDadosDuplicados() {
+    try {
+      if (!window.dataService || !window.dataService.currentUser) {
+        console.log('Usuário não autenticado, pulando limpeza')
+        return
+      }
+
+      console.log('Iniciando limpeza de dados duplicados...')
+
+      // Limpar disciplinas duplicadas
+      const cleanResult = await window.dataService.cleanDuplicateDisciplines()
+      if (cleanResult.success) {
+        console.log(
+          `Limpeza concluída: ${cleanResult.removed} disciplinas duplicadas removidas`
+        )
+      }
+
+      // Validar e corrigir dados
+      const validateResult = await window.dataService.validateAndFixData()
+      if (validateResult.success) {
+        console.log(
+          `Validação concluída: ${validateResult.fixed} disciplinas corrigidas`
+        )
+      }
+
+      // Recarregar dados após limpeza
+      await this.carregarDisciplinasDoCurso()
+      this.atualizarTudo()
+
+      console.log('Limpeza e correção de dados concluída')
+    } catch (error) {
+      console.error('Erro ao limpar dados duplicados:', error)
+    }
+  }
+
+  // Verificar e corrigir estatísticas
+  async verificarEstatisticas() {
+    try {
+      console.log('Verificando estatísticas...')
+      console.log(`Total de disciplinas carregadas: ${this.disciplinas.length}`)
+
+      // Contar por status
+      const aprovadas = this.disciplinas.filter(
+        d => d.resultado === 'AP'
+      ).length
+      const reprovadas = this.disciplinas.filter(
+        d => d.resultado === 'RR'
+      ).length
+      const trancadas = this.disciplinas.filter(
+        d => d.resultado === 'TR'
+      ).length
+
+      console.log(`Aprovadas: ${aprovadas}`)
+      console.log(`Reprovadas: ${reprovadas}`)
+      console.log(`Trancadas: ${trancadas}`)
+
+      // Verificar duplicatas locais
+      const codigos = this.disciplinas.map(d => d.codigo)
+      const duplicatas = codigos.filter(
+        (codigo, index) => codigos.indexOf(codigo) !== index
+      )
+
+      if (duplicatas.length > 0) {
+        console.log(`Duplicatas locais encontradas: ${duplicatas.join(', ')}`)
+        await this.limparDadosDuplicados()
+      }
+    } catch (error) {
+      console.error('Erro ao verificar estatísticas:', error)
+    }
   }
 }
 

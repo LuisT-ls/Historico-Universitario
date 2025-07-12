@@ -7,6 +7,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
   const notaInput = document.getElementById('nota')
   const codigoInput = document.getElementById('codigo')
   const naturezaSelect = document.getElementById('natureza')
+  const periodoInput = document.getElementById('periodo')
   const notaContainer = notaInput.parentElement
 
   // Create popup element
@@ -18,6 +19,38 @@ export function setupFormHandlers(disciplinas, callbacks) {
     popup.textContent = message
     popup.classList.add('show')
     setTimeout(() => popup.classList.remove('show'), 3000)
+  }
+
+  // Função para obter o semestre mais recente das disciplinas
+  function getSemestreMaisRecente() {
+    if (disciplinas.length === 0) {
+      return ''
+    }
+
+    const periodos = disciplinas.map(d => d.periodo).filter(p => p)
+    if (periodos.length === 0) {
+      return ''
+    }
+
+    // Ordenar períodos e retornar o mais recente
+    const periodosOrdenados = periodos.sort((a, b) => {
+      const [anoA, semA] = a.split('.').map(Number)
+      const [anoB, semB] = b.split('.').map(Number)
+
+      if (anoA !== anoB) return anoB - anoA
+      return semB - semA
+    })
+
+    return periodosOrdenados[0]
+  }
+
+  // Função para precarregar o semestre
+  function precarregarSemestre() {
+    const semestreMaisRecente = getSemestreMaisRecente()
+    if (semestreMaisRecente && !periodoInput.value) {
+      periodoInput.value = semestreMaisRecente
+      console.log(`Semestre precarregado: ${semestreMaisRecente}`)
+    }
   }
 
   // Função para atualizar a visibilidade do campo de nota
@@ -82,6 +115,35 @@ export function setupFormHandlers(disciplinas, callbacks) {
     console.log('- Código obrigatório:', codigoInput.hasAttribute('required'))
     console.log('- Nota obrigatória:', notaInput.hasAttribute('required'))
     console.log('- CH obrigatória:', chInput.hasAttribute('required'))
+  }
+
+  // Função para reset inteligente do formulário
+  function resetFormInteligente() {
+    const periodoAtual = periodoInput.value
+    const naturezaAtual = naturezaSelect.value
+
+    // Reset do formulário
+    form.reset()
+
+    // Restaurar valores importantes
+    periodoInput.value = periodoAtual
+    naturezaSelect.value = naturezaAtual
+
+    // Restaurar visibilidade dos campos
+    camposSemTrancamento.style.display = 'flex'
+    notaContainer.style.display = 'block'
+    trancamentoCheckbox.checked = false
+    dispensadaCheckbox.checked = false
+
+    // Reabilitar campos
+    naturezaSelect.disabled = false
+    codigoInput.disabled = false
+
+    // Atualizar campos obrigatórios
+    updateRequiredFields()
+    updateCodigoField()
+
+    console.log('Formulário resetado mantendo período e natureza')
   }
 
   // Listener para mudança de natureza
@@ -187,19 +249,13 @@ export function setupFormHandlers(disciplinas, callbacks) {
       callbacks.onSubmit(disciplina)
     }
 
-    const periodoAtual = document.getElementById('periodo').value
-    this.reset()
-    document.getElementById('periodo').value = periodoAtual
-    camposSemTrancamento.style.display = 'flex'
-    notaContainer.style.display = 'block'
-    trancamentoCheckbox.checked = false
-    naturezaSelect.disabled = false
-    codigoInput.disabled = false
-
-    // Importante: atualizar campos obrigatórios após reset do formulário
-    updateRequiredFields()
+    // Reset inteligente do formulário
+    resetFormInteligente()
   })
 
-  // Inicializar os campos obrigatórios na carga do formulário
+  // Inicializar campos obrigatórios na carga do formulário
   updateRequiredFields()
+
+  // Precargar semestre se não houver valor
+  precarregarSemestre()
 }

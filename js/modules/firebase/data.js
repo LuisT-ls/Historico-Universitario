@@ -705,6 +705,128 @@ class DataService {
       console.error('Erro ao limpar dados inválidos:', error)
     }
   }
+
+  // Limpar dados duplicados do Firestore
+  async cleanDuplicateDisciplines() {
+    try {
+      this.checkAuth()
+
+      console.log('Iniciando limpeza de disciplinas duplicadas...')
+
+      // Buscar todas as disciplinas do usuário
+      const disciplinesResult = await this.getUserDisciplines()
+      if (!disciplinesResult.success) {
+        return { success: false, error: 'Erro ao buscar disciplinas' }
+      }
+
+      const disciplines = disciplinesResult.data
+      const seen = new Set()
+      const duplicates = []
+
+      // Identificar duplicatas
+      disciplines.forEach(discipline => {
+        const key = `${discipline.codigo}_${discipline.curso}_${discipline.periodo}`
+        
+        if (seen.has(key)) {
+          duplicates.push(discipline)
+        } else {
+          seen.add(key)
+        }
+      })
+
+      if (duplicates.length === 0) {
+        console.log('Nenhuma disciplina duplicada encontrada')
+        return { success: true, removed: 0 }
+      }
+
+      console.log(`Encontradas ${duplicates.length} disciplinas duplicadas`)
+
+      // Remover duplicatas
+      for (const duplicate of duplicates) {
+        try {
+          await this.deleteDisciplineOptimized(duplicate.id)
+          console.log(`Disciplina duplicada removida: ${duplicate.codigo}`)
+        } catch (error) {
+          console.error(`Erro ao remover disciplina duplicada ${duplicate.codigo}:`, error)
+        }
+      }
+
+      console.log(`Limpeza concluída: ${duplicates.length} disciplinas removidas`)
+      return { success: true, removed: duplicates.length }
+    } catch (error) {
+      console.error('Erro ao limpar disciplinas duplicadas:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Verificar e corrigir dados inconsistentes
+  async validateAndFixData() {
+    try {
+      this.checkAuth()
+
+      console.log('Validando e corrigindo dados...')
+
+      // Buscar disciplinas
+      const disciplinesResult = await this.getUserDisciplines()
+      if (!disciplinesResult.success) {
+        return { success: false, error: 'Erro ao buscar disciplinas' }
+      }
+
+      const disciplines = disciplinesResult.data
+      let fixedCount = 0
+
+      // Verificar e corrigir cada disciplina
+      for (const discipline of disciplines) {
+        let needsUpdate = false
+        const updates = {}
+
+        // Verificar campos obrigatórios
+        if (!discipline.codigo || discipline.codigo.trim() === '') {
+          console.log(`Disciplina sem código encontrada: ${discipline.id}`)
+          continue
+        }
+
+        if (!discipline.nome || discipline.nome.trim() === '') {
+          console.log(`Disciplina sem nome encontrada: ${discipline.id}`)
+          continue
+        }
+
+        // Verificar e corrigir nota
+        if (discipline.natureza === 'AC' && discipline.nota !== null) {
+          updates.nota = null
+          needsUpdate = true
+        }
+
+        // Verificar e corrigir resultado
+        if (discipline.trancamento && discipline.resultado !== 'TR') {
+          updates.resultado = 'TR'
+          needsUpdate = true
+        }
+
+        if (discipline.dispensada && discipline.resultado !== 'AP') {
+          updates.resultado = 'AP'
+          needsUpdate = true
+        }
+
+        // Atualizar se necessário
+        if (needsUpdate) {
+          try {
+            await this.updateDiscipline(discipline.id, updates)
+            fixedCount++
+            console.log(`Disciplina corrigida: ${discipline.codigo}`)
+          } catch (error) {
+            console.error(`Erro ao corrigir disciplina ${discipline.codigo}:`, error)
+          }
+        }
+      }
+
+      console.log(`Validação concluída: ${fixedCount} disciplinas corrigidas`)
+      return { success: true, fixed: fixedCount }
+    } catch (error) {
+      console.error('Erro na validação de dados:', error)
+      return { success: false, error: error.message }
+    }
+  }
 }
 
 // Instância global do serviço de dados

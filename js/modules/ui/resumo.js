@@ -2,26 +2,33 @@
 import { compararPeriodos } from '../utils.js'
 
 export function atualizarResumo(disciplinas) {
-  // Filtragem de disciplinas válidas (aprovadas ou reprovadas, excluindo trancamentos e dispensadas)
+  // Filtrar disciplinas válidas para cálculos (aprovadas ou reprovadas, excluindo trancamentos e dispensadas)
   const disciplinasValidas = disciplinas.filter(
     d =>
       (d.resultado === 'AP' || d.resultado === 'RR') &&
       !d.dispensada &&
       d.natureza !== 'AC'
   )
+  
+  // Disciplinas aprovadas (incluindo AC e dispensadas)
   const disciplinasAprovadas = disciplinas.filter(d => d.resultado === 'AP')
+  
+  // Total de disciplinas cadastradas (todas as disciplinas)
+  const totalDisciplinasCadastradas = disciplinas.length
+  
+  // Total de disciplinas para cálculo de estatísticas (excluindo AC)
   const totalDisciplinas = disciplinas.filter(
     d => !d.dispensada && d.natureza !== 'AC'
   ).length
+  
+  // Total de aprovações (excluindo AC)
   const totalAprovacoes = disciplinasAprovadas.filter(
     d => !d.dispensada && d.natureza !== 'AC'
   ).length
+  
   const totalReprovacoes = disciplinas.filter(d => d.resultado === 'RR').length
   const totalTrancamentos = disciplinas.filter(d => d.resultado === 'TR').length
   const totalDispensadas = disciplinas.filter(d => d.dispensada).length
-
-  // Total de disciplinas cadastradas (todas as disciplinas)
-  const totalDisciplinasCadastradas = disciplinas.length
 
   // Cálculos de CR, PCH e PCR excluindo disciplinas dispensadas e AC
   const somaCH = disciplinasValidas.reduce((sum, d) => sum + d.ch, 0)
@@ -38,12 +45,19 @@ export function atualizarResumo(disciplinas) {
   // Coeficiente de Rendimento (CR) - excluindo dispensadas e AC
   const coeficienteRendimento = somaCH > 0 ? (somaPCH / somaCH).toFixed(2) : 0
 
-  // Média geral - excluindo dispensadas e AC
-  const media =
-    disciplinasValidas.length > 0
-      ? disciplinasValidas.reduce((sum, d) => sum + d.nota, 0) /
-        disciplinasValidas.length
-      : 0
+  // Média geral - apenas disciplinas com nota válida (excluindo AC, dispensadas e trancamentos)
+  const disciplinasComNota = disciplinas.filter(
+    d => 
+      d.nota !== null && 
+      d.nota !== undefined && 
+      !d.dispensada && 
+      d.natureza !== 'AC' &&
+      d.resultado !== 'TR'
+  )
+  
+  const media = disciplinasComNota.length > 0
+    ? disciplinasComNota.reduce((sum, d) => sum + d.nota, 0) / disciplinasComNota.length
+    : 0
 
   const percentualAprovacao =
     totalDisciplinas > 0
