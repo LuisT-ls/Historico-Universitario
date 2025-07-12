@@ -32,7 +32,7 @@ class DataService {
 
   // ===== DISCIPLINAS =====
 
-  // Adicionar disciplina (apenas no Firestore)
+  // Adicionar disciplina
   async addDiscipline(disciplineData) {
     try {
       this.checkAuth()
@@ -45,10 +45,6 @@ class DataService {
       }
 
       const docRef = await addDoc(collection(db, 'disciplines'), discipline)
-
-      // Atualizar localStorage para compatibilidade com sistema existente
-      this.updateLocalStorageForCompatibility()
-
       return { success: true, id: docRef.id }
     } catch (error) {
       console.error('Erro ao adicionar disciplina:', error)
@@ -77,9 +73,6 @@ class DataService {
         updatedAt: new Date()
       })
 
-      // Atualizar localStorage para compatibilidade
-      this.updateLocalStorageForCompatibility()
-
       return { success: true }
     } catch (error) {
       console.error('Erro ao atualizar disciplina:', error)
@@ -104,69 +97,9 @@ class DataService {
       }
 
       await deleteDoc(disciplineRef)
-      console.log(
-        `Disciplina ${disciplineId} removida do Firestore com sucesso`
-      )
-
-      // Atualizar localStorage para compatibilidade
-      await this.updateLocalStorageForCompatibility()
-
       return { success: true }
     } catch (error) {
       console.error('Erro ao excluir disciplina:', error)
-      return { success: false, error: error.message }
-    }
-  }
-
-  // Excluir disciplina por índice (para compatibilidade com sistema existente)
-  async deleteDisciplineByIndex(index, curso) {
-    try {
-      this.checkAuth()
-
-      // Buscar disciplinas do curso
-      const result = await this.loadDisciplinesByCourse(curso)
-      if (!result.success) {
-        return { success: false, error: 'Erro ao buscar disciplinas' }
-      }
-
-      const disciplines = result.data
-      if (index < 0 || index >= disciplines.length) {
-        return { success: false, error: 'Índice inválido' }
-      }
-
-      const disciplineToRemove = disciplines[index]
-
-      // Buscar a disciplina no Firestore pelo código e período
-      const q = query(
-        collection(db, 'disciplines'),
-        where('userId', '==', this.currentUser.uid),
-        where('curso', '==', curso),
-        where('codigo', '==', disciplineToRemove.codigo),
-        where('periodo', '==', disciplineToRemove.periodo)
-      )
-
-      const querySnapshot = await getDocs(q)
-
-      if (querySnapshot.empty) {
-        return {
-          success: false,
-          error: 'Disciplina não encontrada no Firestore'
-        }
-      }
-
-      // Remover a disciplina do Firestore
-      const docToDelete = querySnapshot.docs[0]
-      await deleteDoc(docToDelete.ref)
-      console.log(
-        `Disciplina ${disciplineToRemove.codigo} removida do Firestore`
-      )
-
-      // Atualizar localStorage para compatibilidade
-      await this.updateLocalStorageForCompatibility()
-
-      return { success: true }
-    } catch (error) {
-      console.error('Erro ao excluir disciplina por índice:', error)
       return { success: false, error: error.message }
     }
   }
@@ -176,10 +109,10 @@ class DataService {
     try {
       this.checkAuth()
 
-      // Consulta temporária sem orderBy para evitar erro de índice
       const q = query(
         collection(db, 'disciplines'),
-        where('userId', '==', this.currentUser.uid)
+        where('userId', '==', this.currentUser.uid),
+        orderBy('createdAt', 'desc')
       )
 
       const querySnapshot = await getDocs(q)
@@ -192,122 +125,9 @@ class DataService {
         })
       })
 
-      // Ordenar no JavaScript em vez de no Firestore
-      disciplines.sort((a, b) => {
-        const dateA =
-          a.createdAt?.toDate?.() || new Date(a.createdAt) || new Date(0)
-        const dateB =
-          b.createdAt?.toDate?.() || new Date(b.createdAt) || new Date(0)
-        return dateB - dateA // Ordem decrescente
-      })
-
       return { success: true, data: disciplines }
     } catch (error) {
       console.error('Erro ao buscar disciplinas:', error)
-      return { success: false, error: error.message }
-    }
-  }
-
-  // Carregar disciplinas por curso (para compatibilidade com sistema existente)
-  async loadDisciplinesByCourse(curso) {
-    try {
-      this.checkAuth()
-
-      // Consulta temporária sem orderBy para evitar erro de índice
-      const q = query(
-        collection(db, 'disciplines'),
-        where('userId', '==', this.currentUser.uid),
-        where('curso', '==', curso)
-      )
-
-      const querySnapshot = await getDocs(q)
-      const disciplines = []
-
-      querySnapshot.forEach(doc => {
-        const data = doc.data()
-        // Remover campos do Firestore para compatibilidade com localStorage
-        const { id, userId, createdAt, updatedAt, ...discipline } = data
-        disciplines.push(discipline)
-      })
-
-      // Ordenar no JavaScript em vez de no Firestore
-      disciplines.sort((a, b) => {
-        const dateA =
-          a.createdAt?.toDate?.() || new Date(a.createdAt) || new Date(0)
-        const dateB =
-          b.createdAt?.toDate?.() || new Date(b.createdAt) || new Date(0)
-        return dateB - dateA // Ordem decrescente
-      })
-
-      return { success: true, data: disciplines }
-    } catch (error) {
-      console.error('Erro ao carregar disciplinas por curso:', error)
-      return { success: false, error: error.message }
-    }
-  }
-
-  // Atualizar localStorage para compatibilidade com sistema existente
-  async updateLocalStorageForCompatibility() {
-    try {
-      const courses = ['BICTI', 'BCC', 'BSI', 'BEC']
-
-      for (const curso of courses) {
-        const result = await this.loadDisciplinesByCourse(curso)
-        if (result.success) {
-          localStorage.setItem(
-            `disciplinas_${curso}`,
-            JSON.stringify(result.data)
-          )
-          console.log(
-            `Atualizado localStorage para curso ${curso}: ${result.data.length} disciplinas`
-          )
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao atualizar localStorage:', error)
-    }
-  }
-
-  // Carregar todas as disciplinas do usuário para localStorage
-  async loadAllDisciplinesToLocalStorage() {
-    try {
-      this.checkAuth()
-
-      const result = await this.getUserDisciplines()
-      if (result.success) {
-        const disciplines = result.data
-
-        // Agrupar por curso
-        const disciplinesByCourse = {}
-        disciplines.forEach(discipline => {
-          const curso = discipline.curso || 'BICTI'
-          if (!disciplinesByCourse[curso]) {
-            disciplinesByCourse[curso] = []
-          }
-
-          // Remover campos do Firestore para compatibilidade
-          const { id, userId, createdAt, updatedAt, ...cleanDiscipline } =
-            discipline
-          disciplinesByCourse[curso].push(cleanDiscipline)
-        })
-
-        // Salvar no localStorage
-        Object.keys(disciplinesByCourse).forEach(curso => {
-          localStorage.setItem(
-            `disciplinas_${curso}`,
-            JSON.stringify(disciplinesByCourse[curso])
-          )
-          console.log(
-            `Carregadas ${disciplinesByCourse[curso].length} disciplinas para curso ${curso}`
-          )
-        })
-
-        return { success: true, data: disciplinesByCourse }
-      }
-
-      return { success: false, error: 'Erro ao carregar disciplinas' }
-    } catch (error) {
-      console.error('Erro ao carregar disciplinas para localStorage:', error)
       return { success: false, error: error.message }
     }
   }
@@ -451,34 +271,26 @@ class DataService {
 
   // Calcular estatísticas do resumo
   calculateSummary(disciplines) {
-    // Filtrar apenas disciplinas do usuário atual
-    const userDisciplines = disciplines.filter(
-      d => d.userId === this.currentUser.uid
-    )
-
-    const totalDisciplines = userDisciplines.length
-    const completedDisciplines = userDisciplines.filter(
+    const totalDisciplines = disciplines.length
+    const completedDisciplines = disciplines.filter(
       d => d.status === 'completed'
     ).length
-    const inProgressDisciplines = userDisciplines.filter(
+    const inProgressDisciplines = disciplines.filter(
       d => d.status === 'in_progress'
     ).length
-    const pendingDisciplines = userDisciplines.filter(
+    const pendingDisciplines = disciplines.filter(
       d => d.status === 'pending'
     ).length
 
-    const totalCredits = userDisciplines.reduce(
+    const totalCredits = disciplines.reduce(
       (sum, d) => sum + (d.credits || 0),
       0
     )
-    const totalHours = userDisciplines.reduce(
-      (sum, d) => sum + (d.hours || 0),
-      0
-    )
+    const totalHours = disciplines.reduce((sum, d) => sum + (d.hours || 0), 0)
 
-    const grades = userDisciplines
-      .filter(d => d.nota && d.status === 'completed')
-      .map(d => parseFloat(d.nota))
+    const grades = disciplines
+      .filter(d => d.grade && d.status === 'completed')
+      .map(d => parseFloat(d.grade))
 
     const averageGrade =
       grades.length > 0
@@ -487,10 +299,6 @@ class DataService {
 
     const progressPercentage =
       totalDisciplines > 0 ? (completedDisciplines / totalDisciplines) * 100 : 0
-
-    console.log(
-      `Estatísticas calculadas: ${totalDisciplines} disciplinas do usuário ${this.currentUser.uid}`
-    )
 
     return {
       totalDisciplines,
@@ -585,9 +393,18 @@ class DataService {
       if (disciplinesResult.success) {
         const firestoreDisciplines = disciplinesResult.data
 
+        // Filtrar apenas disciplinas válidas (com código e nome)
+        const validDisciplines = firestoreDisciplines.filter(
+          discipline =>
+            discipline.codigo &&
+            discipline.nome &&
+            discipline.codigo.trim() !== '' &&
+            discipline.nome.trim() !== ''
+        )
+
         // Agrupar disciplinas por curso
         const disciplinesByCourse = {}
-        firestoreDisciplines.forEach(discipline => {
+        validDisciplines.forEach(discipline => {
           const curso = discipline.curso || 'BICTI' // Default
           if (!disciplinesByCourse[curso]) {
             disciplinesByCourse[curso] = []
@@ -603,7 +420,7 @@ class DataService {
             JSON.stringify(disciplinas)
           )
           console.log(
-            `Sincronizadas ${disciplinas.length} disciplinas para o curso ${curso}`
+            `Sincronizadas ${disciplinas.length} disciplinas válidas para o curso ${curso}`
           )
         })
 
@@ -631,27 +448,44 @@ class DataService {
           try {
             const disciplines = JSON.parse(localDisciplines)
             if (Array.isArray(disciplines) && disciplines.length > 0) {
-              // Adicionar cada disciplina ao Firestore
-              for (const discipline of disciplines) {
-                const disciplineData = {
-                  ...discipline,
-                  curso: curso,
-                  userId: this.currentUser.uid,
-                  createdAt: new Date(),
-                  updatedAt: new Date()
+              // Filtrar apenas disciplinas válidas
+              const validDisciplines = disciplines.filter(
+                discipline =>
+                  discipline.codigo &&
+                  discipline.nome &&
+                  discipline.codigo.trim() !== '' &&
+                  discipline.nome.trim() !== ''
+              )
+
+              // Verificar disciplinas existentes no Firestore para evitar duplicações
+              const existingDisciplines = await this.getUserDisciplines()
+              const existingCodes = existingDisciplines.success
+                ? existingDisciplines.data.map(d => d.codigo).filter(c => c)
+                : []
+
+              // Adicionar apenas disciplinas que não existem
+              for (const discipline of validDisciplines) {
+                if (!existingCodes.includes(discipline.codigo)) {
+                  const disciplineData = {
+                    ...discipline,
+                    curso: curso,
+                    userId: this.currentUser.uid,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                  }
+
+                  // Remover campos que não devem ser salvos no Firestore
+                  delete disciplineData.id
+
+                  await this.addDiscipline(disciplineData)
+                  totalDisciplines++
                 }
-
-                // Remover campos que não devem ser salvos no Firestore
-                delete disciplineData.id
-
-                await this.addDiscipline(disciplineData)
-                totalDisciplines++
               }
 
               // Limpar localStorage após sincronização
               localStorage.removeItem(`disciplinas_${curso}`)
               console.log(
-                `Sincronizadas ${disciplines.length} disciplinas do curso ${curso}`
+                `Sincronizadas ${totalDisciplines} disciplinas válidas do curso ${curso}`
               )
             }
           } catch (error) {
@@ -684,8 +518,19 @@ class DataService {
           try {
             const disciplines = JSON.parse(localDisciplines)
             if (Array.isArray(disciplines) && disciplines.length > 0) {
-              hasLocalData = true
-              break
+              // Verificar se há pelo menos uma disciplina válida
+              const hasValidDiscipline = disciplines.some(
+                discipline =>
+                  discipline.codigo &&
+                  discipline.nome &&
+                  discipline.codigo.trim() !== '' &&
+                  discipline.nome.trim() !== ''
+              )
+
+              if (hasValidDiscipline) {
+                hasLocalData = true
+                break
+              }
             }
           } catch (error) {
             console.error(
@@ -705,6 +550,54 @@ class DataService {
     } catch (error) {
       console.error('Erro ao verificar dados locais:', error)
       return { success: false, error: error.message }
+    }
+  }
+
+  // Limpar dados inválidos do localStorage
+  cleanInvalidLocalData() {
+    try {
+      const courses = ['BICTI', 'BCC', 'BSI', 'BEC']
+
+      for (const curso of courses) {
+        const localDisciplines = localStorage.getItem(`disciplinas_${curso}`)
+        if (localDisciplines) {
+          try {
+            const disciplines = JSON.parse(localDisciplines)
+            if (Array.isArray(disciplines)) {
+              // Filtrar apenas disciplinas válidas
+              const validDisciplines = disciplines.filter(
+                discipline =>
+                  discipline.codigo &&
+                  discipline.nome &&
+                  discipline.codigo.trim() !== '' &&
+                  discipline.nome.trim() !== ''
+              )
+
+              // Salvar apenas disciplinas válidas de volta no localStorage
+              if (validDisciplines.length !== disciplines.length) {
+                localStorage.setItem(
+                  `disciplinas_${curso}`,
+                  JSON.stringify(validDisciplines)
+                )
+                console.log(
+                  `Limpeza: ${
+                    disciplines.length - validDisciplines.length
+                  } disciplinas inválidas removidas do curso ${curso}`
+                )
+              }
+            }
+          } catch (error) {
+            console.error(
+              `Erro ao limpar dados inválidos do curso ${curso}:`,
+              error
+            )
+            // Se houver erro, remover dados corrompidos
+            localStorage.removeItem(`disciplinas_${curso}`)
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao limpar dados inválidos:', error)
     }
   }
 }

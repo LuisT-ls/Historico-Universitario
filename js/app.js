@@ -92,53 +92,26 @@ class App {
 
   setupEventListeners() {
     setupFormHandlers(this.disciplinas, {
-      onSubmit: async disciplina => {
-        try {
-          // Verificar se há usuário autenticado
-          if (window.dataService && window.dataService.currentUser) {
-            // Adicionar ao Firestore
-            const disciplineData = {
-              ...disciplina,
-              curso: this.cursoAtual,
-              userId: window.dataService.currentUser.uid
-            }
-
-            const result = await window.dataService.addDiscipline(
-              disciplineData
-            )
-            if (result.success) {
-              console.log('Disciplina adicionada ao Firestore com sucesso')
-            } else {
-              console.error(
-                'Erro ao adicionar disciplina ao Firestore:',
-                result.error
-              )
-            }
-          }
-
-          // Garantir que a disciplina esteja no array atual
-          if (!this.disciplinas.includes(disciplina)) {
-            console.log(
-              'Disciplina não encontrada no array principal, adicionando novamente'
-            )
-            this.disciplinas.push(disciplina)
-          }
-
+      onSubmit: disciplina => {
+        // Garantir que a disciplina esteja no array atual
+        if (!this.disciplinas.includes(disciplina)) {
           console.log(
-            `Disciplina adicionada ao curso ${this.cursoAtual}. Total: ${this.disciplinas.length}`,
-            disciplina
+            'Disciplina não encontrada no array principal, adicionando novamente'
           )
-          salvarDisciplinas(this.disciplinas, this.cursoAtual)
-          this.atualizarTudo()
+          this.disciplinas.push(disciplina)
+        }
 
-          // Atualiza o simulador quando uma nova disciplina é adicionada
-          if (this.simulation && this.simulation.isSimulationMode) {
-            this.simulation.simulator.disciplinasCursadas = this.disciplinas
-            this.simulation.atualizarSimulacao()
-          }
-        } catch (error) {
-          console.error('Erro ao adicionar disciplina:', error)
-          alert('Erro ao adicionar disciplina. Tente novamente.')
+        console.log(
+          `Disciplina adicionada ao curso ${this.cursoAtual}. Total: ${this.disciplinas.length}`,
+          disciplina
+        )
+        salvarDisciplinas(this.disciplinas, this.cursoAtual)
+        this.atualizarTudo()
+
+        // Atualiza o simulador quando uma nova disciplina é adicionada
+        if (this.simulation && this.simulation.isSimulationMode) {
+          this.simulation.simulator.disciplinasCursadas = this.disciplinas
+          this.simulation.atualizarSimulacao()
         }
       }
     })
@@ -163,7 +136,7 @@ class App {
     return csrfProtection.validateToken(token)
   }
 
-  async removerDisciplina(index, token) {
+  removerDisciplina(index, token) {
     // Verifica o token CSRF antes de permitir a operação
     if (!this.validarOperacao(token)) {
       console.error('Erro de validação CSRF: Operação não autorizada')
@@ -174,42 +147,17 @@ class App {
       return
     }
 
-    try {
-      // Verificar se há usuário autenticado
-      if (window.dataService && window.dataService.currentUser) {
-        // Remover do Firestore
-        const result = await window.dataService.deleteDisciplineByIndex(
-          index,
-          this.cursoAtual
-        )
-        if (result.success) {
-          console.log('Disciplina removida do Firestore com sucesso')
-        } else {
-          console.error(
-            'Erro ao remover disciplina do Firestore:',
-            result.error
-          )
-        }
-      }
+    this.disciplinas.splice(index, 1)
+    console.log(
+      `Disciplina removida. Restam ${this.disciplinas.length} disciplinas no curso ${this.cursoAtual}`
+    )
+    salvarDisciplinas(this.disciplinas, this.cursoAtual)
+    this.atualizarTudo()
 
-      // Remover do array local
-      this.disciplinas.splice(index, 1)
-      console.log(
-        `Disciplina removida. Restam ${this.disciplinas.length} disciplinas no curso ${this.cursoAtual}`
-      )
-
-      // Salvar no localStorage para compatibilidade
-      salvarDisciplinas(this.disciplinas, this.cursoAtual)
-      this.atualizarTudo()
-
-      // Atualiza o simulador quando uma disciplina é removida
-      if (this.simulation && this.simulation.isSimulationMode) {
-        this.simulation.simulator.disciplinasCursadas = this.disciplinas
-        this.simulation.atualizarSimulacao()
-      }
-    } catch (error) {
-      console.error('Erro ao remover disciplina:', error)
-      alert('Erro ao remover disciplina. Tente novamente.')
+    // Atualiza o simulador quando uma disciplina é removida
+    if (this.simulation && this.simulation.isSimulationMode) {
+      this.simulation.simulator.disciplinasCursadas = this.disciplinas
+      this.simulation.atualizarSimulacao()
     }
   }
 
