@@ -147,17 +147,76 @@ class App {
       return
     }
 
+    // Obter a disciplina que será removida para sincronização
+    const disciplinaRemovida = this.disciplinas[index]
+
+    // Remover do array local
     this.disciplinas.splice(index, 1)
     console.log(
       `Disciplina removida. Restam ${this.disciplinas.length} disciplinas no curso ${this.cursoAtual}`
     )
+
+    // Salvar no localStorage
     salvarDisciplinas(this.disciplinas, this.cursoAtual)
+
+    // Sincronizar com Firestore em background
+    this.sincronizarRemocaoDisciplina(disciplinaRemovida)
+
+    // Atualizar interface
     this.atualizarTudo()
 
     // Atualiza o simulador quando uma disciplina é removida
     if (this.simulation && this.simulation.isSimulationMode) {
       this.simulation.simulator.disciplinasCursadas = this.disciplinas
       this.simulation.atualizarSimulacao()
+    }
+  }
+
+  // Sincronizar remoção de disciplina com Firestore
+  async sincronizarRemocaoDisciplina(disciplinaRemovida) {
+    try {
+      // Verificar se o usuário está autenticado
+      if (!window.dataService || !window.dataService.currentUser) {
+        console.log('Usuário não autenticado, remoção apenas local')
+        return
+      }
+
+      // Buscar disciplinas do Firestore para encontrar o ID da disciplina removida
+      const disciplinesResult = await window.dataService.getUserDisciplines()
+      if (disciplinesResult.success) {
+        const firestoreDisciplines = disciplinesResult.data
+
+        // Encontrar a disciplina no Firestore pelo código e curso
+        const disciplinaEncontrada = firestoreDisciplines.find(
+          d =>
+            d.codigo === disciplinaRemovida.codigo &&
+            d.curso === this.cursoAtual
+        )
+
+        if (disciplinaEncontrada) {
+          // Remover do Firestore
+          const deleteResult = await window.dataService.deleteDiscipline(
+            disciplinaEncontrada.id
+          )
+          if (deleteResult.success) {
+            console.log('Disciplina removida do Firestore com sucesso')
+
+            // Sincronizar dados atualizados do Firestore para localStorage
+            await window.dataService.syncLocalStorageWithFirestore()
+          } else {
+            console.error(
+              'Erro ao remover disciplina do Firestore:',
+              deleteResult.error
+            )
+          }
+        } else {
+          console.log(
+            'Disciplina não encontrada no Firestore, pode ter sido removida anteriormente'
+          )
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao sincronizar remoção de disciplina:', error)
     }
   }
 

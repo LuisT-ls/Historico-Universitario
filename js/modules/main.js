@@ -390,3 +390,6 @@ class MainApp {
 
 // Inicializar aplicação principal
 new MainApp()
+
+// Disponibilizar dataService globalmente para acesso do app.js
+window.dataService = dataService

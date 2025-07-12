@@ -20,6 +20,9 @@ export function atualizarResumo(disciplinas) {
   const totalTrancamentos = disciplinas.filter(d => d.resultado === 'TR').length
   const totalDispensadas = disciplinas.filter(d => d.dispensada).length
 
+  // Total de disciplinas cadastradas (todas as disciplinas)
+  const totalDisciplinasCadastradas = disciplinas.length
+
   // Cálculos de CR, PCH e PCR excluindo disciplinas dispensadas e AC
   const somaCH = disciplinasValidas.reduce((sum, d) => sum + d.ch, 0)
   const somaPCH = disciplinasValidas.reduce((sum, d) => sum + d.ch * d.nota, 0)
@@ -51,6 +54,16 @@ export function atualizarResumo(disciplinas) {
     <h2><i class="fas fa-chart-bar"></i> Resumo Geral</h2>
     <div class="resumo-container">
       <div class="stats-cards">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-book"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Total de Disciplinas</h3>
+            <p class="stat-value">${totalDisciplinasCadastradas}</p>
+          </div>
+        </div>
+
         <div class="stat-card">
           <div class="stat-icon">
             <i class="fas fa-calculator"></i>
