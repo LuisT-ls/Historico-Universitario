@@ -80,12 +80,14 @@ class DataService {
     }
   }
 
-  // Excluir disciplina
-  async deleteDiscipline(disciplineId) {
+  // Excluir disciplina (versão otimizada)
+  async deleteDisciplineOptimized(disciplineId) {
     try {
       this.checkAuth()
 
       const disciplineRef = doc(db, 'disciplines', disciplineId)
+
+      // Verificar se a disciplina existe antes de tentar deletar
       const disciplineDoc = await getDoc(disciplineRef)
 
       if (!disciplineDoc.exists()) {
@@ -96,7 +98,10 @@ class DataService {
         return { success: false, error: 'Acesso negado' }
       }
 
+      // Deletar a disciplina
       await deleteDoc(disciplineRef)
+
+      console.log(`Disciplina ${disciplineId} removida com sucesso`)
       return { success: true }
     } catch (error) {
       console.error('Erro ao excluir disciplina:', error)
@@ -160,6 +165,35 @@ class DataService {
       }
     } catch (error) {
       console.error('Erro ao buscar disciplinas:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Buscar disciplina específica por código e curso (otimizado)
+  async findDisciplineByCode(codigo, curso) {
+    try {
+      this.checkAuth()
+
+      const q = query(
+        collection(db, 'disciplines'),
+        where('userId', '==', this.currentUser.uid),
+        where('codigo', '==', codigo),
+        where('curso', '==', curso)
+      )
+
+      const querySnapshot = await getDocs(q)
+
+      if (!querySnapshot.empty) {
+        const doc = querySnapshot.docs[0]
+        return {
+          success: true,
+          data: { id: doc.id, ...doc.data() }
+        }
+      } else {
+        return { success: false, error: 'Disciplina não encontrada' }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar disciplina:', error)
       return { success: false, error: error.message }
     }
   }

@@ -21,6 +21,8 @@ class App {
   constructor() {
     this.disciplinas = []
     this.cursoAtual = 'BICTI' // valor padrão
+    this.lastSyncTime = null
+    this.syncInterval = null
     csrfProtection.init()
     this.darkModeManager = new DarkModeManager()
     this.simulation = null
@@ -37,6 +39,9 @@ class App {
     setupCleanTableButton()
     setupTableHeader()
 
+    // Inicializar sincronização automática
+    this.iniciarSincronizacaoAutomatica()
+
     // Inicializar o importador de histórico
     // this.historicoImporter = initializeHistoricoImporter(this)
 
@@ -52,6 +57,84 @@ class App {
     // Inicializa o simulador após carregar tudo
     this.initSimulation()
     window.app.__appInstance = this
+  }
+
+  // Iniciar sincronização automática
+  iniciarSincronizacaoAutomatica() {
+    // Verificar se o usuário está autenticado
+    if (!window.dataService || !window.dataService.currentUser) {
+      return
+    }
+
+    // Sincronizar a cada 30 segundos
+    this.syncInterval = setInterval(() => {
+      this.verificarSincronizacao()
+    }, 30000) // 30 segundos
+
+    console.log('Sincronização automática iniciada (30s)')
+  }
+
+  // Verificar se há mudanças para sincronizar
+  async verificarSincronizacao() {
+    try {
+      if (!window.dataService || !window.dataService.currentUser) {
+        return
+      }
+
+      console.log('Verificando sincronização automática...')
+      
+      // Buscar disciplinas do Firestore
+      const disciplinesResult = await window.dataService.getUserDisciplines()
+      if (disciplinesResult.success) {
+        const firestoreDisciplines = disciplinesResult.data
+
+        // Filtrar disciplinas válidas
+        const validDisciplines = firestoreDisciplines.filter(
+          discipline =>
+            discipline.codigo &&
+            discipline.nome &&
+            discipline.codigo.trim() !== '' &&
+            discipline.nome.trim() !== ''
+        )
+
+        // Agrupar por curso
+        const disciplinesByCourse = {}
+        validDisciplines.forEach(discipline => {
+          const curso = discipline.curso || 'BICTI'
+          if (!disciplinesByCourse[curso]) {
+            disciplinesByCourse[curso] = []
+          }
+          disciplinesByCourse[curso].push(discipline)
+        })
+
+        // Verificar se há mudanças no curso atual
+        const cursoAtualDisciplinas = disciplinesByCourse[this.cursoAtual] || []
+        const localDisciplinas = this.disciplinas
+
+        // Comparar quantidade de disciplinas
+        if (cursoAtualDisciplinas.length !== localDisciplinas.length) {
+          console.log('Mudanças detectadas, atualizando dados locais...')
+          
+          // Atualizar localStorage
+          Object.keys(disciplinesByCourse).forEach(curso => {
+            const disciplinas = disciplinesByCourse[curso]
+            localStorage.setItem(
+              `disciplinas_${curso}`,
+              JSON.stringify(disciplinas)
+            )
+          })
+
+          // Atualizar dados locais se necessário
+          if (disciplinesByCourse[this.cursoAtual]) {
+            this.disciplinas = disciplinesByCourse[this.cursoAtual]
+            this.atualizarTudo()
+            console.log('Dados locais atualizados via sincronização automática')
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Erro na sincronização automática:', error)
+    }
   }
 
   setupCursoSelector() {
@@ -172,7 +255,7 @@ class App {
     }
   }
 
-  // Sincronizar remoção de disciplina com Firestore
+  // Sincronizar remoção de disciplina com Firestore (versão otimizada)
   async sincronizarRemocaoDisciplina(disciplinaRemovida) {
     try {
       // Verificar se o usuário está autenticado
@@ -181,43 +264,100 @@ class App {
         return
       }
 
-      // Buscar disciplinas do Firestore para encontrar o ID da disciplina removida
-      const disciplinesResult = await window.dataService.getUserDisciplines()
-      if (disciplinesResult.success) {
-        const firestoreDisciplines = disciplinesResult.data
+      console.log('Iniciando sincronização de remoção...')
 
-        // Encontrar a disciplina no Firestore pelo código e curso
-        const disciplinaEncontrada = firestoreDisciplines.find(
-          d =>
-            d.codigo === disciplinaRemovida.codigo &&
-            d.curso === this.cursoAtual
+      // Buscar disciplina específica no Firestore (método otimizado)
+      const disciplineResult = await window.dataService.findDisciplineByCode(
+        disciplinaRemovida.codigo,
+        this.cursoAtual
+      )
+
+      if (disciplineResult.success) {
+        console.log('Disciplina encontrada no Firestore, removendo...')
+
+        // Remover do Firestore usando método otimizado
+        const deleteResult = await window.dataService.deleteDisciplineOptimized(
+          disciplineResult.data.id
         )
 
-        if (disciplinaEncontrada) {
-          // Remover do Firestore
-          const deleteResult = await window.dataService.deleteDiscipline(
-            disciplinaEncontrada.id
-          )
-          if (deleteResult.success) {
-            console.log('Disciplina removida do Firestore com sucesso')
+        if (deleteResult.success) {
+          console.log('Disciplina removida do Firestore com sucesso')
 
-            // Sincronizar dados atualizados do Firestore para localStorage
-            await window.dataService.syncLocalStorageWithFirestore()
-          } else {
-            console.error(
-              'Erro ao remover disciplina do Firestore:',
-              deleteResult.error
-            )
-          }
+          // Atualizar localStorage de forma otimizada
+          await this.atualizarLocalStorageOtimizado(disciplinaRemovida)
         } else {
-          console.log(
-            'Disciplina não encontrada no Firestore, pode ter sido removida anteriormente'
+          console.error(
+            'Erro ao remover disciplina do Firestore:',
+            deleteResult.error
           )
         }
+      } else {
+        console.log(
+          'Disciplina não encontrada no Firestore, pode ter sido removida anteriormente'
+        )
       }
     } catch (error) {
       console.error('Erro ao sincronizar remoção de disciplina:', error)
     }
+  }
+
+  // Atualizar localStorage de forma otimizada após remoção
+  async atualizarLocalStorageOtimizado(disciplinaRemovida) {
+    try {
+      console.log('Atualizando localStorage de forma otimizada...')
+
+      // Buscar disciplinas atualizadas do Firestore
+      const disciplinesResult = await window.dataService.getUserDisciplines()
+      if (disciplinesResult.success) {
+        const firestoreDisciplines = disciplinesResult.data
+
+        // Filtrar apenas disciplinas válidas
+        const validDisciplines = firestoreDisciplines.filter(
+          discipline =>
+            discipline.codigo &&
+            discipline.nome &&
+            discipline.codigo.trim() !== '' &&
+            discipline.nome.trim() !== ''
+        )
+
+        // Agrupar disciplinas por curso
+        const disciplinesByCourse = {}
+        validDisciplines.forEach(discipline => {
+          const curso = discipline.curso || 'BICTI'
+          if (!disciplinesByCourse[curso]) {
+            disciplinesByCourse[curso] = []
+          }
+          disciplinesByCourse[curso].push(discipline)
+        })
+
+        // Atualizar localStorage para cada curso
+        Object.keys(disciplinesByCourse).forEach(curso => {
+          const disciplinas = disciplinesByCourse[curso]
+          localStorage.setItem(
+            `disciplinas_${curso}`,
+            JSON.stringify(disciplinas)
+          )
+          console.log(
+            `localStorage atualizado: ${disciplinas.length} disciplinas para o curso ${curso}`
+          )
+        })
+
+        // Se o curso atual foi atualizado, recarregar dados
+        if (disciplinesByCourse[this.cursoAtual]) {
+          this.disciplinas = disciplinesByCourse[this.cursoAtual]
+          this.atualizarTudo()
+          console.log('Dados locais atualizados após remoção')
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar localStorage após remoção:', error)
+    }
+  }
+
+  // Atualizar localStorage após remoção (método otimizado) - DEPRECATED
+  async atualizarLocalStorageAposRemocao() {
+    // Este método foi substituído por atualizarLocalStorageOtimizado
+    await this.atualizarLocalStorageOtimizado()
   }
 
   atualizarTudo() {
