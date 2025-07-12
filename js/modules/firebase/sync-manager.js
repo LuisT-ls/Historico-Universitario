@@ -22,25 +22,20 @@ class SyncManager {
         return
       }
 
-      console.log('Iniciando sincronização de dados...')
+      console.log('Iniciando carregamento de dados do Firestore...')
 
-      // Verificar dados locais primeiro
-      const localSyncResult = await dataService.checkAndSyncLocalData()
-      if (localSyncResult.success && localSyncResult.hasLocalData) {
+      // Carregar todas as disciplinas do Firestore para localStorage
+      const loadResult = await dataService.loadAllDisciplinesToLocalStorage()
+      if (loadResult.success) {
         console.log(
-          `Sincronizadas ${localSyncResult.totalDisciplines} disciplinas do localStorage para o Firestore`
+          'Dados do Firestore carregados para localStorage com sucesso'
         )
-      }
-
-      // Sincronizar dados do Firestore para localStorage
-      const firestoreSyncResult =
-        await dataService.syncLocalStorageWithFirestore()
-      if (firestoreSyncResult.success) {
-        console.log('Dados do Firestore sincronizados com localStorage')
+      } else {
+        console.error('Erro ao carregar dados do Firestore:', loadResult.error)
       }
 
       this.isInitialized = true
-      console.log('Sincronização concluída com sucesso')
+      console.log('Carregamento concluído com sucesso')
     } catch (error) {
       console.error('Erro durante sincronização:', error)
     } finally {
@@ -48,43 +43,37 @@ class SyncManager {
     }
   }
 
-  // Sincronizar dados quando uma disciplina é adicionada
+  // Adicionar disciplina ao Firestore
   async syncAfterDisciplineAdded(disciplineData) {
     try {
       if (!dataService.currentUser) {
         return
       }
 
-      // Adicionar disciplina ao Firestore
+      // Adicionar disciplina ao Firestore (já atualiza localStorage automaticamente)
       const result = await dataService.addDiscipline(disciplineData)
       if (result.success) {
         console.log('Disciplina adicionada ao Firestore com sucesso')
-
-        // Sincronizar dados do Firestore para localStorage
-        await dataService.syncLocalStorageWithFirestore()
       }
     } catch (error) {
-      console.error('Erro ao sincronizar disciplina:', error)
+      console.error('Erro ao adicionar disciplina:', error)
     }
   }
 
-  // Sincronizar dados quando uma disciplina é removida
+  // Remover disciplina do Firestore
   async syncAfterDisciplineRemoved(disciplineId) {
     try {
       if (!dataService.currentUser) {
         return
       }
 
-      // Remover disciplina do Firestore
+      // Remover disciplina do Firestore (já atualiza localStorage automaticamente)
       const result = await dataService.deleteDiscipline(disciplineId)
       if (result.success) {
         console.log('Disciplina removida do Firestore com sucesso')
-
-        // Sincronizar dados do Firestore para localStorage
-        await dataService.syncLocalStorageWithFirestore()
       }
     } catch (error) {
-      console.error('Erro ao sincronizar remoção de disciplina:', error)
+      console.error('Erro ao remover disciplina:', error)
     }
   }
 

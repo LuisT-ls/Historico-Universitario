@@ -32,7 +32,7 @@ class DataService {
 
   // ===== DISCIPLINAS =====
 
-  // Adicionar disciplina
+  // Adicionar disciplina (apenas no Firestore)
   async addDiscipline(disciplineData) {
     try {
       this.checkAuth()
@@ -45,6 +45,10 @@ class DataService {
       }
 
       const docRef = await addDoc(collection(db, 'disciplines'), discipline)
+
+      // Atualizar localStorage para compatibilidade com sistema existente
+      this.updateLocalStorageForCompatibility()
+
       return { success: true, id: docRef.id }
     } catch (error) {
       console.error('Erro ao adicionar disciplina:', error)
@@ -73,6 +77,9 @@ class DataService {
         updatedAt: new Date()
       })
 
+      // Atualizar localStorage para compatibilidade
+      this.updateLocalStorageForCompatibility()
+
       return { success: true }
     } catch (error) {
       console.error('Erro ao atualizar disciplina:', error)
@@ -97,6 +104,10 @@ class DataService {
       }
 
       await deleteDoc(disciplineRef)
+
+      // Atualizar localStorage para compatibilidade
+      this.updateLocalStorageForCompatibility()
+
       return { success: true }
     } catch (error) {
       console.error('Erro ao excluir disciplina:', error)
@@ -128,6 +139,101 @@ class DataService {
       return { success: true, data: disciplines }
     } catch (error) {
       console.error('Erro ao buscar disciplinas:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Carregar disciplinas por curso (para compatibilidade com sistema existente)
+  async loadDisciplinesByCourse(curso) {
+    try {
+      this.checkAuth()
+
+      const q = query(
+        collection(db, 'disciplines'),
+        where('userId', '==', this.currentUser.uid),
+        where('curso', '==', curso),
+        orderBy('createdAt', 'desc')
+      )
+
+      const querySnapshot = await getDocs(q)
+      const disciplines = []
+
+      querySnapshot.forEach(doc => {
+        const data = doc.data()
+        // Remover campos do Firestore para compatibilidade com localStorage
+        const { id, userId, createdAt, updatedAt, ...discipline } = data
+        disciplines.push(discipline)
+      })
+
+      return { success: true, data: disciplines }
+    } catch (error) {
+      console.error('Erro ao carregar disciplinas por curso:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Atualizar localStorage para compatibilidade com sistema existente
+  async updateLocalStorageForCompatibility() {
+    try {
+      const courses = ['BICTI', 'BCC', 'BSI', 'BEC']
+
+      for (const curso of courses) {
+        const result = await this.loadDisciplinesByCourse(curso)
+        if (result.success) {
+          localStorage.setItem(
+            `disciplinas_${curso}`,
+            JSON.stringify(result.data)
+          )
+          console.log(
+            `Atualizado localStorage para curso ${curso}: ${result.data.length} disciplinas`
+          )
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar localStorage:', error)
+    }
+  }
+
+  // Carregar todas as disciplinas do usuário para localStorage
+  async loadAllDisciplinesToLocalStorage() {
+    try {
+      this.checkAuth()
+
+      const result = await this.getUserDisciplines()
+      if (result.success) {
+        const disciplines = result.data
+
+        // Agrupar por curso
+        const disciplinesByCourse = {}
+        disciplines.forEach(discipline => {
+          const curso = discipline.curso || 'BICTI'
+          if (!disciplinesByCourse[curso]) {
+            disciplinesByCourse[curso] = []
+          }
+
+          // Remover campos do Firestore para compatibilidade
+          const { id, userId, createdAt, updatedAt, ...cleanDiscipline } =
+            discipline
+          disciplinesByCourse[curso].push(cleanDiscipline)
+        })
+
+        // Salvar no localStorage
+        Object.keys(disciplinesByCourse).forEach(curso => {
+          localStorage.setItem(
+            `disciplinas_${curso}`,
+            JSON.stringify(disciplinesByCourse[curso])
+          )
+          console.log(
+            `Carregadas ${disciplinesByCourse[curso].length} disciplinas para curso ${curso}`
+          )
+        })
+
+        return { success: true, data: disciplinesByCourse }
+      }
+
+      return { success: false, error: 'Erro ao carregar disciplinas' }
+    } catch (error) {
+      console.error('Erro ao carregar disciplinas para localStorage:', error)
       return { success: false, error: error.message }
     }
   }
