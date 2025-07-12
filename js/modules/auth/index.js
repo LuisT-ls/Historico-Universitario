@@ -12,12 +12,22 @@ document.addEventListener('DOMContentLoaded', function () {
         passwordInput.type = 'text'
         icon.classList.remove('fa-eye')
         icon.classList.add('fa-eye-slash')
+        this.setAttribute('aria-label', 'Ocultar senha')
       } else {
         passwordInput.type = 'password'
         icon.classList.remove('fa-eye-slash')
         icon.classList.add('fa-eye')
+        this.setAttribute('aria-label', 'Mostrar senha')
       }
     })
+
+    // Adicionar aria-label inicial
+    const passwordInput = toggleButton.previousElementSibling
+    if (passwordInput && passwordInput.type === 'password') {
+      toggleButton.setAttribute('aria-label', 'Mostrar senha')
+    } else {
+      toggleButton.setAttribute('aria-label', 'Ocultar senha')
+    }
   })
 
   // Add floating label behavior para todos os inputs
@@ -336,6 +346,35 @@ document.addEventListener('DOMContentLoaded', function () {
       // Check initial state
       if (input.value) {
         input.parentElement.classList.add('focused')
+      }
+    })
+
+    // Inicializar toggle de senha para os popups
+    const toggleButtons = popup.querySelectorAll('.toggle-password')
+    toggleButtons.forEach(toggleButton => {
+      toggleButton.addEventListener('click', function () {
+        const passwordInput = this.previousElementSibling
+        const icon = this.querySelector('i')
+
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text'
+          icon.classList.remove('fa-eye')
+          icon.classList.add('fa-eye-slash')
+          this.setAttribute('aria-label', 'Ocultar senha')
+        } else {
+          passwordInput.type = 'password'
+          icon.classList.remove('fa-eye-slash')
+          icon.classList.add('fa-eye')
+          this.setAttribute('aria-label', 'Mostrar senha')
+        }
+      })
+
+      // Adicionar aria-label inicial
+      const passwordInput = toggleButton.previousElementSibling
+      if (passwordInput && passwordInput.type === 'password') {
+        toggleButton.setAttribute('aria-label', 'Mostrar senha')
+      } else {
+        toggleButton.setAttribute('aria-label', 'Ocultar senha')
       }
     })
   }

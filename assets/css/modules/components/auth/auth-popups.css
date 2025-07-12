@@ -19,36 +19,46 @@
 
 .popup-content {
   background: white;
-  padding: 2rem;
-  border-radius: 1rem;
+  padding: 2.5rem;
+  border-radius: 1.5rem;
   width: 90%;
-  max-width: 500px;
+  max-width: 480px;
   position: relative;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   transform: translateY(-20px);
   opacity: 0;
   animation: slideIn 0.3s ease-out forwards;
 }
 
+/* Botão de fechar mais discreto */
 .close-popup {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: rgba(0, 0, 0, 0.1);
   border: none;
-  font-size: 1.5rem;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  color: #666;
-  transition: color 0.3s;
+  color: #333;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
 }
 
 .close-popup:hover {
-  color: #333;
+  background: rgba(0, 0, 0, 0.15);
+  color: #000;
+  transform: scale(1.1);
 }
 
 .popup-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
+  padding-top: 0.5rem;
 }
 
 .popup-header i {
@@ -60,13 +70,199 @@
 .popup-header h2 {
   margin: 0.5rem 0;
   color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .popup-header p {
   color: #666;
   margin: 0;
+  font-size: 0.95rem;
 }
 
 .popup-form .form-group {
   margin-bottom: 1.5rem;
+}
+
+.popup-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  padding-top: 0.5rem;
+}
+
+.popup-header i {
+  font-size: 2.5rem;
+  color: #007bff;
+  margin-bottom: 1rem;
+}
+
+.popup-header h2 {
+  margin: 0.5rem 0;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.popup-header p {
+  color: #666;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.popup-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Melhorias nos inputs do popup */
+.popup-form .input-container {
+  margin-bottom: 1.8rem;
+}
+
+.popup-form .input-container input {
+  padding: 1.2rem 1rem 1.2rem 3.2rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 2px solid #e1e5e9;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+
+.popup-form .input-container input:focus {
+  background: white;
+  border-color: #007bff;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+}
+
+.popup-form .input-container .input-icon {
+  left: 1.2rem;
+  font-size: 1.1rem;
+  color: #6c757d;
+}
+
+.popup-form .input-container.focused .input-icon {
+  color: #007bff;
+}
+
+/* Ajuste para inputs de senha */
+.popup-form .input-container input[type='password'],
+.popup-form .input-container input[type='text'] {
+  padding-right: 3.5rem;
+}
+
+.popup-form .toggle-password {
+  color: #007bff;
+  background: transparent;
+  font-size: 0.9rem;
+  width: 28px;
+  height: 28px;
+  padding: 0.4rem;
+  border-radius: 6px;
+}
+
+.popup-form .toggle-password:hover {
+  color: #0056b3;
+  background: rgba(0, 123, 255, 0.08);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.popup-form .toggle-password:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+/* Efeito suave nos ícones */
+.toggle-password i,
+.close-popup i {
+  transition: transform 0.2s ease;
+}
+
+.toggle-password:hover i,
+.close-popup:hover i {
+  transform: scale(1.1);
+}
+
+/* Responsividade para dispositivos móveis */
+@media (max-width: 768px) {
+  .toggle-password {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .close-popup {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+    top: 1rem;
+    right: 1rem;
+  }
+}
+
+/* Botão de submit melhorado */
+.popup-form .submit-button {
+  width: 100%;
+  padding: 1.2rem;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.popup-form .submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+}
+
+.popup-form .submit-button:active {
+  transform: translateY(0);
+}
+
+.popup-form .button-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .popup-content {
+    width: 95%;
+    padding: 2rem;
+    margin: 1rem;
+  }
+
+  .popup-header {
+    margin-bottom: 2rem;
+  }
+
+  .popup-form .input-container input {
+    padding: 1rem 1rem 1rem 3rem;
+  }
 }

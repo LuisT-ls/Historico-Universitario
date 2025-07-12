@@ -63,6 +63,7 @@
   transform: translateY(-50%);
   color: var(--text-secondary);
   transition: color var(--animation-duration);
+  z-index: 1;
 }
 
 .input-container input {
@@ -104,11 +105,57 @@
   color: var(--primary-color);
 }
 
+/* Correção dos placeholders - não sobrepor ícones */
 .input-container input::placeholder {
   color: #aab2bd;
   opacity: 1;
+  /* Garantir que o placeholder não seja sobreposto pelo ícone */
+  text-indent: 0;
+}
+
+/* Ajuste específico para popups */
+.popup-form .input-container input::placeholder {
+  color: #6c757d;
+  opacity: 0.8;
 }
 
 .input-container.focused .input-icon {
   color: var(--primary-color);
+}
+
+/* Toggle password button */
+.toggle-password {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 6px;
+  transition: all 0.25s ease;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 0.9rem;
+}
+
+.toggle-password:hover {
+  color: #0056b3;
+  background: rgba(0, 123, 255, 0.08);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.toggle-password:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.toggle-password:active {
+  transform: translateY(-50%) scale(0.95);
 }
