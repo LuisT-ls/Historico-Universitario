@@ -176,10 +176,10 @@ class DataService {
     try {
       this.checkAuth()
 
+      // Consulta temporária sem orderBy para evitar erro de índice
       const q = query(
         collection(db, 'disciplines'),
-        where('userId', '==', this.currentUser.uid),
-        orderBy('createdAt', 'desc')
+        where('userId', '==', this.currentUser.uid)
       )
 
       const querySnapshot = await getDocs(q)
@@ -190,6 +190,15 @@ class DataService {
           id: doc.id,
           ...doc.data()
         })
+      })
+
+      // Ordenar no JavaScript em vez de no Firestore
+      disciplines.sort((a, b) => {
+        const dateA =
+          a.createdAt?.toDate?.() || new Date(a.createdAt) || new Date(0)
+        const dateB =
+          b.createdAt?.toDate?.() || new Date(b.createdAt) || new Date(0)
+        return dateB - dateA // Ordem decrescente
       })
 
       return { success: true, data: disciplines }
@@ -204,11 +213,11 @@ class DataService {
     try {
       this.checkAuth()
 
+      // Consulta temporária sem orderBy para evitar erro de índice
       const q = query(
         collection(db, 'disciplines'),
         where('userId', '==', this.currentUser.uid),
-        where('curso', '==', curso),
-        orderBy('createdAt', 'desc')
+        where('curso', '==', curso)
       )
 
       const querySnapshot = await getDocs(q)
@@ -219,6 +228,15 @@ class DataService {
         // Remover campos do Firestore para compatibilidade com localStorage
         const { id, userId, createdAt, updatedAt, ...discipline } = data
         disciplines.push(discipline)
+      })
+
+      // Ordenar no JavaScript em vez de no Firestore
+      disciplines.sort((a, b) => {
+        const dateA =
+          a.createdAt?.toDate?.() || new Date(a.createdAt) || new Date(0)
+        const dateB =
+          b.createdAt?.toDate?.() || new Date(b.createdAt) || new Date(0)
+        return dateB - dateA // Ordem decrescente
       })
 
       return { success: true, data: disciplines }
