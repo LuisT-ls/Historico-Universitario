@@ -27,9 +27,9 @@ class App {
     this.init()
   }
 
-  async init() {
+  init() {
     this.setupCursoSelector()
-    await this.carregarDisciplinasDoCurso()
+    this.carregarDisciplinasDoCurso()
     setupFilterComponent()
     setupDateTime()
     inicializarEmenta()
@@ -68,7 +68,7 @@ class App {
       console.log(`Curso alterado para: ${this.cursoAtual}`)
 
       // Carregamos as disciplinas do novo curso
-      await this.carregarDisciplinasDoCurso()
+      this.carregarDisciplinasDoCurso()
       this.atualizarTudo()
 
       // Atualiza o simulador quando o curso é alterado
@@ -84,23 +84,8 @@ class App {
     })
   }
 
-  async carregarDisciplinasDoCurso() {
+  carregarDisciplinasDoCurso() {
     console.log(`Carregando disciplinas do curso: ${this.cursoAtual}`)
-
-    // Verificar se há um usuário autenticado
-    if (window.dataService && window.dataService.currentUser) {
-      try {
-        // Sincronizar dados do Firestore para localStorage
-        const syncResult =
-          await window.dataService.syncLocalStorageWithFirestore()
-        if (syncResult.success) {
-          console.log('Dados sincronizados do Firestore para localStorage')
-        }
-      } catch (error) {
-        console.error('Erro ao sincronizar dados:', error)
-      }
-    }
-
     this.disciplinas = carregarDisciplinas(this.cursoAtual)
     console.log(`${this.disciplinas.length} disciplinas carregadas`)
   }
