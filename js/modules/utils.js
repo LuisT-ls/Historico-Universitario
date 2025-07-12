@@ -1,13 +1,7 @@
 // js/modules/utils.js
 export function compararPeriodos(periodoA, periodoB) {
-  // Verificar se os períodos são válidos
-  if (!periodoA || !periodoB) {
-    return 0
-  }
-
   const [anoA, semestreA] = periodoA.split('.')
   const [anoB, semestreB] = periodoB.split('.')
-
   if (anoA !== anoB) {
     return parseInt(anoA) - parseInt(anoB)
   }
@@ -15,9 +9,7 @@ export function compararPeriodos(periodoA, periodoB) {
 }
 
 export function getPeriodosUnicos(disciplinas) {
-  const periodos = [...new Set(disciplinas.map(d => d.periodo))].filter(
-    periodo => periodo && periodo.trim() !== ''
-  ) // Filtrar valores null/undefined/vazios
+  const periodos = [...new Set(disciplinas.map(d => d.periodo))]
   return periodos.sort((a, b) => compararPeriodos(b, a))
 }
 

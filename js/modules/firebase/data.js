@@ -12,7 +12,6 @@ import {
   deleteDoc,
   orderBy
 } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js'
-import { cleanDisciplineData } from './data-fix.js'
 
 class DataService {
   constructor() {
@@ -105,9 +104,12 @@ class DataService {
       }
 
       await deleteDoc(disciplineRef)
+      console.log(
+        `Disciplina ${disciplineId} removida do Firestore com sucesso`
+      )
 
       // Atualizar localStorage para compatibilidade
-      this.updateLocalStorageForCompatibility()
+      await this.updateLocalStorageForCompatibility()
 
       return { success: true }
     } catch (error) {
@@ -116,16 +118,68 @@ class DataService {
     }
   }
 
-  // Buscar disciplinas do usuário (versão temporária sem índice composto)
+  // Excluir disciplina por índice (para compatibilidade com sistema existente)
+  async deleteDisciplineByIndex(index, curso) {
+    try {
+      this.checkAuth()
+
+      // Buscar disciplinas do curso
+      const result = await this.loadDisciplinesByCourse(curso)
+      if (!result.success) {
+        return { success: false, error: 'Erro ao buscar disciplinas' }
+      }
+
+      const disciplines = result.data
+      if (index < 0 || index >= disciplines.length) {
+        return { success: false, error: 'Índice inválido' }
+      }
+
+      const disciplineToRemove = disciplines[index]
+
+      // Buscar a disciplina no Firestore pelo código e período
+      const q = query(
+        collection(db, 'disciplines'),
+        where('userId', '==', this.currentUser.uid),
+        where('curso', '==', curso),
+        where('codigo', '==', disciplineToRemove.codigo),
+        where('periodo', '==', disciplineToRemove.periodo)
+      )
+
+      const querySnapshot = await getDocs(q)
+
+      if (querySnapshot.empty) {
+        return {
+          success: false,
+          error: 'Disciplina não encontrada no Firestore'
+        }
+      }
+
+      // Remover a disciplina do Firestore
+      const docToDelete = querySnapshot.docs[0]
+      await deleteDoc(docToDelete.ref)
+      console.log(
+        `Disciplina ${disciplineToRemove.codigo} removida do Firestore`
+      )
+
+      // Atualizar localStorage para compatibilidade
+      await this.updateLocalStorageForCompatibility()
+
+      return { success: true }
+    } catch (error) {
+      console.error('Erro ao excluir disciplina por índice:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Buscar disciplinas do usuário
   async getUserDisciplines() {
     try {
       this.checkAuth()
 
-      // Versão temporária: buscar apenas por userId (sem filtro por curso)
       const q = query(
         collection(db, 'disciplines'),
-        where('userId', '==', this.currentUser.uid)
-        // Removido orderBy temporariamente para evitar erro de índice
+        where('userId', '==', this.currentUser.uid),
+        orderBy('createdAt', 'desc')
       )
 
       const querySnapshot = await getDocs(q)
@@ -138,14 +192,6 @@ class DataService {
         })
       })
 
-      // Ordenar no JavaScript em vez de no Firestore
-      disciplines.sort((a, b) => {
-        if (a.createdAt && b.createdAt) {
-          return b.createdAt.toDate() - a.createdAt.toDate()
-        }
-        return 0
-      })
-
       return { success: true, data: disciplines }
     } catch (error) {
       console.error('Erro ao buscar disciplinas:', error)
@@ -153,16 +199,16 @@ class DataService {
     }
   }
 
-  // Carregar disciplinas por curso (versão temporária sem índice composto)
+  // Carregar disciplinas por curso (para compatibilidade com sistema existente)
   async loadDisciplinesByCourse(curso) {
     try {
       this.checkAuth()
 
-      // Versão temporária: buscar todas e filtrar no JavaScript
       const q = query(
         collection(db, 'disciplines'),
-        where('userId', '==', this.currentUser.uid)
-        // Removido filtro por curso temporariamente
+        where('userId', '==', this.currentUser.uid),
+        where('curso', '==', curso),
+        orderBy('createdAt', 'desc')
       )
 
       const querySnapshot = await getDocs(q)
@@ -170,20 +216,9 @@ class DataService {
 
       querySnapshot.forEach(doc => {
         const data = doc.data()
-        // Filtrar por curso no JavaScript
-        if (data.curso === curso) {
-          // Remover campos do Firestore para compatibilidade com localStorage
-          const { id, userId, createdAt, updatedAt, ...discipline } = data
-          disciplines.push(discipline)
-        }
-      })
-
-      // Ordenar por data de criação
-      disciplines.sort((a, b) => {
-        if (a.createdAt && b.createdAt) {
-          return new Date(b.createdAt) - new Date(a.createdAt)
-        }
-        return 0
+        // Remover campos do Firestore para compatibilidade com localStorage
+        const { id, userId, createdAt, updatedAt, ...discipline } = data
+        disciplines.push(discipline)
       })
 
       return { success: true, data: disciplines }
@@ -235,28 +270,7 @@ class DataService {
           // Remover campos do Firestore para compatibilidade
           const { id, userId, createdAt, updatedAt, ...cleanDiscipline } =
             discipline
-
-          // Filtrar disciplinas inválidas (com campos obrigatórios null/undefined)
-          if (cleanDiscipline.nome && cleanDiscipline.codigo) {
-            // Garantir que campos obrigatórios tenham valores padrão se estiverem null
-            const validDiscipline = {
-              nome: cleanDiscipline.nome || '',
-              codigo: cleanDiscipline.codigo || '',
-              periodo: cleanDiscipline.periodo || '',
-              natureza: cleanDiscipline.natureza || '',
-              creditos: cleanDiscipline.creditos || 0,
-              horas: cleanDiscipline.horas || 0,
-              nota: cleanDiscipline.nota || 0,
-              status: cleanDiscipline.status || 'completed',
-              curso: cleanDiscipline.curso || curso,
-              resultado: cleanDiscipline.resultado || '',
-              dispensada: cleanDiscipline.dispensada || false,
-              trancamento: cleanDiscipline.trancamento || false,
-              ch: cleanDiscipline.ch || 0
-            }
-
-            disciplinesByCourse[curso].push(validDiscipline)
-          }
+          disciplinesByCourse[curso].push(cleanDiscipline)
         })
 
         // Salvar no localStorage
@@ -419,26 +433,34 @@ class DataService {
 
   // Calcular estatísticas do resumo
   calculateSummary(disciplines) {
-    const totalDisciplines = disciplines.length
-    const completedDisciplines = disciplines.filter(
+    // Filtrar apenas disciplinas do usuário atual
+    const userDisciplines = disciplines.filter(
+      d => d.userId === this.currentUser.uid
+    )
+
+    const totalDisciplines = userDisciplines.length
+    const completedDisciplines = userDisciplines.filter(
       d => d.status === 'completed'
     ).length
-    const inProgressDisciplines = disciplines.filter(
+    const inProgressDisciplines = userDisciplines.filter(
       d => d.status === 'in_progress'
     ).length
-    const pendingDisciplines = disciplines.filter(
+    const pendingDisciplines = userDisciplines.filter(
       d => d.status === 'pending'
     ).length
 
-    const totalCredits = disciplines.reduce(
+    const totalCredits = userDisciplines.reduce(
       (sum, d) => sum + (d.credits || 0),
       0
     )
-    const totalHours = disciplines.reduce((sum, d) => sum + (d.hours || 0), 0)
+    const totalHours = userDisciplines.reduce(
+      (sum, d) => sum + (d.hours || 0),
+      0
+    )
 
-    const grades = disciplines
-      .filter(d => d.grade && d.status === 'completed')
-      .map(d => parseFloat(d.grade))
+    const grades = userDisciplines
+      .filter(d => d.nota && d.status === 'completed')
+      .map(d => parseFloat(d.nota))
 
     const averageGrade =
       grades.length > 0
@@ -447,6 +469,10 @@ class DataService {
 
     const progressPercentage =
       totalDisciplines > 0 ? (completedDisciplines / totalDisciplines) * 100 : 0
+
+    console.log(
+      `Estatísticas calculadas: ${totalDisciplines} disciplinas do usuário ${this.currentUser.uid}`
+    )
 
     return {
       totalDisciplines,
