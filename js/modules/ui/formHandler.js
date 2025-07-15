@@ -46,6 +46,14 @@ export function setupFormHandlers(disciplinas, callbacks) {
 
   // Função para precarregar o semestre
   function precarregarSemestre() {
+    // Primeiro tenta carregar do localStorage
+    const semestreSalvo = localStorage.getItem('ultimoSemestreDigitado')
+    if (semestreSalvo && !periodoInput.value) {
+      periodoInput.value = semestreSalvo
+      console.log(`Semestre carregado do localStorage: ${semestreSalvo}`)
+      return
+    }
+    // Se não houver no localStorage, usa o mais recente das disciplinas
     const semestreMaisRecente = getSemestreMaisRecente()
     if (semestreMaisRecente && !periodoInput.value) {
       periodoInput.value = semestreMaisRecente
@@ -201,6 +209,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
     const codigo = isAC ? 'AC' : document.getElementById('codigo').value
 
     if (!isAC) {
+      // Só bloqueia se já houver disciplina aprovada
       const disciplinaAprovada = disciplinas.find(
         d => d.codigo === codigo && d.resultado === 'AP'
       )
@@ -243,6 +252,9 @@ export function setupFormHandlers(disciplinas, callbacks) {
     console.log(
       `Disciplina adicionada: ${disciplina.codigo}, Array agora tem ${disciplinas.length} itens`
     )
+
+    // Salva o semestre atual no localStorage
+    localStorage.setItem('ultimoSemestreDigitado', disciplina.periodo)
 
     // Chama o callback após adicionar a disciplina
     if (callbacks && typeof callbacks.onSubmit === 'function') {
