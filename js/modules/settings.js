@@ -102,8 +102,11 @@ class SettingsManager {
 
   // Método para mostrar notificações push
   showPushNotification(title, options = {}) {
-    if (!this.userData?.settings?.notifications) return
-
+    if (
+      typeof window.notificationsEnabled === 'function' &&
+      !window.notificationsEnabled()
+    )
+      return
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(title, {
         icon: '/assets/img/favicon/favicon-32x32.png',
@@ -115,6 +118,11 @@ class SettingsManager {
 
   // Método para mostrar notificação na interface
   showNotification(message, type = 'info') {
+    if (
+      typeof window.notificationsEnabled === 'function' &&
+      !window.notificationsEnabled()
+    )
+      return
     const notification = document.createElement('div')
     notification.className = `notification notification-${type}`
     notification.innerHTML = `
@@ -200,5 +208,24 @@ class SettingsManager {
 
 // Instância global do gerenciador de configurações
 const settingsManager = new SettingsManager()
+
+// Função utilitária global para checar se notificações estão ativadas
+window.notificationsEnabled = function () {
+  if (
+    window.settingsManager &&
+    window.settingsManager.userData &&
+    window.settingsManager.userData.settings
+  ) {
+    return window.settingsManager.userData.settings.notifications !== false
+  }
+  // fallback: tenta pegar do localStorage
+  try {
+    const userData = JSON.parse(localStorage.getItem('userData'))
+    if (userData && userData.settings) {
+      return userData.settings.notifications !== false
+    }
+  } catch {}
+  return true // padrão: ativado
+}
 
 export default settingsManager

@@ -347,6 +347,11 @@ class MainApp {
   }
 
   showNotification(message, type = 'info') {
+    if (
+      typeof window.notificationsEnabled === 'function' &&
+      !window.notificationsEnabled()
+    )
+      return
     // Criar elemento de notificação
     const notification = document.createElement('div')
     notification.className = `notification notification-${type}`

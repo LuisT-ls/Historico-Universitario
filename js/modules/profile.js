@@ -61,8 +61,9 @@ class ProfileManager {
     // Configurar controles de configurações
     document.getElementById('themeSelect').value =
       this.userData.settings?.theme || 'light'
-    document.getElementById('notificationsToggle').checked =
-      this.userData.settings?.notifications !== false
+    // Novo: select de notificações
+    document.getElementById('notificationsSelect').value =
+      this.userData.settings?.notifications !== false ? 'true' : 'false'
     document.getElementById('privacySelect').value =
       this.userData.settings?.privacy || 'private'
 
@@ -129,10 +130,11 @@ class ProfileManager {
       this.saveSettings({ theme: e.target.value })
     })
 
+    // Novo: select de notificações
     document
-      .getElementById('notificationsToggle')
+      .getElementById('notificationsSelect')
       .addEventListener('change', e => {
-        this.saveSettings({ notifications: e.target.checked })
+        this.saveSettings({ notifications: e.target.value === 'true' })
       })
 
     document.getElementById('privacySelect').addEventListener('change', e => {
@@ -187,18 +189,26 @@ class ProfileManager {
     this.setupDeleteModal()
 
     // Encerrar todas as sessões
-    document.getElementById('logoutAllSessionsBtn').addEventListener('click', async () => {
-      try {
-        // Revogar todos os tokens de refresh do usuário
-        await authService.revokeAllSessions();
-        this.showNotification('Todas as sessões foram encerradas. Faça login novamente para continuar.', 'success');
-        setTimeout(() => {
-          window.location.href = '/login.html';
-        }, 1500);
-      } catch (err) {
-        this.showNotification('Erro ao encerrar sessões: ' + (err?.message || err), 'error');
-      }
-    });
+    document
+      .getElementById('logoutAllSessionsBtn')
+      .addEventListener('click', async () => {
+        try {
+          // Revogar todos os tokens de refresh do usuário
+          await authService.revokeAllSessions()
+          this.showNotification(
+            'Todas as sessões foram encerradas. Faça login novamente para continuar.',
+            'success'
+          )
+          setTimeout(() => {
+            window.location.href = '/login.html'
+          }, 1500)
+        } catch (err) {
+          this.showNotification(
+            'Erro ao encerrar sessões: ' + (err?.message || err),
+            'error'
+          )
+        }
+      })
   }
 
   async saveProfile() {
