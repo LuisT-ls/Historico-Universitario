@@ -4,6 +4,30 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Histórico Universitário</title>
+    <meta
+      name="description"
+      content="Faça login para acessar o Histórico Universitário, gerencie seu progresso acadêmico, visualize disciplinas e requisitos para formatura."
+    />
+    <meta name="robots" content="noindex, follow" />
+    <link
+      rel="canonical"
+      href="https://historicoacademico.vercel.app/login.html"
+    />
+    <meta property="og:title" content="Login - Histórico Universitário" />
+    <meta
+      property="og:description"
+      content="Faça login para acessar o Histórico Universitário, gerencie seu progresso acadêmico, visualize disciplinas e requisitos para formatura."
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content="https://historicoacademico.vercel.app/login.html"
+    />
+    <meta property="og:site_name" content="Histórico Universitário" />
+    <meta
+      property="og:image"
+      content="https://historicoacademico.vercel.app/assets/img/og-image.jpg"
+    />
     <link rel="stylesheet" href="assets/css/main.css" />
     <link rel="stylesheet" href="assets/css/auth/login.css" />
     <link
@@ -17,139 +41,184 @@
     />
   </head>
   <body>
-    <div class="login-container">
-      <div class="login-background">
+    <main class="login-container" aria-label="Acesso ao sistema">
+      <div class="login-background" aria-hidden="true">
         <div class="shapes"></div>
       </div>
 
-      <!-- Logomarca -->
-      <div class="watermark-container">
+      <!-- Logomarca e informações do desenvolvedor -->
+      <aside
+        class="watermark-container"
+        aria-label="Informações do desenvolvedor"
+      >
         <a
           href="https://github.com/LuisT-ls"
           target="_blank"
           class="watermark-link"
           title="Desenvolvido por Luís Teixeira"
-          anchor="LS Luís Teixeira"
+          aria-label="Visitar perfil do desenvolvedor Luís Teixeira no GitHub"
         >
           <div class="watermark-logo">
-            <div class="logo-ring"></div>
-            <div class="logo-initials">LS</div>
+            <div class="logo-ring" aria-hidden="true"></div>
+            <div class="logo-initials" aria-hidden="true">LT</div>
             <div class="logo-text">
               <span class="text-developer">Desenvolvido por</span>
               <span class="text-name">Luís Teixeira</span>
             </div>
           </div>
         </a>
-      </div>
+      </aside>
 
-      <div class="login-box">
-        <div class="login-header">
-          <div class="logo-animation">
+      <section class="login-box" aria-labelledby="login-title">
+        <header class="login-header">
+          <div class="logo-animation" aria-hidden="true">
             <i class="fas fa-graduation-cap"></i>
           </div>
-          <h1>Histórico Universitário</h1>
+          <h1 id="login-title">Histórico Universitário</h1>
           <p>Bem-vindo(a) de volta! Faça login para continuar</p>
-        </div>
+        </header>
 
-        <form id="loginForm" class="login-form">
-          <div class="form-group">
-            <div class="input-container">
-              <i class="fas fa-envelope input-icon"></i>
-              <input
-                type="email"
-                id="email"
-                required
-                placeholder="Digite seu e-mail institucional"
-              />
-              <label for="email">E-mail</label>
-              <div class="input-underline"></div>
+        <form
+          id="loginForm"
+          class="login-form"
+          autocomplete="on"
+          aria-describedby="login-help"
+        >
+          <fieldset>
+            <legend class="sr-only">Acesso ao sistema</legend>
+            <div class="form-group">
+              <div class="input-container">
+                <i class="fas fa-envelope input-icon" aria-hidden="true"></i>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  placeholder="Digite seu e-mail institucional"
+                  autocomplete="username"
+                  aria-label="E-mail institucional"
+                />
+                <label for="email">E-mail</label>
+                <div class="input-underline"></div>
+              </div>
             </div>
-          </div>
 
-          <div class="form-group">
-            <div class="input-container">
-              <i class="fas fa-lock input-icon"></i>
-              <input
-                type="password"
-                id="password"
-                required
-                placeholder="Digite sua senha"
-              />
-              <label for="password">Senha</label>
-              <button type="button" class="toggle-password">
-                <i class="fas fa-eye"></i>
-              </button>
-              <div class="input-underline"></div>
+            <div class="form-group">
+              <div class="input-container">
+                <i class="fas fa-lock input-icon" aria-hidden="true"></i>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  required
+                  placeholder="Digite sua senha"
+                  autocomplete="current-password"
+                  aria-label="Senha"
+                />
+                <label for="password">Senha</label>
+                <button
+                  type="button"
+                  class="toggle-password"
+                  aria-label="Mostrar senha"
+                  tabindex="0"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+                <div class="input-underline"></div>
+              </div>
             </div>
-          </div>
 
-          <div class="form-options">
-            <label class="remember-me">
-              <input type="checkbox" id="remember" />
-              <span class="checkmark"></span>
-              <span class="label-text">Lembrar-me</span>
-            </label>
-            <a href="#" class="forgot-password">Esqueceu a senha?</a>
-          </div>
+            <div class="form-options">
+              <label class="remember-me">
+                <input type="checkbox" id="remember" name="remember" />
+                <span class="checkmark"></span>
+                <span class="label-text">Lembrar-me</span>
+              </label>
+              <a href="#" class="forgot-password">Esqueceu a senha?</a>
+            </div>
 
-          <button type="submit" class="login-button">
-            <span class="button-content">
-              <i class="fas fa-sign-in-alt"></i>
-              <span>Entrar</span>
-            </span>
-          </button>
+            <button
+              type="submit"
+              class="login-button"
+              aria-label="Entrar no sistema"
+            >
+              <span class="button-content">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Entrar</span>
+              </span>
+            </button>
 
-          <div class="divider">
-            <span>ou</span>
-          </div>
+            <div class="divider" aria-hidden="true">
+              <span>ou</span>
+            </div>
 
-          <button type="button" class="google-login-button">
-            <img
-              src="https://www.google.com/favicon.ico"
-              alt="Google"
-              class="google-icon"
-            />
-            <span>Continuar com Google</span>
-          </button>
+            <button
+              type="button"
+              class="google-login-button"
+              aria-label="Entrar com Google"
+            >
+              <img
+                src="https://www.google.com/favicon.ico"
+                alt="Google"
+                class="google-icon"
+              />
+              <span>Continuar com Google</span>
+            </button>
+          </fieldset>
         </form>
 
-        <div class="login-footer">
+        <footer class="login-footer">
           <p>Não tem uma conta?</p>
           <a href="#" class="register-link">
             <span>Criar conta</span>
             <i class="fas fa-arrow-right"></i>
           </a>
-        </div>
-      </div>
-    </div>
-    <div class="popup-overlay" id="forgotPasswordPopup">
+        </footer>
+      </section>
+    </main>
+
+    <!-- Popups -->
+    <div
+      class="popup-overlay"
+      id="forgotPasswordPopup"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="forgot-password-title"
+    >
       <div class="popup-content">
-        <button class="close-popup">
+        <button class="close-popup" aria-label="Fechar popup">
           <i class="fas fa-times"></i>
         </button>
         <div class="popup-header">
           <i class="fas fa-key"></i>
-          <h2>Recuperar Senha</h2>
+          <h2 id="forgot-password-title">Recuperar Senha</h2>
           <p>
             Digite seu e-mail institucional para receber as instruções de
             recuperação
           </p>
         </div>
-        <form id="forgotPasswordForm" class="popup-form">
+        <form id="forgotPasswordForm" class="popup-form" autocomplete="on">
           <div class="form-group">
             <div class="input-container">
-              <i class="fas fa-envelope input-icon"></i>
+              <i class="fas fa-envelope input-icon" aria-hidden="true"></i>
               <input
                 type="email"
                 id="recoveryEmail"
+                name="recoveryEmail"
                 required
                 placeholder="Digite seu e-mail institucional"
+                autocomplete="username"
+                aria-label="E-mail institucional"
               />
               <label for="recoveryEmail">E-mail</label>
               <div class="input-underline"></div>
             </div>
           </div>
-          <button type="submit" class="submit-button">
+          <button
+            type="submit"
+            class="submit-button"
+            aria-label="Enviar instruções de recuperação"
+          >
             <span class="button-content">
               <i class="fas fa-paper-plane"></i>
               <span>Enviar instruções</span>
@@ -159,81 +228,116 @@
       </div>
     </div>
 
-    <div class="popup-overlay" id="registerPopup">
+    <div
+      class="popup-overlay"
+      id="registerPopup"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="register-title"
+    >
       <div class="popup-content">
-        <button class="close-popup">
+        <button class="close-popup" aria-label="Fechar popup">
           <i class="fas fa-times"></i>
         </button>
         <div class="popup-header">
           <i class="fas fa-user-plus"></i>
-          <h2>Criar Conta</h2>
+          <h2 id="register-title">Criar Conta</h2>
           <p>Preencha os dados abaixo para criar sua conta</p>
         </div>
-        <form id="registerForm" class="popup-form">
-          <div class="form-group">
-            <div class="input-container">
-              <i class="fas fa-user input-icon"></i>
-              <input
-                type="text"
-                id="registerName"
-                required
-                placeholder="Digite seu nome completo"
-              />
-              <label for="registerName">Nome completo</label>
-              <div class="input-underline"></div>
+        <form id="registerForm" class="popup-form" autocomplete="on">
+          <fieldset>
+            <legend class="sr-only">Cadastro de novo usuário</legend>
+            <div class="form-group">
+              <div class="input-container">
+                <i class="fas fa-user input-icon" aria-hidden="true"></i>
+                <input
+                  type="text"
+                  id="registerName"
+                  name="registerName"
+                  required
+                  placeholder="Digite seu nome completo"
+                  autocomplete="name"
+                  aria-label="Nome completo"
+                />
+                <label for="registerName">Nome completo</label>
+                <div class="input-underline"></div>
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <div class="input-container">
-              <i class="fas fa-envelope input-icon"></i>
-              <input
-                type="email"
-                id="registerEmail"
-                required
-                placeholder="Digite seu e-mail institucional"
-              />
-              <label for="registerEmail">E-mail institucional</label>
-              <div class="input-underline"></div>
+            <div class="form-group">
+              <div class="input-container">
+                <i class="fas fa-envelope input-icon" aria-hidden="true"></i>
+                <input
+                  type="email"
+                  id="registerEmail"
+                  name="registerEmail"
+                  required
+                  placeholder="Digite seu e-mail institucional"
+                  autocomplete="username"
+                  aria-label="E-mail institucional"
+                />
+                <label for="registerEmail">E-mail institucional</label>
+                <div class="input-underline"></div>
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <div class="input-container">
-              <i class="fas fa-lock input-icon"></i>
-              <input
-                type="password"
-                id="registerPassword"
-                required
-                placeholder="Digite sua senha"
-              />
-              <label for="registerPassword">Senha</label>
-              <button type="button" class="toggle-password">
-                <i class="fas fa-eye"></i>
-              </button>
-              <div class="input-underline"></div>
+            <div class="form-group">
+              <div class="input-container">
+                <i class="fas fa-lock input-icon" aria-hidden="true"></i>
+                <input
+                  type="password"
+                  id="registerPassword"
+                  name="registerPassword"
+                  required
+                  placeholder="Digite sua senha"
+                  autocomplete="new-password"
+                  aria-label="Senha"
+                />
+                <label for="registerPassword">Senha</label>
+                <button
+                  type="button"
+                  class="toggle-password"
+                  aria-label="Mostrar senha"
+                  tabindex="0"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+                <div class="input-underline"></div>
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <div class="input-container">
-              <i class="fas fa-lock input-icon"></i>
-              <input
-                type="password"
-                id="confirmPassword"
-                required
-                placeholder="Confirme sua senha"
-              />
-              <label for="confirmPassword">Confirmar senha</label>
-              <button type="button" class="toggle-password">
-                <i class="fas fa-eye"></i>
-              </button>
-              <div class="input-underline"></div>
+            <div class="form-group">
+              <div class="input-container">
+                <i class="fas fa-lock input-icon" aria-hidden="true"></i>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  required
+                  placeholder="Confirme sua senha"
+                  autocomplete="new-password"
+                  aria-label="Confirmar senha"
+                />
+                <label for="confirmPassword">Confirmar senha</label>
+                <button
+                  type="button"
+                  class="toggle-password"
+                  aria-label="Mostrar senha"
+                  tabindex="0"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+                <div class="input-underline"></div>
+              </div>
             </div>
-          </div>
-          <button type="submit" class="submit-button">
-            <span class="button-content">
-              <i class="fas fa-user-plus"></i>
-              <span>Criar conta</span>
-            </span>
-          </button>
+            <button
+              type="submit"
+              class="submit-button"
+              aria-label="Criar conta"
+            >
+              <span class="button-content">
+                <i class="fas fa-user-plus"></i>
+                <span>Criar conta</span>
+              </span>
+            </button>
+          </fieldset>
         </form>
       </div>
     </div>
