@@ -254,13 +254,18 @@ class MainApp {
   }
 
   updateSummary(disciplines) {
-    const stats = dataService.calculateSummary(disciplines)
+    // Pegar o curso atual da instância do app
+    const cursoAtual = this.cursoAtual || (window.app && window.app.cursoAtual)
+    const stats = dataService.calculateSummary(disciplines, cursoAtual)
 
     // Atualizar estatísticas na interface
     const totalDisciplines = document.getElementById('totalDisciplines')
     const completedDisciplines = document.getElementById('completedDisciplines')
     const averageGrade = document.getElementById('averageGrade')
     const progressPercentage = document.getElementById('progressPercentage')
+    const inProgressDisciplines = document.getElementById(
+      'inProgressDisciplines'
+    )
 
     if (totalDisciplines) totalDisciplines.textContent = stats.totalDisciplines
     if (completedDisciplines)
@@ -268,6 +273,8 @@ class MainApp {
     if (averageGrade) averageGrade.textContent = stats.averageGrade
     if (progressPercentage)
       progressPercentage.textContent = stats.progressPercentage + '%'
+    if (inProgressDisciplines)
+      inProgressDisciplines.textContent = stats.inProgressDisciplines
   }
 
   updateAcademicHistory(history) {

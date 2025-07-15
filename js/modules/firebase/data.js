@@ -336,41 +336,72 @@ class DataService {
   }
 
   // Calcular estatísticas do resumo
-  calculateSummary(disciplines) {
-    const totalDisciplines = disciplines.length
-    const completedDisciplines = disciplines.filter(
-      d => d.status === 'completed'
-    ).length
-    const inProgressDisciplines = disciplines.filter(
-      d => d.status === 'in_progress'
-    ).length
-    const pendingDisciplines = disciplines.filter(
-      d => d.status === 'pending'
-    ).length
+  calculateSummary(disciplines, cursoAtual = null) {
+    // Se cursoAtual for fornecido, filtrar disciplinas desse curso
+    let filtered = Array.isArray(disciplines) ? disciplines : []
+    if (cursoAtual) {
+      filtered = filtered.filter(d => d.curso === cursoAtual)
+    }
 
-    const totalCredits = disciplines.reduce(
-      (sum, d) => sum + (d.credits || 0),
+    // Concluídas: AP (Aprovada) ou RR (Reprovada)
+    const completedDisciplines = filtered.filter(
+      d => d.resultado === 'AP' || d.resultado === 'RR'
+    )
+    // Em andamento: EC (Em Curso) ou emcurso === true
+    const inProgressDisciplines = filtered.filter(
+      d => d.resultado === 'EC' || d.emcurso === true
+    )
+    // Trancadas: TR
+    const trancadas = filtered.filter(d => d.resultado === 'TR')
+    // Dispensadas
+    const dispensadas = filtered.filter(d => d.dispensada === true)
+
+    // Total de disciplinas cadastradas (todas)
+    const totalDisciplines = filtered.length
+    // Total de concluídas
+    const totalCompleted = completedDisciplines.length
+    // Total em andamento
+    const totalInProgress = inProgressDisciplines.length
+    // Total trancadas
+    const totalTrancadas = trancadas.length
+    // Total dispensadas
+    const totalDispensadas = dispensadas.length
+
+    // Total de créditos e horas (apenas concluídas)
+    const totalCredits = completedDisciplines.reduce(
+      (sum, d) => sum + (d.creditos || d.credits || 0),
       0
     )
-    const totalHours = disciplines.reduce((sum, d) => sum + (d.hours || 0), 0)
+    const totalHours = completedDisciplines.reduce(
+      (sum, d) => sum + (d.ch || d.horas || d.hours || 0),
+      0
+    )
 
-    const grades = disciplines
-      .filter(d => d.grade && d.status === 'completed')
-      .map(d => parseFloat(d.grade))
-
+    // Média geral: apenas disciplinas concluídas, com nota válida, não dispensadas, não trancadas, não AC
+    const disciplinasParaMedia = completedDisciplines.filter(
+      d =>
+        d.nota !== null &&
+        d.nota !== undefined &&
+        !d.dispensada &&
+        d.natureza !== 'AC' &&
+        d.resultado !== 'TR'
+    )
     const averageGrade =
-      grades.length > 0
-        ? grades.reduce((sum, grade) => sum + grade, 0) / grades.length
+      disciplinasParaMedia.length > 0
+        ? disciplinasParaMedia.reduce((sum, d) => sum + parseFloat(d.nota), 0) /
+          disciplinasParaMedia.length
         : 0
 
+    // Porcentagem de progresso
     const progressPercentage =
-      totalDisciplines > 0 ? (completedDisciplines / totalDisciplines) * 100 : 0
+      totalDisciplines > 0 ? (totalCompleted / totalDisciplines) * 100 : 0
 
     return {
       totalDisciplines,
-      completedDisciplines,
-      inProgressDisciplines,
-      pendingDisciplines,
+      completedDisciplines: totalCompleted,
+      inProgressDisciplines: totalInProgress,
+      trancadas: totalTrancadas,
+      dispensadas: totalDispensadas,
       totalCredits,
       totalHours,
       averageGrade: Math.round(averageGrade * 100) / 100,
@@ -726,7 +757,7 @@ class DataService {
       // Identificar duplicatas
       disciplines.forEach(discipline => {
         const key = `${discipline.codigo}_${discipline.curso}_${discipline.periodo}`
-        
+
         if (seen.has(key)) {
           duplicates.push(discipline)
         } else {
@@ -747,11 +778,16 @@ class DataService {
           await this.deleteDisciplineOptimized(duplicate.id)
           console.log(`Disciplina duplicada removida: ${duplicate.codigo}`)
         } catch (error) {
-          console.error(`Erro ao remover disciplina duplicada ${duplicate.codigo}:`, error)
+          console.error(
+            `Erro ao remover disciplina duplicada ${duplicate.codigo}:`,
+            error
+          )
         }
       }
 
-      console.log(`Limpeza concluída: ${duplicates.length} disciplinas removidas`)
+      console.log(
+        `Limpeza concluída: ${duplicates.length} disciplinas removidas`
+      )
       return { success: true, removed: duplicates.length }
     } catch (error) {
       console.error('Erro ao limpar disciplinas duplicadas:', error)
@@ -815,7 +851,10 @@ class DataService {
             fixedCount++
             console.log(`Disciplina corrigida: ${discipline.codigo}`)
           } catch (error) {
-            console.error(`Erro ao corrigir disciplina ${discipline.codigo}:`, error)
+            console.error(
+              `Erro ao corrigir disciplina ${discipline.codigo}:`,
+              error
+            )
           }
         }
       }
