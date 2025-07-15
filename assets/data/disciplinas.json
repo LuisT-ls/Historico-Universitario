@@ -257,22 +257,26 @@
     {
       "codigo": "CTIA45",
       "nome": "FÍSICA I",
-      "natureza": "OG"
+      "natureza": "OG",
+      "ch": 90
     },
     {
       "codigo": "CTIA46",
       "nome": "FÍSICA II",
-      "natureza": "OG"
+      "natureza": "OG",
+      "ch": 90
     },
     {
       "codigo": "CTIA47",
       "nome": "FÍSICA III",
-      "natureza": "OG"
+      "natureza": "OG",
+      "ch": 90
     },
     {
       "codigo": "CTIA84",
       "nome": "FÍSICA IV",
-      "natureza": "OG"
+      "natureza": "OG",
+      "ch": 90
     },
     {
       "codigo": "CTIA48",

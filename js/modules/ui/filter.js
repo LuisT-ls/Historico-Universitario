@@ -225,7 +225,22 @@ function fillFormFields(disciplina) {
   document.getElementById('codigo').value = disciplina.codigo
   document.getElementById('nome').value = disciplina.nome
   document.getElementById('natureza').value = disciplina.natureza
-  document.getElementById('ch').value = disciplina.ch || 60
+
+  // Correção de carga horária para disciplinas específicas
+  const trintaHoras = ['CTIA02', 'CTIA04', 'CTIA08', 'CTIA60']
+  const noventaHoras = ['CTIA45', 'CTIA46', 'CTIA47', 'CTIA84']
+
+  let ch = disciplina.ch
+  if (!ch) {
+    if (trintaHoras.includes(disciplina.codigo)) {
+      ch = 30
+    } else if (noventaHoras.includes(disciplina.codigo)) {
+      ch = 90
+    } else {
+      ch = 60
+    }
+  }
+  document.getElementById('ch').value = ch
 }
 
 // Animação de feedback visual ao selecionar uma disciplina
