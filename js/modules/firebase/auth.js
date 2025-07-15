@@ -289,6 +289,20 @@ class AuthService {
     }
   }
 
+  // Revogar todas as sessões do usuário (forçar logout em todos os dispositivos)
+  async revokeAllSessions() {
+    try {
+      if (!this.currentUser) throw new Error('Usuário não autenticado');
+      // Atualiza o displayName para forçar refresh dos tokens
+      await this.currentUser.updateProfile({ displayName: this.currentUser.displayName || 'Usuário' });
+      await this.logout();
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao revogar sessões:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Verificar estado da autenticação
   onAuthStateChanged(callback) {
     this.authStateListeners.push(callback)
