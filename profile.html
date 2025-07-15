@@ -198,13 +198,27 @@
               <div class="setting-item">
                 <div class="setting-info">
                   <h3>Notificações</h3>
-                  <p>Receber notificações sobre atualizações</p>
+                  <p>Receber avisos importantes</p>
                 </div>
                 <div class="setting-control">
-                  <label class="switch">
-                    <input type="checkbox" id="notificationsToggle" />
-                    <span class="slider"></span>
-                  </label>
+                  <input type="checkbox" id="notificationsToggle" />
+                  <label for="notificationsToggle">Ativar</label>
+                </div>
+              </div>
+
+              <!-- Botão de exclusão de conta -->
+              <div class="setting-item danger">
+                <div class="setting-info">
+                  <h3>Excluir Conta</h3>
+                  <p>
+                    Esta ação é <strong>irreversível</strong>. Todos os seus
+                    dados serão apagados.
+                  </p>
+                </div>
+                <div class="setting-control">
+                  <button id="deleteAccountBtn" class="btn btn-danger">
+                    <i class="fas fa-user-slash"></i> Excluir Conta
+                  </button>
                 </div>
               </div>
 
@@ -377,44 +391,60 @@
       </div>
     </div>
 
-    <!-- Modal de Confirmação de Exclusão -->
-    <div class="modal-overlay" id="deleteAccountModal">
-      <div class="modal-content">
+    <!-- Modal de confirmação de exclusão de conta -->
+    <div id="deleteAccountModal" class="modal" style="display: none">
+      <div class="modal-content danger">
         <div class="modal-header">
-          <h3>
+          <h2>
             <i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão
-          </h3>
-          <button class="modal-close" id="closeDeleteModal">
-            <i class="fas fa-times"></i>
-          </button>
+          </h2>
         </div>
-
         <div class="modal-body">
-          <p><strong>Atenção!</strong> Esta ação não pode ser desfeita.</p>
-          <p>Todos os seus dados acadêmicos serão permanentemente excluídos.</p>
-          <p>Digite "EXCLUIR" para confirmar:</p>
-
-          <div class="form-group">
-            <input
-              type="text"
-              id="deleteConfirmation"
-              placeholder="Digite EXCLUIR"
-            />
-          </div>
+          <p>
+            Para confirmar a exclusão permanente da sua conta e de todos os seus
+            dados, digite <strong>EXCLUIR</strong> no campo abaixo:
+          </p>
+          <input
+            type="text"
+            id="deleteConfirmInput"
+            autocomplete="off"
+            placeholder="Digite EXCLUIR"
+            style="width: 100%; padding: 8px; font-size: 1.1em"
+          />
+          <small
+            id="deleteConfirmHint"
+            style="color: #b00; display: block; margin-top: 8px"
+            >Atenção: não é possível colar, é necessário digitar
+            manualmente.</small
+          >
+          <label
+            for="deletePasswordInput"
+            style="margin-top: 16px; display: block"
+            >Digite sua senha para confirmar:</label
+          >
+          <input
+            type="password"
+            id="deletePasswordInput"
+            autocomplete="current-password"
+            placeholder="Senha da sua conta"
+            style="
+              width: 100%;
+              padding: 8px;
+              font-size: 1.1em;
+              margin-bottom: 8px;
+            "
+          />
+          <small id="deletePasswordHint" style="color: #b00; display: block"
+            >Sua senha é necessária para confirmar a exclusão por
+            segurança.</small
+          >
         </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn btn-secondary" id="cancelDelete">
+        <div class="modal-footer">
+          <button id="cancelDeleteBtn" class="btn btn-secondary">
             Cancelar
           </button>
-          <button
-            type="button"
-            class="btn btn-danger"
-            id="confirmDelete"
-            disabled
-          >
-            <i class="fas fa-trash"></i>
-            Excluir Conta
+          <button id="confirmDeleteBtn" class="btn btn-danger" disabled>
+            Excluir Permanentemente
           </button>
         </div>
       </div>
@@ -426,4 +456,3 @@
     <script type="module" src="js/modules/profile.js"></script>
   </body>
 </html>
- 

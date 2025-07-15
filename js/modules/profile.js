@@ -373,59 +373,93 @@ class ProfileManager {
 
   setupDeleteModal() {
     const modal = document.getElementById('deleteAccountModal')
-    const closeBtn = document.getElementById('closeDeleteModal')
-    const cancelBtn = document.getElementById('cancelDelete')
-    const confirmBtn = document.getElementById('confirmDelete')
-    const input = document.getElementById('deleteConfirmation')
+    const input = document.getElementById('deleteConfirmInput')
+    const passwordInput = document.getElementById('deletePasswordInput')
+    const confirmBtn = document.getElementById('confirmDeleteBtn')
+    const cancelBtn = document.getElementById('cancelDeleteBtn')
+    let typed = ''
+
+    // Bloquear colar
+    input.addEventListener('paste', e => {
+      e.preventDefault()
+      this.showNotification(
+        'Você deve digitar manualmente a palavra EXCLUIR.',
+        'warning'
+      )
+    })
+
+    // Só habilita se digitar EXCLUIR e senha não está vazia
+    function updateConfirmState() {
+      confirmBtn.disabled = !(
+        input.value === 'EXCLUIR' && passwordInput.value.length > 0
+      )
+    }
+    input.addEventListener('input', updateConfirmState)
+    passwordInput.addEventListener('input', updateConfirmState)
 
     // Abrir modal
     this.openDeleteAccountModal = () => {
-      modal.classList.add('active')
-      document.body.style.overflow = 'hidden'
+      input.value = ''
+      passwordInput.value = ''
+      confirmBtn.disabled = true
+      modal.style.display = 'block'
+      input.focus()
     }
 
     // Fechar modal
-    const closeModal = () => {
-      modal.classList.remove('active')
-      document.body.style.overflow = ''
-      input.value = ''
-      confirmBtn.disabled = true
+    cancelBtn.onclick = () => {
+      modal.style.display = 'none'
     }
 
-    closeBtn.addEventListener('click', closeModal)
-    cancelBtn.addEventListener('click', closeModal)
-
-    // Fechar ao clicar fora
-    modal.addEventListener('click', e => {
-      if (e.target === modal) {
-        closeModal()
-      }
-    })
-
-    // Verificar confirmação
-    input.addEventListener('input', () => {
-      confirmBtn.disabled = input.value !== 'EXCLUIR'
-    })
-
-    // Confirmar exclusão
-    confirmBtn.addEventListener('click', async () => {
-      if (input.value === 'EXCLUIR') {
-        try {
-          // Aqui você implementaria a lógica para excluir a conta
-          // Por segurança, isso requer confirmação adicional
-          this.showNotification(
-            'Funcionalidade de exclusão de conta será implementada em breve.',
-            'info'
-          )
-          closeModal()
-        } catch (error) {
-          this.showNotification(
-            'Erro ao excluir conta: ' + error.message,
-            'error'
-          )
+    // Excluir conta de verdade, com reautenticação se necessário
+    confirmBtn.onclick = async () => {
+      confirmBtn.disabled = true
+      confirmBtn.textContent = 'Excluindo...'
+      try {
+        // 1. Excluir todos os dados do Firestore
+        const result = await dataService.deleteUserAccount()
+        if (!result.success)
+          throw new Error(result.error || 'Erro ao excluir dados do Firestore')
+        // 2. Excluir usuário do Authentication
+        let authResult = await authService.deleteCurrentUser()
+        if (
+          !authResult.success &&
+          authResult.error &&
+          authResult.error.includes('auth/requires-recent-login')
+        ) {
+          // Reautenticar
+          const email =
+            this.currentUser?.email ||
+            (authService.currentUser && authService.currentUser.email)
+          const senha = passwordInput.value
+          if (!email || !senha)
+            throw new Error(
+              'E-mail ou senha não informados para reautenticação.'
+            )
+          const reauth = await authService.reauthenticate(email, senha)
+          if (!reauth.success)
+            throw new Error('Senha incorreta. Não foi possível reautenticar.')
+          // Tentar excluir novamente
+          authResult = await authService.deleteCurrentUser()
         }
+        if (!authResult.success)
+          throw new Error(
+            authResult.error || 'Erro ao excluir usuário do sistema'
+          )
+        // 3. Logout e redirecionar
+        this.showNotification('Conta excluída com sucesso!', 'success')
+        setTimeout(() => {
+          window.location.href = '/login.html'
+        }, 1500)
+      } catch (err) {
+        this.showNotification(
+          'Erro ao excluir conta: ' + (err?.message || err),
+          'error'
+        )
+        confirmBtn.disabled = false
+        confirmBtn.textContent = 'Excluir Permanentemente'
       }
-    })
+    }
   }
 
   async exportData() {

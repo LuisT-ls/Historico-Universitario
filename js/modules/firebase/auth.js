@@ -256,6 +256,39 @@ class AuthService {
     }
   }
 
+  // Excluir usuário autenticado do Authentication
+  async deleteCurrentUser() {
+    try {
+      if (!this.currentUser) {
+        throw new Error('Usuário não autenticado')
+      }
+      await this.currentUser.delete()
+      this.currentUser = null
+      this.userData = null
+      this.notifyAuthStateChange()
+      return { success: true }
+    } catch (error) {
+      console.error('Erro ao excluir usuário do Authentication:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Reautenticar usuário com email e senha
+  async reauthenticate(email, password) {
+    try {
+      if (!this.currentUser) throw new Error('Usuário não autenticado')
+      const { EmailAuthProvider, reauthenticateWithCredential } = await import(
+        'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js'
+      )
+      const credential = EmailAuthProvider.credential(email, password)
+      await reauthenticateWithCredential(this.currentUser, credential)
+      return { success: true }
+    } catch (error) {
+      console.error('Erro ao reautenticar usuário:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
   // Verificar estado da autenticação
   onAuthStateChanged(callback) {
     this.authStateListeners.push(callback)
