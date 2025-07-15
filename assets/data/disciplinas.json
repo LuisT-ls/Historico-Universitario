@@ -8,7 +8,8 @@
     {
       "codigo": "CTIA02",
       "nome": "BASES EPISTEMOLÓGICAS DA CIÊNCIA",
-      "natureza": "OB"
+      "natureza": "OB",
+      "ch": 30
     },
     {
       "codigo": "CTIA03",
@@ -18,7 +19,8 @@
     {
       "codigo": "CTIA04",
       "nome": "ELEMENTOS ACADÊMICOS E PROFISSIONAIS EM C, T E I",
-      "natureza": "OB"
+      "natureza": "OB",
+      "ch": 30
     },
     {
       "codigo": "CTIA05",
@@ -38,7 +40,8 @@
     {
       "codigo": "CTIA08",
       "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO I",
-      "natureza": "OB"
+      "natureza": "OB",
+      "ch": 30
     },
     {
       "codigo": "CTIA09",
@@ -58,7 +61,8 @@
     {
       "codigo": "CTIA60",
       "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO II",
-      "natureza": "OB"
+      "natureza": "OB",
+      "ch": 30
     },
     {
       "codigo": "CTIA71",
@@ -445,7 +449,8 @@
     {
       "codigo": "CTIA02",
       "nome": "BASES EPISTEMOLÓGICAS DA CIÊNCIA",
-      "natureza": "OB"
+      "natureza": "OB",
+      "ch": 30
     },
     {
       "codigo": "CTIA03",
@@ -455,7 +460,8 @@
     {
       "codigo": "CTIA04",
       "nome": "ELEMENTOS ACADÊMICOS E PROFISSIONAIS EM C, T E I",
-      "natureza": "OB"
+      "natureza": "OB",
+      "ch": 30
     },
     {
       "codigo": "CTIA05",
@@ -475,7 +481,8 @@
     {
       "codigo": "CTIA08",
       "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO I",
-      "natureza": "OB"
+      "natureza": "OB",
+      "ch": 30
     },
     {
       "codigo": "CTIA09",
@@ -530,7 +537,8 @@
     {
       "codigo": "CTIA60",
       "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO II",
-      "natureza": "OB"
+      "natureza": "OB",
+      "ch": 30
     },
     {
       "codigo": "CTIA85",
@@ -792,7 +800,8 @@
     {
       "codigo": "CTIA02",
       "nome": "BASES EPISTEMOLÓGICAS DA CIÊNCIA",
-      "natureza": "OB"
+      "natureza": "OB",
+      "ch": 30
     },
     {
       "codigo": "CTIA03",
@@ -802,7 +811,8 @@
     {
       "codigo": "CTIA04",
       "nome": "ELEMENTOS ACADÊMICOS E PROFISSIONAIS EM C, T E I",
-      "natureza": "OB"
+      "natureza": "OB",
+      "ch": 30
     },
     {
       "codigo": "CTIA05",
@@ -822,7 +832,8 @@
     {
       "codigo": "CTIA08",
       "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO I",
-      "natureza": "OB"
+      "natureza": "OB",
+      "ch": 30
     },
     {
       "codigo": "CTIA10",
@@ -877,7 +888,8 @@
     {
       "codigo": "CTIA60",
       "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO II",
-      "natureza": "OB"
+      "natureza": "OB",
+      "ch": 30
     },
     {
       "codigo": "CTIA85",

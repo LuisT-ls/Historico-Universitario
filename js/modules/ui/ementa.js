@@ -642,9 +642,10 @@ function filtrarDisciplinas() {
   // Atualiza a visibilidade das seções
   secoesDisciplinas.forEach(secao => {
     const natureza = secao.dataset.natureza
-    const disciplinasNaSecao = secao.querySelectorAll(
-      '.disciplina-card[style="display: flex;"]'
-    )
+    // Corrigido: busca todos os cards visíveis, não apenas os com style exato
+    const disciplinasNaSecao = Array.from(
+      secao.querySelectorAll('.disciplina-card')
+    ).filter(card => card.style.display !== 'none')
 
     if (disciplinasNaSecao.length > 0) {
       secao.style.display = 'block'
