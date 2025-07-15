@@ -62,9 +62,14 @@ export function atualizarTabela(disciplinas, removerDisciplina) {
         <td>${pch}</td>
         <td>${disc.resultado}</td>
         <td>
-          <button class="remover" onclick="window.app.removerDisciplina(${indexNoArray})">
-            <i class="fas fa-trash-alt"></i>
-          </button>
+          <div class="acoes-disciplina">
+            <button class="btn-acao btn-editar" title="Editar disciplina" onclick="window.app.editarDisciplina(${indexNoArray})">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-acao btn-remover" title="Remover disciplina" onclick="window.app.removerDisciplina(${indexNoArray})">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
         </td>
       `
 

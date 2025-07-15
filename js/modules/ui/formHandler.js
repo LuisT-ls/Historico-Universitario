@@ -9,6 +9,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
   const naturezaSelect = document.getElementById('natureza')
   const periodoInput = document.getElementById('periodo')
   const notaContainer = notaInput.parentElement
+  const emCursoCheckbox = document.getElementById('emcurso')
 
   // Create popup element
   const popup = document.createElement('div')
@@ -65,8 +66,9 @@ export function setupFormHandlers(disciplinas, callbacks) {
   function updateNotaVisibility() {
     const isDispensada = dispensadaCheckbox.checked
     const isTrancamento = trancamentoCheckbox.checked
+    const isEmCurso = emCursoCheckbox.checked
 
-    if (isDispensada || isTrancamento) {
+    if (isDispensada || isTrancamento || isEmCurso) {
       notaContainer.style.display = 'none'
       notaInput.value = ''
     } else {
@@ -93,6 +95,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
     const isAC = naturezaSelect.value === 'AC'
     const isTrancamento = trancamentoCheckbox.checked
     const isDispensada = dispensadaCheckbox.checked
+    const isEmCurso = emCursoCheckbox.checked
 
     // Código: obrigatório para qualquer natureza exceto AC
     if (isAC) {
@@ -101,8 +104,8 @@ export function setupFormHandlers(disciplinas, callbacks) {
       codigoInput.setAttribute('required', '')
     }
 
-    // Nota: obrigatória para qualquer natureza exceto AC, trancamento ou dispensada
-    if (isAC || isTrancamento || isDispensada) {
+    // Nota: obrigatória para qualquer natureza exceto AC, trancamento, dispensada ou em curso
+    if (isAC || isTrancamento || isDispensada || isEmCurso) {
       notaInput.removeAttribute('required')
     } else {
       notaInput.setAttribute('required', '')
@@ -142,6 +145,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
     notaContainer.style.display = 'block'
     trancamentoCheckbox.checked = false
     dispensadaCheckbox.checked = false
+    emCursoCheckbox.checked = false
 
     // Reabilitar campos
     naturezaSelect.disabled = false
@@ -163,7 +167,8 @@ export function setupFormHandlers(disciplinas, callbacks) {
     if (
       e.target.value !== 'AC' &&
       !dispensadaCheckbox.checked &&
-      !trancamentoCheckbox.checked
+      !trancamentoCheckbox.checked &&
+      !emCursoCheckbox.checked
     ) {
       notaContainer.style.display = 'block'
     }
@@ -173,6 +178,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
     if (e.target.checked) {
       camposSemTrancamento.style.display = 'none'
       dispensadaCheckbox.checked = false
+      emCursoCheckbox.checked = false
     } else {
       camposSemTrancamento.style.display = 'flex'
     }
@@ -184,6 +190,22 @@ export function setupFormHandlers(disciplinas, callbacks) {
       notaInput.value = ''
       notaContainer.style.display = 'none'
       trancamentoCheckbox.checked = false
+      emCursoCheckbox.checked = false
+    } else {
+      // Mostrar nota apenas se não for AC
+      if (naturezaSelect.value !== 'AC') {
+        notaContainer.style.display = 'block'
+      }
+    }
+    updateRequiredFields()
+  })
+
+  emCursoCheckbox.addEventListener('change', e => {
+    if (e.target.checked) {
+      notaInput.value = ''
+      notaContainer.style.display = 'none'
+      trancamentoCheckbox.checked = false
+      dispensadaCheckbox.checked = false
     } else {
       // Mostrar nota apenas se não for AC
       if (naturezaSelect.value !== 'AC') {
@@ -208,6 +230,70 @@ export function setupFormHandlers(disciplinas, callbacks) {
     const isAC = naturezaSelect.value === 'AC'
     const codigo = isAC ? 'AC' : document.getElementById('codigo').value
 
+    // Se estiver em modo de edição, atualizar a disciplina existente
+    const appInstance = window.app && window.app.__appInstance
+    if (appInstance && typeof appInstance.indiceEdicao === 'number') {
+      const index = appInstance.indiceEdicao
+      if (index >= 0 && index < disciplinas.length) {
+        // Atualizar os dados da disciplina
+        const disciplinaEditada = disciplinas[index]
+        disciplinaEditada.periodo = document.getElementById('periodo').value
+        disciplinaEditada.codigo = codigo
+        disciplinaEditada.nome = document.getElementById('nome').value
+        disciplinaEditada.natureza = document.getElementById('natureza').value
+        disciplinaEditada.trancamento =
+          document.getElementById('trancamento').checked
+        disciplinaEditada.dispensada =
+          document.getElementById('dispensada').checked
+        disciplinaEditada.emcurso = document.getElementById('emcurso').checked
+        if (disciplinaEditada.trancamento) {
+          disciplinaEditada.ch = 0
+          disciplinaEditada.nota = 0
+          disciplinaEditada.resultado = 'TR'
+        } else if (disciplinaEditada.dispensada) {
+          disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
+          disciplinaEditada.nota = 0
+          disciplinaEditada.resultado = 'AP'
+        } else if (disciplinaEditada.emcurso) {
+          disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
+          disciplinaEditada.nota = null
+          disciplinaEditada.resultado = 'EC'
+        } else if (isAC) {
+          disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
+          disciplinaEditada.nota = null
+          disciplinaEditada.resultado = 'AP'
+        } else {
+          disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
+          disciplinaEditada.nota = parseFloat(
+            document.getElementById('nota').value
+          )
+          disciplinaEditada.resultado =
+            disciplinaEditada.nota >= 5 ? 'AP' : 'RR'
+        }
+        // Salvar o semestre atual no localStorage
+        localStorage.setItem(
+          'ultimoSemestreDigitado',
+          disciplinaEditada.periodo
+        )
+        // Chamar o callback para atualizar a interface
+        if (callbacks && typeof callbacks.onSubmit === 'function') {
+          callbacks.onSubmit(disciplinaEditada)
+        }
+        // Limpar modo de edição
+        delete appInstance.indiceEdicao
+        // Restaurar texto do botão
+        const btn = document.querySelector(
+          '#disciplinaForm button[type="submit"]'
+        )
+        if (btn)
+          btn.innerHTML =
+            '<i class="fas fa-plus-circle"></i> Adicionar Disciplina'
+        // Reset inteligente do formulário
+        resetFormInteligente()
+        return
+      }
+    }
+
     if (!isAC) {
       // Só bloqueia se já houver disciplina aprovada
       const disciplinaAprovada = disciplinas.find(
@@ -226,7 +312,8 @@ export function setupFormHandlers(disciplinas, callbacks) {
       nome: document.getElementById('nome').value,
       natureza: document.getElementById('natureza').value,
       trancamento: document.getElementById('trancamento').checked,
-      dispensada: document.getElementById('dispensada').checked
+      dispensada: document.getElementById('dispensada').checked,
+      emcurso: document.getElementById('emcurso').checked
     }
 
     if (disciplina.trancamento) {
@@ -237,6 +324,10 @@ export function setupFormHandlers(disciplinas, callbacks) {
       disciplina.ch = parseInt(document.getElementById('ch').value)
       disciplina.nota = 0
       disciplina.resultado = 'AP'
+    } else if (disciplina.emcurso) {
+      disciplina.ch = parseInt(document.getElementById('ch').value)
+      disciplina.nota = null
+      disciplina.resultado = 'EC' // Em Curso
     } else if (isAC) {
       disciplina.ch = parseInt(document.getElementById('ch').value)
       disciplina.nota = null

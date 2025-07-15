@@ -247,6 +247,9 @@ class App {
         const token = csrfProtection.getToken()
         this.removerDisciplina(index, token)
       },
+      editarDisciplina: index => {
+        this.prepararEdicaoDisciplina(index)
+      },
       simulation: {
         removerDisciplinaSimulada: index => {
           if (this.simulation) {
@@ -299,6 +302,34 @@ class App {
       this.simulation.simulator.disciplinasCursadas = this.disciplinas
       this.simulation.atualizarSimulacao()
     }
+  }
+
+  prepararEdicaoDisciplina(index) {
+    const disciplina = this.disciplinas[index]
+    if (!disciplina) return
+    // Preencher o formulário com os dados da disciplina
+    document.getElementById('periodo').value = disciplina.periodo
+    document.getElementById('codigo').value = disciplina.codigo
+    document.getElementById('nome').value = disciplina.nome
+    document.getElementById('natureza').value = disciplina.natureza
+    document.getElementById('ch').value = disciplina.ch
+    document.getElementById('nota').value = disciplina.nota ?? ''
+    document.getElementById('trancamento').checked = !!disciplina.trancamento
+    document.getElementById('dispensada').checked = !!disciplina.dispensada
+    document.getElementById('emcurso').checked = !!disciplina.emcurso
+
+    // Salvar o índice em edição em uma propriedade temporária
+    this.indiceEdicao = index
+
+    // Dar foco no formulário
+    document.getElementById('codigo').focus()
+    // Scroll suave até o formulário
+    const formContainer = document.querySelector('.form-container')
+    if (formContainer) formContainer.scrollIntoView({ behavior: 'smooth' })
+
+    // Trocar o texto do botão para 'Salvar Edição'
+    const btn = document.querySelector('#disciplinaForm button[type="submit"]')
+    if (btn) btn.innerHTML = '<i class="fas fa-save"></i> Salvar Edição'
   }
 
   // Sincronizar remoção de disciplina com Firestore (versão otimizada)
