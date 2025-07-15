@@ -42,6 +42,7 @@
   </head>
   <body>
     <main class="login-container" aria-label="Acesso ao sistema">
+      <!-- Fundo de login -->
       <div class="login-background" aria-hidden="true">
         <div class="shapes"></div>
       </div>
@@ -69,6 +70,7 @@
         </a>
       </aside>
 
+      <!-- Formulário de login -->
       <section class="login-box" aria-labelledby="login-title">
         <header class="login-header">
           <div class="logo-animation" aria-hidden="true">
@@ -115,6 +117,13 @@
                   autocomplete="current-password"
                   aria-label="Senha"
                 />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  aria-label="Mostrar senha"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
                 <label for="password">Senha</label>
                 <div class="input-underline"></div>
               </div>
@@ -220,6 +229,7 @@
       </div>
     </div>
 
+    <!-- Popup de registro -->
     <div
       class="popup-overlay"
       id="registerPopup"
@@ -283,6 +293,13 @@
                   autocomplete="new-password"
                   aria-label="Senha"
                 />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  aria-label="Mostrar senha"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
                 <label for="registerPassword">Senha</label>
                 <div class="input-underline"></div>
               </div>
@@ -299,6 +316,13 @@
                   autocomplete="new-password"
                   aria-label="Confirmar senha"
                 />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  aria-label="Mostrar senha"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
                 <label for="confirmPassword">Confirmar senha</label>
                 <div class="input-underline"></div>
               </div>

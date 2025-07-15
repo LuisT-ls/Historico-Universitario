@@ -20,6 +20,27 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   })
 
+  // Toggle password visibility para todos os campos de senha
+  document.querySelectorAll('.toggle-password').forEach(toggleButton => {
+    toggleButton.addEventListener('click', function () {
+      const passwordInput = this.parentElement.querySelector(
+        'input[type="password"], input[type="text"]'
+      )
+      const icon = this.querySelector('i')
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text'
+        icon.classList.remove('fa-eye')
+        icon.classList.add('fa-eye-slash')
+        this.setAttribute('aria-label', 'Ocultar senha')
+      } else {
+        passwordInput.type = 'password'
+        icon.classList.remove('fa-eye-slash')
+        icon.classList.add('fa-eye')
+        this.setAttribute('aria-label', 'Mostrar senha')
+      }
+    })
+  })
+
   // Login form handler
   document
     .getElementById('loginForm')
