@@ -215,7 +215,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
     updateRequiredFields()
   })
 
-  form.addEventListener('submit', function (e) {
+  form.addEventListener('submit', async function (e) {
     e.preventDefault()
 
     // Forçar uma última verificação dos campos obrigatórios
@@ -258,38 +258,36 @@ export function setupFormHandlers(disciplinas, callbacks) {
           disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
           disciplinaEditada.nota = null
           disciplinaEditada.resultado = 'EC'
-        } else if (isAC) {
-          disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
-          disciplinaEditada.nota = null
-          disciplinaEditada.resultado = 'AP'
         } else {
           disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
-          disciplinaEditada.nota = parseFloat(
-            document.getElementById('nota').value
-          )
-          disciplinaEditada.resultado =
-            disciplinaEditada.nota >= 5 ? 'AP' : 'RR'
+          disciplinaEditada.nota = parseFloat(document.getElementById('nota').value)
+          disciplinaEditada.resultado = undefined
         }
-        // Salvar o semestre atual no localStorage
-        localStorage.setItem(
-          'ultimoSemestreDigitado',
-          disciplinaEditada.periodo
-        )
-        // Chamar o callback para atualizar a interface
-        if (callbacks && typeof callbacks.onSubmit === 'function') {
+
+        // Salvar no Firestore se houver id
+        if (disciplinaEditada.id && window.dataService && typeof window.dataService.updateDiscipline === 'function') {
+          try {
+            await window.dataService.updateDiscipline(disciplinaEditada.id, disciplinaEditada)
+            showNotification('Disciplina atualizada com sucesso no servidor!')
+            // Recarregar disciplinas do Firestore para garantir atualização
+            if (typeof appInstance.loadUserData === 'function') {
+              await appInstance.loadUserData()
+            }
+          } catch (err) {
+            showNotification('Erro ao atualizar disciplina no servidor: ' + (err?.message || err))
+          }
+        }
+
+        // Atualizar localStorage e interface
+        if (typeof callbacks?.onSubmit === 'function') {
           callbacks.onSubmit(disciplinaEditada)
         }
-        // Limpar modo de edição
-        delete appInstance.indiceEdicao
-        // Restaurar texto do botão
-        const btn = document.querySelector(
-          '#disciplinaForm button[type="submit"]'
-        )
-        if (btn)
-          btn.innerHTML =
-            '<i class="fas fa-plus-circle"></i> Adicionar Disciplina'
-        // Reset inteligente do formulário
-        resetFormInteligente()
+        // Resetar modo edição
+        appInstance.indiceEdicao = undefined
+        // Resetar botão
+        const btn = document.querySelector('#disciplinaForm button[type="submit"]')
+        if (btn) btn.innerHTML = '<i class="fas fa-plus-circle"></i> Adicionar Disciplina'
+        form.reset()
         return
       }
     }
