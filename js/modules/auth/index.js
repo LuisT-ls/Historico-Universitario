@@ -201,6 +201,7 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault()
     console.log('Abrindo popup de registro')
     openPopup(registerPopup)
+    initializePopupInputs(registerPopup) // Garante listeners sempre que abrir
   })
 
   // Event listeners para fechar popups
@@ -355,7 +356,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const toggleButtons = popup.querySelectorAll('.toggle-password')
     toggleButtons.forEach(toggleButton => {
       toggleButton.addEventListener('click', function () {
-        const passwordInput = this.previousElementSibling
+        const passwordInput = this.parentElement.querySelector(
+          'input[type="password"], input[type="text"]'
+        )
         const icon = this.querySelector('i')
 
         if (passwordInput.type === 'password') {
@@ -372,7 +375,9 @@ document.addEventListener('DOMContentLoaded', function () {
       })
 
       // Adicionar aria-label inicial
-      const passwordInput = toggleButton.previousElementSibling
+      const passwordInput = toggleButton.parentElement.querySelector(
+        'input[type="password"], input[type="text"]'
+      )
       if (passwordInput && passwordInput.type === 'password') {
         toggleButton.setAttribute('aria-label', 'Mostrar senha')
       } else {
