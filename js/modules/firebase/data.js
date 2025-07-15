@@ -866,6 +866,39 @@ class DataService {
       return { success: false, error: error.message }
     }
   }
+
+  // Excluir todos os dados do usuário no Firestore
+  async deleteUserAccount() {
+    try {
+      this.checkAuth()
+      const uid = this.currentUser.uid
+      // Coleções e documentos a serem removidos
+      const batchDeletes = []
+      // 1. Disciplinas
+      const disciplinasSnap = await getDocs(
+        query(collection(db, 'disciplines'), where('userId', '==', uid))
+      )
+      disciplinasSnap.forEach(docRef => {
+        batchDeletes.push(deleteDoc(doc(db, 'disciplines', docRef.id)))
+      })
+      // 2. Histórico acadêmico
+      batchDeletes.push(deleteDoc(doc(db, 'academicHistory', uid)))
+      // 3. Requisitos de formatura
+      batchDeletes.push(deleteDoc(doc(db, 'graduationRequirements', uid)))
+      // 4. Resumo
+      batchDeletes.push(deleteDoc(doc(db, 'summaries', uid)))
+      // 5. Backup
+      batchDeletes.push(deleteDoc(doc(db, 'backups', uid)))
+      // 6. Perfil do usuário
+      batchDeletes.push(deleteDoc(doc(db, 'users', uid)))
+      // Executar todas as deleções
+      await Promise.all(batchDeletes)
+      return { success: true }
+    } catch (error) {
+      console.error('Erro ao excluir dados do usuário:', error)
+      return { success: false, error: error.message }
+    }
+  }
 }
 
 // Instância global do serviço de dados
