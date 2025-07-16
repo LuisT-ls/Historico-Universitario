@@ -127,22 +127,26 @@
     {
       "codigo": "CTIA31",
       "nome": "CÁLCULO A",
-      "natureza": "OG"
+      "natureza": "OG",
+      "ch": 75
     },
     {
       "codigo": "CTIA66",
       "nome": "CÁLCULO B",
-      "natureza": "OG"
+      "natureza": "OG",
+      "ch": 75
     },
     {
       "codigo": "CTIA33",
       "nome": "CÁLCULO C",
-      "natureza": "OG"
+      "natureza": "OG",
+      "ch": 75
     },
     {
       "codigo": "CTIB26",
       "nome": "CÁLCULO D",
-      "natureza": "OG"
+      "natureza": "OG",
+      "ch": 75
     },
     {
       "codigo": "CTIA34",
@@ -442,6 +446,12 @@
       "codigo": "CTIA82",
       "nome": "ACCS: PRODUÇÃO E CIRCULAÇÃO DE DIVULGAÇÃO CIENTÍFICA",
       "natureza": "OX"
+    },
+    {
+      "codigo": "CTIA32",
+      "nome": "INTRODUÇÃO À CIÊNCIA DE DADOS",
+      "natureza": "OG",
+      "ch": 30
     }
   ],
   "ENG_PROD": [
