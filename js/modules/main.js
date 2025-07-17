@@ -139,7 +139,15 @@ class MainApp {
             // Limpar dados locais
             localStorage.removeItem('theme')
             sessionStorage.clear()
-
+            // Limpar disciplinas de todos os cursos e registro de remoções
+            Object.keys(localStorage).forEach(key => {
+              if (
+                key.startsWith('disciplinas_') ||
+                key === 'removalsRegistry'
+              ) {
+                localStorage.removeItem(key)
+              }
+            })
             // Redirecionar para a página principal
             window.location.href = '/'
           } else {
