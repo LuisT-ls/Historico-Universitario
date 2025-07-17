@@ -21,6 +21,7 @@
 @import './modules/components/export.css';
 @import './modules/components/clean.css';
 @import './modules/components/table-header.css';
+@import './modules/components/login-toast.css';
 
 /* Importing all layouts */
 @import './modules/layout/container.css';

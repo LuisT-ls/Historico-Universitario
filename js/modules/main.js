@@ -1,6 +1,7 @@
 import authService from './firebase/auth.js'
 import dataService from './firebase/data.js'
 import { initializeSyncNonBlocking } from './firebase/sync-manager.js'
+import { carregarDisciplinas } from './storage.js'
 
 class MainApp {
   constructor() {
@@ -30,29 +31,69 @@ class MainApp {
     const userNav = document.querySelector('.user-navigation')
     if (userNav) {
       userNav.style.display = 'block'
+      // Restaurar menu completo
+      const userMenu = userNav.querySelector('.user-menu')
+      if (userMenu) {
+        userMenu.innerHTML = `
+          <li role="none">
+            <a href="profile.html" class="menu-item" role="menuitem">
+              <i class="fas fa-user-cog"></i>
+              Meu Perfil
+            </a>
+          </li>
+          <li role="none">
+            <a href="#" class="menu-item" role="menuitem" id="changePasswordBtn">
+              <i class="fas fa-key"></i>
+              Alterar Senha
+            </a>
+          </li>
+          <li role="none">
+            <button class="menu-item logout-button" role="menuitem" id="logoutBtn">
+              <i class="fas fa-sign-out-alt"></i>
+              Sair
+            </button>
+          </li>
+        `
+      }
     }
-
     // Atualizar informações do usuário
     this.updateUserInfo()
-
     // Configurar menu do usuário
     this.setupUserMenu()
-
     // Inicializar sincronização de forma não bloqueante
     initializeSyncNonBlocking()
+    // Recarregar dados do Firebase e atualizar interface
+    this.carregarDisciplinasDoCurso(true)
   }
 
   showUnauthenticatedUI() {
-    // Ocultar seção do usuário
+    // Exibir seção do usuário mesmo sem login
     const userNav = document.querySelector('.user-navigation')
     if (userNav) {
-      userNav.style.display = 'none'
+      userNav.style.display = 'block'
+      // Alterar o menu para mostrar apenas o botão de login
+      const userNameElement = document.getElementById('userName')
+      if (userNameElement) userNameElement.textContent = 'Visitante'
+      const userMenu = userNav.querySelector('.user-menu')
+      if (userMenu) {
+        userMenu.innerHTML = `
+          <li role="none">
+            <button class="menu-item login-button" role="menuitem" id="loginBtn">
+              <i class="fas fa-sign-in-alt"></i> Entrar
+            </button>
+          </li>
+        `
+        // Adicionar evento para redirecionar ao login
+        const loginBtn = document.getElementById('loginBtn')
+        if (loginBtn) {
+          loginBtn.onclick = () => {
+            window.location.href = '/login.html'
+          }
+        }
+      }
     }
-
-    // Redirecionar para login se não estiver na página de login
-    if (!window.location.pathname.includes('login.html')) {
-      window.location.href = '/login.html'
-    }
+    // Importar dados do localStorage e atualizar interface
+    this.carregarDisciplinasDoCurso(false)
   }
 
   updateUserInfo() {
@@ -99,8 +140,8 @@ class MainApp {
             localStorage.removeItem('theme')
             sessionStorage.clear()
 
-            // Redirecionar para login
-            window.location.href = '/login.html'
+            // Redirecionar para a página principal
+            window.location.href = '/'
           } else {
             console.error('Erro no logout:', result.error)
             this.showNotification(
@@ -397,6 +438,51 @@ class MainApp {
         }, 300)
       }
     }, 5000)
+  }
+
+  // Modificar carregarDisciplinasDoCurso para aceitar parâmetro de origem
+  async carregarDisciplinasDoCurso(fromFirebase = null) {
+    if (
+      fromFirebase === true &&
+      window.dataService &&
+      window.dataService.currentUser
+    ) {
+      // Buscar do Firebase
+      try {
+        const result = await window.dataService.getUserDisciplines()
+        if (result.success) {
+          this.disciplinas = result.data.filter(
+            d => d.curso === this.cursoAtual
+          )
+        } else {
+          this.disciplinas = []
+        }
+      } catch (e) {
+        this.disciplinas = []
+      }
+    } else if (fromFirebase === false) {
+      // Buscar do localStorage
+      this.disciplinas = carregarDisciplinas(this.cursoAtual)
+    } else {
+      // Comportamento padrão (detecta login)
+      if (window.dataService && window.dataService.currentUser) {
+        try {
+          const result = await window.dataService.getUserDisciplines()
+          if (result.success) {
+            this.disciplinas = result.data.filter(
+              d => d.curso === this.cursoAtual
+            )
+          } else {
+            this.disciplinas = []
+          }
+        } catch (e) {
+          this.disciplinas = []
+        }
+      } else {
+        this.disciplinas = carregarDisciplinas(this.cursoAtual)
+      }
+    }
+    this.atualizarTudo()
   }
 }
 

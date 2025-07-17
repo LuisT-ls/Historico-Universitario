@@ -682,6 +682,65 @@ document.addEventListener('DOMContentLoaded', function () {
   })
 })
 
+// Função para exibir toast de sugestão de login
+function showLoginSuggestionToast() {
+  // Não mostrar se já foi fechado recentemente nesta sessão
+  const lastClosed = sessionStorage.getItem('loginToastClosedAt')
+  const now = Date.now()
+  if (lastClosed && now - parseInt(lastClosed, 10) < 5 * 60 * 1000) return
+  // Corrigido: só mostrar se NÃO estiver logado
+  if (window.dataService && window.dataService.currentUser) return
+  if (document.getElementById('login-suggestion-toast')) return
+
+  const toast = document.createElement('div')
+  toast.id = 'login-suggestion-toast'
+  toast.className = 'login-toast'
+  toast.innerHTML = `
+    <span class="login-toast-emoji">☁️</span>
+    <span class="login-toast-msg">Faça login para salvar seu histórico na nuvem!</span>
+    <button class="login-toast-btn">Entrar</button>
+    <button class="login-toast-close" title="Fechar">&times;</button>
+  `
+  document.body.appendChild(toast)
+
+  // Animação de entrada
+  setTimeout(() => toast.classList.add('show'), 100)
+
+  // Botão de login
+  toast.querySelector('.login-toast-btn').onclick = () => {
+    window.location.href = '/login.html'
+  }
+  // Botão de fechar
+  toast.querySelector('.login-toast-close').onclick = () => {
+    toast.classList.remove('show')
+    sessionStorage.setItem('loginToastClosedAt', String(Date.now()))
+    setTimeout(() => toast.remove(), 300)
+  }
+  // Fechar automaticamente após 10 segundos
+  setTimeout(() => {
+    if (document.body.contains(toast)) {
+      toast.classList.remove('show')
+      sessionStorage.setItem('loginToastClosedAt', String(Date.now()))
+      setTimeout(() => toast.remove(), 300)
+    }
+  }, 10000)
+}
+
+// Exibir toast após inicialização da aplicação e a cada 5 minutos
+function scheduleLoginToast() {
+  // Exibir o toast 15 segundos após o carregamento da página
+  setTimeout(() => {
+    showLoginSuggestionToast()
+    setInterval(() => {
+      showLoginSuggestionToast()
+    }, 5 * 60 * 1000) // 5 minutos
+  }, 15000) // 15 segundos
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  scheduleLoginToast()
+})
+
 // Adiciona os estilos necessários
 const style = document.createElement('style')
 style.textContent = `

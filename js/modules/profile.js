@@ -24,8 +24,8 @@ class ProfileManager {
         this.loadUserData()
         this.setupEventListeners()
       } else {
-        // Usuário não está logado, redirecionar para login
-        window.location.href = '/login.html'
+        // Usuário não está logado, não redirecionar mais para login
+        // Podemos exibir um aviso ou popup aqui futuramente
       }
     })
 
