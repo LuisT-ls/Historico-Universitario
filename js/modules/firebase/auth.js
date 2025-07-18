@@ -289,17 +289,34 @@ class AuthService {
     }
   }
 
+  // Reautenticar usuário com Google
+  async reauthenticateWithGoogle() {
+    try {
+      const { GoogleAuthProvider, reauthenticateWithPopup } = await import(
+        'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js'
+      )
+      const provider = new GoogleAuthProvider()
+      await reauthenticateWithPopup(this.currentUser, provider)
+      return { success: true }
+    } catch (error) {
+      console.error('Erro ao reautenticar com Google:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
   // Revogar todas as sessões do usuário (forçar logout em todos os dispositivos)
   async revokeAllSessions() {
     try {
-      if (!this.currentUser) throw new Error('Usuário não autenticado');
+      if (!this.currentUser) throw new Error('Usuário não autenticado')
       // Atualiza o displayName para forçar refresh dos tokens
-      await this.currentUser.updateProfile({ displayName: this.currentUser.displayName || 'Usuário' });
-      await this.logout();
-      return { success: true };
+      await this.currentUser.updateProfile({
+        displayName: this.currentUser.displayName || 'Usuário'
+      })
+      await this.logout()
+      return { success: true }
     } catch (error) {
-      console.error('Erro ao revogar sessões:', error);
-      return { success: false, error: error.message };
+      console.error('Erro ao revogar sessões:', error)
+      return { success: false, error: error.message }
     }
   }
 

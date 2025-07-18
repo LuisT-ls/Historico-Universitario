@@ -471,12 +471,24 @@ class ProfileManager {
         // 2. Excluir usuário do Authentication
         let authResult = await authService.deleteCurrentUser()
         if (
+          isGoogleUser &&
+          !authResult.success &&
+          authResult.error &&
+          authResult.error.includes('auth/requires-recent-login')
+        ) {
+          // Reautenticar com popup Google
+          const reauth = await authService.reauthenticateWithGoogle()
+          if (!reauth.success)
+            throw new Error('Falha na reautenticação Google: ' + reauth.error)
+          // Tentar excluir novamente
+          authResult = await authService.deleteCurrentUser()
+        } else if (
           !isGoogleUser &&
           !authResult.success &&
           authResult.error &&
           authResult.error.includes('auth/requires-recent-login')
         ) {
-          // Reautenticar
+          // Reautenticar com senha
           const email =
             this.currentUser?.email ||
             (authService.currentUser && authService.currentUser.email)
