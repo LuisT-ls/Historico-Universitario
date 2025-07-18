@@ -403,6 +403,20 @@ class ProfileManager {
     const cancelBtn = document.getElementById('cancelDeleteBtn')
     let typed = ''
 
+    // Detectar se o usuário é Google
+    let isGoogleUser = false
+    if (this.currentUser && this.currentUser.providerData) {
+      isGoogleUser = this.currentUser.providerData.some(
+        p => p.providerId === 'google.com'
+      )
+    }
+    // Esconder ou mostrar campo de senha conforme o provedor
+    if (isGoogleUser) {
+      passwordInput.style.display = 'none'
+    } else {
+      passwordInput.style.display = 'block'
+    }
+
     // Bloquear colar
     input.addEventListener('paste', e => {
       e.preventDefault()
@@ -412,11 +426,15 @@ class ProfileManager {
       )
     })
 
-    // Só habilita se digitar EXCLUIR e senha não está vazia
+    // Só habilita se digitar EXCLUIR e senha não está vazia (exceto Google)
     function updateConfirmState() {
-      confirmBtn.disabled = !(
-        input.value === 'EXCLUIR' && passwordInput.value.length > 0
-      )
+      if (isGoogleUser) {
+        confirmBtn.disabled = !(input.value === 'EXCLUIR')
+      } else {
+        confirmBtn.disabled = !(
+          input.value === 'EXCLUIR' && passwordInput.value.length > 0
+        )
+      }
     }
     input.addEventListener('input', updateConfirmState)
     passwordInput.addEventListener('input', updateConfirmState)
@@ -428,6 +446,12 @@ class ProfileManager {
       confirmBtn.disabled = true
       modal.style.display = 'block'
       input.focus()
+      // Atualizar visibilidade do campo senha
+      if (isGoogleUser) {
+        passwordInput.style.display = 'none'
+      } else {
+        passwordInput.style.display = 'block'
+      }
     }
 
     // Fechar modal
@@ -447,6 +471,7 @@ class ProfileManager {
         // 2. Excluir usuário do Authentication
         let authResult = await authService.deleteCurrentUser()
         if (
+          !isGoogleUser &&
           !authResult.success &&
           authResult.error &&
           authResult.error.includes('auth/requires-recent-login')
