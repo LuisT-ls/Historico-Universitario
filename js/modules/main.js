@@ -207,10 +207,10 @@ class MainApp {
 
   async handleDisciplineSubmit() {
     if (!this.currentUser) {
-      this.showNotification(
-        'Você precisa estar logado para adicionar disciplinas.',
-        'error'
-      )
+      // this.showNotification(
+      //   'Você precisa estar logado para adicionar disciplinas.',
+      //   'error'
+      // )
       return
     }
 
