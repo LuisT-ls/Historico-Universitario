@@ -401,43 +401,69 @@ export function setupFormHandlers(disciplinas, callbacks) {
       disciplina.ch = parseInt(document.getElementById('ch').value)
       disciplina.nota = 0
       disciplina.resultado = 'AP'
+    } else if (
+      document.getElementById('nota').value !== '' &&
+      !isNaN(parseFloat(document.getElementById('nota').value))
+    ) {
+      disciplina.ch = parseInt(document.getElementById('ch').value)
+      disciplina.nota = parseFloat(document.getElementById('nota').value)
+      disciplina.resultado = disciplina.nota >= 5 ? 'AP' : 'RR'
     } else if (disciplina.emcurso) {
       disciplina.ch = parseInt(document.getElementById('ch').value)
       disciplina.nota = null
-      disciplina.resultado = 'EC' // Em Curso
+      disciplina.resultado = 'EC'
     } else if (isAC) {
       disciplina.ch = parseInt(document.getElementById('ch').value)
       disciplina.nota = null
       disciplina.resultado = 'AP'
     } else {
       disciplina.ch = parseInt(document.getElementById('ch').value)
-      disciplina.nota = parseFloat(document.getElementById('nota').value)
-      disciplina.resultado = disciplina.nota >= 5 ? 'AP' : 'RR'
+      disciplina.nota = null
+      disciplina.resultado = undefined
     }
 
-    // Adiciona a disciplina ao array passado por referência
+    // Garantir que o curso seja incluído
+    if (appInstance && appInstance.cursoAtual) {
+      disciplina.curso = appInstance.cursoAtual
+    } else {
+      disciplina.curso = document.getElementById('curso').value || 'BICTI'
+    }
+
+    // Adicionar ao array local
     disciplinas.push(disciplina)
-    console.log(
-      `Disciplina adicionada: ${disciplina.codigo}, Array agora tem ${disciplinas.length} itens`
-    )
-
-    // Salva o semestre atual no localStorage
-    localStorage.setItem('ultimoSemestreDigitado', disciplina.periodo)
-
-    // Chama o callback após adicionar a disciplina
-    if (callbacks && typeof callbacks.onSubmit === 'function') {
-      callbacks.onSubmit(disciplina)
+    if (typeof salvarDisciplinas === 'function') {
+      salvarDisciplinas(disciplinas, disciplina.curso)
+    }
+    if (appInstance && typeof appInstance.atualizarTudo === 'function') {
+      appInstance.atualizarTudo()
     }
 
-    // Reset inteligente do formulário - GARANTIR que seja chamado
-    console.log('Chamando resetFormInteligente após adicionar disciplina')
-    resetFormInteligente()
+    // Adicionar ao Firebase se logado
+    if (
+      window.dataService &&
+      window.dataService.currentUser &&
+      typeof window.dataService.addDiscipline === 'function'
+    ) {
+      try {
+        const result = await window.dataService.addDiscipline(disciplina)
+        if (result.success) {
+          showNotification('Disciplina adicionada ao servidor!', 'success')
+        } else {
+          showNotification(
+            'Erro ao adicionar disciplina no servidor: ' + result.error,
+            'error'
+          )
+        }
+      } catch (err) {
+        showNotification(
+          'Erro ao adicionar disciplina no servidor: ' + (err?.message || err),
+          'error'
+        )
+      }
+    }
 
-    // Verificar se o reset funcionou
-    setTimeout(() => {
-      console.log('Verificação após reset - Período:', periodoInput.value)
-      console.log('Verificação após reset - Natureza:', naturezaSelect.value)
-    }, 100)
+    // Reset inteligente do formulário (mantém semestre)
+    resetFormInteligente()
   })
 
   // Inicializar campos obrigatórios na carga do formulário

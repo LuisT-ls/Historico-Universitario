@@ -185,13 +185,8 @@ class MainApp {
 
   setupFormHandlers() {
     // Formulário de disciplina
-    const disciplinaForm = document.getElementById('disciplinaForm')
-    if (disciplinaForm) {
-      disciplinaForm.addEventListener('submit', async e => {
-        e.preventDefault()
-        await this.handleDisciplineSubmit()
-      })
-    }
+    // Removido o eventListener duplicado do submit
+    // O submit será tratado apenas pelo formHandler
 
     // Botão de limpar histórico
     const limparBtn = document.getElementById('limparBtn')
@@ -205,47 +200,7 @@ class MainApp {
     this.setupModalHandlers()
   }
 
-  async handleDisciplineSubmit() {
-    if (!this.currentUser) {
-      // this.showNotification(
-      //   'Você precisa estar logado para adicionar disciplinas.',
-      //   'error'
-      // )
-      return
-    }
-
-    const formData = new FormData(document.getElementById('disciplinaForm'))
-    const disciplineData = {
-      periodo: formData.get('periodo'),
-      codigo: formData.get('codigo'),
-      nome: formData.get('nome'),
-      natureza: formData.get('natureza'),
-      creditos: parseInt(formData.get('creditos')) || 0,
-      horas: parseInt(formData.get('horas')) || 0,
-      nota: parseFloat(formData.get('nota')) || 0,
-      status: formData.get('status') || 'completed',
-      curso: document.getElementById('curso').value
-    }
-
-    try {
-      const result = await dataService.addDiscipline(disciplineData)
-      if (result.success) {
-        this.showNotification('Disciplina adicionada com sucesso!', 'success')
-        document.getElementById('disciplinaForm').reset()
-        await this.loadUserData()
-      } else {
-        this.showNotification(
-          'Erro ao adicionar disciplina: ' + result.error,
-          'error'
-        )
-      }
-    } catch (error) {
-      this.showNotification(
-        'Erro ao adicionar disciplina: ' + error.message,
-        'error'
-      )
-    }
-  }
+  // Remover a função handleDisciplineSubmit, pois o submit será tratado pelo formHandler
 
   async loadUserData() {
     try {
