@@ -19,10 +19,8 @@ export function setupFormHandlers(disciplinas, callbacks) {
   popup.className = 'notification-popup'
   document.body.appendChild(popup)
 
-  function showNotification(message) {
-    popup.textContent = message
-    popup.classList.add('show')
-    setTimeout(() => popup.classList.remove('show'), 3000)
+  function showNotification(message, type = 'info') {
+    window.showNotification(message, type)
   }
 
   // Função para obter o semestre mais recente das disciplinas

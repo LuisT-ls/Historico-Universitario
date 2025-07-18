@@ -195,7 +195,7 @@ class ProfileManager {
         try {
           // Revogar todos os tokens de refresh do usuário
           await authService.revokeAllSessions()
-          this.showNotification(
+          window.showNotification(
             'Todas as sessões foram encerradas. Faça login novamente para continuar.',
             'success'
           )
@@ -203,7 +203,7 @@ class ProfileManager {
             window.location.href = '/login.html'
           }, 1500)
         } catch (err) {
-          this.showNotification(
+          window.showNotification(
             'Erro ao encerrar sessões: ' + (err?.message || err),
             'error'
           )
@@ -239,18 +239,18 @@ class ProfileManager {
         this.updateUserInfo()
 
         // Mostrar notificação de sucesso
-        this.showNotification(
+        window.showNotification(
           '✅ Informações pessoais salvas com sucesso!',
           'success'
         )
       } else {
-        this.showNotification(
+        window.showNotification(
           '❌ Erro ao atualizar perfil: ' + result.error,
           'error'
         )
       }
     } catch (error) {
-      this.showNotification(
+      window.showNotification(
         '❌ Erro ao atualizar perfil: ' + error.message,
         'error'
       )
@@ -277,15 +277,18 @@ class ProfileManager {
         }
 
         // Mostrar notificação de sucesso
-        this.showNotification('✅ Configurações salvas com sucesso!', 'success')
+        window.showNotification(
+          '✅ Configurações salvas com sucesso!',
+          'success'
+        )
       } else {
-        this.showNotification(
+        window.showNotification(
           '❌ Erro ao salvar configurações: ' + result.error,
           'error'
         )
       }
     } catch (error) {
-      this.showNotification(
+      window.showNotification(
         '❌ Erro ao salvar configurações: ' + error.message,
         'error'
       )
@@ -307,14 +310,14 @@ class ProfileManager {
         window.location.href = '/'
       } else {
         console.error('Erro no logout:', result.error)
-        this.showNotification(
+        window.showNotification(
           '❌ Erro ao fazer logout: ' + result.error,
           'error'
         )
       }
     } catch (error) {
       console.error('Exceção no logout:', error)
-      this.showNotification(
+      window.showNotification(
         '❌ Erro ao fazer logout: ' + error.message,
         'error'
       )
@@ -360,12 +363,12 @@ class ProfileManager {
         document.getElementById('confirmNewPassword').value
 
       if (newPassword !== confirmPassword) {
-        this.showNotification('As senhas não correspondem!', 'error')
+        window.showNotification('As senhas não correspondem!', 'error')
         return
       }
 
       if (newPassword.length < 6) {
-        this.showNotification(
+        window.showNotification(
           'A nova senha deve ter pelo menos 6 caracteres!',
           'error'
         )
@@ -383,10 +386,10 @@ class ProfileManager {
         // Alterar senha
         await updatePassword(this.currentUser, newPassword)
 
-        this.showNotification('Senha alterada com sucesso!', 'success')
+        window.showNotification('Senha alterada com sucesso!', 'success')
         closeModal()
       } catch (error) {
-        this.showNotification(
+        window.showNotification(
           'Erro ao alterar senha: ' + this.getErrorMessage(error.code),
           'error'
         )
@@ -419,7 +422,7 @@ class ProfileManager {
     // Bloquear colar
     input.addEventListener('paste', e => {
       e.preventDefault()
-      this.showNotification(
+      window.showNotification(
         'Você deve digitar manualmente a palavra EXCLUIR.',
         'warning'
       )
@@ -509,12 +512,12 @@ class ProfileManager {
         // 3. Limpar dados locais e redirecionar
         localStorage.clear()
         sessionStorage.clear()
-        this.showNotification('Conta excluída com sucesso!', 'success')
+        window.showNotification('Conta excluída com sucesso!', 'success')
         setTimeout(() => {
           window.location.href = '/'
         }, 1500)
       } catch (err) {
-        this.showNotification(
+        window.showNotification(
           'Erro ao excluir conta: ' + (err?.message || err),
           'error'
         )
@@ -539,64 +542,23 @@ class ProfileManager {
         }.json`
         link.click()
 
-        this.showNotification('Dados exportados com sucesso!', 'success')
+        window.showNotification('Dados exportados com sucesso!', 'success')
       } else {
-        this.showNotification(
+        window.showNotification(
           'Erro ao exportar dados: ' + result.error,
           'error'
         )
       }
     } catch (error) {
-      this.showNotification('Erro ao exportar dados: ' + error.message, 'error')
+      window.showNotification(
+        'Erro ao exportar dados: ' + error.message,
+        'error'
+      )
     }
   }
 
   showNotification(message, type = 'info') {
-    // Criar elemento de notificação
-    const notification = document.createElement('div')
-    notification.className = `notification notification-${type}`
-    notification.innerHTML = `
-      <div class="notification-content">
-        <i class="fas fa-${
-          type === 'success'
-            ? 'check-circle'
-            : type === 'error'
-            ? 'exclamation-triangle'
-            : 'info-circle'
-        }"></i>
-        <span>${message}</span>
-      </div>
-      <button class="notification-close">
-        <i class="fas fa-times"></i>
-      </button>
-    `
-
-    // Adicionar ao DOM
-    document.body.appendChild(notification)
-
-    // Mostrar notificação
-    setTimeout(() => {
-      notification.classList.add('show')
-    }, 100)
-
-    // Fechar notificação
-    const closeBtn = notification.querySelector('.notification-close')
-    closeBtn.addEventListener('click', () => {
-      notification.classList.remove('show')
-      setTimeout(() => {
-        notification.remove()
-      }, 300)
-    })
-
-    // Auto-remover após 5 segundos
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.classList.remove('show')
-        setTimeout(() => {
-          notification.remove()
-        }, 300)
-      }
-    }, 5000)
+    window.showNotification(message, type)
   }
 
   getErrorMessage(errorCode) {

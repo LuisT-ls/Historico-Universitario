@@ -72,7 +72,7 @@ function handleExport(format) {
   const disciplinas = window.app.__appInstance.disciplinas
 
   if (!disciplinas || disciplinas.length === 0) {
-    mostrarNotificacao('Não há disciplinas para exportar', 'error')
+    window.showNotification('Não há disciplinas para exportar', 'error')
     return
   }
 
@@ -88,7 +88,7 @@ function handleExport(format) {
       break
     default:
       console.error('Formato não suportado:', format)
-      mostrarNotificacao('Formato não suportado', 'error')
+      window.showNotification('Formato não suportado', 'error')
   }
 }
 
@@ -220,20 +220,20 @@ function exportToPDF(disciplinas) {
               `historico-universitario-${dataAtual.replace(/\//g, '-')}.pdf`
             )
 
-            mostrarNotificacao('PDF gerado com sucesso')
+            window.showNotification('PDF gerado com sucesso')
           })
           .catch(error => {
             console.error('Erro ao carregar plugin autotable:', error)
-            mostrarNotificacao('Erro ao gerar PDF', 'error')
+            window.showNotification('Erro ao gerar PDF', 'error')
           })
       })
       .catch(error => {
         console.error('Erro ao carregar jsPDF:', error)
-        mostrarNotificacao('Erro ao carregar biblioteca de PDF', 'error')
+        window.showNotification('Erro ao carregar biblioteca de PDF', 'error')
       })
   } catch (error) {
     console.error('Erro ao exportar para PDF:', error)
-    mostrarNotificacao('Erro ao gerar PDF', 'error')
+    window.showNotification('Erro ao gerar PDF', 'error')
   }
 }
 
@@ -315,10 +315,10 @@ function exportToTXT(disciplinas) {
     element.click()
 
     document.body.removeChild(element)
-    mostrarNotificacao('Arquivo TXT gerado com sucesso')
+    window.showNotification('Arquivo TXT gerado com sucesso')
   } catch (error) {
     console.error('Erro ao exportar para TXT:', error)
-    mostrarNotificacao('Erro ao gerar arquivo TXT', 'error')
+    window.showNotification('Erro ao gerar arquivo TXT', 'error')
   }
 }
 
@@ -386,12 +386,12 @@ function exportToDOCX(disciplinas) {
     window.URL.revokeObjectURL(url)
     document.body.removeChild(element)
 
-    mostrarNotificacao(
+    window.showNotification(
       'Arquivo CSV gerado com sucesso. Pode ser aberto no Excel ou Word.'
     )
   } catch (error) {
     console.error('Erro ao exportar para CSV:', error)
-    mostrarNotificacao('Erro ao gerar arquivo CSV', 'error')
+    window.showNotification('Erro ao gerar arquivo CSV', 'error')
   }
 }
 

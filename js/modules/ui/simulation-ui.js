@@ -455,11 +455,11 @@ export class SimulationUI {
       document.getElementById('sim-periodo').value = periodoAtual
 
       // Exibe mensagem de sucesso
-      this.showNotification(
+      window.showNotification(
         `Disciplina ${disciplina.codigo} adicionada à simulação com sucesso!`
       )
     } catch (error) {
-      this.showNotification(error.message, 'error')
+      window.showNotification(error.message, 'error')
     }
   }
 
@@ -472,13 +472,15 @@ export class SimulationUI {
   // Limpa toda a simulação
   limparSimulacao() {
     if (this.simulator.disciplinasSimuladas.length === 0) {
-      this.showNotification('Não há disciplinas para remover da simulação!')
+      window.showNotification('Não há disciplinas para remover da simulação!')
       return
     }
 
     this.simulator.limparSimulacao()
     this.atualizarSimulacao()
-    this.showNotification('Todas as disciplinas foram removidas da simulação!')
+    window.showNotification(
+      'Todas as disciplinas foram removidas da simulação!'
+    )
   }
 
   // Atualiza a interface da simulação

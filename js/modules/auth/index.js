@@ -403,51 +403,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Função para mostrar notificações
   function showNotification(message, type = 'info') {
-    // Criar elemento de notificação
-    const notification = document.createElement('div')
-    notification.className = `notification notification-${type}`
-    notification.innerHTML = `
-      <div class="notification-content">
-        <i class="fas fa-${
-          type === 'success'
-            ? 'check-circle'
-            : type === 'error'
-            ? 'exclamation-triangle'
-            : 'info-circle'
-        }"></i>
-        <span>${message}</span>
-      </div>
-      <button class="notification-close">
-        <i class="fas fa-times"></i>
-      </button>
-    `
-
-    // Adicionar ao DOM
-    document.body.appendChild(notification)
-
-    // Mostrar notificação
-    setTimeout(() => {
-      notification.classList.add('show')
-    }, 100)
-
-    // Fechar notificação
-    const closeBtn = notification.querySelector('.notification-close')
-    closeBtn.addEventListener('click', () => {
-      notification.classList.remove('show')
-      setTimeout(() => {
-        notification.remove()
-      }, 300)
-    })
-
-    // Auto-remover após 5 segundos
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.classList.remove('show')
-        setTimeout(() => {
-          notification.remove()
-        }, 300)
-      }
-    }, 5000)
+    window.showNotification(message, type)
   }
 
   // Verificar se usuário já está logado

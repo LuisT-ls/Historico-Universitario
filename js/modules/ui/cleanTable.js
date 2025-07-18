@@ -128,43 +128,7 @@ export function setupCleanTableButton() {
  * @param {string} type - Tipo de notificação: 'success', 'error' ou 'info'
  */
 function showNotification(message, type = 'success') {
-  // Verifica se já existe uma notificação e remove
-  const existingNotification = document.querySelector('.notification')
-  if (existingNotification) {
-    existingNotification.remove()
-  }
-
-  // Cria o elemento de notificação
-  const notification = document.createElement('div')
-  notification.className = `notification ${type}`
-
-  // Adiciona ícone adequado conforme o tipo de notificação
-  let icon = ''
-  switch (type) {
-    case 'success':
-      icon = '<i class="fas fa-check-circle"></i> '
-      break
-    case 'error':
-      icon = '<i class="fas fa-exclamation-circle"></i> '
-      break
-    case 'info':
-      icon = '<i class="fas fa-info-circle"></i> '
-      break
-  }
-
-  notification.innerHTML = icon + message
-
-  // Adiciona ao corpo do documento
-  document.body.appendChild(notification)
-
-  // Adiciona a classe show para iniciar a animação
-  setTimeout(() => notification.classList.add('show'), 10)
-
-  // Remove a notificação após 3 segundos
-  setTimeout(() => {
-    notification.classList.remove('show')
-    setTimeout(() => notification.remove(), 300) // Tempo para a animação de fade-out
-  }, 3000)
+  window.showNotification(message, type)
 }
 
 /**

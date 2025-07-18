@@ -87,7 +87,7 @@ class SettingsManager {
       if (Notification.permission === 'default') {
         Notification.requestPermission().then(permission => {
           if (permission === 'granted') {
-            this.showNotification('Notificações ativadas!', 'success')
+            window.showNotification('Notificações ativadas!', 'success')
           }
         })
       }
@@ -118,51 +118,7 @@ class SettingsManager {
 
   // Método para mostrar notificação na interface
   showNotification(message, type = 'info') {
-    if (
-      typeof window.notificationsEnabled === 'function' &&
-      !window.notificationsEnabled()
-    )
-      return
-    const notification = document.createElement('div')
-    notification.className = `notification notification-${type}`
-    notification.innerHTML = `
-      <div class="notification-content">
-        <i class="fas fa-${
-          type === 'success'
-            ? 'check-circle'
-            : type === 'error'
-            ? 'exclamation-triangle'
-            : 'info-circle'
-        }"></i>
-        <span>${message}</span>
-      </div>
-      <button class="notification-close">
-        <i class="fas fa-times"></i>
-      </button>
-    `
-
-    document.body.appendChild(notification)
-
-    setTimeout(() => {
-      notification.classList.add('show')
-    }, 100)
-
-    const closeBtn = notification.querySelector('.notification-close')
-    closeBtn.addEventListener('click', () => {
-      notification.classList.remove('show')
-      setTimeout(() => {
-        notification.remove()
-      }, 300)
-    })
-
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.classList.remove('show')
-        setTimeout(() => {
-          notification.remove()
-        }, 300)
-      }
-    }, 5000)
+    window.showNotification(message, type)
   }
 
   // Método para obter configurações atuais

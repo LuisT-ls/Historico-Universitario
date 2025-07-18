@@ -741,6 +741,46 @@ window.addEventListener('DOMContentLoaded', () => {
   scheduleLoginToast()
 })
 
+// Função global de notificação padronizada
+window.showNotification = function (message, type = 'info') {
+  // Remove qualquer notificação anterior
+  const existing = document.querySelector('.notification-global')
+  if (existing) existing.remove()
+
+  // Cria o elemento de notificação
+  const notification = document.createElement('div')
+  notification.className = `notification-global notification-${type}`
+  notification.innerHTML = `
+    <div class="notification-content">
+      <i class="fas fa-${
+        type === 'success'
+          ? 'check-circle'
+          : type === 'error'
+          ? 'exclamation-triangle'
+          : 'info-circle'
+      }"></i>
+      <span>${message}</span>
+    </div>
+    <button class="notification-close"><i class="fas fa-times"></i></button>
+  `
+  document.body.appendChild(notification)
+
+  setTimeout(() => notification.classList.add('show'), 100)
+
+  // Fechar manualmente
+  notification.querySelector('.notification-close').onclick = () => {
+    notification.classList.remove('show')
+    setTimeout(() => notification.remove(), 300)
+  }
+  // Fechar automaticamente após 4s
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.classList.remove('show')
+      setTimeout(() => notification.remove(), 300)
+    }
+  }, 4000)
+}
+
 // Adiciona os estilos necessários
 const style = document.createElement('style')
 style.textContent = `

@@ -124,7 +124,7 @@ function setupExportButtonEvents(exportButton, exportMenu, formats) {
           app.exportar(format.id)
         } else {
           console.error(`Função de exportação para ${format.id} não disponível`)
-          mostrarNotificacao(
+          window.showNotification(
             `Não foi possível exportar para ${format.text}`,
             'error'
           )
@@ -135,34 +135,4 @@ function setupExportButtonEvents(exportButton, exportMenu, formats) {
       })
     }
   })
-}
-
-/**
- * Mostra uma notificação temporária na tela
- * @param {string} message - Mensagem a ser exibida
- * @param {string} type - Tipo de notificação: 'success', 'error' ou 'info'
- */
-function mostrarNotificacao(message, type = 'success') {
-  // Verifica se já existe uma notificação e remove
-  const existingNotification = document.querySelector('.export-notification')
-  if (existingNotification) {
-    existingNotification.remove()
-  }
-
-  // Cria o elemento de notificação
-  const notification = document.createElement('div')
-  notification.className = `export-notification ${type}`
-  notification.textContent = message
-
-  // Adiciona ao corpo do documento
-  document.body.appendChild(notification)
-
-  // Adiciona a classe show para iniciar a animação
-  setTimeout(() => notification.classList.add('show'), 10)
-
-  // Remove a notificação após 3 segundos
-  setTimeout(() => {
-    notification.classList.remove('show')
-    setTimeout(() => notification.remove(), 300) // Tempo para a animação de fade-out
-  }, 3000)
 }
