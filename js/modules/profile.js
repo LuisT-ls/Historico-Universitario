@@ -295,17 +295,16 @@ class ProfileManager {
   async logout() {
     try {
       console.log('Iniciando logout...')
+      // Limpar todos os dados locais
+      localStorage.clear()
+      sessionStorage.clear()
+      // Redirecionar para a página principal após logout
       const result = await authService.logout()
       console.log('Resultado do logout:', result)
 
       if (result.success) {
         console.log('Logout bem-sucedido, redirecionando...')
-        // Limpar dados locais
-        localStorage.removeItem('theme')
-        sessionStorage.clear()
-
-        // Redirecionar para login
-        window.location.href = '/login.html'
+        window.location.href = '/'
       } else {
         console.error('Erro no logout:', result.error)
         this.showNotification(
@@ -507,10 +506,12 @@ class ProfileManager {
           throw new Error(
             authResult.error || 'Erro ao excluir usuário do sistema'
           )
-        // 3. Logout e redirecionar
+        // 3. Limpar dados locais e redirecionar
+        localStorage.clear()
+        sessionStorage.clear()
         this.showNotification('Conta excluída com sucesso!', 'success')
         setTimeout(() => {
-          window.location.href = '/login.html'
+          window.location.href = '/'
         }, 1500)
       } catch (err) {
         this.showNotification(
