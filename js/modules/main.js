@@ -233,27 +233,48 @@ class MainApp {
 
     tbody.innerHTML = ''
 
-    disciplines.forEach(discipline => {
+    disciplines.forEach((discipline, index) => {
       const row = document.createElement('tr')
       row.innerHTML = `
         <td>${discipline.periodo}</td>
         <td>${discipline.codigo}</td>
         <td>${discipline.nome}</td>
         <td>${discipline.natureza}</td>
-        <td>${discipline.creditos}</td>
-        <td>${discipline.horas}</td>
-        <td>${discipline.nota}</td>
-        <td>${discipline.status}</td>
+        <td>${discipline.creditos ?? discipline.ch ?? ''}</td>
+        <td>${discipline.horas ?? ''}</td>
+        <td>${discipline.nota ?? ''}</td>
+        <td>${discipline.status ?? discipline.resultado ?? ''}</td>
         <td>
-          <button class="btn-edit" data-id="${discipline.id}">
+          <button class="btn-edit" data-id="${
+            discipline.id
+          }" data-index="${index}">
             <i class="fas fa-edit"></i>
           </button>
-          <button class="btn-delete" data-id="${discipline.id}">
+          <button class="btn-delete" data-id="${
+            discipline.id
+          }" data-index="${index}">
             <i class="fas fa-trash"></i>
           </button>
         </td>
       `
       tbody.appendChild(row)
+    })
+
+    // Adicionar listeners para editar/remover
+    tbody.querySelectorAll('.btn-edit').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const idx = parseInt(btn.getAttribute('data-index'))
+        this.prepararEdicaoDisciplina(idx)
+      })
+    })
+    tbody.querySelectorAll('.btn-delete').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        const idx = parseInt(btn.getAttribute('data-index'))
+        const discipline = disciplines[idx]
+        if (window.removerDisciplinaFirebase) {
+          await window.removerDisciplinaFirebase(discipline)
+        }
+      })
     })
   }
 

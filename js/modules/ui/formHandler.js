@@ -272,6 +272,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
           )
         }
 
+        // Atualizar campos
         disciplinaEditada.periodo = document.getElementById('periodo').value
         disciplinaEditada.codigo = codigo
         disciplinaEditada.nome = document.getElementById('nome').value
@@ -280,7 +281,6 @@ export function setupFormHandlers(disciplinas, callbacks) {
           document.getElementById('trancamento').checked
         disciplinaEditada.dispensada =
           document.getElementById('dispensada').checked
-        // Lógica: se nota preenchida, EC é ignorado
         const notaValor = document.getElementById('nota').value
         if (disciplinaEditada.trancamento) {
           disciplinaEditada.ch = 0
@@ -297,7 +297,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
           disciplinaEditada.nota = parseFloat(notaValor)
           disciplinaEditada.resultado =
             disciplinaEditada.nota >= 5 ? 'AP' : 'RR'
-          disciplinaEditada.emcurso = false // Se nota foi preenchida, não está mais em curso
+          disciplinaEditada.emcurso = false
         } else if (document.getElementById('emcurso').checked) {
           disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
           disciplinaEditada.nota = null
@@ -314,12 +314,12 @@ export function setupFormHandlers(disciplinas, callbacks) {
           disciplinaEditada.resultado = undefined
           disciplinaEditada.emcurso = false
         }
-        // Garantir que o curso seja incluído
         disciplinaEditada.curso = appInstance.cursoAtual || 'BICTI'
-        // Salvar no Firebase se possível
+        // Atualizar no Firebase se logado e tiver id
         if (
-          disciplinaEditada.id &&
           window.dataService &&
+          window.dataService.currentUser &&
+          disciplinaEditada.id &&
           typeof window.dataService.updateDiscipline === 'function'
         ) {
           try {
@@ -328,45 +328,37 @@ export function setupFormHandlers(disciplinas, callbacks) {
               disciplinaEditada
             )
             if (updateResult.success) {
-              showNotification('Disciplina atualizada com sucesso no servidor!')
-              if (
-                appInstance &&
-                typeof appInstance.carregarDisciplinasDoCurso === 'function'
-              ) {
-                await appInstance.carregarDisciplinasDoCurso(true)
-              }
+              showNotification('Disciplina atualizada no servidor!', 'success')
             } else {
               showNotification(
                 'Erro ao atualizar disciplina no servidor: ' +
-                  updateResult.error
+                  updateResult.error,
+                'error'
               )
             }
           } catch (err) {
             showNotification(
               'Erro ao atualizar disciplina no servidor: ' +
-                (err?.message || err)
+                (err?.message || err),
+              'error'
             )
           }
-        } else {
-          // Atualizar localStorage e interface
-          if (appInstance && typeof appInstance.disciplinas !== 'undefined') {
-            appInstance.disciplinas[index] = disciplinaEditada
-            if (typeof salvarDisciplinas === 'function') {
-              salvarDisciplinas(appInstance.disciplinas, appInstance.cursoAtual)
-            }
-            appInstance.atualizarTudo()
-          }
         }
-        // Resetar modo edição
+        // Atualizar localStorage e interface
+        if (typeof salvarDisciplinas === 'function') {
+          salvarDisciplinas(disciplinas, disciplinaEditada.curso)
+        }
+        if (appInstance && typeof appInstance.atualizarTudo === 'function') {
+          appInstance.atualizarTudo()
+        }
         appInstance.indiceEdicao = undefined
-        // Resetar botão
         const btn = document.querySelector(
           '#disciplinaForm button[type="submit"]'
         )
         if (btn)
           btn.innerHTML =
             '<i class="fas fa-plus-circle"></i> Adicionar Disciplina'
-        form.reset()
+        resetFormInteligente()
         return
       }
     }
@@ -465,6 +457,48 @@ export function setupFormHandlers(disciplinas, callbacks) {
     // Reset inteligente do formulário (mantém semestre)
     resetFormInteligente()
   })
+
+  // Função para remover disciplina (deve ser chamada ao clicar no botão de remover)
+  window.removerDisciplinaFirebase = async function (disciplina) {
+    // Remove do array local
+    const appInstance = window.app && window.app.__appInstance
+    if (!appInstance) return
+    const index = appInstance.disciplinas.findIndex(d => d.id === disciplina.id)
+    if (index !== -1) {
+      appInstance.disciplinas.splice(index, 1)
+      if (typeof salvarDisciplinas === 'function') {
+        salvarDisciplinas(appInstance.disciplinas, disciplina.curso)
+      }
+      // Remover do Firebase se logado e tiver id
+      if (
+        window.dataService &&
+        window.dataService.currentUser &&
+        disciplina.id &&
+        typeof window.dataService.deleteDisciplineOptimized === 'function'
+      ) {
+        try {
+          const deleteResult =
+            await window.dataService.deleteDisciplineOptimized(disciplina.id)
+          if (deleteResult.success) {
+            showNotification('Disciplina removida do servidor!', 'success')
+          } else {
+            showNotification(
+              'Erro ao remover disciplina no servidor: ' + deleteResult.error,
+              'error'
+            )
+          }
+        } catch (err) {
+          showNotification(
+            'Erro ao remover disciplina no servidor: ' + (err?.message || err),
+            'error'
+          )
+        }
+      }
+      if (appInstance && typeof appInstance.atualizarTudo === 'function') {
+        appInstance.atualizarTudo()
+      }
+    }
+  }
 
   // Inicializar campos obrigatórios na carga do formulário
   updateRequiredFields()
