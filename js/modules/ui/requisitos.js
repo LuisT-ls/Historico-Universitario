@@ -20,7 +20,7 @@ export function atualizarRequisitos(
   })
 
   // Handle LV excess hours calculation
-  const naturezasParaLV = ['OX', 'OG', 'OH', 'OZ', 'OB']
+  const naturezasParaLV = ['OX', 'OG', 'OH', 'OZ'] // Remover OB daqui
   let totalExcessoLV = 0
 
   naturezasParaLV.forEach(nat => {
@@ -32,6 +32,14 @@ export function atualizarRequisitos(
       }
     }
   })
+
+  // OB pode ultrapassar o teto (até 680), não redistribuir excedente
+  if (horasPorNatureza.OB && REQUISITOS.OB) {
+    if (horasPorNatureza.OB > 680) {
+      horasPorNatureza.OB = 680
+    }
+    // Não redistribuir excesso de OB
+  }
 
   if (!horasPorNatureza.LV) {
     horasPorNatureza.LV = 0
