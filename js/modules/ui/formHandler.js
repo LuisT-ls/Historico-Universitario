@@ -49,16 +49,25 @@ export function setupFormHandlers(disciplinas, callbacks) {
   function precarregarSemestre() {
     // Primeiro tenta carregar do localStorage
     const semestreSalvo = localStorage.getItem('ultimoSemestreDigitado')
+    console.log('Tentando precarregar semestre do localStorage:', semestreSalvo)
+
     if (semestreSalvo && !periodoInput.value) {
       periodoInput.value = semestreSalvo
-      console.log(`Semestre carregado do localStorage: ${semestreSalvo}`)
-      return
-    }
-    // Se não houver no localStorage, usa o mais recente das disciplinas
-    const semestreMaisRecente = getSemestreMaisRecente()
-    if (semestreMaisRecente && !periodoInput.value) {
-      periodoInput.value = semestreMaisRecente
-      console.log(`Semestre precarregado: ${semestreMaisRecente}`)
+      console.log('Semestre precarregado do localStorage:', semestreSalvo)
+    } else if (!periodoInput.value) {
+      // Se não há semestre salvo, tenta pegar o mais recente das disciplinas
+      const semestreMaisRecente = getSemestreMaisRecente()
+      if (semestreMaisRecente) {
+        periodoInput.value = semestreMaisRecente
+        console.log(
+          'Semestre precarregado das disciplinas:',
+          semestreMaisRecente
+        )
+      } else {
+        console.log('Nenhum semestre encontrado para precarregar')
+      }
+    } else {
+      console.log('Campo de período já tem valor:', periodoInput.value)
     }
   }
 
@@ -133,6 +142,9 @@ export function setupFormHandlers(disciplinas, callbacks) {
     const periodoAtual = periodoInput.value
     const naturezaAtual = naturezaSelect.value
 
+    console.log('Reset inteligente - Período atual:', periodoAtual)
+    console.log('Reset inteligente - Natureza atual:', naturezaAtual)
+
     // Reset do formulário
     form.reset()
 
@@ -155,7 +167,15 @@ export function setupFormHandlers(disciplinas, callbacks) {
     updateRequiredFields()
     updateCodigoField()
 
+    // Salvar o semestre no localStorage para persistir
+    if (periodoAtual) {
+      localStorage.setItem('ultimoSemestreDigitado', periodoAtual)
+      console.log('Semestre salvo no localStorage:', periodoAtual)
+    }
+
     console.log('Formulário resetado mantendo período e natureza')
+    console.log('Período após reset:', periodoInput.value)
+    console.log('Natureza após reset:', naturezaSelect.value)
   }
 
   // Listener para mudança de natureza
@@ -260,21 +280,33 @@ export function setupFormHandlers(disciplinas, callbacks) {
           disciplinaEditada.resultado = 'EC'
         } else {
           disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
-          disciplinaEditada.nota = parseFloat(document.getElementById('nota').value)
+          disciplinaEditada.nota = parseFloat(
+            document.getElementById('nota').value
+          )
           disciplinaEditada.resultado = undefined
         }
 
         // Salvar no Firestore se houver id
-        if (disciplinaEditada.id && window.dataService && typeof window.dataService.updateDiscipline === 'function') {
+        if (
+          disciplinaEditada.id &&
+          window.dataService &&
+          typeof window.dataService.updateDiscipline === 'function'
+        ) {
           try {
-            await window.dataService.updateDiscipline(disciplinaEditada.id, disciplinaEditada)
+            await window.dataService.updateDiscipline(
+              disciplinaEditada.id,
+              disciplinaEditada
+            )
             showNotification('Disciplina atualizada com sucesso no servidor!')
             // Recarregar disciplinas do Firestore para garantir atualização
             if (typeof appInstance.loadUserData === 'function') {
               await appInstance.loadUserData()
             }
           } catch (err) {
-            showNotification('Erro ao atualizar disciplina no servidor: ' + (err?.message || err))
+            showNotification(
+              'Erro ao atualizar disciplina no servidor: ' +
+                (err?.message || err)
+            )
           }
         }
 
@@ -285,8 +317,12 @@ export function setupFormHandlers(disciplinas, callbacks) {
         // Resetar modo edição
         appInstance.indiceEdicao = undefined
         // Resetar botão
-        const btn = document.querySelector('#disciplinaForm button[type="submit"]')
-        if (btn) btn.innerHTML = '<i class="fas fa-plus-circle"></i> Adicionar Disciplina'
+        const btn = document.querySelector(
+          '#disciplinaForm button[type="submit"]'
+        )
+        if (btn)
+          btn.innerHTML =
+            '<i class="fas fa-plus-circle"></i> Adicionar Disciplina'
         form.reset()
         return
       }
@@ -350,8 +386,15 @@ export function setupFormHandlers(disciplinas, callbacks) {
       callbacks.onSubmit(disciplina)
     }
 
-    // Reset inteligente do formulário
+    // Reset inteligente do formulário - GARANTIR que seja chamado
+    console.log('Chamando resetFormInteligente após adicionar disciplina')
     resetFormInteligente()
+
+    // Verificar se o reset funcionou
+    setTimeout(() => {
+      console.log('Verificação após reset - Período:', periodoInput.value)
+      console.log('Verificação após reset - Natureza:', naturezaSelect.value)
+    }, 100)
   })
 
   // Inicializar campos obrigatórios na carga do formulário
