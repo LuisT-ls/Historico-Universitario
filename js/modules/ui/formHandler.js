@@ -278,12 +278,17 @@ export function setupFormHandlers(disciplinas, callbacks) {
           disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
           disciplinaEditada.nota = null
           disciplinaEditada.resultado = 'EC'
+        } else if (isAC) {
+          disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
+          disciplinaEditada.nota = null
+          disciplinaEditada.resultado = 'AP'
         } else {
           disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
           disciplinaEditada.nota = parseFloat(
             document.getElementById('nota').value
           )
-          disciplinaEditada.resultado = undefined
+          disciplinaEditada.resultado =
+            disciplinaEditada.nota >= 5 ? 'AP' : 'RR'
         }
 
         // Salvar no Firestore se houver id
