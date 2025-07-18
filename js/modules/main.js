@@ -450,6 +450,11 @@ class MainApp {
 
   // Modificar carregarDisciplinasDoCurso para aceitar parâmetro de origem
   async carregarDisciplinasDoCurso(fromFirebase = null) {
+    // Garantir contexto correto
+    if (typeof this.atualizarTudo !== 'function') {
+      // Apenas retorna silenciosamente se não existir
+      return
+    }
     if (
       fromFirebase === true &&
       window.dataService &&
@@ -499,3 +504,21 @@ new MainApp()
 
 // Disponibilizar dataService globalmente para acesso do app.js
 window.dataService = dataService
+
+// Garantir contexto correto ao passar métodos como callback
+window.addEventListener('DOMContentLoaded', () => {
+  const appInstance = new MainApp()
+  document.querySelector('body').__appInstance = appInstance
+  // Expor métodos com bind para garantir contexto, só se existirem
+  window.app = {
+    ...window.app,
+    carregarDisciplinasDoCurso:
+      typeof appInstance.carregarDisciplinasDoCurso === 'function'
+        ? appInstance.carregarDisciplinasDoCurso.bind(appInstance)
+        : undefined,
+    atualizarTudo:
+      typeof appInstance.atualizarTudo === 'function'
+        ? appInstance.atualizarTudo.bind(appInstance)
+        : undefined
+  }
+})

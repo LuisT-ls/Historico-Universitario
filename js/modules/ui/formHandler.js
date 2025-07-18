@@ -1,3 +1,6 @@
+// js/modules/ui/formHandler.js
+import { salvarDisciplinas } from '../storage.js'
+
 export function setupFormHandlers(disciplinas, callbacks) {
   const form = document.getElementById('disciplinaForm')
   const trancamentoCheckbox = document.getElementById('trancamento')
@@ -257,6 +260,18 @@ export function setupFormHandlers(disciplinas, callbacks) {
       if (index >= 0 && index < disciplinas.length) {
         // Atualizar os dados da disciplina
         const disciplinaEditada = disciplinas[index]
+
+        // Verificar se a disciplina tem ID para sincronização
+        if (!disciplinaEditada.id) {
+          console.warn(
+            'Disciplina não tem ID, não será sincronizada com Firebase'
+          )
+          showNotification(
+            'Disciplina não pode ser sincronizada (sem ID)',
+            'warning'
+          )
+        }
+
         disciplinaEditada.periodo = document.getElementById('periodo').value
         disciplinaEditada.codigo = codigo
         disciplinaEditada.nome = document.getElementById('nome').value
@@ -265,47 +280,66 @@ export function setupFormHandlers(disciplinas, callbacks) {
           document.getElementById('trancamento').checked
         disciplinaEditada.dispensada =
           document.getElementById('dispensada').checked
-        disciplinaEditada.emcurso = document.getElementById('emcurso').checked
+        // Lógica: se nota preenchida, EC é ignorado
+        const notaValor = document.getElementById('nota').value
         if (disciplinaEditada.trancamento) {
           disciplinaEditada.ch = 0
           disciplinaEditada.nota = 0
           disciplinaEditada.resultado = 'TR'
+          disciplinaEditada.emcurso = false
         } else if (disciplinaEditada.dispensada) {
           disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
           disciplinaEditada.nota = 0
           disciplinaEditada.resultado = 'AP'
-        } else if (disciplinaEditada.emcurso) {
+          disciplinaEditada.emcurso = false
+        } else if (notaValor !== '' && !isNaN(parseFloat(notaValor))) {
+          disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
+          disciplinaEditada.nota = parseFloat(notaValor)
+          disciplinaEditada.resultado =
+            disciplinaEditada.nota >= 5 ? 'AP' : 'RR'
+          disciplinaEditada.emcurso = false // Se nota foi preenchida, não está mais em curso
+        } else if (document.getElementById('emcurso').checked) {
           disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
           disciplinaEditada.nota = null
           disciplinaEditada.resultado = 'EC'
+          disciplinaEditada.emcurso = true
         } else if (isAC) {
           disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
           disciplinaEditada.nota = null
           disciplinaEditada.resultado = 'AP'
+          disciplinaEditada.emcurso = false
         } else {
           disciplinaEditada.ch = parseInt(document.getElementById('ch').value)
-          disciplinaEditada.nota = parseFloat(
-            document.getElementById('nota').value
-          )
-          disciplinaEditada.resultado =
-            disciplinaEditada.nota >= 5 ? 'AP' : 'RR'
+          disciplinaEditada.nota = null
+          disciplinaEditada.resultado = undefined
+          disciplinaEditada.emcurso = false
         }
-
-        // Salvar no Firestore se houver id
+        // Garantir que o curso seja incluído
+        disciplinaEditada.curso = appInstance.cursoAtual || 'BICTI'
+        // Salvar no Firebase se possível
         if (
           disciplinaEditada.id &&
           window.dataService &&
           typeof window.dataService.updateDiscipline === 'function'
         ) {
           try {
-            await window.dataService.updateDiscipline(
+            const updateResult = await window.dataService.updateDiscipline(
               disciplinaEditada.id,
               disciplinaEditada
             )
-            showNotification('Disciplina atualizada com sucesso no servidor!')
-            // Recarregar disciplinas do Firestore para garantir atualização
-            if (typeof appInstance.loadUserData === 'function') {
-              await appInstance.loadUserData()
+            if (updateResult.success) {
+              showNotification('Disciplina atualizada com sucesso no servidor!')
+              if (
+                appInstance &&
+                typeof appInstance.carregarDisciplinasDoCurso === 'function'
+              ) {
+                await appInstance.carregarDisciplinasDoCurso(true)
+              }
+            } else {
+              showNotification(
+                'Erro ao atualizar disciplina no servidor: ' +
+                  updateResult.error
+              )
             }
           } catch (err) {
             showNotification(
@@ -313,11 +347,15 @@ export function setupFormHandlers(disciplinas, callbacks) {
                 (err?.message || err)
             )
           }
-        }
-
-        // Atualizar localStorage e interface
-        if (typeof callbacks?.onSubmit === 'function') {
-          callbacks.onSubmit(disciplinaEditada)
+        } else {
+          // Atualizar localStorage e interface
+          if (appInstance && typeof appInstance.disciplinas !== 'undefined') {
+            appInstance.disciplinas[index] = disciplinaEditada
+            if (typeof salvarDisciplinas === 'function') {
+              salvarDisciplinas(appInstance.disciplinas, appInstance.cursoAtual)
+            }
+            appInstance.atualizarTudo()
+          }
         }
         // Resetar modo edição
         appInstance.indiceEdicao = undefined
