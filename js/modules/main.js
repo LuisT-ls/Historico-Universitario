@@ -27,39 +27,23 @@ class MainApp {
   }
 
   showAuthenticatedUI() {
-    // Mostrar seção do usuário
-    const userNav = document.querySelector('.user-navigation')
-    if (userNav) {
-      userNav.style.display = 'block'
-      // Restaurar menu completo
-      const userMenu = userNav.querySelector('.user-menu')
-      if (userMenu) {
-        userMenu.innerHTML = `
-          <li role="none">
-            <a href="profile.html" class="menu-item" role="menuitem">
-              <i class="fas fa-user-cog"></i>
-              Meu Perfil
-            </a>
-          </li>
-          <li role="none">
-            <a href="#" class="menu-item" role="menuitem" id="changePasswordBtn">
-              <i class="fas fa-key"></i>
-              Alterar Senha
-            </a>
-          </li>
-          <li role="none">
-            <button class="menu-item logout-button" role="menuitem" id="logoutBtn">
-              <i class="fas fa-sign-out-alt"></i>
-              Sair
-            </button>
-          </li>
-        `
-      }
-    }
     // Atualizar informações do usuário
     this.updateUserInfo()
-    // Configurar menu do usuário
+
+    // Configurar eventos do usuário
     this.setupUserMenu()
+
+    // Mostrar elementos para usuário autenticado
+    const userGreeting = document.getElementById('userGreeting')
+    const userDropdown = document.getElementById('userDropdown')
+    const loginLink = document.getElementById('loginLink')
+    const profileLink = document.getElementById('profileLink')
+
+    if (userGreeting) userGreeting.style.display = 'block'
+    if (userDropdown) userDropdown.style.display = 'block'
+    if (loginLink) loginLink.style.display = 'none'
+    if (profileLink) profileLink.style.display = 'flex'
+
     // Inicializar sincronização de forma não bloqueante
     initializeSyncNonBlocking()
     // Recarregar dados do Firebase e atualizar interface
@@ -67,31 +51,17 @@ class MainApp {
   }
 
   showUnauthenticatedUI() {
-    // Exibir seção do usuário mesmo sem login
-    const userNav = document.querySelector('.user-navigation')
-    if (userNav) {
-      userNav.style.display = 'block'
-      // Alterar o menu para mostrar apenas o botão de login
-      const userNameElement = document.getElementById('userName')
-      if (userNameElement) userNameElement.textContent = 'Visitante'
-      const userMenu = userNav.querySelector('.user-menu')
-      if (userMenu) {
-        userMenu.innerHTML = `
-          <li role="none">
-            <button class="menu-item login-button" role="menuitem" id="loginBtn">
-              <i class="fas fa-sign-in-alt"></i> Entrar
-            </button>
-          </li>
-        `
-        // Adicionar evento para redirecionar ao login
-        const loginBtn = document.getElementById('loginBtn')
-        if (loginBtn) {
-          loginBtn.onclick = () => {
-            window.location.href = '/login.html'
-          }
-        }
-      }
-    }
+    // Mostrar elementos para usuário não autenticado
+    const userGreeting = document.getElementById('userGreeting')
+    const userDropdown = document.getElementById('userDropdown')
+    const loginLink = document.getElementById('loginLink')
+    const profileLink = document.getElementById('profileLink')
+
+    if (userGreeting) userGreeting.style.display = 'none'
+    if (userDropdown) userDropdown.style.display = 'none'
+    if (loginLink) loginLink.style.display = 'flex'
+    if (profileLink) profileLink.style.display = 'none'
+
     // Importar dados do localStorage e atualizar interface
     this.carregarDisciplinasDoCurso(false)
   }
@@ -108,24 +78,7 @@ class MainApp {
   }
 
   setupUserMenu() {
-    // Toggle do menu do usuário (se existir)
-    const userButton = document.getElementById('userButton')
-    const userDropdown = document.querySelector('.user-dropdown')
-
-    if (userButton && userDropdown) {
-      userButton.addEventListener('click', () => {
-        userDropdown.classList.toggle('active')
-      })
-
-      // Fechar menu ao clicar fora
-      document.addEventListener('click', e => {
-        if (!e.target.closest('.user-dropdown')) {
-          userDropdown.classList.remove('active')
-        }
-      })
-    }
-
-    // Logout - verificar tanto o botão do menu quanto o novo botão discreto
+    // Logout
     const logoutBtn = document.getElementById('logoutBtn')
     if (logoutBtn) {
       logoutBtn.addEventListener('click', async () => {
@@ -156,10 +109,7 @@ class MainApp {
         sessionStorage.clear()
         // Limpar disciplinas de todos os cursos e registro de remoções
         Object.keys(localStorage).forEach(key => {
-          if (
-            key.startsWith('disciplinas_') ||
-            key === 'removalsRegistry'
-          ) {
+          if (key.startsWith('disciplinas_') || key === 'removalsRegistry') {
             localStorage.removeItem(key)
           }
         })

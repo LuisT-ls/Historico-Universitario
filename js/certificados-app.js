@@ -52,10 +52,12 @@ class CertificadosApp {
     const userGreeting = document.getElementById('userGreeting')
     const userDropdown = document.getElementById('userDropdown')
     const loginBtn = document.getElementById('loginBtn')
+    const profileLink = document.getElementById('profileLink')
 
     if (userGreeting) userGreeting.style.display = 'block'
     if (userDropdown) userDropdown.style.display = 'block'
     if (loginBtn) loginBtn.style.display = 'none'
+    if (profileLink) profileLink.style.display = 'flex'
 
     // Mostrar conteúdo autenticado
     document.body.classList.add('authenticated')
@@ -66,10 +68,12 @@ class CertificadosApp {
     const userGreeting = document.getElementById('userGreeting')
     const userDropdown = document.getElementById('userDropdown')
     const loginBtn = document.getElementById('loginBtn')
+    const profileLink = document.getElementById('profileLink')
 
     if (userGreeting) userGreeting.style.display = 'none'
     if (userDropdown) userDropdown.style.display = 'none'
     if (loginBtn) loginBtn.style.display = 'block'
+    if (profileLink) profileLink.style.display = 'none'
 
     // Configurar evento do botão de login
     this.setupLoginButton()
@@ -105,9 +109,89 @@ class CertificadosApp {
     const loginBtn = document.getElementById('loginBtn')
     if (loginBtn) {
       loginBtn.addEventListener('click', () => {
-        window.location.href = '/login.html'
+        // Abrir popup de login
+        this.showLoginPopup()
       })
     }
+  }
+
+  showLoginPopup() {
+    // Criar modal de login
+    const modal = document.createElement('div')
+    modal.className = 'modal-overlay'
+    modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fas fa-sign-in-alt"></i> Fazer Login</h3>
+          <button class="modal-close" id="closeLoginModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="login-options">
+            <button class="btn btn-primary login-option" id="loginWithEmail">
+              <i class="fas fa-envelope"></i>
+              <span>Login com Email</span>
+            </button>
+            <button class="btn btn-secondary login-option" id="loginWithGoogle">
+              <i class="fab fa-google"></i>
+              <span>Login com Google</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `
+
+    document.body.appendChild(modal)
+
+    // Mostrar modal
+    setTimeout(() => {
+      modal.classList.add('active')
+    }, 100)
+
+    // Eventos do modal
+    const closeBtn = modal.querySelector('#closeLoginModal')
+    const loginWithEmailBtn = modal.querySelector('#loginWithEmail')
+    const loginWithGoogleBtn = modal.querySelector('#loginWithGoogle')
+
+    closeBtn.addEventListener('click', () => {
+      this.closeLoginPopup(modal)
+    })
+
+    loginWithEmailBtn.addEventListener('click', () => {
+      this.closeLoginPopup(modal)
+      window.location.href = '/login.html'
+    })
+
+    loginWithGoogleBtn.addEventListener('click', async () => {
+      try {
+        const result = await authService.loginWithGoogle()
+        if (result.success) {
+          this.closeLoginPopup(modal)
+          window.showNotification('Login realizado com sucesso!', 'success')
+        } else {
+          window.showNotification('Erro no login: ' + result.error, 'error')
+        }
+      } catch (error) {
+        window.showNotification('Erro no login: ' + error.message, 'error')
+      }
+    })
+
+    // Fechar ao clicar fora
+    modal.addEventListener('click', e => {
+      if (e.target === modal) {
+        this.closeLoginPopup(modal)
+      }
+    })
+  }
+
+  closeLoginPopup(modal) {
+    modal.classList.remove('active')
+    setTimeout(() => {
+      if (modal.parentNode) {
+        modal.parentNode.removeChild(modal)
+      }
+    }, 300)
   }
 
   async performLogout() {

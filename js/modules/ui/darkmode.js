@@ -38,16 +38,8 @@ export default class DarkModeManager {
     this.darkModeToggle.setAttribute('title', 'Alternar modo escuro')
     this.darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>'
 
-    // Create logout button
-    const logoutBtn = document.createElement('button')
-    logoutBtn.className = 'logout-btn'
-    logoutBtn.id = 'logoutBtn'
-    logoutBtn.setAttribute('title', 'Sair')
-    logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>'
-
-    // Append buttons to container
+    // Append button to container
     toggleContainer.appendChild(this.darkModeToggle)
-    toggleContainer.appendChild(logoutBtn)
 
     // Find where to insert the toggle button
     const userSection = document.querySelector('.user-section')
