@@ -132,6 +132,7 @@ class DataService {
           })
         })
 
+        console.log(`${disciplines.length} disciplinas carregadas do Firestore`)
         return { success: true, data: disciplines }
       } catch (indexError) {
         // Se o índice não existir, buscar sem ordenação
@@ -161,6 +162,7 @@ class DataService {
           return dateB - dateA
         })
 
+        console.log(`${disciplines.length} disciplinas carregadas do Firestore`)
         return { success: true, data: disciplines }
       }
     } catch (error) {

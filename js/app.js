@@ -228,8 +228,7 @@ class App {
         }
 
         console.log(
-          `Disciplina adicionada ao curso ${this.cursoAtual}. Total: ${this.disciplinas.length}`,
-          disciplina
+          `Disciplina adicionada ao curso ${this.cursoAtual}. Total: ${this.disciplinas.length}`
         )
         salvarDisciplinas(this.disciplinas, this.cursoAtual)
         this.atualizarTudo()
@@ -525,7 +524,6 @@ class App {
   async verificarEstatisticas() {
     try {
       console.log('Verificando estatísticas...')
-      console.log(`Total de disciplinas carregadas: ${this.disciplinas.length}`)
 
       // Contar por status
       const aprovadas = this.disciplinas.filter(
@@ -538,9 +536,9 @@ class App {
         d => d.resultado === 'TR'
       ).length
 
-      console.log(`Aprovadas: ${aprovadas}`)
-      console.log(`Reprovadas: ${reprovadas}`)
-      console.log(`Trancadas: ${trancadas}`)
+      console.log(
+        `Estatísticas: ${aprovadas} aprovadas, ${reprovadas} reprovadas, ${trancadas} trancadas`
+      )
 
       // Verificar duplicatas locais
       const codigos = this.disciplinas.map(d => d.codigo)
@@ -549,7 +547,7 @@ class App {
       )
 
       if (duplicatas.length > 0) {
-        console.log(`Duplicatas locais encontradas: ${duplicatas.join(', ')}`)
+        console.log(`Duplicatas encontradas: ${duplicatas.length} códigos`)
         await this.limparDadosDuplicados()
       }
     } catch (error) {

@@ -2,7 +2,6 @@
 export function carregarDisciplinas(curso) {
   console.log(`Carregando disciplinas do curso: ${curso}`)
   const disciplinasSalvas = localStorage.getItem(`disciplinas_${curso}`)
-  console.log(`Disciplinas salvas: ${disciplinasSalvas || '[]'}`)
 
   if (!disciplinasSalvas) {
     return []
@@ -12,6 +11,9 @@ export function carregarDisciplinas(curso) {
     const disciplinasObj = JSON.parse(disciplinasSalvas)
     // Verificar se é realmente um array
     if (Array.isArray(disciplinasObj)) {
+      console.log(
+        `${disciplinasObj.length} disciplinas carregadas para ${curso}`
+      )
       return disciplinasObj
     } else {
       console.error(
