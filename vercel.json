@@ -13,6 +13,10 @@
       "destination": "/profile.html"
     },
     {
+      "source": "/certificados",
+      "destination": "/certificados.html"
+    },
+    {
       "source": "/legal/terms",
       "destination": "/legal/terms.html"
     },

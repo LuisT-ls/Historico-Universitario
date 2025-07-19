@@ -117,6 +117,10 @@ body {
   top: 75px;
   right: 20px;
   z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .dark-mode-button {
@@ -183,6 +187,67 @@ html:not(.dark-mode) .dark-mode-button:hover {
   color: #0056b3;
 }
 
+/* Logout Button in Dark Mode Toggle */
+.dark-mode-toggle .logout-btn {
+  background-color: var(--surface-light);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  outline: none;
+  overflow: hidden;
+  position: relative;
+  padding: 0;
+}
+
+.dark-mode-toggle .logout-btn:hover {
+  background-color: var(--danger);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode-toggle .logout-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode-toggle .logout-btn i {
+  font-size: 1.4rem;
+  transition: transform 0.5s ease;
+  display: block;
+  line-height: 0;
+  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.dark-mode-toggle .logout-btn:hover i {
+  transform: translate(-50%, -50%) rotate(12deg);
+}
+
+/* Logout button in light mode */
+html:not(.dark-mode) .dark-mode-toggle .logout-btn {
+  background-color: #e8e9ea;
+  color: #121212;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid #d0d0d0;
+}
+
+html:not(.dark-mode) .dark-mode-toggle .logout-btn:hover {
+  background-color: #dc2626;
+  color: white;
+}
+
 /* Botão de "Adicionar Disciplina" */
 .dark-mode button[type='submit'] {
   background-color: var(--success);
@@ -224,12 +289,14 @@ html:not(.dark-mode) .dark-mode-button:hover {
     right: 15px;
   }
 
-  .dark-mode-button {
+  .dark-mode-button,
+  .dark-mode-toggle .logout-btn {
     width: 40px;
     height: 40px;
   }
 
-  .dark-mode-button i {
+  .dark-mode-button i,
+  .dark-mode-toggle .logout-btn i {
     font-size: 1.2rem;
   }
 }
@@ -240,7 +307,8 @@ html:not(.dark-mode) .dark-mode-button:hover {
     right: 10px;
   }
 
-  .dark-mode-button {
+  .dark-mode-button,
+  .dark-mode-toggle .logout-btn {
     width: 36px;
     height: 36px;
   }

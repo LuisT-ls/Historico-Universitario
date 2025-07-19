@@ -170,11 +170,11 @@
     display: none;
   }
 
-  .watermark-logo:hover {
+  .site-header .watermark-logo:hover {
     width: 50px;
   }
 
-  .watermark-logo:hover .logo-text {
+  .site-header .watermark-logo:hover .logo-text {
     display: block;
   }
 
@@ -364,17 +364,18 @@
     font-size: 0.75rem;
   }
 
-  .watermark-container {
-    right: 10px;
-    bottom: 10px;
+  .site-header .watermark-container {
+    position: relative;
+    right: auto;
+    bottom: auto;
   }
 
-  .watermark-logo {
+  .site-header .watermark-logo {
     width: 40px;
     height: 40px;
   }
 
-  .logo-initials {
+  .site-header .logo-initials {
     font-size: 1rem;
   }
 }
@@ -558,11 +559,11 @@
     animation: none !important;
   }
 
-  .watermark-logo:hover {
+  .site-header .watermark-logo:hover {
     transform: none;
   }
 
-  .watermark-logo:hover .logo-initials {
+  .site-header .watermark-logo:hover .logo-initials {
     transform: none;
   }
 

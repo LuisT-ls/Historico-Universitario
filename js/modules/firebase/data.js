@@ -891,13 +891,151 @@ class DataService {
       batchDeletes.push(deleteDoc(doc(db, 'summaries', uid)))
       // 5. Backup
       batchDeletes.push(deleteDoc(doc(db, 'backups', uid)))
-      // 6. Perfil do usuário
+      // 6. Certificados
+      const certificadosSnap = await getDocs(
+        query(collection(db, 'certificados'), where('userId', '==', uid))
+      )
+      certificadosSnap.forEach(docRef => {
+        batchDeletes.push(deleteDoc(doc(db, 'certificados', docRef.id)))
+      })
+      // 7. Perfil do usuário
       batchDeletes.push(deleteDoc(doc(db, 'users', uid)))
       // Executar todas as deleções
       await Promise.all(batchDeletes)
       return { success: true }
     } catch (error) {
       console.error('Erro ao excluir dados do usuário:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // ===== CERTIFICADOS =====
+
+  // Salvar certificado
+  async salvarCertificado(certificadoData) {
+    try {
+      this.checkAuth()
+
+      const certificado = {
+        ...certificadoData,
+        userId: this.currentUser.uid,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+
+      const docRef = await addDoc(collection(db, 'certificados'), certificado)
+      return { success: true, id: docRef.id }
+    } catch (error) {
+      console.error('Erro ao salvar certificado:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Buscar certificados do usuário
+  async getUserCertificados() {
+    try {
+      this.checkAuth()
+
+      const q = query(
+        collection(db, 'certificados'),
+        where('userId', '==', this.currentUser.uid),
+        orderBy('createdAt', 'desc')
+      )
+
+      const querySnapshot = await getDocs(q)
+      const certificados = []
+
+      querySnapshot.forEach(doc => {
+        certificados.push({
+          id: doc.id,
+          ...doc.data()
+        })
+      })
+
+      console.log(`${certificados.length} certificados carregados do Firestore`)
+      return { success: true, data: certificados }
+    } catch (error) {
+      console.error('Erro ao buscar certificados:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Atualizar certificado
+  async atualizarCertificado(certificadoId, certificadoData) {
+    try {
+      this.checkAuth()
+
+      const certificadoRef = doc(db, 'certificados', certificadoId)
+      const certificadoDoc = await getDoc(certificadoRef)
+
+      if (!certificadoDoc.exists()) {
+        return { success: false, error: 'Certificado não encontrado' }
+      }
+
+      if (certificadoDoc.data().userId !== this.currentUser.uid) {
+        return { success: false, error: 'Acesso negado' }
+      }
+
+      await updateDoc(certificadoRef, {
+        ...certificadoData,
+        updatedAt: new Date()
+      })
+
+      return { success: true }
+    } catch (error) {
+      console.error('Erro ao atualizar certificado:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Excluir certificado
+  async excluirCertificado(certificadoId) {
+    try {
+      this.checkAuth()
+
+      const certificadoRef = doc(db, 'certificados', certificadoId)
+      const certificadoDoc = await getDoc(certificadoRef)
+
+      if (!certificadoDoc.exists()) {
+        return { success: false, error: 'Certificado não encontrado' }
+      }
+
+      if (certificadoDoc.data().userId !== this.currentUser.uid) {
+        return { success: false, error: 'Acesso negado' }
+      }
+
+      await deleteDoc(certificadoRef)
+      console.log(`Certificado ${certificadoId} removido com sucesso`)
+      return { success: true }
+    } catch (error) {
+      console.error('Erro ao excluir certificado:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Buscar certificado específico
+  async getCertificado(certificadoId) {
+    try {
+      this.checkAuth()
+
+      const certificadoRef = doc(db, 'certificados', certificadoId)
+      const certificadoDoc = await getDoc(certificadoRef)
+
+      if (!certificadoDoc.exists()) {
+        return { success: false, error: 'Certificado não encontrado' }
+      }
+
+      const certificado = certificadoDoc.data()
+      if (certificado.userId !== this.currentUser.uid) {
+        return { success: false, error: 'Acesso negado' }
+      }
+
+      return {
+        success: true,
+        data: { id: certificadoDoc.id, ...certificado }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar certificado:', error)
       return { success: false, error: error.message }
     }
   }

@@ -200,52 +200,24 @@
     <header class="site-header">
       <time class="datetime-display" id="current-datetime" datetime=""></time>
 
-      <!-- Seção de usuário -->
-      <nav class="user-navigation" aria-label="Navegação do usuário">
-        <div class="user-dropdown">
-          <button
-            class="user-button"
-            aria-expanded="false"
-            aria-haspopup="true"
-            id="userButton"
-          >
-            <i class="fas fa-user-circle"></i>
-            <span class="user-greeting"
-              >Olá, <span class="user-name" id="userName">Usuário</span></span
-            >
-            <i class="fas fa-chevron-down"></i>
-          </button>
-          <ul class="user-menu" role="menu">
-            <li role="none">
-              <a href="profile.html" class="menu-item" role="menuitem">
-                <i class="fas fa-user-cog"></i>
-                Meu Perfil
-              </a>
-            </li>
-            <li role="none">
-              <a
-                href="#"
-                class="menu-item"
-                role="menuitem"
-                id="changePasswordBtn"
-              >
-                <i class="fas fa-key"></i>
-                Alterar Senha
-              </a>
-            </li>
-            <li role="none">
-              <button
-                class="menu-item logout-button"
-                role="menuitem"
-                id="logoutBtn"
-              >
-                <i class="fas fa-sign-out-alt"></i>
-                Sair
-              </button>
-            </li>
-          </ul>
-        </div>
+      <!-- Navegação principal -->
+      <nav class="main-nav" aria-label="Navegação principal">
+        <a href="/certificados.html" class="nav-link">
+          <i class="fas fa-certificate"></i>
+          <span>Certificados</span>
+        </a>
+        <a href="/profile.html" class="nav-link">
+          <i class="fas fa-user"></i>
+          <span>Perfil</span>
+        </a>
       </nav>
+
+      <!-- Informações do usuário -->
+      <div class="user-info-section">
+        <div class="user-greeting">
+          <span>Olá, <span class="user-name" id="userName">Usuário</span></span>
+        </div>
+      </div>
 
       <!-- Logomarca e informações do desenvolvedor -->
       <aside

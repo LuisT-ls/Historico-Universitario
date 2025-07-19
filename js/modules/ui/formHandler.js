@@ -115,6 +115,7 @@ export function setupFormHandlers(disciplinas, callbacks) {
     }
 
     // Nota: obrigatória para qualquer natureza exceto AC, trancamento, dispensada ou em curso
+    // AC (Atividades Complementares) não precisa de nota pois são certificados/atividades complementares
     if (isAC || isTrancamento || isDispensada || isEmCurso) {
       notaInput.removeAttribute('required')
     } else {

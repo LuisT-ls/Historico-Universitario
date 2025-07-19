@@ -108,7 +108,7 @@ class MainApp {
   }
 
   setupUserMenu() {
-    // Toggle do menu do usuário
+    // Toggle do menu do usuário (se existir)
     const userButton = document.getElementById('userButton')
     const userDropdown = document.querySelector('.user-dropdown')
 
@@ -125,45 +125,11 @@ class MainApp {
       })
     }
 
-    // Logout
+    // Logout - verificar tanto o botão do menu quanto o novo botão discreto
     const logoutBtn = document.getElementById('logoutBtn')
     if (logoutBtn) {
       logoutBtn.addEventListener('click', async () => {
-        try {
-          console.log('Iniciando logout...')
-          const result = await authService.logout()
-          console.log('Resultado do logout:', result)
-
-          if (result.success) {
-            console.log('Logout bem-sucedido, redirecionando...')
-            // Limpar dados locais
-            localStorage.removeItem('theme')
-            sessionStorage.clear()
-            // Limpar disciplinas de todos os cursos e registro de remoções
-            Object.keys(localStorage).forEach(key => {
-              if (
-                key.startsWith('disciplinas_') ||
-                key === 'removalsRegistry'
-              ) {
-                localStorage.removeItem(key)
-              }
-            })
-            // Redirecionar para a página principal
-            window.location.href = '/'
-          } else {
-            console.error('Erro no logout:', result.error)
-            this.showNotification(
-              '❌ Erro ao fazer logout: ' + result.error,
-              'error'
-            )
-          }
-        } catch (error) {
-          console.error('Exceção no logout:', error)
-          this.showNotification(
-            '❌ Erro ao fazer logout: ' + error.message,
-            'error'
-          )
-        }
+        await this.performLogout()
       })
     }
 
@@ -174,6 +140,44 @@ class MainApp {
         e.preventDefault()
         window.location.href = '/profile.html#change-password'
       })
+    }
+  }
+
+  async performLogout() {
+    try {
+      console.log('Iniciando logout...')
+      const result = await authService.logout()
+      console.log('Resultado do logout:', result)
+
+      if (result.success) {
+        console.log('Logout bem-sucedido, redirecionando...')
+        // Limpar dados locais
+        localStorage.removeItem('theme')
+        sessionStorage.clear()
+        // Limpar disciplinas de todos os cursos e registro de remoções
+        Object.keys(localStorage).forEach(key => {
+          if (
+            key.startsWith('disciplinas_') ||
+            key === 'removalsRegistry'
+          ) {
+            localStorage.removeItem(key)
+          }
+        })
+        // Redirecionar para a página principal
+        window.location.href = '/'
+      } else {
+        console.error('Erro no logout:', result.error)
+        this.showNotification(
+          '❌ Erro ao fazer logout: ' + result.error,
+          'error'
+        )
+      }
+    } catch (error) {
+      console.error('Exceção no logout:', error)
+      this.showNotification(
+        '❌ Erro ao fazer logout: ' + error.message,
+        'error'
+      )
     }
   }
 
