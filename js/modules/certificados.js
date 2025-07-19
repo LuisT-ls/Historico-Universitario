@@ -23,6 +23,8 @@ class CertificadosManager {
       if (user) {
         this.currentUser = user
         this.userData = userData
+        // Configurar o usuário no dataService
+        dataService.setCurrentUser(user)
         this.carregarCertificados()
         this.setupEventListeners()
       }
@@ -33,6 +35,8 @@ class CertificadosManager {
     if (currentUser) {
       this.currentUser = currentUser
       this.userData = authService.getUserData()
+      // Configurar o usuário no dataService
+      dataService.setCurrentUser(currentUser)
       if (this.userData) {
         this.carregarCertificados()
         this.setupEventListeners()

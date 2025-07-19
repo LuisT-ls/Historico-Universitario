@@ -48,49 +48,42 @@ class CertificadosApp {
     // Configurar eventos do usuário
     this.setupUserEvents()
 
+    // Mostrar elementos para usuário autenticado
+    const userGreeting = document.getElementById('userGreeting')
+    const userDropdown = document.getElementById('userDropdown')
+    const loginBtn = document.getElementById('loginBtn')
+
+    if (userGreeting) userGreeting.style.display = 'block'
+    if (userDropdown) userDropdown.style.display = 'block'
+    if (loginBtn) loginBtn.style.display = 'none'
+
     // Mostrar conteúdo autenticado
     document.body.classList.add('authenticated')
   }
 
   setupUnauthenticatedUI() {
-    // Redirecionar para login se não estiver autenticado
-    window.location.href = '/login.html'
+    // Mostrar elementos para usuário não autenticado
+    const userGreeting = document.getElementById('userGreeting')
+    const userDropdown = document.getElementById('userDropdown')
+    const loginBtn = document.getElementById('loginBtn')
+
+    if (userGreeting) userGreeting.style.display = 'none'
+    if (userDropdown) userDropdown.style.display = 'none'
+    if (loginBtn) loginBtn.style.display = 'block'
+
+    // Configurar evento do botão de login
+    this.setupLoginButton()
   }
 
   updateUserInfo(user, userData) {
     // Atualizar nome do usuário
-    const userNameElements = document.querySelectorAll(
-      '#userName, #dropdownUserName'
-    )
+    const userNameElements = document.querySelectorAll('#userName')
     userNameElements.forEach(element => {
       element.textContent = userData?.name || user.displayName || 'Usuário'
-    })
-
-    // Atualizar email do usuário
-    const userEmailElements = document.querySelectorAll('#dropdownUserEmail')
-    userEmailElements.forEach(element => {
-      element.textContent = user.email || 'usuario@email.com'
     })
   }
 
   setupUserEvents() {
-    // Menu do usuário
-    const userButton = document.getElementById('userButton')
-    const userDropdown = document.querySelector('.user-dropdown')
-
-    if (userButton && userDropdown) {
-      userButton.addEventListener('click', () => {
-        userDropdown.classList.toggle('active')
-      })
-
-      // Fechar menu ao clicar fora
-      document.addEventListener('click', e => {
-        if (!e.target.closest('.user-dropdown')) {
-          userDropdown.classList.remove('active')
-        }
-      })
-    }
-
     // Logout
     const logoutBtn = document.getElementById('logoutBtn')
     if (logoutBtn) {
@@ -108,6 +101,15 @@ class CertificadosApp {
     }
   }
 
+  setupLoginButton() {
+    const loginBtn = document.getElementById('loginBtn')
+    if (loginBtn) {
+      loginBtn.addEventListener('click', () => {
+        window.location.href = '/login.html'
+      })
+    }
+  }
+
   async performLogout() {
     try {
       console.log('Iniciando logout...')
@@ -121,10 +123,7 @@ class CertificadosApp {
         sessionStorage.clear()
         // Limpar disciplinas de todos os cursos e registro de remoções
         Object.keys(localStorage).forEach(key => {
-          if (
-            key.startsWith('disciplinas_') ||
-            key === 'removalsRegistry'
-          ) {
+          if (key.startsWith('disciplinas_') || key === 'removalsRegistry') {
             localStorage.removeItem(key)
           }
         })

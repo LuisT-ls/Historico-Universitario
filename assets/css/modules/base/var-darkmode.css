@@ -41,4 +41,13 @@
   --footer-secondary-text: #94a3b8;
   --footer-gradient-start: #0f172a;
   --footer-gradient-end: #1e293b;
+
+  /* Background colors */
+  --bg-primary: #1e293b;
+  --bg-secondary: #334155;
+  --primary-bg: rgba(59, 130, 246, 0.1);
+
+  /* Primary color */
+  --primary-color: #3b82f6;
+  --primary-dark: #2563eb;
 }

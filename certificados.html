@@ -53,66 +53,58 @@
   </head>
   <body>
     <!-- Header -->
-    <header class="header">
+    <header class="site-header">
       <div class="container">
-        <div class="header-content">
-          <div class="logo">
-            <a href="/">
-              <img src="/assets/img/logo.png" alt="Histórico Universitário" />
-              <span>Histórico Universitário</span>
-            </a>
+        <nav class="main-nav">
+          <a href="/" class="nav-link">
+            <i class="fas fa-home"></i>
+            <span>Início</span>
+          </a>
+          <a href="/profile.html" class="nav-link">
+            <i class="fas fa-user"></i>
+            <span>Perfil</span>
+          </a>
+        </nav>
+
+        <div class="user-info-section">
+          <div class="user-greeting" id="userGreeting" style="display: none">
+            <span
+              >Bem-vindo,
+              <span class="user-name" id="userName">Usuário</span></span
+            >
           </div>
+        </div>
 
-          <nav class="nav">
-            <a href="/" class="nav-link">
-              <i class="fas fa-home"></i>
-              <span>Início</span>
-            </a>
-            <a href="/certificados.html" class="nav-link active">
-              <i class="fas fa-certificate"></i>
-              <span>Certificados</span>
-            </a>
-            <a href="/profile.html" class="nav-link">
-              <i class="fas fa-user"></i>
-              <span>Perfil</span>
-            </a>
-          </nav>
-
-          <div class="user-section">
-            <button class="user-button" id="userButton">
-              <i class="fas fa-user-circle"></i>
-              <span id="userName">Usuário</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="user-dropdown">
-              <div class="user-info">
-                <div class="user-avatar">
-                  <i class="fas fa-user-circle"></i>
-                </div>
-                <div class="user-details">
-                  <span class="user-name" id="dropdownUserName">Usuário</span>
-                  <span class="user-email" id="dropdownUserEmail"
-                    >usuario@email.com</span
-                  >
-                </div>
-              </div>
-              <div class="dropdown-menu">
-                <a href="/profile.html" class="dropdown-item">
+        <div class="user-navigation">
+          <!-- Botões para usuário autenticado -->
+          <div class="user-dropdown" id="userDropdown" style="display: none">
+            <ul class="user-menu">
+              <li>
+                <a href="/profile.html" class="menu-item">
                   <i class="fas fa-user-edit"></i>
                   <span>Editar Perfil</span>
                 </a>
-                <a href="#" class="dropdown-item" id="changePasswordBtn">
+              </li>
+              <li>
+                <a href="#" class="menu-item" id="changePasswordBtn">
                   <i class="fas fa-key"></i>
                   <span>Alterar Senha</span>
                 </a>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item logout-btn" id="logoutBtn">
+              </li>
+              <li>
+                <button class="menu-item logout-button" id="logoutBtn">
                   <i class="fas fa-sign-out-alt"></i>
                   <span>Sair</span>
                 </button>
-              </div>
-            </div>
+              </li>
+            </ul>
           </div>
+
+          <!-- Botão para usuário não autenticado -->
+          <button class="btn btn-primary" id="loginBtn" style="display: none">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Entrar</span>
+          </button>
         </div>
       </div>
     </header>
