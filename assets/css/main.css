@@ -22,6 +22,7 @@
 @import './modules/components/clean.css';
 @import './modules/components/table-header.css';
 @import './modules/components/login-toast.css';
+@import './modules/components/privacy.css';
 
 /* Importing all layouts */
 @import './modules/layout/container.css';

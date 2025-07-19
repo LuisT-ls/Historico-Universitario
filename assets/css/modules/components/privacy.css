@@ -1,0 +1,154 @@
+/* Estilos para indicadores de privacidade */
+.privacy-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.privacy-indicator.private {
+  background-color: var(--warning-color);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
+}
+
+.privacy-indicator.public {
+  background-color: var(--success-color);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
+}
+
+.privacy-indicator i {
+  font-size: 0.75rem;
+}
+
+/* Elementos ocultos por privacidade */
+.privacy-hidden {
+  display: none !important;
+}
+
+/* Dados sensíveis ocultos */
+.data-hidden {
+  opacity: 0.5;
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+/* Controles de compartilhamento */
+[data-share] {
+  transition: all 0.2s ease;
+}
+
+[data-share]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Elementos com dados sensíveis */
+[data-sensitive] {
+  position: relative;
+}
+
+[data-sensitive]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.privacy-indicator.private [data-sensitive]::after {
+  opacity: 1;
+}
+
+/* Controles de privacidade */
+.privacy-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.privacy-controls .control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.privacy-controls label {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Tooltip de privacidade */
+.privacy-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.privacy-tooltip .tooltip-content {
+  visibility: hidden;
+  width: 200px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  text-align: center;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  position: absolute;
+  z-index: 1000;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.privacy-tooltip:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .privacy-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .privacy-indicator {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+  }
+}
+
+/* Modo escuro */
+@media (prefers-color-scheme: dark) {
+  .privacy-indicator.private {
+    background-color: var(--warning-color-dark);
+    color: var(--warning-text-dark);
+  }
+
+  .privacy-indicator.public {
+    background-color: var(--success-color-dark);
+    color: var(--success-text-dark);
+  }
+
+  .data-hidden {
+    opacity: 0.3;
+  }
+}

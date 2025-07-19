@@ -148,6 +148,7 @@
                     required
                     disabled
                     placeholder="Seu e-mail será exibido aqui"
+                    data-sensitive="email"
                   />
                   <small>O e-mail não pode ser alterado</small>
                 </div>
@@ -182,6 +183,7 @@
                     id="enrollment"
                     name="enrollment"
                     placeholder="Número de matrícula"
+                    data-sensitive="enrollment"
                   />
                 </div>
                 <div class="form-group">
@@ -237,6 +239,9 @@
                 <div class="setting-info">
                   <h3>Privacidade</h3>
                   <p>Visibilidade dos seus dados</p>
+                  <div class="privacy-indicator" id="privacyIndicator">
+                    <i class="fas fa-lock"></i> Privado
+                  </div>
                 </div>
                 <div class="setting-control">
                   <select id="privacySelect" class="form-select">
@@ -298,6 +303,21 @@
                   <div class="stat-value" id="averageGrade">0.0</div>
                   <div class="stat-label">Nota média</div>
                 </div>
+              </div>
+            </div>
+
+            <!-- Elementos que só aparecem em modo público -->
+            <div
+              class="public-only"
+              data-privacy="public"
+              style="display: none"
+            >
+              <div class="share-section">
+                <h3><i class="fas fa-share-alt"></i> Compartilhar Perfil</h3>
+                <p>Seu perfil está público e pode ser compartilhado</p>
+                <button class="btn btn-primary" data-share="profile">
+                  <i class="fas fa-link"></i> Copiar Link
+                </button>
               </div>
             </div>
           </section>
