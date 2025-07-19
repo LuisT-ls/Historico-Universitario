@@ -24,7 +24,7 @@ function adicionarBotaoEmenta() {
     const ementaButton = document.createElement('button')
     ementaButton.id = 'btn-ementa'
     ementaButton.className = 'btn-ementa'
-    ementaButton.innerHTML = '<i class="fas fa-book-open"></i> Ementa do Curso'
+    ementaButton.innerHTML = '<i class="fas fa-book-open"></i> Ementa'
 
     cursoContainer.insertAdjacentElement('afterend', ementaButton)
 
@@ -37,12 +37,13 @@ function adicionarBotaoEmenta() {
           margin-left: 1rem;
           display: inline-flex;
           align-items: center;
-          padding: 0.5rem 1rem;
+          padding: 0.4rem 0.6rem;
           background-color: var(--secondary);
           color: white;
           border: none;
           border-radius: 6px;
           font-weight: 500;
+          font-size: 0.8rem;
           cursor: pointer;
           transition: all 0.3s ease;
           position: relative;
@@ -72,7 +73,8 @@ function adicionarBotaoEmenta() {
         }
         
         .btn-ementa i {
-          margin-right: 0.5rem;
+          margin-right: 0.3rem;
+          font-size: 0.85rem;
           transition: transform 0.3s ease;
         }
         

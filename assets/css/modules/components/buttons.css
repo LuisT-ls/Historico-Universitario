@@ -166,14 +166,14 @@ button:focus {
 .btn-ementa {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
+  gap: 0.3rem;
+  padding: 0.4rem 0.6rem;
   background-color: var(--secondary, #0ea5e9);
   color: white;
   border: none;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -195,7 +195,7 @@ button:focus {
 }
 
 .btn-ementa i {
-  font-size: 1rem;
+  font-size: 0.85rem;
 }
 
 .btn-ementa-fixed {
@@ -206,7 +206,7 @@ button:focus {
 }
 
 .form-row .btn-ementa {
-  height: 42px;
+  height: 36px;
   margin-top: 1.5rem;
 }
 
