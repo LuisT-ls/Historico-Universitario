@@ -1,3 +1,7 @@
+/*
+// TODO: Funcionalidade de certificados desativada temporariamente.
+// Todo o código deste arquivo foi comentado para evitar erros enquanto a página de certificados está bloqueada.
+
 import authService from './modules/firebase/auth.js'
 import certificadosManager from './modules/certificados.js'
 
@@ -273,3 +277,4 @@ window.showNotification = function (message, type = 'info') {
     }, 300)
   }, 5000)
 }
+*/
