@@ -38,11 +38,15 @@ class MainApp {
     const userDropdown = document.getElementById('userDropdown')
     const loginLink = document.getElementById('loginLink')
     const profileLink = document.getElementById('profileLink')
+    const logoutBtnNav = document.getElementById('logoutBtnNav')
+    const loginBtnNav = document.getElementById('loginBtnNav')
 
     if (userGreeting) userGreeting.style.display = 'block'
-    if (userDropdown) userDropdown.style.display = 'block'
+    if (userDropdown) userDropdown.style.display = 'flex'
     if (loginLink) loginLink.style.display = 'none'
     if (profileLink) profileLink.style.display = 'flex'
+    if (logoutBtnNav) logoutBtnNav.style.display = 'flex'
+    if (loginBtnNav) loginBtnNav.style.display = 'none'
 
     // Inicializar sincronização de forma não bloqueante
     initializeSyncNonBlocking()
@@ -56,11 +60,15 @@ class MainApp {
     const userDropdown = document.getElementById('userDropdown')
     const loginLink = document.getElementById('loginLink')
     const profileLink = document.getElementById('profileLink')
+    const logoutBtnNav = document.getElementById('logoutBtnNav')
+    const loginBtnNav = document.getElementById('loginBtnNav')
 
     if (userGreeting) userGreeting.style.display = 'none'
     if (userDropdown) userDropdown.style.display = 'none'
     if (loginLink) loginLink.style.display = 'flex'
     if (profileLink) profileLink.style.display = 'none'
+    if (logoutBtnNav) logoutBtnNav.style.display = 'none'
+    if (loginBtnNav) loginBtnNav.style.display = 'flex'
 
     // Importar dados do localStorage e atualizar interface
     this.carregarDisciplinasDoCurso(false)
@@ -93,6 +101,14 @@ class MainApp {
         e.preventDefault()
         window.location.href = '/profile.html#change-password'
       })
+    }
+
+    const logoutBtnNav = document.getElementById('logoutBtnNav')
+    if (logoutBtnNav) {
+      logoutBtnNav.onclick = async e => {
+        e.preventDefault()
+        await this.performLogout()
+      }
     }
   }
 
