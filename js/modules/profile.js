@@ -25,7 +25,6 @@ class ProfileManager {
         this.setupEventListeners()
       } else {
         // Usuário não está logado, não redirecionar mais para login
-        // Podemos exibir um aviso ou popup aqui futuramente
       }
     })
 
@@ -59,8 +58,6 @@ class ProfileManager {
       this.userData.profile?.startSemester || '1'
 
     // Configurar controles de configurações
-    document.getElementById('themeSelect').value =
-      this.userData.settings?.theme || 'light'
     // Novo: select de notificações
     document.getElementById('notificationsSelect').value =
       this.userData.settings?.notifications !== false ? 'true' : 'false'
@@ -126,10 +123,6 @@ class ProfileManager {
     })
 
     // Configurações
-    document.getElementById('themeSelect').addEventListener('change', e => {
-      this.saveSettings({ theme: e.target.value })
-    })
-
     // Novo: select de notificações
     document
       .getElementById('notificationsSelect')
@@ -266,9 +259,6 @@ class ProfileManager {
         this.userData = authService.getUserData()
 
         // Aplicar configurações imediatamente
-        if (settings.theme) {
-          settingsManager.applyTheme(settings.theme)
-        }
         if (settings.notifications !== undefined) {
           settingsManager.applyNotifications(settings.notifications)
         }

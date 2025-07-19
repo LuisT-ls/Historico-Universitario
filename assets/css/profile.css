@@ -471,6 +471,13 @@
   transition: all 0.3s ease;
 }
 
+/* Dark mode para form-select */
+:root.dark-mode .form-select {
+  background: var(--surface-light);
+  border-color: var(--border);
+  color: var(--text);
+}
+
 .form-select:focus {
   outline: none;
   border-color: #667eea;

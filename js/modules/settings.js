@@ -33,52 +33,11 @@ class SettingsManager {
 
     const settings = this.userData.settings
 
-    // Aplicar tema
-    this.applyTheme(settings.theme || 'light')
-
     // Aplicar notificações
     this.applyNotifications(settings.notifications !== false)
 
     // Aplicar privacidade
     this.applyPrivacy(settings.privacy || 'private')
-  }
-
-  applyTheme(theme) {
-    const body = document.body
-    const html = document.documentElement
-
-    // Remover classes de tema anteriores
-    body.classList.remove('theme-light', 'theme-dark', 'theme-auto')
-    html.classList.remove('theme-light', 'theme-dark', 'theme-auto')
-
-    // Aplicar novo tema
-    if (theme === 'auto') {
-      // Detectar preferência do sistema
-      const prefersDark = window.matchMedia(
-        '(prefers-color-scheme: dark)'
-      ).matches
-      const systemTheme = prefersDark ? 'dark' : 'light'
-
-      body.classList.add(`theme-${systemTheme}`)
-      html.classList.add(`theme-${systemTheme}`)
-
-      // Escutar mudanças na preferência do sistema
-      window
-        .matchMedia('(prefers-color-scheme: dark)')
-        .addEventListener('change', e => {
-          const newTheme = e.matches ? 'dark' : 'light'
-          body.classList.remove('theme-light', 'theme-dark')
-          html.classList.remove('theme-light', 'theme-dark')
-          body.classList.add(`theme-${newTheme}`)
-          html.classList.add(`theme-${newTheme}`)
-        })
-    } else {
-      body.classList.add(`theme-${theme}`)
-      html.classList.add(`theme-${theme}`)
-    }
-
-    // Salvar no localStorage para persistência
-    localStorage.setItem('theme', theme)
   }
 
   applyNotifications(enabled) {
