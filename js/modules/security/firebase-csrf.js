@@ -85,13 +85,19 @@ export class CSRFProtection {
     const self = this
 
     window.fetch = function (url, options = {}) {
-      // Prepara as opções com cabeçalhos
-      options.headers = options.headers || {}
+      // Só adiciona o cabeçalho CSRF para requisições relativas (do mesmo domínio)
+      let isRelative = false
+      if (typeof url === 'string') {
+        isRelative = url.startsWith('/') || !/^https?:\/\//i.test(url)
+      } else if (url instanceof Request) {
+        isRelative = url.url.startsWith(window.location.origin)
+      }
 
-      // Adiciona o token CSRF como cabeçalho
-      options.headers[self.headerName] = self.getToken()
+      if (isRelative) {
+        options.headers = options.headers || {}
+        options.headers[self.headerName] = self.getToken()
+      }
 
-      // Chama a função fetch original com as opções modificadas
       return originalFetch.call(this, url, options)
     }
   }
