@@ -20,78 +20,23 @@ export function inicializarEmenta() {
 function adicionarBotaoEmenta() {
   const cursoContainer = document.querySelector('.form-group.course')
 
+  // Envolver o select e o botão em um container flexível
+  if (!document.querySelector('.curso-ementa-container')) {
+    const formRow = cursoContainer.closest('.form-row')
+    const wrapper = document.createElement('div')
+    wrapper.className = 'curso-ementa-container'
+    formRow.appendChild(wrapper)
+    wrapper.appendChild(cursoContainer)
+  }
+  const wrapper = document.querySelector('.curso-ementa-container')
+
   if (!document.getElementById('btn-ementa')) {
     const ementaButton = document.createElement('button')
     ementaButton.id = 'btn-ementa'
-    ementaButton.className = 'btn-ementa'
+    ementaButton.className = 'btn-primary'
+    ementaButton.type = 'button'
     ementaButton.innerHTML = '<i class="fas fa-book-open"></i> Ementa'
-
-    cursoContainer.insertAdjacentElement('afterend', ementaButton)
-
-    // Adicionar CSS inline para posicionar melhor o botão
-    document.head.insertAdjacentHTML(
-      'beforeend',
-      `
-      <style>
-        .btn-ementa {
-          margin-left: 1rem;
-          display: inline-flex;
-          align-items: center;
-          padding: 0.4rem 0.6rem;
-          background-color: var(--secondary);
-          color: white;
-          border: none;
-          border-radius: 6px;
-          font-weight: 500;
-          font-size: 0.8rem;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .btn-ementa::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(255, 255, 255, 0.1);
-          transform: translateX(-100%);
-          transition: transform 0.5s ease;
-        }
-        
-        .btn-ementa:hover {
-          background-color: var(--secondary-dark, #0369a1);
-          transform: translateY(-2px);
-          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-ementa:hover::before {
-          transform: translateX(100%);
-        }
-        
-        .btn-ementa i {
-          margin-right: 0.3rem;
-          font-size: 0.85rem;
-          transition: transform 0.3s ease;
-        }
-        
-        .btn-ementa:hover i {
-          transform: rotate(-10deg);
-        }
-        
-        @media (max-width: 768px) {
-          .btn-ementa {
-            margin: 0.5rem 0;
-            width: 100%;
-            justify-content: center;
-          }
-        }
-      </style>
-    `
-    )
+    wrapper.appendChild(ementaButton)
   }
 }
 
