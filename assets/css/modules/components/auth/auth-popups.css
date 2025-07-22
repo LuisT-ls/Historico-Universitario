@@ -30,58 +30,159 @@
   animation: slideIn 0.3s ease-out forwards;
 }
 
-/* Botão de fechar mais discreto */
+/* Botão de fechar */
 .close-popup {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  background: rgba(0, 0, 0, 0.1);
-  border: none;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(248, 249, 250, 0.8)
+  );
+  border: 2px solid rgba(0, 123, 255, 0.1);
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #333;
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
+  color: #6c757d;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-size: 1rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.close-popup::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 123, 255, 0.1),
+    rgba(0, 123, 255, 0.05)
+  );
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.4s ease;
+  z-index: -1;
 }
 
 .close-popup:hover {
-  background: rgba(0, 0, 0, 0.15);
-  color: #000;
-  transform: scale(1.1);
-}
-
-.popup-header {
-  text-align: center;
-  margin-bottom: 2.5rem;
-  padding-top: 0.5rem;
-}
-
-.popup-header i {
-  font-size: 2.5rem;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 123, 255, 0.08),
+    rgba(0, 123, 255, 0.04)
+  );
+  border-color: rgba(0, 123, 255, 0.25);
   color: #007bff;
-  margin-bottom: 1rem;
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15),
+    0 4px 15px rgba(0, 123, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
-.popup-header h2 {
-  margin: 0.5rem 0;
-  color: #333;
-  font-size: 1.5rem;
-  font-weight: 600;
+.close-popup:hover::before {
+  width: 100%;
+  height: 100%;
 }
 
-.popup-header p {
-  color: #666;
-  margin: 0;
-  font-size: 0.95rem;
+.close-popup:active {
+  transform: scale(0.95) rotate(90deg);
+  transition: transform 0.1s ease;
 }
 
-.popup-form .form-group {
-  margin-bottom: 1.5rem;
+/* Animação do ícone X */
+.close-popup i {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  z-index: 2;
+}
+
+.close-popup:hover i {
+  transform: rotate(180deg) scale(1.1);
+  color: #007bff;
+  text-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+}
+
+/* Efeito de ondulação ao clicar */
+.close-popup::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(
+    circle,
+    rgba(0, 123, 255, 0.3) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.6s ease;
+}
+
+.close-popup:active::after {
+  width: 200%;
+  height: 200%;
+  opacity: 1;
+  transition: all 0.2s ease;
+}
+
+/* Animação de entrada do botão */
+@keyframes closeButtonAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-180deg);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2) rotate(-90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.popup-overlay.active .close-popup {
+  animation: closeButtonAppear 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s
+    both;
+}
+
+/* Efeito de pulsação sutil */
+@keyframes subtlePulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08), 0 3px 12px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+}
+
+.close-popup {
+  animation: subtlePulse 3s ease-in-out infinite;
+}
+
+.close-popup:hover {
+  animation: none;
+}
+
+.fas.fa-times {
+  color: inherit;
 }
 
 .popup-header {
@@ -171,30 +272,28 @@
 }
 
 /* Efeito suave nos ícones */
-.toggle-password i,
-.close-popup i {
+.toggle-password i {
   transition: transform 0.2s ease;
 }
 
-.toggle-password:hover i,
-.close-popup:hover i {
+.toggle-password:hover i {
   transform: scale(1.1);
 }
 
 /* Responsividade para dispositivos móveis */
 @media (max-width: 768px) {
+  .close-popup {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+    top: 1rem;
+    right: 1rem;
+  }
+
   .toggle-password {
     width: 32px;
     height: 32px;
     font-size: 1rem;
-  }
-
-  .close-popup {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
-    top: 1rem;
-    right: 1rem;
   }
 }
 

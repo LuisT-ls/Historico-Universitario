@@ -127,7 +127,7 @@
 .toggle-password {
   position: absolute;
   right: 1rem;
-  top: 50%;
+  top: 30%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
@@ -158,4 +158,12 @@
 
 .toggle-password:active {
   transform: translateY(-50%) scale(0.95);
+}
+
+.fas.fa-eye {
+  color: #007bff;
+}
+
+.fas.fa-eye-slash {
+  color: #007bff;
 }
