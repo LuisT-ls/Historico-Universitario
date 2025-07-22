@@ -1,6 +1,6 @@
 .datetime-display {
   position: absolute;
-  top: 0.75rem;
+  top: 0.2rem;
   right: 0.75rem;
   font-size: 0.75rem;
   color: var(--text-header);
