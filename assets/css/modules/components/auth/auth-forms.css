@@ -109,8 +109,7 @@
 .input-container input::placeholder {
   color: #aab2bd;
   opacity: 1;
-  /* Garantir que o placeholder não seja sobreposto pelo ícone */
-  text-indent: 0;
+  text-indent: 2rem;
 }
 
 /* Ajuste específico para popups */
@@ -166,4 +165,47 @@
 
 .fas.fa-eye-slash {
   color: #007bff;
+}
+
+/* Responsividade para inputs com ícone */
+@media (min-width: 300px) {
+  .input-container input {
+    padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+    font-size: 0.95rem;
+  }
+  .input-icon {
+    left: 0.7rem;
+    font-size: 1rem;
+  }
+
+  .input-container input::placeholder {
+    font-size: 0.95rem;
+    text-indent: 1.75rem;
+  }
+}
+
+@media (min-width: 400px) {
+  .input-container input::placeholder {
+    color: #aab2bd;
+    opacity: 1;
+    text-indent: 2rem;
+  }
+
+  .input-icon {
+    left: 0.7rem;
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .input-container input::placeholder {
+    color: #aab2bd;
+    opacity: 1;
+    text-indent: 0.1rem;
+  }
+
+  .input-icon {
+    left: 0.7rem;
+    font-size: 1rem;
+  }
 }
