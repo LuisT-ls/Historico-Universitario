@@ -180,28 +180,6 @@ class ProfileManager {
       })
 
     this.setupDeleteModal()
-
-    // Encerrar todas as sessões
-    document
-      .getElementById('logoutAllSessionsBtn')
-      .addEventListener('click', async () => {
-        try {
-          // Revogar todos os tokens de refresh do usuário
-          await authService.revokeAllSessions()
-          window.showNotification(
-            'Todas as sessões foram encerradas. Faça login novamente para continuar.',
-            'success'
-          )
-          setTimeout(() => {
-            window.location.href = '/login.html'
-          }, 1500)
-        } catch (err) {
-          window.showNotification(
-            'Erro ao encerrar sessões: ' + (err?.message || err),
-            'error'
-          )
-        }
-      })
   }
 
   async saveProfile() {
