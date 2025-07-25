@@ -410,6 +410,12 @@
     display: flex;
   }
 
+  /* Recuar o menu hambúrguer para a esquerda no mobile */
+  .menu-toggle {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
   /* Esconder navegação principal no mobile */
   .main-nav {
     position: fixed;
