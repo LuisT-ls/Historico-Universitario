@@ -132,7 +132,7 @@ export default class NavigationManager {
 
     const now = new Date()
 
-    // Formato dd/mm/aaaa hh:mm:ss
+    // Formato dd/mm/aaaa · hh:mm:ss
     const day = String(now.getDate()).padStart(2, '0')
     const month = String(now.getMonth() + 1).padStart(2, '0')
     const year = now.getFullYear()
@@ -140,7 +140,7 @@ export default class NavigationManager {
     const minutes = String(now.getMinutes()).padStart(2, '0')
     const seconds = String(now.getSeconds()).padStart(2, '0')
 
-    const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
+    const formattedDate = `${day}/${month}/${year} · ${hours}:${minutes}:${seconds}`
     datetimeDisplay.textContent = formattedDate
     datetimeDisplay.setAttribute('datetime', now.toISOString())
   }
