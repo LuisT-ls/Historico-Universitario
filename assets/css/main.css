@@ -17,6 +17,7 @@
 @import './modules/components/icon.css';
 @import './modules/components/watermark.css';
 @import './modules/components/notification-popup.css';
+@import './modules/components/notification-global.css';
 @import './modules/components/datetime.css';
 @import './modules/components/export.css';
 @import './modules/components/clean.css';

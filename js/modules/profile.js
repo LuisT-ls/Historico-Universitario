@@ -238,6 +238,11 @@ class ProfileManager {
 
         // Aplicar configurações imediatamente
         if (settings.notifications !== undefined) {
+          // Salvar também no localStorage para fallback
+          localStorage.setItem(
+            'notificationsEnabled',
+            settings.notifications.toString()
+          )
           settingsManager.applyNotifications(settings.notifications)
         }
         if (settings.privacy) {
@@ -256,6 +261,7 @@ class ProfileManager {
         )
       }
     } catch (error) {
+      console.error('Erro ao salvar configurações:', error)
       window.showNotification(
         '❌ Erro ao salvar configurações: ' + error.message,
         'error'

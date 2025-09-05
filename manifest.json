@@ -8,6 +8,10 @@
   "theme_color": "#000000",
   "privacy_policy_url": "/legal/privacy.html",
   "terms_of_service_url": "/legal/terms.html",
+  "gcm_sender_id": "103953800507",
+  "permissions": [
+    "notifications"
+  ],
   "icons": [
     {
       "src": "./assets/img/favicon/android-chrome-192x192.png",

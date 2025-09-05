@@ -47,12 +47,35 @@ class SettingsManager {
     if (enabled && 'Notification' in window) {
       // Solicitar permissão para notificações
       if (Notification.permission === 'default') {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            window.showNotification('Notificações ativadas!', 'success')
-          }
-        })
+        Notification.requestPermission()
+          .then(permission => {
+            if (permission === 'granted') {
+              window.showNotification('Notificações ativadas!', 'success')
+              console.log('Permissão de notificação concedida')
+            } else {
+              window.showNotification(
+                'Permissão de notificação negada',
+                'warning'
+              )
+              console.log('Permissão de notificação negada')
+            }
+          })
+          .catch(error => {
+            console.error('Erro ao solicitar permissão de notificação:', error)
+            window.showNotification('Erro ao configurar notificações', 'error')
+          })
+      } else if (Notification.permission === 'granted') {
+        window.showNotification('Notificações já estão ativadas!', 'success')
+      } else {
+        window.showNotification(
+          'Notificações foram desabilitadas pelo navegador',
+          'warning'
+        )
       }
+    } else if (!enabled) {
+      console.log('Notificações desabilitadas pelo usuário')
+    } else {
+      console.log('Notificações não suportadas neste navegador')
     }
   }
 
@@ -239,14 +262,38 @@ class SettingsManager {
     if (
       typeof window.notificationsEnabled === 'function' &&
       !window.notificationsEnabled()
-    )
+    ) {
+      console.log('Notificações desabilitadas pelo usuário')
       return
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, {
-        icon: '/assets/img/favicon/favicon-32x32.png',
-        badge: '/assets/img/favicon/favicon-32x32.png',
-        ...options
-      })
+    }
+
+    if ('Notification' in window) {
+      if (Notification.permission === 'granted') {
+        new Notification(title, {
+          icon: '/assets/img/favicon/favicon-32x32.png',
+          badge: '/assets/img/favicon/favicon-16x16.png',
+          vibrate: [200, 100, 200],
+          ...options
+        })
+      } else if (Notification.permission === 'default') {
+        // Solicitar permissão se ainda não foi solicitada
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            new Notification(title, {
+              icon: '/assets/img/favicon/favicon-32x32.png',
+              badge: '/assets/img/favicon/favicon-16x16.png',
+              vibrate: [200, 100, 200],
+              ...options
+            })
+          } else {
+            console.log('Permissão de notificação negada')
+          }
+        })
+      } else {
+        console.log('Permissão de notificação negada pelo usuário')
+      }
+    } else {
+      console.log('Notificações não suportadas neste navegador')
     }
   }
 
@@ -502,6 +549,7 @@ const settingsManager = new SettingsManager()
 
 // Função utilitária global para checar se notificações estão ativadas
 window.notificationsEnabled = function () {
+  // Verificar se o settingsManager está disponível
   if (
     window.settingsManager &&
     window.settingsManager.userData &&
@@ -509,14 +557,36 @@ window.notificationsEnabled = function () {
   ) {
     return window.settingsManager.userData.settings.notifications !== false
   }
-  // fallback: tenta pegar do localStorage
+
+  // Fallback: tentar pegar do localStorage
   try {
     const userData = JSON.parse(localStorage.getItem('userData'))
-    if (userData && userData.settings) {
+    if (
+      userData &&
+      userData.settings &&
+      userData.settings.notifications !== undefined
+    ) {
       return userData.settings.notifications !== false
     }
-  } catch {}
-  return true // padrão: ativado
+  } catch (error) {
+    console.warn(
+      'Erro ao verificar configurações de notificação no localStorage:',
+      error
+    )
+  }
+
+  // Verificar se há configuração específica de notificações no localStorage
+  try {
+    const notificationSetting = localStorage.getItem('notificationsEnabled')
+    if (notificationSetting !== null) {
+      return notificationSetting === 'true'
+    }
+  } catch (error) {
+    console.warn('Erro ao verificar configuração de notificação:', error)
+  }
+
+  // Padrão: ativado se não houver configuração específica
+  return true
 }
 
 export default settingsManager
