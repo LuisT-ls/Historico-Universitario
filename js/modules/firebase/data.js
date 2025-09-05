@@ -10,7 +10,8 @@ import {
   getDocs,
   addDoc,
   deleteDoc,
-  orderBy
+  orderBy,
+  writeBatch
 } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js'
 
 class DataService {
@@ -874,35 +875,89 @@ class DataService {
     try {
       this.checkAuth()
       const uid = this.currentUser.uid
-      // Coleções e documentos a serem removidos
-      const batchDeletes = []
+      console.log('Iniciando exclusão de dados para usuário:', uid)
+
+      // Usar batch para operações atômicas
+      const batch = writeBatch(db)
+      let operationsCount = 0
+
       // 1. Disciplinas
-      const disciplinasSnap = await getDocs(
-        query(collection(db, 'disciplines'), where('userId', '==', uid))
-      )
-      disciplinasSnap.forEach(docRef => {
-        batchDeletes.push(deleteDoc(doc(db, 'disciplines', docRef.id)))
-      })
-      // 2. Histórico acadêmico
-      batchDeletes.push(deleteDoc(doc(db, 'academicHistory', uid)))
-      // 3. Requisitos de formatura
-      batchDeletes.push(deleteDoc(doc(db, 'graduationRequirements', uid)))
-      // 4. Resumo
-      batchDeletes.push(deleteDoc(doc(db, 'summaries', uid)))
-      // 5. Backup
-      batchDeletes.push(deleteDoc(doc(db, 'backups', uid)))
-      // 6. Certificados
-      const certificadosSnap = await getDocs(
-        query(collection(db, 'certificados'), where('userId', '==', uid))
-      )
-      certificadosSnap.forEach(docRef => {
-        batchDeletes.push(deleteDoc(doc(db, 'certificados', docRef.id)))
-      })
-      // 7. Perfil do usuário
-      batchDeletes.push(deleteDoc(doc(db, 'users', uid)))
-      // Executar todas as deleções
-      await Promise.all(batchDeletes)
-      return { success: true }
+      try {
+        const disciplinasSnap = await getDocs(
+          query(collection(db, 'disciplines'), where('userId', '==', uid))
+        )
+        disciplinasSnap.forEach(docRef => {
+          batch.delete(docRef.ref)
+          operationsCount++
+        })
+        console.log(
+          `Encontradas ${disciplinasSnap.size} disciplinas para excluir`
+        )
+      } catch (error) {
+        console.warn('Erro ao buscar disciplinas:', error)
+      }
+
+      // 2. Certificados
+      try {
+        const certificadosSnap = await getDocs(
+          query(collection(db, 'certificados'), where('userId', '==', uid))
+        )
+        certificadosSnap.forEach(docRef => {
+          batch.delete(docRef.ref)
+          operationsCount++
+        })
+        console.log(
+          `Encontrados ${certificadosSnap.size} certificados para excluir`
+        )
+      } catch (error) {
+        console.warn('Erro ao buscar certificados:', error)
+      }
+
+      // 3. Documentos únicos (pode não existir)
+      const singleDocs = [
+        { collection: 'academicHistory', docId: uid },
+        { collection: 'graduationRequirements', docId: uid },
+        { collection: 'summaries', docId: uid },
+        { collection: 'backups', docId: uid },
+        { collection: 'users', docId: uid }
+      ]
+
+      for (const { collection: collectionName, docId } of singleDocs) {
+        try {
+          const docRef = doc(db, collectionName, docId)
+          const docSnap = await getDoc(docRef)
+          if (docSnap.exists()) {
+            batch.delete(docRef)
+            operationsCount++
+            console.log(`Documento ${collectionName}/${docId} será excluído`)
+          } else {
+            console.log(
+              `Documento ${collectionName}/${docId} não existe, pulando`
+            )
+          }
+        } catch (error) {
+          console.warn(
+            `Erro ao verificar documento ${collectionName}/${docId}:`,
+            error
+          )
+        }
+      }
+
+      if (operationsCount === 0) {
+        console.log('Nenhum documento encontrado para excluir')
+        return { success: true, message: 'Nenhum dado encontrado para excluir' }
+      }
+
+      console.log(`Executando ${operationsCount} operações de exclusão`)
+
+      // Executar batch
+      await batch.commit()
+
+      console.log('Exclusão de dados concluída com sucesso')
+      return {
+        success: true,
+        message: `${operationsCount} documentos excluídos com sucesso`
+      }
     } catch (error) {
       console.error('Erro ao excluir dados do usuário:', error)
       return { success: false, error: error.message }
