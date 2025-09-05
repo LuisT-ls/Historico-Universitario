@@ -375,6 +375,8 @@ class ProfileManager {
     const modal = document.getElementById('deleteAccountModal')
     const input = document.getElementById('deleteConfirmInput')
     const passwordInput = document.getElementById('deletePasswordInput')
+    const passwordContainer = document.getElementById('passwordFieldContainer')
+    const googleMessage = document.getElementById('googleUserMessage')
     const confirmBtn = document.getElementById('confirmDeleteBtn')
     const cancelBtn = document.getElementById('cancelDeleteBtn')
     let typed = ''
@@ -386,11 +388,14 @@ class ProfileManager {
         p => p.providerId === 'google.com'
       )
     }
-    // Esconder ou mostrar campo de senha conforme o provedor
+
+    // Configurar interface baseada no tipo de usuário
     if (isGoogleUser) {
-      passwordInput.style.display = 'none'
+      passwordContainer.style.display = 'none'
+      googleMessage.style.display = 'block'
     } else {
-      passwordInput.style.display = 'block'
+      passwordContainer.style.display = 'block'
+      googleMessage.style.display = 'none'
     }
 
     // Bloquear colar
@@ -422,11 +427,14 @@ class ProfileManager {
       confirmBtn.disabled = true
       modal.style.display = 'block'
       input.focus()
-      // Atualizar visibilidade do campo senha
+
+      // Atualizar interface baseada no tipo de usuário
       if (isGoogleUser) {
-        passwordInput.style.display = 'none'
+        passwordContainer.style.display = 'none'
+        googleMessage.style.display = 'block'
       } else {
-        passwordInput.style.display = 'block'
+        passwordContainer.style.display = 'block'
+        googleMessage.style.display = 'none'
       }
     }
 
@@ -439,26 +447,39 @@ class ProfileManager {
     confirmBtn.onclick = async () => {
       confirmBtn.disabled = true
       confirmBtn.textContent = 'Excluindo...'
+
       try {
+        // Para usuários Google, primeiro tentar reautenticação
+        if (isGoogleUser) {
+          window.showNotification(
+            'Redirecionando para reautenticação com Google...',
+            'info'
+          )
+
+          // Tentar reautenticar com Google primeiro
+          const reauth = await authService.reauthenticateWithGoogle()
+          if (!reauth.success) {
+            throw new Error('Falha na reautenticação Google: ' + reauth.error)
+          }
+
+          // Após reautenticação bem-sucedida, proceder com a exclusão
+          window.showNotification(
+            'Reautenticação bem-sucedida. Excluindo conta...',
+            'success'
+          )
+        }
+
         // 1. Excluir todos os dados do Firestore
         const result = await dataService.deleteUserAccount()
-        if (!result.success)
+        if (!result.success) {
           throw new Error(result.error || 'Erro ao excluir dados do Firestore')
+        }
+
         // 2. Excluir usuário do Authentication
         let authResult = await authService.deleteCurrentUser()
+
+        // Se ainda precisar de reautenticação (usuários não-Google)
         if (
-          isGoogleUser &&
-          !authResult.success &&
-          authResult.error &&
-          authResult.error.includes('auth/requires-recent-login')
-        ) {
-          // Reautenticar com popup Google
-          const reauth = await authService.reauthenticateWithGoogle()
-          if (!reauth.success)
-            throw new Error('Falha na reautenticação Google: ' + reauth.error)
-          // Tentar excluir novamente
-          authResult = await authService.deleteCurrentUser()
-        } else if (
           !isGoogleUser &&
           !authResult.success &&
           authResult.error &&
@@ -469,20 +490,25 @@ class ProfileManager {
             this.currentUser?.email ||
             (authService.currentUser && authService.currentUser.email)
           const senha = passwordInput.value
-          if (!email || !senha)
+          if (!email || !senha) {
             throw new Error(
               'E-mail ou senha não informados para reautenticação.'
             )
+          }
           const reauth = await authService.reauthenticate(email, senha)
-          if (!reauth.success)
+          if (!reauth.success) {
             throw new Error('Senha incorreta. Não foi possível reautenticar.')
+          }
           // Tentar excluir novamente
           authResult = await authService.deleteCurrentUser()
         }
-        if (!authResult.success)
+
+        if (!authResult.success) {
           throw new Error(
             authResult.error || 'Erro ao excluir usuário do sistema'
           )
+        }
+
         // 3. Limpar dados locais e redirecionar
         localStorage.clear()
         sessionStorage.clear()
@@ -491,6 +517,7 @@ class ProfileManager {
           window.location.href = '/'
         }, 1500)
       } catch (err) {
+        console.error('Erro ao excluir conta:', err)
         window.showNotification(
           'Erro ao excluir conta: ' + (err?.message || err),
           'error'

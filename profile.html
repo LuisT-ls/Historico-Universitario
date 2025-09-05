@@ -448,27 +448,51 @@
             >Atenção: não é possível colar, é necessário digitar
             manualmente.</small
           >
-          <label
-            for="deletePasswordInput"
-            style="margin-top: 16px; display: block"
-            >Digite sua senha para confirmar:</label
-          >
-          <input
-            type="password"
-            id="deletePasswordInput"
-            autocomplete="current-password"
-            placeholder="Senha da sua conta"
+
+          <!-- Campo de senha para usuários não-Google -->
+          <div id="passwordFieldContainer">
+            <label
+              for="deletePasswordInput"
+              style="margin-top: 16px; display: block"
+              >Digite sua senha para confirmar:</label
+            >
+            <input
+              type="password"
+              id="deletePasswordInput"
+              autocomplete="current-password"
+              placeholder="Senha da sua conta"
+              style="
+                width: 100%;
+                padding: 8px;
+                font-size: 1.1em;
+                margin-bottom: 8px;
+              "
+            />
+            <small id="deletePasswordHint" style="color: #b00; display: block"
+              >Sua senha é necessária para confirmar a exclusão por
+              segurança.</small
+            >
+          </div>
+
+          <!-- Mensagem para usuários Google -->
+          <div
+            id="googleUserMessage"
             style="
-              width: 100%;
-              padding: 8px;
-              font-size: 1.1em;
-              margin-bottom: 8px;
+              display: none;
+              margin-top: 16px;
+              padding: 12px;
+              background: #fff3cd;
+              border: 1px solid #ffeaa7;
+              border-radius: 4px;
             "
-          />
-          <small id="deletePasswordHint" style="color: #b00; display: block"
-            >Sua senha é necessária para confirmar a exclusão por
-            segurança.</small
           >
+            <p style="margin: 0; color: #856404">
+              <i class="fas fa-info-circle"></i>
+              <strong>Usuário Google:</strong> Após confirmar, você será
+              redirecionado para fazer login novamente com o Google para
+              finalizar a exclusão da conta.
+            </p>
+          </div>
         </div>
         <div class="modal-footer">
           <button id="cancelDeleteBtn" class="btn btn-secondary">
