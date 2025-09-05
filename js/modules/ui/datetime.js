@@ -8,7 +8,7 @@ function updateDateTime() {
   const dateStr = now.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: '2-digit',
-    year: '2-digit'
+    year: 'numeric'
   })
 
   // Precisão dos milissegundos
@@ -17,7 +17,7 @@ function updateDateTime() {
 
   document.getElementById(
     'current-datetime'
-  ).textContent = `${timeStr} · ${dateStr}`
+  ).textContent = `${dateStr} · ${timeStr}`
 
   setTimeout(() => {
     updateDateTime()
