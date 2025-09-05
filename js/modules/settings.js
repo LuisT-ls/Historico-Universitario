@@ -49,8 +49,8 @@ class SettingsManager {
       if (Notification.permission === 'default') {
         Notification.requestPermission()
           .then(permission => {
-            if (permission === 'granted') {
-              window.showNotification('Notificações ativadas!', 'success')
+          if (permission === 'granted') {
+            window.showNotification('Notificações ativadas!', 'success')
               console.log('Permissão de notificação concedida')
             } else {
               window.showNotification(
@@ -279,12 +279,12 @@ class SettingsManager {
         // Solicitar permissão se ainda não foi solicitada
         Notification.requestPermission().then(permission => {
           if (permission === 'granted') {
-            new Notification(title, {
-              icon: '/assets/img/favicon/favicon-32x32.png',
+      new Notification(title, {
+        icon: '/assets/img/favicon/favicon-32x32.png',
               badge: '/assets/img/favicon/favicon-16x16.png',
               vibrate: [200, 100, 200],
-              ...options
-            })
+        ...options
+      })
           } else {
             console.log('Permissão de notificação negada')
           }
