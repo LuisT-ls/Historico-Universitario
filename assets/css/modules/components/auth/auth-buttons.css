@@ -58,36 +58,7 @@
   animation: checkmark 0.5s ease-in-out;
 }
 
-/* Password Toggle Button */
-.toggle-password {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 0.5rem;
-  transition: color var(--animation-duration);
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-}
-
-.toggle-password:hover {
-  color: var(--primary-color);
-  background: rgba(102, 126, 234, 0.1);
-}
-
-.toggle-password:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-}
+/* Password Toggle Button - Estilos movidos para auth-forms.css para evitar conflitos */
 
 /* Google Login Button */
 .google-login-button {

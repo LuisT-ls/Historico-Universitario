@@ -247,38 +247,36 @@
 /* Ajuste para inputs de senha */
 .popup-form .input-container input[type='password'],
 .popup-form .input-container input[type='text'] {
-  padding-right: 3.5rem;
+  padding-right: 3rem;
 }
 
 .popup-form .toggle-password {
-  color: #007bff;
-  background: transparent;
-  font-size: 0.9rem;
-  width: 28px;
-  height: 28px;
-  padding: 0.4rem;
-  border-radius: 6px;
+  color: var(--text-secondary) !important;
+  background: none !important;
+  font-size: 0.85rem !important;
+  width: 18px !important;
+  height: 18px !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .popup-form .toggle-password:hover {
-  color: #0056b3;
-  background: rgba(0, 123, 255, 0.08);
-  transform: translateY(-50%) scale(1.05);
+  color: var(--primary-color) !important;
+  background: none !important;
+  transform: translateY(-50%) scale(1.1) !important;
 }
 
 .popup-form .toggle-password:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+  outline: none !important;
+  color: var(--primary-color) !important;
+  background: none !important;
+  box-shadow: none !important;
 }
 
-/* Efeito suave nos ícones */
-.toggle-password i {
-  transition: transform 0.2s ease;
-}
-
-.toggle-password:hover i {
-  transform: scale(1.1);
-}
+/* Efeito suave nos ícones - removido para evitar conflitos */
 
 /* Responsividade para dispositivos móveis */
 @media (max-width: 768px) {
@@ -290,11 +288,7 @@
     right: 1rem;
   }
 
-  .toggle-password {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
-  }
+  /* Toggle password responsividade removida para evitar conflitos */
 }
 
 /* Botão de submit */

@@ -41,6 +41,71 @@ document.addEventListener('DOMContentLoaded', function () {
     })
   })
 
+  // Função para salvar credenciais no localStorage
+  function saveCredentials(email, password, remember) {
+    if (remember) {
+      // Criptografar senha de forma básica (não é totalmente segura, mas melhor que texto plano)
+      const encryptedPassword = btoa(password) // Base64 encoding
+      localStorage.setItem('rememberedEmail', email)
+      localStorage.setItem('rememberedPassword', encryptedPassword)
+      localStorage.setItem('rememberCredentials', 'true')
+    } else {
+      // Limpar credenciais salvas se não quiser lembrar
+      localStorage.removeItem('rememberedEmail')
+      localStorage.removeItem('rememberedPassword')
+      localStorage.removeItem('rememberCredentials')
+    }
+  }
+
+  // Função para carregar credenciais salvas
+  function loadCredentials() {
+    const rememberCredentials = localStorage.getItem('rememberCredentials')
+    if (rememberCredentials === 'true') {
+      const savedEmail = localStorage.getItem('rememberedEmail')
+      const savedPassword = localStorage.getItem('rememberedPassword')
+
+      if (savedEmail && savedPassword) {
+        // Descriptografar senha
+        const decryptedPassword = atob(savedPassword) // Base64 decoding
+
+        // Preencher campos
+        document.getElementById('email').value = savedEmail
+        document.getElementById('password').value = decryptedPassword
+        document.getElementById('remember').checked = true
+
+        // Ativar estado focused para os campos preenchidos
+        document.getElementById('email').parentElement.classList.add('focused')
+        document
+          .getElementById('password')
+          .parentElement.classList.add('focused')
+
+        // Mostrar indicador de credenciais carregadas
+        const indicator = document.getElementById(
+          'credentials-loaded-indicator'
+        )
+        if (indicator) {
+          indicator.style.display = 'flex'
+        }
+
+        return true
+      }
+    }
+    return false
+  }
+
+  // Carregar credenciais salvas ao carregar a página
+  loadCredentials()
+
+  // Event listener para o checkbox "Lembrar-me"
+  document.getElementById('remember').addEventListener('change', function () {
+    if (!this.checked) {
+      // Se desmarcar, limpar credenciais salvas
+      localStorage.removeItem('rememberedEmail')
+      localStorage.removeItem('rememberedPassword')
+      localStorage.removeItem('rememberCredentials')
+    }
+  })
+
   // Login form handler
   document
     .getElementById('loginForm')
@@ -49,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const button = this.querySelector('.login-button')
       const email = document.getElementById('email').value
       const password = document.getElementById('password').value
+      const remember = document.getElementById('remember').checked
 
       button.classList.add('loading')
       button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...'
@@ -57,6 +123,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const result = await authService.loginWithEmail(email, password)
 
         if (result.success) {
+          // Salvar credenciais se "Lembrar-me" estiver marcado
+          saveCredentials(email, password, remember)
+
           button.classList.remove('loading')
           button.classList.add('success')
           button.innerHTML = '<i class="fas fa-check"></i> Sucesso!'
@@ -417,4 +486,51 @@ document.addEventListener('DOMContentLoaded', function () {
       window.location.href = '/'
     }
   })
+
+  // Funcionalidade de segurança: limpar credenciais após período de inatividade
+  let inactivityTimer
+  const INACTIVITY_TIMEOUT = 30 * 24 * 60 * 60 * 1000 // 30 dias em millisegundos
+
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimer)
+    inactivityTimer = setTimeout(() => {
+      // Limpar credenciais após período de inatividade
+      localStorage.removeItem('rememberedEmail')
+      localStorage.removeItem('rememberedPassword')
+      localStorage.removeItem('rememberCredentials')
+      console.log('Credenciais removidas por inatividade')
+    }, INACTIVITY_TIMEOUT)
+  }
+
+  // Resetar timer em atividade do usuário
+  ;['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(
+    event => {
+      document.addEventListener(event, resetInactivityTimer, true)
+    }
+  )
+
+  // Iniciar timer de inatividade
+  resetInactivityTimer()
+
+  // Funcionalidade adicional: opção para limpar credenciais manualmente
+  window.clearRememberedCredentials = function () {
+    localStorage.removeItem('rememberedEmail')
+    localStorage.removeItem('rememberedPassword')
+    localStorage.removeItem('rememberCredentials')
+    document.getElementById('email').value = ''
+    document.getElementById('password').value = ''
+    document.getElementById('remember').checked = false
+    document.getElementById('email').parentElement.classList.remove('focused')
+    document
+      .getElementById('password')
+      .parentElement.classList.remove('focused')
+
+    // Esconder indicador de credenciais carregadas
+    const indicator = document.getElementById('credentials-loaded-indicator')
+    if (indicator) {
+      indicator.style.display = 'none'
+    }
+
+    console.log('Credenciais limpas manualmente')
+  }
 })

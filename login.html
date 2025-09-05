@@ -138,6 +138,23 @@
               <a href="#" class="forgot-password">Esqueceu a senha?</a>
             </div>
 
+            <!-- Indicador de credenciais carregadas -->
+            <div
+              id="credentials-loaded-indicator"
+              class="credentials-indicator"
+              style="display: none"
+            >
+              <i class="fas fa-info-circle"></i>
+              <span>Credenciais carregadas automaticamente</span>
+              <button
+                type="button"
+                onclick="window.clearRememberedCredentials()"
+                class="clear-credentials-btn"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
             <button
               type="submit"
               class="login-button"

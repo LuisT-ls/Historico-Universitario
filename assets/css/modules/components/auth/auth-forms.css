@@ -126,45 +126,134 @@
 .toggle-password {
   position: absolute;
   right: 1rem;
-  top: 30%;
+  top: 45%;
   transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  color: #007bff;
+  background: none !important;
+  border: none !important;
+  color: var(--text-secondary);
   cursor: pointer;
-  padding: 0.4rem;
-  border-radius: 6px;
-  transition: all 0.25s ease;
-  z-index: 2;
+  padding: 0 !important;
+  margin: 0 !important;
+  transition: color var(--animation-duration);
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  font-size: 0.9rem;
+  width: 18px;
+  height: 18px;
+  font-size: 0.85rem;
+  line-height: 1;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
 }
 
 .toggle-password:hover {
-  color: #0056b3;
-  background: rgba(0, 123, 255, 0.08);
-  transform: translateY(-50%) scale(1.05);
+  color: var(--primary-color) !important;
+  background: none !important;
+  transform: translateY(-50%) scale(1.1);
 }
 
 .toggle-password:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+  outline: none !important;
+  color: var(--primary-color) !important;
+  background: none !important;
+  box-shadow: none !important;
 }
 
 .toggle-password:active {
+  color: var(--primary-color) !important;
+  background: none !important;
   transform: translateY(-50%) scale(0.95);
 }
 
-.fas.fa-eye {
-  color: #007bff;
+.toggle-password .fas.fa-eye,
+.toggle-password .fas.fa-eye-slash {
+  color: inherit !important;
+  font-size: inherit !important;
+  line-height: 1 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  text-align: center !important;
 }
 
-.fas.fa-eye-slash {
-  color: #007bff;
+/* Garantir que não há estilos conflitantes */
+.toggle-password * {
+  box-shadow: none !important;
+  border: none !important;
+  background: none !important;
+  outline: none !important;
+}
+
+/* Reset completo para o botão */
+.toggle-password,
+.toggle-password:before,
+.toggle-password:after,
+.toggle-password *:before,
+.toggle-password *:after {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+}
+
+/* Indicador de credenciais carregadas */
+.credentials-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(
+    135deg,
+    rgba(74, 144, 226, 0.1),
+    rgba(74, 144, 226, 0.05)
+  );
+  border: 1px solid rgba(74, 144, 226, 0.2);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--primary-color);
+  animation: slideInDown 0.3s ease-out;
+}
+
+.credentials-indicator i.fa-info-circle {
+  color: var(--primary-color);
+  font-size: 1rem;
+}
+
+.clear-credentials-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all var(--animation-duration);
+  margin-left: auto;
+}
+
+.clear-credentials-btn:hover {
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--error-color);
+  transform: scale(1.1);
+}
+
+.clear-credentials-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsividade para inputs com ícone */
