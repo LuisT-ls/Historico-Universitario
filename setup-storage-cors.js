@@ -37,3 +37,4 @@ async function setupCORS() {
 
 // Executar configuração
 setupCORS()
+
