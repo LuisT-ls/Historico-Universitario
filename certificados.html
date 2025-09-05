@@ -37,6 +37,7 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/modules/layout/navigation.css" />
     <link
       rel="stylesheet"
       href="/assets/css/modules/components/certificados.css"
@@ -56,11 +57,52 @@
     <!-- Header -->
     <header class="site-header">
       <div class="container">
-        <nav class="main-nav">
+        <!-- Data e hora -->
+        <time class="datetime-display" id="current-datetime" datetime=""></time>
+
+        <!-- Saudação do usuário (centralizada) -->
+        <div class="user-info-section">
+          <div class="user-greeting" id="userGreeting" style="display: none">
+            <span
+              >Olá, <span class="user-name" id="userName">Usuário</span></span
+            >
+          </div>
+        </div>
+
+        <!-- Dark Mode Toggle -->
+        <div class="dark-mode-toggle" id="darkModeToggle"></div>
+
+        <!-- Menu hambúrguer (visível apenas no mobile) -->
+        <button
+          class="menu-toggle"
+          id="menuToggle"
+          aria-label="Abrir menu de navegação"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <!-- Overlay para fechar o menu no mobile -->
+        <div class="nav-overlay" id="navOverlay"></div>
+
+        <!-- Navegação principal -->
+        <nav class="main-nav" id="mainNav">
+          <!-- Links de navegação -->
           <a href="/" class="nav-link">
             <i class="fas fa-home"></i>
             <span>Início</span>
           </a>
+
+          <a
+            href="/certificados.html"
+            class="nav-link active"
+            id="certificadosLink"
+          >
+            <i class="fas fa-certificate"></i>
+            <span>Certificados</span>
+          </a>
+
           <a
             href="/profile.html"
             class="nav-link"
@@ -70,19 +112,59 @@
             <i class="fas fa-user"></i>
             <span>Perfil</span>
           </a>
+
+          <!-- Separador visual no menu mobile -->
+          <div class="mobile-separator" style="display: none">
+            <hr
+              style="
+                margin: 1rem;
+                border: none;
+                height: 1px;
+                background: var(--border-color);
+              "
+            />
+          </div>
+
+          <!-- Opções do usuário (visíveis no menu mobile quando logado) -->
+          <a
+            href="/profile.html"
+            class="nav-link mobile-user-option"
+            id="editProfileMobile"
+            style="display: none"
+          >
+            <i class="fas fa-user-edit"></i>
+            <span>Editar Perfil</span>
+          </a>
+
+          <a
+            href="#"
+            class="nav-link mobile-user-option"
+            id="changePasswordMobile"
+            style="display: none"
+          >
+            <i class="fas fa-key"></i>
+            <span>Alterar Senha</span>
+          </a>
+
+          <!-- Botões de autenticação -->
+          <a href="#" class="nav-link" id="logoutBtnNav" style="display: none">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Sair</span>
+          </a>
+
+          <a
+            href="/login.html"
+            class="nav-link"
+            id="loginBtnNav"
+            style="display: none"
+          >
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Entrar</span>
+          </a>
         </nav>
 
-        <div class="user-info-section">
-          <div class="user-greeting" id="userGreeting" style="display: none">
-            <span
-              >Bem-vindo,
-              <span class="user-name" id="userName">Usuário</span></span
-            >
-          </div>
-        </div>
-
+        <!-- Navegação do usuário (visível apenas no desktop) -->
         <div class="user-navigation">
-          <!-- Botões para usuário autenticado -->
           <div class="user-dropdown" id="userDropdown" style="display: none">
             <ul class="user-menu">
               <li>
@@ -324,18 +406,10 @@
             <div class="empty-icon">
               <i class="fas fa-certificate"></i>
             </div>
-            <h3>Nenhum certificado cadastrado</h3>
             <p>
               Comece adicionando seu primeiro certificado ou atividade
               complementar
             </p>
-            <button
-              class="btn btn-primary"
-              onclick="document.getElementById('adicionarCertificado').click()"
-            >
-              <i class="fas fa-plus"></i>
-              Adicionar Primeiro Certificado
-            </button>
           </div>
         </section>
       </div>

@@ -1,6 +1,7 @@
 import authService from './firebase/auth.js'
 import dataService from './firebase/data.js'
 import settingsManager from './settings.js'
+import { navigationManager } from './ui/navigation.js'
 import {
   updatePassword,
   EmailAuthProvider,
@@ -15,6 +16,9 @@ class ProfileManager {
   }
 
   async init() {
+    // Setup navigation event listeners
+    navigationManager.setupAuthEventListeners(authService)
+
     // Verificar autenticação
     authService.onAuthStateChanged((user, userData) => {
       if (user) {
@@ -23,8 +27,9 @@ class ProfileManager {
         dataService.setCurrentUser(user)
         this.loadUserData()
         this.setupEventListeners()
+        navigationManager.updateAuthState(true, userData)
       } else {
-        // Usuário não está logado, não redirecionar mais para login
+        navigationManager.updateAuthState(false)
       }
     })
 
@@ -36,7 +41,10 @@ class ProfileManager {
       if (this.userData) {
         this.loadUserData()
         this.setupEventListeners()
+        navigationManager.updateAuthState(true, this.userData)
       }
+    } else {
+      navigationManager.updateAuthState(false)
     }
   }
 
@@ -75,9 +83,36 @@ class ProfileManager {
     const userName = this.userData.name || 'Usuário'
     const userEmail = this.userData.email || ''
 
-    document.getElementById('userName').textContent = userName
-    document.getElementById('dropdownUserName').textContent = userName
-    document.getElementById('dropdownUserEmail').textContent = userEmail
+    // Update user name in greeting
+    const userNameElement = document.getElementById('userName')
+    if (userNameElement) {
+      userNameElement.textContent = userName
+    }
+
+    // Update dropdown user name (if exists)
+    const dropdownUserNameElement = document.getElementById('dropdownUserName')
+    if (dropdownUserNameElement) {
+      dropdownUserNameElement.textContent = userName
+    }
+
+    // Update dropdown user email (if exists)
+    const dropdownUserEmailElement =
+      document.getElementById('dropdownUserEmail')
+    if (dropdownUserEmailElement) {
+      dropdownUserEmailElement.textContent = userEmail
+    }
+  }
+
+  /**
+   * Update a statistics element safely
+   */
+  updateStatElement(elementId, value) {
+    const element = document.getElementById(elementId)
+    if (element) {
+      element.textContent = value
+    } else {
+      console.warn(`Element with id '${elementId}' not found`)
+    }
   }
 
   async loadStatistics() {
@@ -86,28 +121,35 @@ class ProfileManager {
       if (summaryResult.success && summaryResult.data) {
         const stats = summaryResult.data
 
-        document.getElementById('totalDisciplines').textContent =
-          stats.totalDisciplines || 0
-        document.getElementById('completedDisciplines').textContent =
+        this.updateStatElement('totalDisciplines', stats.totalDisciplines || 0)
+        this.updateStatElement(
+          'completedDisciplines',
           stats.completedDisciplines || 0
-        document.getElementById('inProgressDisciplines').textContent =
+        )
+        this.updateStatElement(
+          'inProgressDisciplines',
           stats.inProgressDisciplines || 0
-        document.getElementById('averageGrade').textContent =
-          stats.averageGrade || 0.0
+        )
+        this.updateStatElement('averageGrade', stats.averageGrade || 0.0)
       } else {
         // Se não há resumo, calcular baseado nas disciplinas
         const disciplinesResult = await dataService.getUserDisciplines()
         if (disciplinesResult.success) {
           const stats = dataService.calculateSummary(disciplinesResult.data)
 
-          document.getElementById('totalDisciplines').textContent =
+          this.updateStatElement(
+            'totalDisciplines',
             stats.totalDisciplines || 0
-          document.getElementById('completedDisciplines').textContent =
+          )
+          this.updateStatElement(
+            'completedDisciplines',
             stats.completedDisciplines || 0
-          document.getElementById('inProgressDisciplines').textContent =
+          )
+          this.updateStatElement(
+            'inProgressDisciplines',
             stats.inProgressDisciplines || 0
-          document.getElementById('averageGrade').textContent =
-            stats.averageGrade || 0.0
+          )
+          this.updateStatElement('averageGrade', stats.averageGrade || 0.0)
         }
       }
     } catch (error) {

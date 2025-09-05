@@ -27,9 +27,27 @@ export default class DarkModeManager {
    * Create and inject the dark mode toggle button
    */
   createToggleButton() {
+    // Check if toggle already exists
+    const existingToggle = document.getElementById('darkModeToggle')
+    if (existingToggle) {
+      // Use existing toggle container
+      this.darkModeToggle = existingToggle.querySelector('.dark-mode-button')
+      if (!this.darkModeToggle) {
+        // Create button if it doesn't exist
+        this.darkModeToggle = document.createElement('button')
+        this.darkModeToggle.className = 'dark-mode-button'
+        this.darkModeToggle.setAttribute('aria-label', 'Alternar modo escuro')
+        this.darkModeToggle.setAttribute('title', 'Alternar modo escuro')
+        this.darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>'
+        existingToggle.appendChild(this.darkModeToggle)
+      }
+      return
+    }
+
     // Create button container
     const toggleContainer = document.createElement('div')
     toggleContainer.className = 'dark-mode-toggle'
+    toggleContainer.id = 'darkModeToggle'
 
     // Create the toggle button
     this.darkModeToggle = document.createElement('button')

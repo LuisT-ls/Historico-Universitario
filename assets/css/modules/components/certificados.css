@@ -471,14 +471,8 @@
   margin-bottom: 1rem;
 }
 
-.empty-state h3 {
-  font-size: 1.25rem;
-  color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
-}
-
 .empty-state p {
-  margin: 0 0 1.5rem 0;
+  margin: 0;
   font-size: 0.875rem;
 }
 
@@ -738,4 +732,209 @@
       var(--secondary-color-dark)
     );
   }
+}
+
+/* Dark Mode Styles */
+:root.dark-mode .site-header {
+  background: var(--bg-primary);
+  border-bottom-color: var(--border-color);
+}
+
+:root.dark-mode .user-menu {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark-mode .menu-item {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .menu-item:hover {
+  background: var(--bg-secondary);
+  color: var(--primary-color);
+}
+
+:root.dark-mode .logout-button {
+  color: var(--danger);
+}
+
+:root.dark-mode .logout-button:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+:root.dark-mode #loginBtn {
+  background: var(--primary-color);
+  color: white !important;
+}
+
+:root.dark-mode #loginBtn:hover {
+  background: var(--primary-dark);
+}
+
+:root.dark-mode .stat-card {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+:root.dark-mode .stat-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark-mode .stat-icon {
+  background: var(--primary-bg);
+  color: var(--primary-color);
+}
+
+:root.dark-mode .stat-content h3 {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .stat-value {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .stat-label {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .form-section,
+:root.dark-mode .certificados-section {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+:root.dark-mode .section-header h2 {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .section-header p {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .form-group label {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .form-group input,
+:root.dark-mode .form-group select,
+:root.dark-mode .form-group textarea {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+:root.dark-mode .form-group input:focus,
+:root.dark-mode .form-group select:focus,
+:root.dark-mode .form-group textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-bg);
+}
+
+:root.dark-mode .form-group small {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .certificado-card {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+:root.dark-mode .certificado-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark-mode .certificado-titulo {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .info-item {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .info-item i {
+  color: var(--primary-color);
+}
+
+:root.dark-mode .certificado-descricao {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .empty-state {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .empty-icon {
+  color: var(--border-color);
+}
+
+:root.dark-mode .empty-state h3 {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .empty-state p {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .modal-content {
+  background: var(--bg-primary);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+:root.dark-mode .modal-header {
+  border-bottom-color: var(--border-color);
+}
+
+:root.dark-mode .modal-header h3 {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .modal-close {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .modal-close:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+:root.dark-mode .modal-actions {
+  border-top-color: var(--border-color);
+}
+
+:root.dark-mode .certificado-preview {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+:root.dark-mode .preview-header {
+  border-bottom-color: var(--border-color);
+}
+
+:root.dark-mode .preview-titulo {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .preview-label {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .preview-value {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .preview-descricao {
+  color: var(--text-secondary);
+  border-top-color: var(--border-color);
+}
+
+:root.dark-mode .certificado-card::before {
+  background: linear-gradient(
+    90deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
 }

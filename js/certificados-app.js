@@ -1,20 +1,31 @@
 // Aplicação principal para a página de certificados
 import authService from './modules/firebase/auth.js'
 import certificadosManager from './modules/certificados.js'
+import DarkModeManager from './modules/ui/darkmode.js'
+import { navigationManager } from './modules/ui/navigation.js'
 
 class CertificadosApp {
   constructor() {
+    this.darkModeManager = null
     this.init()
   }
 
   async init() {
+    // Inicializar Dark Mode Manager
+    this.darkModeManager = new DarkModeManager()
+
+    // Setup navigation event listeners
+    navigationManager.setupAuthEventListeners(authService)
+
     // Verificar autenticação
     authService.onAuthStateChanged((user, userData) => {
       if (user) {
         this.showAuthenticatedContent()
         this.updateUserInfo(userData)
+        navigationManager.updateAuthState(true, userData)
       } else {
         this.showLoginContent()
+        navigationManager.updateAuthState(false)
       }
     })
 
@@ -24,37 +35,23 @@ class CertificadosApp {
       const userData = authService.getUserData()
       this.showAuthenticatedContent()
       this.updateUserInfo(userData)
+      navigationManager.updateAuthState(true, userData)
     } else {
       this.showLoginContent()
+      navigationManager.updateAuthState(false)
     }
 
     this.setupEventListeners()
   }
 
   showAuthenticatedContent() {
-    // Mostrar elementos para usuário autenticado
-    const profileLink = document.getElementById('profileLink')
-    const userGreeting = document.getElementById('userGreeting')
-    const userDropdown = document.getElementById('userDropdown')
-    const loginBtn = document.getElementById('loginBtn')
-
-    if (profileLink) profileLink.style.display = 'flex'
-    if (userGreeting) userGreeting.style.display = 'block'
-    if (userDropdown) userDropdown.style.display = 'block'
-    if (loginBtn) loginBtn.style.display = 'none'
+    // NavigationManager handles this now
+    console.log('Usuário autenticado')
   }
 
   showLoginContent() {
-    // Mostrar elementos para usuário não autenticado
-    const profileLink = document.getElementById('profileLink')
-    const userGreeting = document.getElementById('userGreeting')
-    const userDropdown = document.getElementById('userDropdown')
-    const loginBtn = document.getElementById('loginBtn')
-
-    if (profileLink) profileLink.style.display = 'none'
-    if (userGreeting) userGreeting.style.display = 'none'
-    if (userDropdown) userDropdown.style.display = 'none'
-    if (loginBtn) loginBtn.style.display = 'flex'
+    // NavigationManager handles this now
+    console.log('Usuário não autenticado')
   }
 
   updateUserInfo(userData) {
@@ -65,57 +62,9 @@ class CertificadosApp {
   }
 
   setupEventListeners() {
-    // Botão de login
-    const loginBtn = document.getElementById('loginBtn')
-    if (loginBtn) {
-      loginBtn.addEventListener('click', () => {
-        window.location.href = '/login.html'
-      })
-    }
-
-    // Botão de logout
-    const logoutBtn = document.getElementById('logoutBtn')
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', async () => {
-        try {
-          await authService.logout()
-          this.showLoginContent()
-          this.showNotification('Logout realizado com sucesso', 'success')
-        } catch (error) {
-          console.error('Erro no logout:', error)
-          this.showNotification('Erro ao fazer logout', 'error')
-        }
-      })
-    }
-
-    // Botão de alterar senha
-    const changePasswordBtn = document.getElementById('changePasswordBtn')
-    if (changePasswordBtn) {
-      changePasswordBtn.addEventListener('click', () => {
-        this.showNotification('Funcionalidade em desenvolvimento', 'info')
-      })
-    }
-
-    // Dropdown do usuário
-    const userDropdown = document.getElementById('userDropdown')
-    if (userDropdown) {
-      userDropdown.addEventListener('click', e => {
-        e.stopPropagation()
-        const userMenu = userDropdown.querySelector('.user-menu')
-        if (userMenu) {
-          userMenu.style.display =
-            userMenu.style.display === 'block' ? 'none' : 'block'
-        }
-      })
-    }
-
-    // Fechar dropdown ao clicar fora
-    document.addEventListener('click', () => {
-      const userMenu = document.querySelector('.user-menu')
-      if (userMenu) {
-        userMenu.style.display = 'none'
-      }
-    })
+    // Event listeners específicos da página de certificados
+    // (os de navegação são gerenciados pelo NavigationManager)
+    console.log('Event listeners da página de certificados configurados')
   }
 
   showNotification(message, type = 'info') {
