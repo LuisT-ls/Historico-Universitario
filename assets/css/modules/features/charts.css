@@ -229,7 +229,6 @@
   font-size: 0.875rem;
 }
 
-
 /* Cards de estatísticas */
 .stats-cards {
   display: grid;
@@ -309,6 +308,11 @@
   font-size: 0.875rem;
   color: #0f5c3e;
   margin-left: 0.5rem;
+}
+
+/* Modo escuro - porcentagem mais clara para melhor legibilidade */
+:root.dark-mode .stat-percentage {
+  color: #4ade80; /* Verde claro para melhor contraste no modo escuro */
 }
 
 /* Seção do gráfico */

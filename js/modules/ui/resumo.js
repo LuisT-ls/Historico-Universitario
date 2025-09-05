@@ -9,23 +9,23 @@ export function atualizarResumo(disciplinas) {
       !d.dispensada &&
       d.natureza !== 'AC'
   )
-  
+
   // Disciplinas aprovadas (incluindo AC e dispensadas)
   const disciplinasAprovadas = disciplinas.filter(d => d.resultado === 'AP')
-  
+
   // Total de disciplinas cadastradas (todas as disciplinas)
   const totalDisciplinasCadastradas = disciplinas.length
-  
+
   // Total de disciplinas para cálculo de estatísticas (excluindo AC)
   const totalDisciplinas = disciplinas.filter(
     d => !d.dispensada && d.natureza !== 'AC'
   ).length
-  
+
   // Total de aprovações (excluindo AC)
   const totalAprovacoes = disciplinasAprovadas.filter(
     d => !d.dispensada && d.natureza !== 'AC'
   ).length
-  
+
   const totalReprovacoes = disciplinas.filter(d => d.resultado === 'RR').length
   const totalTrancamentos = disciplinas.filter(d => d.resultado === 'TR').length
   const totalDispensadas = disciplinas.filter(d => d.dispensada).length
@@ -47,17 +47,19 @@ export function atualizarResumo(disciplinas) {
 
   // Média geral - apenas disciplinas com nota válida (excluindo AC, dispensadas e trancamentos)
   const disciplinasComNota = disciplinas.filter(
-    d => 
-      d.nota !== null && 
-      d.nota !== undefined && 
-      !d.dispensada && 
+    d =>
+      d.nota !== null &&
+      d.nota !== undefined &&
+      !d.dispensada &&
       d.natureza !== 'AC' &&
       d.resultado !== 'TR'
   )
-  
-  const media = disciplinasComNota.length > 0
-    ? disciplinasComNota.reduce((sum, d) => sum + d.nota, 0) / disciplinasComNota.length
-    : 0
+
+  const media =
+    disciplinasComNota.length > 0
+      ? disciplinasComNota.reduce((sum, d) => sum + d.nota, 0) /
+        disciplinasComNota.length
+      : 0
 
   const percentualAprovacao =
     totalDisciplinas > 0
@@ -65,11 +67,22 @@ export function atualizarResumo(disciplinas) {
       : 0
 
   // Calcular indicadores de progresso e metas
-  const progressoFormatura = totalCH > 0 ? Math.min((totalCH / 2400) * 100, 100) : 0
+  // Incluir disciplinas em curso no cálculo de progresso
+  const disciplinasEmCurso = disciplinas.filter(
+    d =>
+      (d.resultado === 'EC' || d.emcurso === true) &&
+      !d.dispensada &&
+      d.natureza !== 'AC'
+  )
+  const chEmCurso = disciplinasEmCurso.reduce((sum, d) => sum + d.ch, 0)
+  const totalCHComEmCurso = totalCH + chEmCurso
+
+  const progressoFormatura =
+    totalCHComEmCurso > 0 ? Math.min((totalCHComEmCurso / 2400) * 100, 100) : 0
   const statusCR = getStatusCR(parseFloat(coeficienteRendimento))
   const tendenciaNotas = calcularTendenciaNotas(disciplinas)
   const previsaoFormatura = calcularPrevisaoFormatura(disciplinas, totalCH)
-  
+
   document.getElementById('resumo').innerHTML = `
     <h2><i class="fas fa-chart-bar"></i> Resumo Geral</h2>
     <div class="resumo-container">
@@ -78,14 +91,20 @@ export function atualizarResumo(disciplinas) {
         <div class="progress-card">
           <div class="progress-header">
             <h3><i class="fas fa-graduation-cap"></i> Progresso para Formatura</h3>
-            <span class="progress-percentage">${progressoFormatura.toFixed(1)}%</span>
+            <span class="progress-percentage">${progressoFormatura.toFixed(
+              1
+            )}%</span>
           </div>
           <div class="progress-bar">
             <div class="progress-fill" style="width: ${progressoFormatura}%"></div>
           </div>
           <div class="progress-details">
-            <span>${totalCH}h de 2400h cursadas</span>
-            <span class="progress-remaining">${2400 - totalCH}h restantes</span>
+            <span>${totalCHComEmCurso}h de 2400h cursadas${
+    chEmCurso > 0 ? ` (incluindo ${chEmCurso}h em curso)` : ''
+  }</span>
+            <span class="progress-remaining">${
+              2400 - totalCHComEmCurso
+            }h restantes</span>
           </div>
         </div>
         
@@ -151,14 +170,18 @@ export function atualizarResumo(disciplinas) {
           </div>
         </div>
 
-        <div class="stat-card" data-tooltip="Total de horas cursadas em disciplinas aprovadas">
+        <div class="stat-card" data-tooltip="Total de horas cursadas em disciplinas aprovadas e em curso">
           <div class="stat-icon">
             <i class="fas fa-clock"></i>
           </div>
           <div class="stat-content">
             <h3>Carga Horária Total</h3>
-            <p class="stat-value">${totalCH}h</p>
-            <small class="stat-subtitle">Horas cursadas</small>
+            <p class="stat-value">${totalCHComEmCurso}h</p>
+            <small class="stat-subtitle">${
+              chEmCurso > 0
+                ? `Horas cursadas (${chEmCurso}h em curso)`
+                : 'Horas cursadas'
+            }</small>
           </div>
         </div>
 
@@ -258,7 +281,6 @@ export function atualizarResumo(disciplinas) {
       chart.update()
     })
   })
-
 }
 
 // Funções auxiliares para indicadores de progresso
@@ -291,34 +313,42 @@ function getStatusCR(cr) {
 }
 
 function calcularTendenciaNotas(disciplinas) {
-  const disciplinasComNota = disciplinas.filter(d => 
-    d.nota !== null && 
-    d.nota !== undefined && 
-    !d.dispensada && 
-    d.natureza !== 'AC' &&
-    d.resultado !== 'TR'
+  const disciplinasComNota = disciplinas.filter(
+    d =>
+      d.nota !== null &&
+      d.nota !== undefined &&
+      !d.dispensada &&
+      d.natureza !== 'AC' &&
+      d.resultado !== 'TR'
   )
-  
+
   if (disciplinasComNota.length < 2) {
     return {
       icon: 'fa-info-circle',
       text: 'Dados insuficientes para análise de tendência'
     }
   }
-  
+
   // Ordenar por período e calcular tendência
-  const disciplinasOrdenadas = [...disciplinasComNota].sort((a, b) => 
+  const disciplinasOrdenadas = [...disciplinasComNota].sort((a, b) =>
     compararPeriodos(a.periodo, b.periodo)
   )
-  
-  const primeirasNotas = disciplinasOrdenadas.slice(0, Math.ceil(disciplinasOrdenadas.length / 2))
-  const ultimasNotas = disciplinasOrdenadas.slice(-Math.ceil(disciplinasOrdenadas.length / 2))
-  
-  const mediaInicial = primeirasNotas.reduce((sum, d) => sum + d.nota, 0) / primeirasNotas.length
-  const mediaFinal = ultimasNotas.reduce((sum, d) => sum + d.nota, 0) / ultimasNotas.length
-  
+
+  const primeirasNotas = disciplinasOrdenadas.slice(
+    0,
+    Math.ceil(disciplinasOrdenadas.length / 2)
+  )
+  const ultimasNotas = disciplinasOrdenadas.slice(
+    -Math.ceil(disciplinasOrdenadas.length / 2)
+  )
+
+  const mediaInicial =
+    primeirasNotas.reduce((sum, d) => sum + d.nota, 0) / primeirasNotas.length
+  const mediaFinal =
+    ultimasNotas.reduce((sum, d) => sum + d.nota, 0) / ultimasNotas.length
+
   const diferenca = mediaFinal - mediaInicial
-  
+
   if (diferenca > 0.5) {
     return {
       icon: 'fa-arrow-up',
@@ -341,21 +371,46 @@ function calcularPrevisaoFormatura(disciplinas, totalCH) {
   if (totalCH === 0) {
     return 'Adicione disciplinas para calcular previsão'
   }
-  
-  const disciplinasComNota = disciplinas.filter(d => 
-    d.nota !== null && 
-    d.nota !== undefined && 
-    !d.dispensada && 
-    d.natureza !== 'AC' &&
-    d.resultado !== 'TR'
+
+  // Incluir disciplinas com nota válida E disciplinas em curso (EC)
+  const disciplinasComNota = disciplinas.filter(
+    d =>
+      d.nota !== null &&
+      d.nota !== undefined &&
+      !d.dispensada &&
+      d.natureza !== 'AC' &&
+      d.resultado !== 'TR'
   )
-  
-  if (disciplinasComNota.length === 0) {
+
+  // Disciplinas em curso (EC) - consideradas para previsão
+  const disciplinasEmCurso = disciplinas.filter(
+    d =>
+      (d.resultado === 'EC' || d.emcurso === true) &&
+      !d.dispensada &&
+      d.natureza !== 'AC'
+  )
+
+  // Calcular CH total incluindo disciplinas em curso
+  const chEmCurso = disciplinasEmCurso.reduce((sum, d) => sum + d.ch, 0)
+  const totalCHComEmCurso = totalCH + chEmCurso
+
+  // Verificar se já pode se formar considerando disciplinas em curso
+  if (totalCHComEmCurso >= 2400) {
+    if (disciplinasEmCurso.length > 0) {
+      return `Previsão para se formar: JÁ! (considerando ${disciplinasEmCurso.length} disciplina(s) em curso)`
+    } else {
+      return 'Você já cumpriu os requisitos de CH!'
+    }
+  }
+
+  if (disciplinasComNota.length === 0 && disciplinasEmCurso.length === 0) {
     return 'Dados insuficientes para previsão'
   }
-  
-  // Calcular média de CH por semestre
+
+  // Calcular média de CH por semestre (incluindo disciplinas em curso)
   const periodos = {}
+
+  // Adicionar disciplinas com nota
   disciplinasComNota.forEach(d => {
     if (!periodos[d.periodo]) {
       periodos[d.periodo] = { ch: 0, count: 0 }
@@ -363,19 +418,42 @@ function calcularPrevisaoFormatura(disciplinas, totalCH) {
     periodos[d.periodo].ch += d.ch
     periodos[d.periodo].count++
   })
-  
-  const chPorSemestre = Object.values(periodos).reduce((sum, p) => sum + p.ch, 0) / Object.keys(periodos).length
-  const semestresRestantes = Math.ceil((2400 - totalCH) / chPorSemestre)
-  
+
+  // Adicionar disciplinas em curso
+  disciplinasEmCurso.forEach(d => {
+    if (!periodos[d.periodo]) {
+      periodos[d.periodo] = { ch: 0, count: 0 }
+    }
+    periodos[d.periodo].ch += d.ch
+    periodos[d.periodo].count++
+  })
+
+  if (Object.keys(periodos).length === 0) {
+    return 'Dados insuficientes para previsão'
+  }
+
+  const chPorSemestre =
+    Object.values(periodos).reduce((sum, p) => sum + p.ch, 0) /
+    Object.keys(periodos).length
+  const horasRestantes = 2400 - totalCHComEmCurso
+  const semestresRestantes = Math.ceil(horasRestantes / chPorSemestre)
+
   if (semestresRestantes <= 0) {
     return 'Você já cumpriu os requisitos de CH!'
   } else if (semestresRestantes <= 2) {
-    return `Previsão: ${semestresRestantes} semestre(s) restante(s)`
+    const mensagem =
+      disciplinasEmCurso.length > 0
+        ? ` (considerando ${disciplinasEmCurso.length} disciplina(s) em curso)`
+        : ''
+    return `Previsão: ${semestresRestantes} semestre(s) restante(s)${mensagem}`
   } else {
-    return `Previsão: ${semestresRestantes} semestres restantes`
+    const mensagem =
+      disciplinasEmCurso.length > 0
+        ? ` (considerando ${disciplinasEmCurso.length} disciplina(s) em curso)`
+        : ''
+    return `Previsão: ${semestresRestantes} semestres restantes${mensagem}`
   }
 }
-
 
 function criarGraficoProgresso(disciplinas) {
   const periodos = {}
