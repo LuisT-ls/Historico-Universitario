@@ -24,6 +24,12 @@
     gap: 1.5rem;
   }
 
+  .progress-indicators {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+
   .watermark-container {
     right: 15px;
     bottom: 15px;

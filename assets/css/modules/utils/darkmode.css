@@ -358,6 +358,45 @@ html:not(.dark-mode) .dark-mode-toggle .logout-btn:hover {
   border-radius: 8px;
 }
 
+/* Dark mode para indicadores de progresso */
+.dark-mode .progress-card,
+.dark-mode .status-card,
+.dark-mode .insight-card {
+  background-color: var(--surface-light);
+  border-color: var(--border);
+}
+
+.dark-mode .progress-header h3,
+.dark-mode .status-content h3,
+.dark-mode .insight-header h3 {
+  color: var(--text);
+}
+
+.dark-mode .progress-details,
+.dark-mode .status-text,
+.dark-mode .insight-item {
+  color: var(--text-secondary);
+}
+
+.dark-mode .status-cr {
+  color: var(--text);
+}
+
+.dark-mode .stat-subtitle {
+  color: var(--text-secondary);
+}
+
+.dark-mode .stat-card[data-tooltip]:hover::after {
+  background: var(--surface-dark);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .stat-card[data-tooltip]:hover::before {
+  border-top-color: var(--surface-dark);
+}
+
+
 .dark-mode .resumo-container h2,
 .dark-mode .table-container h2 {
   color: var(--text-header);
