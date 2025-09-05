@@ -10,7 +10,8 @@
       "POST",
       "PUT",
       "DELETE",
-      "HEAD"
+      "HEAD",
+      "OPTIONS"
     ],
     "maxAgeSeconds": 3600,
     "responseHeader": [
@@ -18,7 +19,10 @@
       "Authorization",
       "Content-Length",
       "User-Agent",
-      "x-goog-*"
+      "x-goog-*",
+      "Access-Control-Allow-Origin",
+      "Access-Control-Allow-Methods",
+      "Access-Control-Allow-Headers"
     ]
   }
 ]

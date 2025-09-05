@@ -1,7 +1,4 @@
-/*
-// TODO: Funcionalidade de certificados desativada temporariamente.
-// Todo o código deste arquivo foi comentado para evitar erros enquanto a página de certificados está bloqueada.
-
+// Aplicação principal para a página de certificados
 import authService from './modules/firebase/auth.js'
 import certificadosManager from './modules/certificados.js'
 
@@ -11,21 +8,13 @@ class CertificadosApp {
   }
 
   async init() {
-    // Aguardar um pouco para verificar se há autenticação em andamento
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
     // Verificar autenticação
     authService.onAuthStateChanged((user, userData) => {
       if (user) {
-        this.setupAuthenticatedUI(user, userData)
+        this.showAuthenticatedContent()
+        this.updateUserInfo(userData)
       } else {
-        // Aguardar mais um pouco antes de redirecionar
-        setTimeout(() => {
-          const currentUser = authService.getCurrentUser()
-          if (!currentUser) {
-            this.setupUnauthenticatedUI()
-          }
-        }, 500)
+        this.showLoginContent()
       }
     })
 
@@ -33,248 +22,162 @@ class CertificadosApp {
     const currentUser = authService.getCurrentUser()
     if (currentUser) {
       const userData = authService.getUserData()
-      this.setupAuthenticatedUI(currentUser, userData)
+      this.showAuthenticatedContent()
+      this.updateUserInfo(userData)
     } else {
-      // Aguardar um pouco mais antes de redirecionar
-      setTimeout(() => {
-        const currentUser = authService.getCurrentUser()
-        if (!currentUser) {
-          this.setupUnauthenticatedUI()
-        }
-      }, 1500)
+      this.showLoginContent()
     }
+
+    this.setupEventListeners()
   }
 
-  setupAuthenticatedUI(user, userData) {
-    // Atualizar informações do usuário
-    this.updateUserInfo(user, userData)
-
-    // Configurar eventos do usuário
-    this.setupUserEvents()
-
+  showAuthenticatedContent() {
     // Mostrar elementos para usuário autenticado
+    const profileLink = document.getElementById('profileLink')
     const userGreeting = document.getElementById('userGreeting')
     const userDropdown = document.getElementById('userDropdown')
     const loginBtn = document.getElementById('loginBtn')
-    const profileLink = document.getElementById('profileLink')
 
+    if (profileLink) profileLink.style.display = 'flex'
     if (userGreeting) userGreeting.style.display = 'block'
     if (userDropdown) userDropdown.style.display = 'block'
     if (loginBtn) loginBtn.style.display = 'none'
-    if (profileLink) profileLink.style.display = 'flex'
-
-    // Mostrar conteúdo autenticado
-    document.body.classList.add('authenticated')
   }
 
-  setupUnauthenticatedUI() {
+  showLoginContent() {
     // Mostrar elementos para usuário não autenticado
+    const profileLink = document.getElementById('profileLink')
     const userGreeting = document.getElementById('userGreeting')
     const userDropdown = document.getElementById('userDropdown')
     const loginBtn = document.getElementById('loginBtn')
-    const profileLink = document.getElementById('profileLink')
 
+    if (profileLink) profileLink.style.display = 'none'
     if (userGreeting) userGreeting.style.display = 'none'
     if (userDropdown) userDropdown.style.display = 'none'
-    if (loginBtn) loginBtn.style.display = 'block'
-    if (profileLink) profileLink.style.display = 'none'
-
-    // Configurar evento do botão de login
-    this.setupLoginButton()
+    if (loginBtn) loginBtn.style.display = 'flex'
   }
 
-  updateUserInfo(user, userData) {
-    // Atualizar nome do usuário
-    const userNameElements = document.querySelectorAll('#userName')
-    userNameElements.forEach(element => {
-      element.textContent = userData?.name || user.displayName || 'Usuário'
-    })
-  }
-
-  setupUserEvents() {
-    // Logout
-    const logoutBtn = document.getElementById('logoutBtn')
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', async () => {
-        await this.performLogout()
-      })
-    }
-
-    // Alterar senha
-    const changePasswordBtn = document.getElementById('changePasswordBtn')
-    if (changePasswordBtn) {
-      changePasswordBtn.addEventListener('click', () => {
-        window.location.href = '/profile.html'
-      })
+  updateUserInfo(userData) {
+    const userName = document.getElementById('userName')
+    if (userName && userData) {
+      userName.textContent = userData.name || 'Usuário'
     }
   }
 
-  setupLoginButton() {
+  setupEventListeners() {
+    // Botão de login
     const loginBtn = document.getElementById('loginBtn')
     if (loginBtn) {
       loginBtn.addEventListener('click', () => {
-        // Abrir popup de login
-        this.showLoginPopup()
+        window.location.href = '/login.html'
       })
     }
+
+    // Botão de logout
+    const logoutBtn = document.getElementById('logoutBtn')
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await authService.logout()
+          this.showLoginContent()
+          this.showNotification('Logout realizado com sucesso', 'success')
+        } catch (error) {
+          console.error('Erro no logout:', error)
+          this.showNotification('Erro ao fazer logout', 'error')
+        }
+      })
+    }
+
+    // Botão de alterar senha
+    const changePasswordBtn = document.getElementById('changePasswordBtn')
+    if (changePasswordBtn) {
+      changePasswordBtn.addEventListener('click', () => {
+        this.showNotification('Funcionalidade em desenvolvimento', 'info')
+      })
+    }
+
+    // Dropdown do usuário
+    const userDropdown = document.getElementById('userDropdown')
+    if (userDropdown) {
+      userDropdown.addEventListener('click', e => {
+        e.stopPropagation()
+        const userMenu = userDropdown.querySelector('.user-menu')
+        if (userMenu) {
+          userMenu.style.display =
+            userMenu.style.display === 'block' ? 'none' : 'block'
+        }
+      })
+    }
+
+    // Fechar dropdown ao clicar fora
+    document.addEventListener('click', () => {
+      const userMenu = document.querySelector('.user-menu')
+      if (userMenu) {
+        userMenu.style.display = 'none'
+      }
+    })
   }
 
-  showLoginPopup() {
-    // Criar modal de login
-    const modal = document.createElement('div')
-    modal.className = 'modal-overlay'
-    modal.innerHTML = `
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3><i class="fas fa-sign-in-alt"></i> Fazer Login</h3>
-          <button class="modal-close" id="closeLoginModal">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="login-options">
-            <button class="btn btn-primary login-option" id="loginWithEmail">
-              <i class="fas fa-envelope"></i>
-              <span>Login com Email</span>
-            </button>
-            <button class="btn btn-secondary login-option" id="loginWithGoogle">
-              <i class="fab fa-google"></i>
-              <span>Login com Google</span>
-            </button>
-          </div>
-        </div>
-      </div>
+  showNotification(message, type = 'info') {
+    // Criar elemento de notificação
+    const notification = document.createElement('div')
+    notification.className = `notification notification-${type}`
+    notification.textContent = message
+
+    // Estilos da notificação
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      color: white;
+      font-weight: 500;
+      z-index: 10000;
+      max-width: 300px;
+      word-wrap: break-word;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
     `
 
-    document.body.appendChild(modal)
+    // Cores baseadas no tipo
+    const colors = {
+      success: '#10b981',
+      error: '#ef4444',
+      warning: '#f59e0b',
+      info: '#3b82f6'
+    }
 
-    // Mostrar modal
+    notification.style.backgroundColor = colors[type] || colors.info
+
+    // Adicionar ao DOM
+    document.body.appendChild(notification)
+
+    // Animar entrada
     setTimeout(() => {
-      modal.classList.add('active')
+      notification.style.transform = 'translateX(0)'
     }, 100)
 
-    // Eventos do modal
-    const closeBtn = modal.querySelector('#closeLoginModal')
-    const loginWithEmailBtn = modal.querySelector('#loginWithEmail')
-    const loginWithGoogleBtn = modal.querySelector('#loginWithGoogle')
-
-    closeBtn.addEventListener('click', () => {
-      this.closeLoginPopup(modal)
-    })
-
-    loginWithEmailBtn.addEventListener('click', () => {
-      this.closeLoginPopup(modal)
-      window.location.href = '/login.html'
-    })
-
-    loginWithGoogleBtn.addEventListener('click', async () => {
-      try {
-        const result = await authService.loginWithGoogle()
-        if (result.success) {
-          this.closeLoginPopup(modal)
-          window.showNotification('Login realizado com sucesso!', 'success')
-        } else {
-          window.showNotification('Erro no login: ' + result.error, 'error')
-        }
-      } catch (error) {
-        window.showNotification('Erro no login: ' + error.message, 'error')
-      }
-    })
-
-    // Fechar ao clicar fora
-    modal.addEventListener('click', e => {
-      if (e.target === modal) {
-        this.closeLoginPopup(modal)
-      }
-    })
-  }
-
-  closeLoginPopup(modal) {
-    modal.classList.remove('active')
+    // Remover após 3 segundos
     setTimeout(() => {
-      if (modal.parentNode) {
-        modal.parentNode.removeChild(modal)
-      }
-    }, 300)
-  }
-
-  async performLogout() {
-    try {
-      console.log('Iniciando logout...')
-      const result = await authService.logout()
-      console.log('Resultado do logout:', result)
-
-      if (result.success) {
-        console.log('Logout bem-sucedido, redirecionando...')
-        // Limpar dados locais
-        localStorage.removeItem('theme')
-        sessionStorage.clear()
-        // Limpar disciplinas de todos os cursos e registro de remoções
-        Object.keys(localStorage).forEach(key => {
-          if (key.startsWith('disciplinas_') || key === 'removalsRegistry') {
-            localStorage.removeItem(key)
-          }
-        })
-        // Redirecionar para a página principal
-        window.location.href = '/'
-      } else {
-        console.error('Erro no logout:', result.error)
-        window.showNotification(
-          '❌ Erro ao fazer logout: ' + result.error,
-          'error'
-        )
-      }
-    } catch (error) {
-      console.error('Exceção no logout:', error)
-      window.showNotification(
-        '❌ Erro ao fazer logout: ' + error.message,
-        'error'
-      )
-    }
+      notification.style.transform = 'translateX(100%)'
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification)
+        }
+      }, 300)
+    }, 3000)
   }
 }
 
-// Inicializar aplicação quando o DOM estiver pronto
+// Inicializar aplicação quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', () => {
   new CertificadosApp()
 })
 
-// Função global para notificações
-window.showNotification = function (message, type = 'info') {
-  // Criar elemento de notificação
-  const notification = document.createElement('div')
-  notification.className = `notification-popup ${type}`
-  notification.innerHTML = `
-    <div class="notification-content">
-      <i class="fas fa-${
-        type === 'success'
-          ? 'check-circle'
-          : type === 'error'
-          ? 'exclamation-circle'
-          : type === 'warning'
-          ? 'exclamation-triangle'
-          : 'info-circle'
-      }"></i>
-      <span>${message}</span>
-    </div>
-  `
-
-  // Adicionar ao body
-  document.body.appendChild(notification)
-
-  // Mostrar notificação
-  setTimeout(() => {
-    notification.classList.add('show')
-  }, 100)
-
-  // Remover após 5 segundos
-  setTimeout(() => {
-    notification.classList.remove('show')
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.parentNode.removeChild(notification)
-      }
-    }, 300)
-  }, 5000)
+// Expor função de notificação globalmente
+window.showNotification = (message, type) => {
+  const app = new CertificadosApp()
+  app.showNotification(message, type)
 }
-*/

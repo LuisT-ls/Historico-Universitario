@@ -11,14 +11,17 @@ const corsConfig = [
       'http://localhost:3000',
       'http://localhost:5000'
     ],
-    method: ['GET', 'POST', 'PUT', 'DELETE', 'HEAD'],
+    method: ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'],
     maxAgeSeconds: 3600,
     responseHeader: [
       'Content-Type',
       'Authorization',
       'Content-Length',
       'User-Agent',
-      'x-goog-*'
+      'x-goog-*',
+      'Access-Control-Allow-Origin',
+      'Access-Control-Allow-Methods',
+      'Access-Control-Allow-Headers'
     ]
   }
 ]

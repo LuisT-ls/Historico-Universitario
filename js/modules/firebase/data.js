@@ -966,7 +966,105 @@ class DataService {
 
   // ===== CERTIFICADOS =====
 
-  // Todas as funções de certificados removidas temporariamente para evitar erros enquanto a funcionalidade está desativada.
+  // Adicionar certificado
+  async salvarCertificado(certificadoData) {
+    try {
+      this.checkAuth()
+
+      const certificado = {
+        ...certificadoData,
+        userId: this.currentUser.uid,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+
+      const docRef = await addDoc(collection(db, 'certificados'), certificado)
+      return { success: true, id: docRef.id }
+    } catch (error) {
+      console.error('Erro ao salvar certificado:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Buscar certificados do usuário
+  async getUserCertificados() {
+    try {
+      this.checkAuth()
+
+      const q = query(
+        collection(db, 'certificados'),
+        where('userId', '==', this.currentUser.uid),
+        orderBy('createdAt', 'desc')
+      )
+
+      const querySnapshot = await getDocs(q)
+      const certificados = []
+
+      querySnapshot.forEach(doc => {
+        certificados.push({
+          id: doc.id,
+          ...doc.data()
+        })
+      })
+
+      return { success: true, data: certificados }
+    } catch (error) {
+      console.error('Erro ao buscar certificados:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Atualizar certificado
+  async updateCertificado(certificadoId, certificadoData) {
+    try {
+      this.checkAuth()
+
+      const certificadoRef = doc(db, 'certificados', certificadoId)
+      const certificadoDoc = await getDoc(certificadoRef)
+
+      if (!certificadoDoc.exists()) {
+        return { success: false, error: 'Certificado não encontrado' }
+      }
+
+      if (certificadoDoc.data().userId !== this.currentUser.uid) {
+        return { success: false, error: 'Acesso negado' }
+      }
+
+      await updateDoc(certificadoRef, {
+        ...certificadoData,
+        updatedAt: new Date()
+      })
+
+      return { success: true }
+    } catch (error) {
+      console.error('Erro ao atualizar certificado:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Excluir certificado
+  async excluirCertificado(certificadoId) {
+    try {
+      this.checkAuth()
+
+      const certificadoRef = doc(db, 'certificados', certificadoId)
+      const certificadoDoc = await getDoc(certificadoRef)
+
+      if (!certificadoDoc.exists()) {
+        return { success: false, error: 'Certificado não encontrado' }
+      }
+
+      if (certificadoDoc.data().userId !== this.currentUser.uid) {
+        return { success: false, error: 'Acesso negado' }
+      }
+
+      await deleteDoc(certificadoRef)
+      return { success: true }
+    } catch (error) {
+      console.error('Erro ao excluir certificado:', error)
+      return { success: false, error: error.message }
+    }
+  }
 }
 
 // Instância global do serviço de dados

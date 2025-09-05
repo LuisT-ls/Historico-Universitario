@@ -1,7 +1,3 @@
-/*
-// TODO: Funcionalidade de certificados desativada temporariamente.
-// Todo o código deste arquivo foi comentado para evitar erros enquanto a página de certificados está bloqueada.
-
 import authService from './firebase/auth.js'
 import dataService from './firebase/data.js'
 import {
@@ -594,4 +590,3 @@ const certificadosManager = new CertificadosManager()
 window.certificadosManager = certificadosManager
 
 export default certificadosManager
-*/

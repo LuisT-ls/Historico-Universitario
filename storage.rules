@@ -1,0 +1,23 @@
+rules_version = '2';
+
+// Regras de segurança para Firebase Storage
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Regras para certificados - apenas usuários autenticados podem acessar seus próprios arquivos
+    match /certificados/{userId}/{fileName} {
+      // Permitir leitura e escrita apenas se o usuário estiver autenticado e for o proprietário do arquivo
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Validar que o arquivo é um PDF e tem tamanho máximo de 10MB
+      allow write: if request.auth != null 
+        && request.auth.uid == userId
+        && request.resource.contentType == 'application/pdf'
+        && request.resource.size <= 10 * 1024 * 1024; // 10MB em bytes
+    }
+    
+    // Negar acesso a todos os outros arquivos
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
