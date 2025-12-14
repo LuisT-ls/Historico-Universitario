@@ -5,6 +5,10 @@
 
 # Testing
 /coverage
+/.jest-cache
+/playwright-report
+/test-results
+/playwright/.cache
 
 # Next.js
 /.next/
