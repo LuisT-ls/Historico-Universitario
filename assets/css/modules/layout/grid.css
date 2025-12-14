@@ -1,7 +1,0 @@
-/* Main Grid Layout */
-.content-container {
-  display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
