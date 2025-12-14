@@ -13,6 +13,11 @@
 # Production
 /build
 
+# Old HTML files (legacy, can cause conflicts with Next.js)
+index.html
+*.html
+!public/**/*.html
+
 # Misc
 .DS_Store
 *.pem
