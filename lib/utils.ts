@@ -340,8 +340,40 @@ export function calcularPrevisaoFormaturaCompleta(
   }
 }
 
+/**
+ * Sanitiza input de texto removendo caracteres perigosos e espaços extras
+ * @param input - Texto a ser sanitizado
+ * @returns Texto sanitizado
+ */
 export function sanitizeInput(input: string): string {
-  return input.trim().replace(/[<>]/g, '')
+  if (typeof input !== 'string') {
+    return ''
+  }
+  return input
+    .trim()
+    .replace(/[<>]/g, '') // Remove tags HTML
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+=/gi, '') // Remove event handlers
+    .replace(/\s+/g, ' ') // Normaliza espaços múltiplos
+}
+
+/**
+ * Sanitiza texto longo (descrições, etc.) mantendo quebras de linha
+ * @param input - Texto longo a ser sanitizado
+ * @returns Texto sanitizado
+ */
+export function sanitizeLongText(input: string): string {
+  if (typeof input !== 'string') {
+    return ''
+  }
+  return input
+    .trim()
+    .replace(/[<>]/g, '') // Remove tags HTML
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+=/gi, '') // Remove event handlers
+    .replace(/\r\n/g, '\n') // Normaliza quebras de linha
+    .replace(/\r/g, '\n')
+    .replace(/\n{3,}/g, '\n\n') // Limita múltiplas quebras de linha
 }
 
 export function calcularEstatisticas(disciplinas: Disciplina[]): {

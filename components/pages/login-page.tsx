@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
 import { auth, googleProvider } from '@/lib/firebase/config'
+import { getFirebaseErrorMessage } from '@/lib/error-handler'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -42,8 +43,8 @@ export function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password)
       router.push('/')
-    } catch (err: any) {
-      setError(err.message || 'Erro ao fazer login. Verifique suas credenciais.')
+    } catch (err: unknown) {
+      setError(getFirebaseErrorMessage(err))
     } finally {
       setIsLoading(false)
     }
@@ -58,8 +59,8 @@ export function LoginPage() {
     try {
       await signInWithPopup(auth, googleProvider)
       router.push('/')
-    } catch (err: any) {
-      setError(err.message || 'Erro ao fazer login com Google.')
+    } catch (err: unknown) {
+      setError(getFirebaseErrorMessage(err))
     } finally {
       setIsLoading(false)
     }

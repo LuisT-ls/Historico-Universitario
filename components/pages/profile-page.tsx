@@ -36,7 +36,8 @@ import {
   reauthenticateWithPopup
 } from 'firebase/auth'
 import { db, auth, googleProvider } from '@/lib/firebase/config'
-import { calcularEstatisticas } from '@/lib/utils'
+import { calcularEstatisticas, sanitizeInput } from '@/lib/utils'
+import { getFirebaseErrorMessage } from '@/lib/error-handler'
 import type { Profile, Curso, Disciplina, UserStatistics } from '@/types'
 import {
   Dialog,
@@ -145,7 +146,7 @@ export function ProfilePage() {
           await setDoc(
             userRef,
             {
-              name: initialProfile.nome,
+              name: initialProfile.nome ? sanitizeInput(initialProfile.nome) : initialProfile.nome,
               email: initialProfile.email || user.email,
               profile: {
                 course: initialProfile.curso,
@@ -225,7 +226,7 @@ export function ProfilePage() {
       await setDoc(
         userRef,
         {
-          name: profile.nome,
+          name: profile.nome ? sanitizeInput(profile.nome) : profile.nome,
           email: profile.email || user.email,
           profile: {
             course: profile.curso,
@@ -248,9 +249,10 @@ export function ProfilePage() {
 
       // Mostrar notificação de sucesso (pode usar um toast component)
       alert('✅ Informações pessoais salvas com sucesso!')
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Erro ao salvar perfil:', error)
-      alert('❌ Erro ao salvar perfil: ' + (error as Error).message)
+      const errorMessage = getFirebaseErrorMessage(error)
+      alert('❌ Erro ao salvar perfil: ' + errorMessage)
     } finally {
       setIsSaving(false)
     }
@@ -312,14 +314,9 @@ export function ProfilePage() {
       setTimeout(() => {
         setSettingsSuccess((prev) => ({ ...prev, [key]: false }))
       }, 2000)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao salvar configurações:', error)
-      const errorMessage = 
-        error.code === 'permission-denied'
-          ? 'Permissão negada. Verifique as regras do Firestore.'
-          : error.code === 'unavailable'
-          ? 'Serviço temporariamente indisponível. Tente novamente.'
-          : 'Erro ao salvar configurações: ' + (error.message || 'Erro desconhecido')
+      const errorMessage = getFirebaseErrorMessage(error)
       
       setSettingsError({ ...settingsError, [key]: errorMessage })
       
@@ -374,27 +371,9 @@ export function ProfilePage() {
       alert('✅ Senha alterada com sucesso!')
       setChangePasswordOpen(false)
       setPasswordData({ current: '', new: '', confirm: '' })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao alterar senha:', error)
-      let errorMessage = 'Erro ao alterar senha.'
-      
-      switch (error.code) {
-        case 'auth/wrong-password':
-          errorMessage = 'Senha atual incorreta.'
-          break
-        case 'auth/weak-password':
-          errorMessage = 'A nova senha deve ter pelo menos 6 caracteres.'
-          break
-        case 'auth/requires-recent-login':
-          errorMessage = 'Por segurança, faça login novamente antes de alterar a senha.'
-          break
-        case 'auth/network-request-failed':
-          errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.'
-          break
-        default:
-          errorMessage = error.message || 'Erro desconhecido ao alterar senha.'
-      }
-      
+      const errorMessage = getFirebaseErrorMessage(error)
       alert('❌ ' + errorMessage)
     }
   }
@@ -595,30 +574,9 @@ export function ProfilePage() {
 
       alert('✅ Conta excluída com sucesso!')
       router.push('/')
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao excluir conta:', error)
-      let errorMessage = 'Erro ao excluir conta.'
-      
-      switch (error.code) {
-        case 'auth/wrong-password':
-          errorMessage = 'Senha incorreta.'
-          break
-        case 'auth/requires-recent-login':
-          errorMessage = 'Por segurança, faça login novamente antes de excluir a conta.'
-          break
-        case 'auth/popup-closed-by-user':
-          errorMessage = 'Reautenticação cancelada. A exclusão foi cancelada.'
-          break
-        case 'auth/network-request-failed':
-          errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.'
-          break
-        case 'permission-denied':
-          errorMessage = 'Permissão negada. Verifique as regras do Firestore.'
-          break
-        default:
-          errorMessage = error.message || 'Erro desconhecido ao excluir conta.'
-      }
-      
+      const errorMessage = getFirebaseErrorMessage(error)
       alert('❌ ' + errorMessage)
     }
   }

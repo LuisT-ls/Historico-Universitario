@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { CURSOS, NATUREZA_LABELS } from '@/lib/constants'
-import { calcularResultado, getPeriodoMaisRecente } from '@/lib/utils'
+import { calcularResultado, getPeriodoMaisRecente, sanitizeInput } from '@/lib/utils'
 import { PlusCircle, X } from 'lucide-react'
 import type { Curso, Disciplina, Natureza } from '@/types'
 
@@ -189,9 +189,9 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
       const isAC = data.natureza === 'AC'
       
       const disciplina: Disciplina = {
-        periodo: data.periodo,
-        codigo: data.codigo.trim(),
-        nome: data.nome.trim(),
+        periodo: sanitizeInput(data.periodo),
+        codigo: sanitizeInput(data.codigo),
+        nome: sanitizeInput(data.nome),
         natureza: data.natureza as Natureza,
         ch: data.ch,
         nota: isAC ? 0 : (data.nota || 0), // AC não tem nota, usar 0 como padrão

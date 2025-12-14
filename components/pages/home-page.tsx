@@ -13,6 +13,7 @@ import { GraduationCap } from 'lucide-react'
 import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { calcularResultado } from '@/lib/utils'
+import { getFirebaseErrorMessage } from '@/lib/error-handler'
 import type { Curso, Disciplina } from '@/types'
 
 export function HomePage() {
@@ -109,7 +110,7 @@ export function HomePage() {
           setDisciplinas([])
         }
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Erro ao carregar disciplinas:', error)
       // Fallback para localStorage em caso de erro
       try {
@@ -182,9 +183,11 @@ export function HomePage() {
 
       // Salvar no localStorage também
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Erro ao adicionar disciplina:', error)
-      // Mesmo com erro, adicionar localmente
+      const errorMessage = getFirebaseErrorMessage(error)
+      // Em caso de erro, ainda adicionar localmente mas logar o erro
+      console.warn('Adicionando disciplina apenas localmente devido ao erro:', errorMessage)
       const novasDisciplinas = [...disciplinas, disciplina]
       setDisciplinas(novasDisciplinas)
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
@@ -212,8 +215,10 @@ export function HomePage() {
 
       // Salvar no localStorage também
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Erro ao atualizar disciplina:', error)
+      const errorMessage = getFirebaseErrorMessage(error)
+      console.warn('Atualizando disciplina apenas localmente devido ao erro:', errorMessage)
       // Mesmo com erro, atualizar localmente
       const novasDisciplinas = [...disciplinas]
       novasDisciplinas[index] = disciplina
@@ -238,8 +243,10 @@ export function HomePage() {
 
       // Salvar no localStorage também
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Erro ao remover disciplina:', error)
+      const errorMessage = getFirebaseErrorMessage(error)
+      console.warn('Removendo disciplina apenas localmente devido ao erro:', errorMessage)
       // Mesmo com erro, remover localmente
       const novasDisciplinas = disciplinas.filter((_, i) => i !== index)
       setDisciplinas(novasDisciplinas)

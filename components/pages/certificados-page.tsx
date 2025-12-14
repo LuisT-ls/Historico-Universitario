@@ -35,6 +35,8 @@ import { useAuth } from '@/components/auth-provider'
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { db, storage } from '@/lib/firebase/config'
+import { getFirebaseErrorMessage } from '@/lib/error-handler'
+import { sanitizeInput, sanitizeLongText } from '@/lib/utils'
 import type { Certificado, TipoCertificado, StatusCertificado } from '@/types'
 
 const TIPOS_CERTIFICADO: { value: TipoCertificado; label: string }[] = [
@@ -103,9 +105,9 @@ export function CertificadosPage() {
       })
 
       setCertificados(certificadosData)
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Erro ao carregar certificados:', error)
-      setError('Erro ao carregar certificados')
+      setError(getFirebaseErrorMessage(error))
     } finally {
       setIsLoading(false)
     }
@@ -171,18 +173,18 @@ export function CertificadosPage() {
       // Upload do arquivo
       const arquivoURL = await uploadFile(formData.arquivo, user.uid)
 
-      // Criar certificado
+      // Criar certificado com dados sanitizados
       const certificado: Omit<Certificado, 'id'> = {
         userId: user.uid,
-        titulo: formData.titulo,
+        titulo: sanitizeInput(formData.titulo),
         tipo: formData.tipo as TipoCertificado,
-        instituicao: formData.instituicao,
+        instituicao: sanitizeInput(formData.instituicao),
         cargaHoraria: parseInt(formData.cargaHoraria),
         dataInicio: formData.dataInicio,
         dataFim: formData.dataFim,
-        descricao: formData.descricao,
+        descricao: formData.descricao ? sanitizeLongText(formData.descricao) : undefined,
         arquivoURL,
-        nomeArquivo: formData.arquivo.name,
+        nomeArquivo: sanitizeInput(formData.arquivo.name),
         status: 'pendente',
         dataCadastro: new Date().toISOString(),
         createdAt: new Date(),
@@ -195,9 +197,9 @@ export function CertificadosPage() {
       setShowForm(false)
       resetForm()
       await loadCertificados()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao salvar certificado:', error)
-      setError(error.message || 'Erro ao salvar certificado')
+      setError(getFirebaseErrorMessage(error))
     } finally {
       setIsSubmitting(false)
     }
@@ -226,9 +228,9 @@ export function CertificadosPage() {
       setShowDeleteModal(false)
       setDeleteId(null)
       await loadCertificados()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao excluir certificado:', error)
-      setError(error.message || 'Erro ao excluir certificado')
+      setError(getFirebaseErrorMessage(error))
     }
   }
 
