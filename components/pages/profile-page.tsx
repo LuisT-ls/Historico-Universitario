@@ -80,6 +80,18 @@ export function ProfilePage() {
   }, [user, authLoading, router])
 
   useEffect(() => {
+    if (!user) {
+      // Limpar estado quando não houver usuário
+      setProfile(null)
+      setStatistics({
+        totalDisciplines: 0,
+        completedDisciplines: 0,
+        inProgressDisciplines: 0,
+        averageGrade: 0,
+      })
+      return
+    }
+
     if (user && db) {
       loadProfile()
       loadStatistics()

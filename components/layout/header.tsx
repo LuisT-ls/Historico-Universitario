@@ -2,18 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/components/auth-provider'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GraduationCap, User, LogOut, LogIn, Menu, X, Home, Clock } from 'lucide-react'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase/config'
-import { cn } from '@/lib/utils'
+import { cn, clearUserData } from '@/lib/utils'
 
 export function Header() {
   const { user, loading } = useAuth()
   const pathname = usePathname()
+  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [currentDateTime, setCurrentDateTime] = useState('')
   const isHomePage = pathname === '/'
@@ -42,7 +43,15 @@ export function Header() {
   const handleLogout = async () => {
     if (!auth) return
     try {
+      // Limpar todos os dados do usuário antes de fazer logout
+      clearUserData()
+      
+      // Fazer logout do Firebase
       await signOut(auth)
+      
+      // Redirecionar para a página inicial
+      router.push('/')
+      router.refresh() // Forçar atualização da página para limpar estado
     } catch (error) {
       console.error('Erro ao fazer logout:', error)
     }

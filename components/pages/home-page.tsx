@@ -133,6 +133,13 @@ export function HomePage() {
     if (typeof window === 'undefined') return
     if (authLoading) return
 
+    // Se não houver usuário autenticado, limpar disciplinas
+    if (!user) {
+      setDisciplinas([])
+      return
+    }
+
+    // Carregar disciplinas do Firestore quando usuário estiver autenticado
     loadDisciplinas()
   }, [cursoAtual, user, authLoading, loadDisciplinas])
 
