@@ -76,7 +76,7 @@ function getStorageErrorMessage(code: string): string {
     'storage/canceled': 'Upload cancelado.',
     'storage/unknown': 'Erro desconhecido ao fazer upload.',
     'storage/invalid-format': 'Formato de arquivo inválido.',
-    'storage/invalid-checksum': 'Arquivo corrompido. Tente fazer upload novamente.',
+    'storage/invalid-checksum': 'Arquivo corrompido. Verifique o arquivo e tente novamente.',
     'storage/invalid-event-name': 'Erro interno. Tente novamente.',
     'storage/invalid-url': 'URL inválida.',
     'storage/invalid-argument': 'Dados inválidos. Verifique o arquivo.',
@@ -86,9 +86,7 @@ function getStorageErrorMessage(code: string): string {
     'storage/quota-exceeded': 'Limite de armazenamento excedido.',
     'storage/unauthenticated': 'Você precisa estar autenticado para fazer upload.',
     'storage/retry-limit-exceeded': 'Muitas tentativas. Aguarde e tente novamente.',
-    'storage/invalid-checksum': 'Arquivo corrompido. Verifique o arquivo e tente novamente.',
     'storage/download-file-not-found': 'Arquivo não encontrado.',
-    'storage/unauthorized': 'Você não tem permissão para acessar este arquivo.',
   }
 
   return errorMap[code] || 'Erro ao processar arquivo. Tente novamente.'
