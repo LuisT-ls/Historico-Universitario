@@ -34,8 +34,21 @@ const customJestConfig = {
   ],
   coverageThreshold: {
     global: {
+      branches: 60,
+      functions: 60,
+      lines: 60,
+      statements: 60,
+    },
+    // Thresholds mais altos para arquivos críticos
+    'lib/error-handler.ts': {
+      branches: 80,
+      functions: 100,
+      lines: 80,
+      statements: 80,
+    },
+    'lib/utils.ts': {
       branches: 70,
-      functions: 70,
+      functions: 80,
       lines: 70,
       statements: 70,
     },

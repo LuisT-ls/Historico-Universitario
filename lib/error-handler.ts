@@ -24,7 +24,7 @@ export function isFirebaseError(error: unknown): error is FirebaseError {
 function getAuthErrorMessage(code: string): string {
   const errorMap: Record<string, string> = {
     'auth/user-not-found': 'Usuário não encontrado. Verifique seu e-mail.',
-    'auth/wrong-password': 'Senha incorreta. Tente novamente.',
+    'auth/wrong-password': 'Senha incorreta.',
     'auth/invalid-email': 'E-mail inválido. Verifique o formato.',
     'auth/user-disabled': 'Esta conta foi desabilitada. Entre em contato com o suporte.',
     'auth/email-already-in-use': 'Este e-mail já está em uso.',

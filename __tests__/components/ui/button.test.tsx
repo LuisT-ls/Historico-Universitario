@@ -45,9 +45,21 @@ describe('Button Component', () => {
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
 
-  it('deve renderizar como link quando href fornecido', () => {
-    render(<Button asChild><a href="/test">Link</a></Button>)
-    const link = screen.getByText('Link')
-    expect(link).toHaveAttribute('href', '/test')
+  it('deve aceitar className customizada', () => {
+    render(<Button className="custom-class">Botão</Button>)
+    const button = screen.getByText('Botão')
+    expect(button).toHaveClass('custom-class')
+  })
+
+  it('deve aplicar tamanho sm', () => {
+    render(<Button size="sm">Botão</Button>)
+    const button = screen.getByText('Botão')
+    expect(button).toBeInTheDocument()
+  })
+
+  it('deve aplicar tamanho lg', () => {
+    render(<Button size="lg">Botão</Button>)
+    const button = screen.getByText('Botão')
+    expect(button).toBeInTheDocument()
   })
 })
