@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+Allow: /sitemap.xml
+Allow: /manifest.json
+Allow: /legal/terms
+Allow: /legal/privacy
+Allow: /assets/img/
+Allow: /assets/css/
+
+# Proteger áreas sensíveis
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /temp/
+Disallow: /backup/
+
+# Crawl-delay para não sobrecarregar o servidor
+Crawl-delay: 10
+
+Sitemap: https://historicoacademico.vercel.app/sitemap.xml
