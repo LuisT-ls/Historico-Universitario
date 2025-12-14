@@ -317,14 +317,6 @@ const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
 - Documentar parâmetros e retornos
 - Adicionar exemplos de uso
 
-### 3. **Testes**
-**Problema:** Não há testes automatizados.
-
-**Solução:**
-- Adicionar testes unitários (Jest + React Testing Library)
-- Adicionar testes de integração
-- Adicionar testes E2E (Playwright)
-
 ### 4. **Otimização de Imagens**
 **Problema:** Imagens podem não estar otimizadas.
 
