@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     template: '%s | Histórico Universitário',
   },
   description:
-    '🎓 Sistema GRATUITO para gerenciar histórico universitário! Calcule CR automaticamente, controle disciplinas, requisitos de formatura. BICTI e Engenharias. ✅ Acesse já!',
+    'Sistema GRATUITO para gerenciar histórico universitário! Calcule CR automaticamente, controle disciplinas, requisitos de formatura. BICTI e Engenharias. Acesse já!',
   keywords: [
     'histórico universitário online gratuito',
     'sistema acadêmico brasileiro',
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     siteName: 'Histórico Universitário - Sistema Acadêmico Gratuito',
     title: 'Histórico Universitário Online Gratuito - Gerencie seu Histórico Acadêmico',
     description:
-      '🎓 Sistema GRATUITO para gerenciar histórico universitário! Calcule CR automaticamente, controle disciplinas, requisitos de formatura. BICTI e Engenharias.',
+      'Sistema GRATUITO para gerenciar histórico universitário! Calcule CR automaticamente, controle disciplinas, requisitos de formatura. BICTI e Engenharias.',
     images: [
       {
         url: 'https://historicoacademico.vercel.app/assets/img/og-image.jpg',
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Histórico Universitário Online Gratuito - Sistema Acadêmico',
     description:
-      '🎓 Sistema gratuito para gerenciar histórico universitário, calcular CR e acompanhar disciplinas. Para todos os cursos!',
+      'Sistema gratuito para gerenciar histórico universitário, calcular CR e acompanhar disciplinas. Para todos os cursos!',
     images: ['https://historicoacademico.vercel.app/assets/img/og-image.jpg'],
   },
   alternates: {
@@ -118,23 +118,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  const darkModeEnabled = localStorage.getItem('historico-ufba-dark-mode') === 'true';
-                  if (darkModeEnabled) {
-                    document.documentElement.classList.add('dark-mode');
-                    document.documentElement.style.colorScheme = 'dark';
-                  } else {
-                    document.documentElement.classList.remove('dark-mode');
-                    document.documentElement.style.colorScheme = 'light';
-                  }
-                } catch (e) {
-                  // Fallback se localStorage não estiver disponível
-                  document.documentElement.classList.remove('dark-mode');
-                }
-              })();
-            `,
+            __html: `(function(){try{const e=localStorage.getItem("historico-ufba-dark-mode")==="true";if(e){document.documentElement.classList.add("dark-mode");document.documentElement.style.colorScheme="dark"}else{document.documentElement.classList.remove("dark-mode");document.documentElement.style.colorScheme="light"}}catch(e){document.documentElement.classList.remove("dark-mode")}})();`,
           }}
         />
         <meta name="theme-color" content="#000000" media="(prefers-color-scheme: light)" />

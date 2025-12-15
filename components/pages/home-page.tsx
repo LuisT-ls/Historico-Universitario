@@ -8,6 +8,7 @@ import { DisciplineForm, type DisciplineFormRef } from '@/components/features/di
 import { DisciplineSearch } from '@/components/features/discipline-search'
 import { AcademicHistory } from '@/components/features/academic-history'
 import { Summary } from '@/components/features/summary'
+import { Simulation } from '@/components/features/simulation'
 import { useAuth } from '@/components/auth-provider'
 import { GraduationCap } from 'lucide-react'
 import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
@@ -312,6 +313,8 @@ export function HomePage() {
             <Summary disciplinas={disciplinas} cursoAtual={cursoAtual} />
           </div>
         </div>
+
+        <Simulation disciplinas={disciplinas} cursoAtual={cursoAtual} />
       </main>
       <Footer />
     </div>
