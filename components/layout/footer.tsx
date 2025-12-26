@@ -1,11 +1,11 @@
 import Link from 'next/link'
-import { Github, Linkedin, Instagram, Heart } from 'lucide-react'
+import { Github, Linkedin, Instagram, Heart, ExternalLink, Share2, Terminal } from 'lucide-react'
 
 export function Footer() {
   return (
     <footer className="border-t bg-background">
       <div className="container py-8 px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <section>
             <h3 className="text-lg font-semibold mb-4">Sobre o Projeto</h3>
             <p className="text-sm text-muted-foreground">
@@ -49,6 +49,36 @@ export function Footer() {
                 <Instagram className="h-5 w-5" />
               </a>
             </nav>
+          </section>
+
+          <section>
+            <h3 className="text-lg font-semibold mb-4">Recursos Úteis</h3>
+            <ul className="space-y-3">
+              <li>
+                <a
+                  href="https://icti-share.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
+                >
+                  <Share2 className="h-4 w-4" />
+                  <span>ICTI Share</span>
+                  <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://icti-python.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
+                >
+                  <Terminal className="h-4 w-4" />
+                  <span>ICTI Python</span>
+                  <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </a>
+              </li>
+            </ul>
           </section>
 
           <section>
