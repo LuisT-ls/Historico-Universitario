@@ -10,6 +10,12 @@ import { GraduationCap, User, LogOut, LogIn, Menu, X, Home, Clock } from 'lucide
 import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase/config'
 import { cn, clearUserData } from '@/lib/utils'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet'
 
 export function Header() {
   const { user, loading } = useAuth()
@@ -45,10 +51,10 @@ export function Header() {
     try {
       // Limpar todos os dados do usuário antes de fazer logout
       clearUserData()
-      
+
       // Fazer logout do Firebase
       await signOut(auth)
-      
+
       // Redirecionar para a página inicial
       router.push('/')
       router.refresh() // Forçar atualização da página para limpar estado
@@ -78,7 +84,7 @@ export function Header() {
                 <p className="text-xs text-muted-foreground hidden lg:block">Gerencie seu progresso acadêmico</p>
               </div>
             </Link>
-            
+
             <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground border-l border-border pl-4">
               <Clock className="h-4 w-4" />
               <time dateTime={currentDateTime} className="font-mono">
@@ -93,7 +99,7 @@ export function Header() {
               if (!item.show) return null
               const isActive = pathname === item.href
               const Icon = item.icon
-              
+
               return (
                 <Link key={item.href} href={item.href}>
                   <Button
@@ -146,27 +152,36 @@ export function Header() {
               aria-label="Toggle menu"
               className="relative"
             >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <Menu className="h-5 w-5" />
             </Button>
           </div>
         </div>
 
-        {/* Menu Mobile Expandido */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t bg-background">
-            <nav className="container mx-auto px-4 py-3 space-y-1">
-              <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground border-b border-border mb-2">
+        {/* Sheet Mobile Menu */}
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetContent side="right" className="w-[280px] sm:w-[320px]">
+            <SheetHeader className="mb-8">
+              <SheetTitle className="flex items-center gap-2">
+                <GraduationCap className="h-5 w-5 text-primary" />
+                Menu
+              </SheetTitle>
+            </SheetHeader>
+
+            <nav className="flex flex-col space-y-2">
+              {/* Data/Hora no mobile */}
+              <div className="flex items-center gap-2 px-3 py-3 text-sm text-muted-foreground bg-muted/50 rounded-lg mb-6">
                 <Clock className="h-4 w-4" />
-                <time dateTime={currentDateTime} className="font-mono">
+                <time dateTime={currentDateTime} className="font-mono text-xs">
                   {currentDateTime}
                 </time>
               </div>
 
+              {/* Links de navegação */}
               {navItems.map((item) => {
                 if (!item.show) return null
                 const isActive = pathname === item.href
                 const Icon = item.icon
-                
+
                 return (
                   <Link
                     key={item.href}
@@ -176,42 +191,44 @@ export function Header() {
                     <Button
                       variant={isActive ? 'secondary' : 'ghost'}
                       className={cn(
-                        'w-full justify-start gap-2',
+                        'w-full justify-start gap-3 h-12 px-4',
                         isActive && 'bg-primary/10 text-primary font-medium'
                       )}
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-5 w-5" />
                       {item.label}
                     </Button>
                   </Link>
                 )
               })}
 
-              <div className="border-t border-border pt-2 mt-2">
-                {user ? (
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-2 text-muted-foreground hover:text-destructive"
-                    onClick={() => {
-                      handleLogout()
-                      setMobileMenuOpen(false)
-                    }}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sair
+              {/* Divider */}
+              <div className="border-t border-border my-6" />
+
+              {/* Auth buttons */}
+              {user ? (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-3 h-12 px-4 text-muted-foreground hover:text-destructive"
+                  onClick={() => {
+                    handleLogout()
+                    setMobileMenuOpen(false)
+                  }}
+                >
+                  <LogOut className="h-5 w-5" />
+                  Sair
+                </Button>
+              ) : (
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="default" className="w-full justify-start gap-3 h-12 px-4">
+                    <LogIn className="h-5 w-5" />
+                    Entrar
                   </Button>
-                ) : (
-                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="default" className="w-full justify-start gap-2">
-                      <LogIn className="h-4 w-4" />
-                      Entrar
-                    </Button>
-                  </Link>
-                )}
-              </div>
+                </Link>
+              )}
             </nav>
-          </div>
-        )}
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   )
