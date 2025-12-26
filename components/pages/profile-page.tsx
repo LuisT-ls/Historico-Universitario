@@ -28,9 +28,9 @@ import {
   Globe,
 } from 'lucide-react'
 import { doc, getDoc, setDoc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore'
-import { 
-  updatePassword, 
-  EmailAuthProvider, 
+import {
+  updatePassword,
+  EmailAuthProvider,
   reauthenticateWithCredential,
   deleteUser,
   reauthenticateWithPopup
@@ -48,6 +48,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { exportAsJSON, exportAsXLSX, exportAsPDF } from '@/lib/export-utils'
+import { toast, Toaster } from 'sonner'
 
 export function ProfilePage() {
   const router = useRouter()
@@ -73,6 +75,7 @@ export function ProfilePage() {
   })
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deletePassword, setDeletePassword] = useState('')
+  const [exportFormat, setExportFormat] = useState<'json' | 'xlsx' | 'pdf'>('json')
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -140,7 +143,7 @@ export function ProfilePage() {
           createdAt: new Date(),
           updatedAt: new Date(),
         }
-        
+
         // Salvar perfil inicial no Firestore
         try {
           await setDoc(
@@ -164,7 +167,7 @@ export function ProfilePage() {
         } catch (error) {
           console.error('Erro ao criar perfil inicial:', error)
         }
-        
+
         setProfile(initialProfile)
       }
     } catch (error) {
@@ -216,13 +219,13 @@ export function ProfilePage() {
     setIsSaving(true)
     try {
       const userRef = doc(db, 'users', user.uid)
-      
+
       // Garantir que as configurações existam
       const currentSettings = profile.settings || {
         notifications: true,
         privacy: 'private',
       }
-      
+
       await setDoc(
         userRef,
         {
@@ -240,7 +243,7 @@ export function ProfilePage() {
         },
         { merge: true }
       )
-      
+
       // Atualizar estado local para garantir sincronização
       setProfile({
         ...profile,
@@ -279,7 +282,7 @@ export function ProfilePage() {
 
     try {
       const userRef = doc(db, 'users', user.uid)
-      
+
       // Garantir que as configurações existam
       const currentSettings = profile.settings || {
         notifications: true,
@@ -309,7 +312,7 @@ export function ProfilePage() {
 
       // Feedback de sucesso
       setSettingsSuccess({ ...settingsSuccess, [key]: true })
-      
+
       // Limpar sucesso após 2 segundos
       setTimeout(() => {
         setSettingsSuccess((prev) => ({ ...prev, [key]: false }))
@@ -317,9 +320,9 @@ export function ProfilePage() {
     } catch (error: unknown) {
       console.error('Erro ao salvar configurações:', error)
       const errorMessage = getFirebaseErrorMessage(error)
-      
+
       setSettingsError({ ...settingsError, [key]: errorMessage })
-      
+
       // Limpar erro após 5 segundos
       setTimeout(() => {
         setSettingsError((prev) => ({ ...prev, [key]: null }))
@@ -446,29 +449,34 @@ export function ProfilePage() {
         metadata: {
           totalDisciplines: disciplinas.length,
           totalCertificates: certificados.length,
-          exportFormat: 'JSON',
+          exportFormat: exportFormat.toUpperCase(),
         },
       }
 
-      // Criar arquivo de download
-      const dataStr = JSON.stringify(backup, null, 2)
-      const dataBlob = new Blob([dataStr], { type: 'application/json' })
+      // Exportar no formato selecionado
+      switch (exportFormat) {
+        case 'json':
+          exportAsJSON(backup)
+          break
+        case 'xlsx':
+          exportAsXLSX(backup, disciplinas, statistics)
+          break
+        case 'pdf':
+          exportAsPDF(backup, disciplinas, statistics)
+          break
+      }
 
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(dataBlob)
-      link.download = `historico-universitario-backup-${new Date().toISOString().split('T')[0]}.json`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      
-      // Limpar URL após download
-      setTimeout(() => URL.revokeObjectURL(link.href), 100)
-
-      alert('✅ Dados exportados com sucesso!')
+      toast.success('Dados exportados com sucesso!', {
+        description: `Arquivo ${exportFormat.toUpperCase()} baixado`,
+        duration: 3000,
+      })
     } catch (error) {
       console.error('Erro ao exportar dados:', error)
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
-      alert('❌ Erro ao exportar dados: ' + errorMessage)
+      toast.error('Erro ao exportar dados', {
+        description: errorMessage,
+        duration: 4000,
+      })
     }
   }
 
@@ -599,28 +607,28 @@ export function ProfilePage() {
   // Função para mascarar dados sensíveis quando privado
   const maskSensitiveData = (value: string | null | undefined, type: 'email' | 'enrollment' = 'email'): string => {
     if (!isPrivate || !value || value.trim() === '') return value || ''
-    
+
     if (type === 'email') {
       // Mascarar e-mail: ex: user@example.com -> u***@e***.com
       const [localPart, domain] = value.split('@')
       if (!domain || !localPart) return '••••••••'
-      
+
       // Mascarar parte local (antes do @)
-      const maskedLocal = localPart.length > 1 
+      const maskedLocal = localPart.length > 1
         ? localPart[0] + '•'.repeat(Math.min(localPart.length - 1, 3))
         : '•'.repeat(3)
-      
+
       // Mascarar domínio
       const domainParts = domain.split('.')
       if (domainParts.length === 0) return `${maskedLocal}@••••`
-      
+
       const domainName = domainParts[0]
       const domainExt = domainParts.slice(1).join('.')
       const maskedDomain = domainName.length > 1
         ? domainName[0] + '•'.repeat(Math.min(domainName.length - 1, 3))
         : '•'.repeat(3)
-      
-      return domainExt 
+
+      return domainExt
         ? `${maskedLocal}@${maskedDomain}.${domainExt}`
         : `${maskedLocal}@${maskedDomain}`
     } else {
@@ -628,18 +636,19 @@ export function ProfilePage() {
       const trimmedValue = value.trim()
       if (trimmedValue.length <= 2) return '••••'
       if (trimmedValue.length <= 4) return '••••'
-      
+
       const start = trimmedValue.slice(0, 3)
       const end = trimmedValue.slice(-2)
       const middleLength = trimmedValue.length - 5
       const maskedMiddle = '•'.repeat(Math.min(middleLength, 6))
-      
+
       return `${start}${maskedMiddle}${end}`
     }
   }
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Toaster position="bottom-right" richColors />
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -960,18 +969,40 @@ export function ProfilePage() {
                       </p>
                     </div>
                   </div>
-                  <Button variant="outline" onClick={handleExportData}>
-                    Exportar
-                  </Button>
+
+                  <div className="flex items-center gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="exportFormat" className="text-xs text-muted-foreground">Formato:</Label>
+                      <select
+                        id="exportFormat"
+                        value={exportFormat}
+                        onChange={(e) => setExportFormat(e.target.value as 'json' | 'xlsx' | 'pdf')}
+                        className="flex h-10 w-[150px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        <option value="json">JSON</option>
+                        <option value="xlsx">Excel</option>
+                        <option value="pdf">PDF</option>
+                      </select>
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      onClick={handleExportData}
+                      className="h-10 mt-6"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Exportar
+                    </Button>
+                  </div>
                 </div>
               </div>
 
               <div className="p-4 border rounded-lg border-destructive">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Trash2 className="h-5 w-5 text-destructive" />
+                    <Trash2 className="h-5 w-5 text-red-500" />
                     <div>
-                      <h3 className="font-semibold text-destructive">Excluir Conta</h3>
+                      <h3 className="font-semibold text-red-500">Excluir Conta</h3>
                       <p className="text-sm text-muted-foreground">
                         Exclua permanentemente sua conta e todos os dados
                       </p>
@@ -985,7 +1016,7 @@ export function ProfilePage() {
             </CardContent>
           </Card>
         </div>
-      </main>
+      </main >
       <Footer />
 
       {/* Modal de Alteração de Senha */}
@@ -997,7 +1028,7 @@ export function ProfilePage() {
               Alterar Senha
             </DialogTitle>
             <DialogDescription>
-              {isGoogleUser 
+              {isGoogleUser
                 ? 'Usuários que fazem login com Google não podem alterar senha através desta interface. A senha é gerenciada pela sua conta Google.'
                 : 'Digite sua senha atual e a nova senha para alterar.'}
             </DialogDescription>
@@ -1078,7 +1109,7 @@ export function ProfilePage() {
                 }}>
                   Cancelar
                 </Button>
-                <Button 
+                <Button
                   onClick={handleChangePassword}
                   disabled={!passwordData.current || !passwordData.new || !passwordData.confirm}
                 >
@@ -1168,6 +1199,6 @@ export function ProfilePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   )
 }
