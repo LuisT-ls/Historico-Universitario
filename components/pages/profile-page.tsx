@@ -251,11 +251,17 @@ export function ProfilePage() {
       })
 
       // Mostrar notificação de sucesso (pode usar um toast component)
-      alert('✅ Informações pessoais salvas com sucesso!')
+      toast.success('Informações salvas!', {
+        description: 'Suas informações pessoais foram atualizadas',
+        duration: 3000,
+      })
     } catch (error: unknown) {
       console.error('Erro ao salvar perfil:', error)
       const errorMessage = getFirebaseErrorMessage(error)
-      alert('❌ Erro ao salvar perfil: ' + errorMessage)
+      toast.error('Erro ao salvar perfil', {
+        description: errorMessage,
+        duration: 4000,
+      })
     } finally {
       setIsSaving(false)
     }
@@ -338,28 +344,43 @@ export function ProfilePage() {
     // Verificar se é usuário Google (não pode alterar senha)
     const isGoogleUser = user.providerData?.some((p) => p.providerId === 'google.com')
     if (isGoogleUser) {
-      alert('❌ Usuários que fazem login com Google não podem alterar senha através desta interface.')
+      toast.error('Ação não permitida', {
+        description: 'Usuários que fazem login com Google não podem alterar senha através desta interface',
+        duration: 4000,
+      })
       return
     }
 
     if (!passwordData.current) {
-      alert('❌ Por favor, digite sua senha atual.')
+      toast.error('Campo obrigatório', {
+        description: 'Por favor, digite sua senha atual',
+        duration: 3000,
+      })
       return
     }
 
     if (passwordData.new !== passwordData.confirm) {
-      alert('❌ As senhas não correspondem!')
+      toast.error('Senhas não correspondem', {
+        description: 'A nova senha e a confirmação devem ser iguais',
+        duration: 3000,
+      })
       return
     }
 
     if (passwordData.new.length < 6) {
-      alert('❌ A nova senha deve ter pelo menos 6 caracteres!')
+      toast.error('Senha muito curta', {
+        description: 'A nova senha deve ter pelo menos 6 caracteres',
+        duration: 3000,
+      })
       return
     }
 
     // Validação de força da senha básica
     if (passwordData.new === passwordData.current) {
-      alert('❌ A nova senha deve ser diferente da senha atual.')
+      toast.error('Senha inválida', {
+        description: 'A nova senha deve ser diferente da senha atual',
+        duration: 3000,
+      })
       return
     }
 
@@ -371,13 +392,19 @@ export function ProfilePage() {
       // Alterar senha
       await updatePassword(user, passwordData.new)
 
-      alert('✅ Senha alterada com sucesso!')
+      toast.success('Senha alterada!', {
+        description: 'Sua senha foi atualizada com sucesso',
+        duration: 3000,
+      })
       setChangePasswordOpen(false)
       setPasswordData({ current: '', new: '', confirm: '' })
     } catch (error: unknown) {
       console.error('Erro ao alterar senha:', error)
       const errorMessage = getFirebaseErrorMessage(error)
-      alert('❌ ' + errorMessage)
+      toast.error('Erro ao alterar senha', {
+        description: errorMessage,
+        duration: 4000,
+      })
     }
   }
 
@@ -484,7 +511,10 @@ export function ProfilePage() {
     if (!user || !auth || !db) return
 
     if (deleteConfirm !== 'EXCLUIR') {
-      alert('❌ Por favor, digite EXCLUIR para confirmar.')
+      toast.error('Confirmação necessária', {
+        description: 'Por favor, digite EXCLUIR para confirmar',
+        duration: 3000,
+      })
       return
     }
 
@@ -492,7 +522,10 @@ export function ProfilePage() {
     const isGoogleUser = user.providerData?.some((p) => p.providerId === 'google.com')
 
     if (!isGoogleUser && !deletePassword) {
-      alert('❌ Por favor, digite sua senha para confirmar.')
+      toast.error('Senha necessária', {
+        description: 'Por favor, digite sua senha para confirmar',
+        duration: 3000,
+      })
       return
     }
 
@@ -507,7 +540,10 @@ export function ProfilePage() {
           await reauthenticateWithPopup(user, googleProvider)
         } catch (reauthError: any) {
           if (reauthError.code === 'auth/popup-closed-by-user') {
-            alert('❌ Reautenticação cancelada. A exclusão da conta foi cancelada.')
+            toast.warning('Exclusão cancelada', {
+              description: 'Reautenticação cancelada',
+              duration: 3000,
+            })
             return
           }
           throw reauthError
@@ -515,7 +551,10 @@ export function ProfilePage() {
       } else {
         // Para usuários email/password, reautenticar com senha
         if (!deletePassword) {
-          alert('❌ Por favor, digite sua senha para confirmar.')
+          toast.error('Senha necessária', {
+            description: 'Por favor, digite sua senha para confirmar',
+            duration: 3000,
+          })
           return
         }
         const credential = EmailAuthProvider.credential(user.email!, deletePassword)
@@ -580,12 +619,18 @@ export function ProfilePage() {
         console.warn('Erro ao limpar storage local:', error)
       }
 
-      alert('✅ Conta excluída com sucesso!')
+      toast.success('Conta excluída', {
+        description: 'Sua conta foi removida permanentemente',
+        duration: 3000,
+      })
       router.push('/')
     } catch (error: unknown) {
       console.error('Erro ao excluir conta:', error)
       const errorMessage = getFirebaseErrorMessage(error)
-      alert('❌ ' + errorMessage)
+      toast.error('Erro ao excluir conta', {
+        description: errorMessage,
+        duration: 4000,
+      })
     }
   }
 
@@ -1151,7 +1196,10 @@ export function ProfilePage() {
                 placeholder="Digite EXCLUIR"
                 onPaste={(e) => {
                   e.preventDefault()
-                  alert('Você deve digitar manualmente a palavra EXCLUIR.')
+                  toast.error('Confirmação necessária', {
+                    description: 'Você deve digitar manualmente a palavra EXCLUIR',
+                    duration: 3000,
+                  })
                 }}
               />
               <p className="text-xs text-muted-foreground">
