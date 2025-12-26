@@ -16,6 +16,8 @@ import { db } from '@/lib/firebase/config'
 import { calcularResultado } from '@/lib/utils'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
 import type { Curso, Disciplina } from '@/types'
+import { toast } from '@/lib/toast'
+import { Toaster } from 'sonner'
 
 export function HomePage() {
   const { user, loading: authLoading } = useAuth()
@@ -36,7 +38,7 @@ export function HomePage() {
         const disciplinasFirebase: Disciplina[] = []
         querySnapshot.forEach((doc) => {
           const data = doc.data()
-          
+
           // Calcular resultado se não existir (AC não tem resultado)
           let resultado = data.resultado
           if (!resultado && data.natureza !== 'AC' && data.nota !== undefined && data.nota !== null) {
@@ -78,14 +80,14 @@ export function HomePage() {
           // Primeiro ordenar por período
           const [anoA, semA] = a.periodo.split('.').map(Number)
           const [anoB, semB] = b.periodo.split('.').map(Number)
-          
+
           if (anoA !== anoB) {
             return anoB - anoA // Ano mais recente primeiro
           }
           if (semA !== semB) {
             return semB - semA // Semestre mais recente primeiro
           }
-          
+
           // Se período igual, ordenar por data de criação
           const dateA = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt || 0)
           const dateB = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt || 0)
@@ -184,6 +186,11 @@ export function HomePage() {
 
       // Salvar no localStorage também
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
+
+      toast.success('Disciplina adicionada!', {
+        description: disciplina.nome,
+        duration: 3000,
+      })
     } catch (error: unknown) {
       console.error('Erro ao adicionar disciplina:', error)
       const errorMessage = getFirebaseErrorMessage(error)
@@ -192,6 +199,11 @@ export function HomePage() {
       const novasDisciplinas = [...disciplinas, disciplina]
       setDisciplinas(novasDisciplinas)
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
+
+      toast.error('Erro ao adicionar disciplina', {
+        description: errorMessage,
+        duration: 4000,
+      })
     }
   }
 
@@ -216,6 +228,11 @@ export function HomePage() {
 
       // Salvar no localStorage também
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
+
+      toast.success('Disciplina atualizada!', {
+        description: disciplina.nome,
+        duration: 3000,
+      })
     } catch (error: unknown) {
       console.error('Erro ao atualizar disciplina:', error)
       const errorMessage = getFirebaseErrorMessage(error)
@@ -225,6 +242,11 @@ export function HomePage() {
       novasDisciplinas[index] = disciplina
       setDisciplinas(novasDisciplinas)
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
+
+      toast.error('Erro ao atualizar disciplina', {
+        description: errorMessage,
+        duration: 4000,
+      })
     }
   }
 
@@ -244,6 +266,11 @@ export function HomePage() {
 
       // Salvar no localStorage também
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
+
+      toast.success('Disciplina removida!', {
+        description: disciplinaRemovida.nome,
+        duration: 3000,
+      })
     } catch (error: unknown) {
       console.error('Erro ao remover disciplina:', error)
       const errorMessage = getFirebaseErrorMessage(error)
@@ -252,6 +279,11 @@ export function HomePage() {
       const novasDisciplinas = disciplinas.filter((_, i) => i !== index)
       setDisciplinas(novasDisciplinas)
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
+
+      toast.error('Erro ao remover disciplina', {
+        description: errorMessage,
+        duration: 4000,
+      })
     }
   }
 
@@ -265,6 +297,7 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Toaster position="bottom-right" richColors />
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <header className="mb-10">

@@ -26,6 +26,8 @@ import {
   Bell,
   Lock,
   Globe,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import { doc, getDoc, setDoc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore'
 import {
@@ -49,7 +51,8 @@ import {
 } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { exportAsJSON, exportAsXLSX, exportAsPDF } from '@/lib/export-utils'
-import { toast, Toaster } from 'sonner'
+import { toast, setNotificationsEnabled } from '@/lib/toast'
+import { Toaster } from 'sonner'
 
 export function ProfilePage() {
   const router = useRouter()
@@ -76,6 +79,12 @@ export function ProfilePage() {
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deletePassword, setDeletePassword] = useState('')
   const [exportFormat, setExportFormat] = useState<'json' | 'xlsx' | 'pdf'>('json')
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+    delete: false,
+  })
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -101,6 +110,13 @@ export function ProfilePage() {
       loadStatistics()
     }
   }, [user])
+
+  // Sincronizar configuração de notificações com localStorage
+  useEffect(() => {
+    if (profile?.settings?.notifications !== undefined) {
+      setNotificationsEnabled(profile.settings.notifications)
+    }
+  }, [profile?.settings?.notifications])
 
   const loadProfile = async () => {
     if (!user || !db) return
@@ -316,6 +332,11 @@ export function ProfilePage() {
         },
       })
 
+      // Se for configuração de notificações, atualizar localStorage também
+      if (key === 'notifications') {
+        setNotificationsEnabled(value === true || value === 'true')
+      }
+
       // Feedback de sucesso
       setSettingsSuccess({ ...settingsSuccess, [key]: true })
 
@@ -398,6 +419,7 @@ export function ProfilePage() {
       })
       setChangePasswordOpen(false)
       setPasswordData({ current: '', new: '', confirm: '' })
+      setShowPasswords({ current: false, new: false, confirm: false, delete: false })
     } catch (error: unknown) {
       console.error('Erro ao alterar senha:', error)
       const errorMessage = getFirebaseErrorMessage(error)
@@ -1004,7 +1026,7 @@ export function ProfilePage() {
               </div>
 
               <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <Download className="h-5 w-5 text-muted-foreground" />
                     <div>
@@ -1015,14 +1037,14 @@ export function ProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col md:flex-row items-stretch md:items-end gap-3 w-full md:w-auto">
                     <div className="space-y-1">
                       <Label htmlFor="exportFormat" className="text-xs text-muted-foreground">Formato:</Label>
                       <select
                         id="exportFormat"
                         value={exportFormat}
                         onChange={(e) => setExportFormat(e.target.value as 'json' | 'xlsx' | 'pdf')}
-                        className="flex h-10 w-[150px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className="flex h-10 w-full md:w-[150px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       >
                         <option value="json">JSON</option>
                         <option value="xlsx">Excel</option>
@@ -1033,7 +1055,7 @@ export function ProfilePage() {
                     <Button
                       variant="outline"
                       onClick={handleExportData}
-                      className="h-10 mt-6"
+                      className="h-10 w-full md:w-auto"
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Exportar
@@ -1106,57 +1128,89 @@ export function ProfilePage() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="currentPassword">Senha Atual</Label>
-                  <Input
-                    id="currentPassword"
-                    type="password"
-                    value={passwordData.current}
-                    onChange={(e) =>
-                      setPasswordData({ ...passwordData, current: e.target.value })
-                    }
-                    required
-                    placeholder="Digite sua senha atual"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="currentPassword"
+                      type={showPasswords.current ? 'text' : 'password'}
+                      value={passwordData.current}
+                      onChange={(e) =>
+                        setPasswordData({ ...passwordData, current: e.target.value })
+                      }
+                      required
+                      placeholder="Digite sua senha atual"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswords({ ...showPasswords, current: !showPasswords.current })}
+                      className="absolute right-0 top-0 h-full w-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors focus:outline-none bg-transparent border-none shadow-none"
+                    >
+                      {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="newPassword">Nova Senha</Label>
-                  <Input
-                    id="newPassword"
-                    type="password"
-                    value={passwordData.new}
-                    onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
-                    required
-                    minLength={6}
-                    placeholder="Mínimo de 6 caracteres"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="newPassword"
+                      type={showPasswords.new ? 'text' : 'password'}
+                      value={passwordData.new}
+                      onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
+                      required
+                      minLength={6}
+                      placeholder="Mínimo de 6 caracteres"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswords({ ...showPasswords, new: !showPasswords.new })}
+                      className="absolute right-0 top-0 h-full w-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors focus:outline-none bg-transparent border-none shadow-none"
+                    >
+                      {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     A senha deve ter pelo menos 6 caracteres
                   </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirmNewPassword">Confirmar Nova Senha</Label>
-                  <Input
-                    id="confirmNewPassword"
-                    type="password"
-                    value={passwordData.confirm}
-                    onChange={(e) =>
-                      setPasswordData({ ...passwordData, confirm: e.target.value })
-                    }
-                    required
-                    minLength={6}
-                    placeholder="Digite a nova senha novamente"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="confirmNewPassword"
+                      type={showPasswords.confirm ? 'text' : 'password'}
+                      value={passwordData.confirm}
+                      onChange={(e) =>
+                        setPasswordData({ ...passwordData, confirm: e.target.value })
+                      }
+                      required
+                      minLength={6}
+                      placeholder="Digite a nova senha novamente"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswords({ ...showPasswords, confirm: !showPasswords.confirm })}
+                      className="absolute right-0 top-0 h-full w-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors focus:outline-none bg-transparent border-none shadow-none"
+                    >
+                      {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
               </div>
-              <DialogFooter>
+              <DialogFooter className="flex flex-col-reverse sm:flex-row gap-4 sm:gap-4 mt-6">
                 <Button variant="outline" onClick={() => {
                   setChangePasswordOpen(false)
                   setPasswordData({ current: '', new: '', confirm: '' })
-                }}>
+                  setShowPasswords({ current: false, new: false, confirm: false, delete: false })
+                }} className="w-full sm:w-auto">
                   Cancelar
                 </Button>
                 <Button
                   onClick={handleChangePassword}
                   disabled={!passwordData.current || !passwordData.new || !passwordData.confirm}
+                  className="w-full sm:w-auto"
                 >
                   <Save className="mr-2 h-4 w-4" />
                   Alterar Senha
@@ -1210,13 +1264,23 @@ export function ProfilePage() {
             {!isGoogleUser && (
               <div className="space-y-2">
                 <Label htmlFor="deletePasswordInput">Digite sua senha para confirmar</Label>
-                <Input
-                  id="deletePasswordInput"
-                  type="password"
-                  value={deletePassword}
-                  onChange={(e) => setDeletePassword(e.target.value)}
-                  placeholder="Senha da sua conta"
-                />
+                <div className="relative">
+                  <Input
+                    id="deletePasswordInput"
+                    type={showPasswords.delete ? 'text' : 'password'}
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    placeholder="Senha da sua conta"
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords({ ...showPasswords, delete: !showPasswords.delete })}
+                    className="absolute right-0 top-0 h-full w-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors focus:outline-none"
+                  >
+                    {showPasswords.delete ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 <p className="text-xs text-muted-foreground">
                   Sua senha é necessária para confirmar a exclusão por segurança.
                 </p>
@@ -1232,14 +1296,15 @@ export function ProfilePage() {
               </Alert>
             )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteAccountOpen(false)}>
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-4 sm:gap-4 mt-6">
+            <Button variant="outline" onClick={() => setDeleteAccountOpen(false)} className="w-full sm:w-auto">
               Cancelar
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteAccount}
               disabled={deleteConfirm !== 'EXCLUIR' || (!isGoogleUser && !deletePassword)}
+              className="w-full sm:w-auto"
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Excluir Permanentemente
