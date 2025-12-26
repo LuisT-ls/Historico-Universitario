@@ -51,11 +51,11 @@ export function calcularResultado(
 ): 'AP' | 'RR' | 'TR' | 'DP' | undefined {
   // Atividades Complementares (AC) não têm resultado
   if (natureza === 'AC') return undefined
-  
+
   if (trancamento) return 'TR'
   if (dispensada) return 'AP'
   if (emcurso) return 'DP'
-  return nota >= 7.0 ? 'AP' : 'RR'
+  return nota >= 5.0 ? 'AP' : 'RR'
 }
 
 export function calcularMediaGeral(disciplinas: Array<{ nota: number; ch: number }>): number {
@@ -304,7 +304,7 @@ export function calcularPrevisaoFormaturaCompleta(
       // Calcular quantas disciplinas precisa no próximo semestre (considerando 6 por semestre)
       const chNecessariaProximoSemestre = Math.min(horasRestantes / 2, chPorSemestre)
       const disciplinasProximoSemestre = Math.ceil(chNecessariaProximoSemestre / mediaCHPorDisciplina)
-      
+
       return {
         texto: `Previsão: 2 semestres restantes${disciplinasEmCursoTexto}. No próximo semestre, você precisará cursar aproximadamente ${disciplinasProximoSemestre} disciplina(s).`,
         semestresRestantes: 2,
