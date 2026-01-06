@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, forwardRef, useImperativeHandle } from 'react'
+import { useState, forwardRef, useImperativeHandle, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -103,6 +103,25 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
   const nome = watch('nome')
   const ch = watch('ch')
   const nota = watch('nota')
+
+  // Desmarcar automaticamente "em curso" quando uma nota válida for inserida
+  useEffect(() => {
+    // Só desmarcar se:
+    // 1. Não for natureza AC (AC não tem nota)
+    // 2. A nota for válida (número definido e >= 0)
+    // 3. "Em curso" estiver marcado
+    // 4. Não for trancamento ou dispensada
+    if (
+      !isAC &&
+      typeof nota === 'number' &&
+      nota >= 0 &&
+      emcurso &&
+      !trancamento &&
+      !dispensada
+    ) {
+      setValue('emcurso', false)
+    }
+  }, [nota, emcurso, isAC, trancamento, dispensada, setValue])
   
   const periodoMaisRecente = getPeriodoMaisRecente(disciplinas) || ''
   const hasFilledFields = 
