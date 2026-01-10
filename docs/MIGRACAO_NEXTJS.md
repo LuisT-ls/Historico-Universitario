@@ -1,6 +1,6 @@
 # 🚀 Migração para Next.js 16
 
-Este documento descreve a migração completa do sistema Histórico Universitário de HTML/JS puro para **Next.js 16** com **TypeScript**, **Tailwind CSS** e **shadcn/ui**.
+Este documento descreve a migração completa do sistema Histórico Acadêmico de HTML/JS puro para **Next.js 16** com **TypeScript**, **Tailwind CSS** e **shadcn/ui**.
 
 ## ✅ O que foi migrado
 

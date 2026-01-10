@@ -1,4 +1,4 @@
-# 🧪 Guia de Testes - Histórico Universitário
+# 🧪 Guia de Testes - Histórico Acadêmico
 
 Este documento descreve a estrutura de testes automatizados do projeto.
 

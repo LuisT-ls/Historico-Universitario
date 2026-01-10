@@ -304,7 +304,7 @@ export function HomePage() {
           <div className="mb-4 text-center">
             <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 flex items-center justify-center gap-3">
               <GraduationCap className="h-8 w-8 sm:h-10 sm:w-10 text-primary animate-bounce" />
-              Histórico Universitário
+              Histórico Acadêmico
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-3xl mx-auto">
               Gerencie seu histórico acadêmico, monitore seu progresso e acompanhe os requisitos

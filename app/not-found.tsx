@@ -73,7 +73,7 @@ export default function NotFound() {
           transition={{ delay: 0.6 }}
           className="text-xs text-muted-foreground pt-8"
         >
-          © 2026 Histórico Universitário - Organizando sua jornada acadêmica.
+          © 2026 Histórico Acadêmico - Organizando sua jornada acadêmica.
         </motion.p>
       </div>
     </div>

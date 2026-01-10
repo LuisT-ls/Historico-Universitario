@@ -33,7 +33,7 @@ export function PrivacyPage() {
                   1. Informações Gerais
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  Esta Política de Privacidade descreve como o <strong>Histórico Universitário</strong> coleta, usa e protege suas
+                  Esta Política de Privacidade descreve como o <strong>Histórico Acadêmico</strong> coleta, usa e protege suas
                   informações pessoais. Ao usar nosso aplicativo, você concorda com as práticas descritas nesta política.
                 </p>
                 <div className="bg-primary/10 p-4 rounded-lg border-l-4 border-primary">
@@ -283,7 +283,7 @@ export function PrivacyPage() {
                   11. Notificações e Alertas
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  O Histórico Universitário pode exibir notificações na interface para informar sobre ações, erros, avisos, lembretes ou novidades. O usuário pode ativar ou desativar todas as notificações a qualquer momento nas configurações da conta.
+                  O Histórico Acadêmico pode exibir notificações na interface para informar sobre ações, erros, avisos, lembretes ou novidades. O usuário pode ativar ou desativar todas as notificações a qualquer momento nas configurações da conta.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
                   Ao desativar as notificações, nenhum alerta visual será exibido em nenhuma parte do sistema, incluindo avisos importantes, confirmações de ações, erros e lembretes. O usuário é responsável por acompanhar manualmente o andamento de suas ações e dados enquanto as notificações estiverem desativadas.
@@ -300,7 +300,7 @@ export function PrivacyPage() {
                   <div className="space-y-2 text-muted-foreground">
                     <p><strong>Para questões sobre privacidade:</strong></p>
                     <p><strong>E-mail:</strong> luisps4.lt@gmail.com</p>
-                    <p><strong>Assunto:</strong> Política de Privacidade - Histórico Universitário</p>
+                    <p><strong>Assunto:</strong> Política de Privacidade - Histórico Acadêmico</p>
                     <p><strong>Prazo de resposta:</strong> Até 5 dias úteis</p>
                   </div>
                 </CardContent>

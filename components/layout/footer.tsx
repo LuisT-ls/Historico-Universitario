@@ -9,7 +9,7 @@ export function Footer() {
           <section>
             <h3 className="text-lg font-semibold mb-4">Sobre o Projeto</h3>
             <p className="text-sm text-muted-foreground">
-              O Histórico Universitário é uma ferramenta desenvolvida para auxiliar estudantes dos
+              O Histórico Acadêmico é uma ferramenta desenvolvida para auxiliar estudantes dos
               cursos de BICTI, Engenharia de Produção e Engenharia Elétrica no acompanhamento do
               seu progresso acadêmico.
             </p>
@@ -105,7 +105,7 @@ export function Footer() {
 
         <div className="border-t pt-4 text-center text-sm text-muted-foreground">
           <p>
-            &copy; {new Date().getFullYear()} Histórico Universitário - Todos os direitos
+            &copy; {new Date().getFullYear()} Histórico Acadêmico - Todos os direitos
             reservados |{' '}
             <Link href="/legal/terms" className="hover:underline">
               Termos de Uso

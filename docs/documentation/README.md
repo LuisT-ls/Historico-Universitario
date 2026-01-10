@@ -1,4 +1,4 @@
-# Histórico Universitário
+# Histórico Acadêmico
 
 ![Preview do Projeto](imagem-preview.jpg)
 
@@ -8,7 +8,7 @@ Uma aplicação web para gerenciar e acompanhar o histórico acadêmico dos estu
 
 ## 📋 Sobre o Projeto
 
-O Histórico Universitário é uma ferramenta que permite aos estudantes:
+O Histórico Acadêmico é uma ferramenta que permite aos estudantes:
 
 - Registrar e gerenciar disciplinas cursadas
 - Acompanhar o progresso em direção à formatura

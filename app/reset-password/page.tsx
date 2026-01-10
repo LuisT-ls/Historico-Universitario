@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { ResetPasswordPage } from '@/components/pages/reset-password-page'
 
 export const metadata: Metadata = {
-  title: 'Redefinir Senha - Histórico Universitário',
+  title: 'Redefinir Senha - Histórico Acadêmico',
   description: 'Crie uma nova senha para sua conta.',
   robots: {
     index: false,

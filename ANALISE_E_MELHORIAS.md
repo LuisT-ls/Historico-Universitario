@@ -1,4 +1,4 @@
-# 🔍 Análise Completa da Aplicação - Histórico Universitário
+# 🔍 Análise Completa da Aplicação - Histórico Acadêmico
 
 ## 📊 Resumo Executivo
 

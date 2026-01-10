@@ -33,7 +33,7 @@ export function TermsPage() {
                   1. Aceitação dos Termos
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  Ao acessar e usar o <strong>Histórico Universitário</strong>, você concorda em cumprir e estar vinculado a estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não deve usar nosso aplicativo.
+                  Ao acessar e usar o <strong>Histórico Acadêmico</strong>, você concorda em cumprir e estar vinculado a estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não deve usar nosso aplicativo.
                 </p>
                 <div className="bg-primary/10 p-4 rounded-lg border-l-4 border-primary">
                   <p className="text-sm">
@@ -55,9 +55,9 @@ export function TermsPage() {
                 </h2>
                 
                 <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-foreground">2.1 O que é o Histórico Universitário</h3>
+                  <h3 className="text-xl font-semibold text-foreground">2.1 O que é o Histórico Acadêmico</h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    O Histórico Universitário é uma aplicação web que permite aos estudantes universitários:
+                    O Histórico Acadêmico é uma aplicação web que permite aos estudantes universitários:
                   </p>
                   <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                     <li><strong>Gerenciar disciplinas:</strong> Adicionar, editar e remover disciplinas cursadas</li>
@@ -155,7 +155,7 @@ export function TermsPage() {
                   <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                     <li><strong>Software:</strong> Código fonte e funcionalidades são protegidos</li>
                     <li><strong>Design:</strong> Interface e elementos visuais são exclusivos</li>
-                    <li><strong>Marca:</strong> "Histórico Universitário" é marca registrada</li>
+                    <li><strong>Marca:</strong> "Histórico Acadêmico" é marca registrada</li>
                     <li><strong>Conteúdo:</strong> Textos e documentação são protegidos</li>
                   </ul>
                 </div>
@@ -329,7 +329,7 @@ export function TermsPage() {
                   11. Notificações e Alertas
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  O Histórico Universitário pode exibir notificações na interface para informar sobre ações, erros, avisos, lembretes ou novidades. O usuário pode ativar ou desativar todas as notificações a qualquer momento nas configurações da conta.
+                  O Histórico Acadêmico pode exibir notificações na interface para informar sobre ações, erros, avisos, lembretes ou novidades. O usuário pode ativar ou desativar todas as notificações a qualquer momento nas configurações da conta.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
                   Ao desativar as notificações, nenhum alerta visual será exibido em nenhuma parte do sistema, incluindo avisos importantes, confirmações de ações, erros e lembretes. O usuário é responsável por acompanhar manualmente o andamento de suas ações e dados enquanto as notificações estiverem desativadas.
@@ -369,7 +369,7 @@ export function TermsPage() {
                   <div className="space-y-2 text-muted-foreground">
                     <p><strong>Para questões sobre os termos:</strong></p>
                     <p><strong>E-mail:</strong> luisps4.lt@gmail.com</p>
-                    <p><strong>Assunto:</strong> Termos de Uso - Histórico Universitário</p>
+                    <p><strong>Assunto:</strong> Termos de Uso - Histórico Acadêmico</p>
                     <p><strong>Prazo de resposta:</strong> Até 5 dias úteis</p>
                   </div>
                 </CardContent>

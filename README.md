@@ -1,4 +1,4 @@
-# 📚 Histórico Universitário
+# 📚 Histórico Acadêmico
 
 Sistema web completo para gerenciamento de histórico acadêmico universitário com autenticação Firebase, sincronização em tempo real e armazenamento em nuvem.
 

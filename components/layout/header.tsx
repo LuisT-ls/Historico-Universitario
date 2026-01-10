@@ -80,7 +80,7 @@ export function Header() {
                 <GraduationCap className="h-6 w-6" />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-foreground">Histórico Universitário</h1>
+                <h1 className="text-lg font-bold text-foreground">Histórico Acadêmico</h1>
                 <p className="text-xs text-muted-foreground hidden lg:block">Gerencie seu progresso acadêmico</p>
               </div>
             </Link>
