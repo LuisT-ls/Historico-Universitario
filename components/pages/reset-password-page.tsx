@@ -12,8 +12,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { GraduationCap, Lock, Loader2, CheckCircle2, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react'
+import { Lock, Loader2, CheckCircle2, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { toast } from '@/lib/toast'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -106,7 +107,15 @@ function ResetPasswordContent() {
             <CardContent className="pt-10 pb-10 flex flex-col items-center justify-center space-y-4">
               <div className="relative">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <GraduationCap className="h-6 w-6 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6">
+                  <Image 
+                    src="/assets/img/logo.png" 
+                    alt="Logo" 
+                    width={24} 
+                    height={24}
+                    className="object-contain"
+                  />
+                </div>
               </div>
               <p className="text-sm font-medium text-muted-foreground animate-pulse">
                 Validando sua solicitação...
@@ -172,9 +181,17 @@ function ResetPasswordContent() {
         >
           <Card className="shadow-2xl border-primary/10">
             <CardHeader className="text-center space-y-1">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <GraduationCap className="h-8 w-8" />
-              </div>
+              <Link href="/" className="mx-auto mb-4 block w-fit hover:opacity-80 transition-opacity">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 overflow-hidden">
+                  <Image 
+                    src="/assets/img/logo.png" 
+                    alt="Histórico Acadêmico Logo" 
+                    width={48} 
+                    height={48}
+                    className="object-contain"
+                  />
+                </div>
+              </Link>
               <CardTitle className="text-2xl font-bold tracking-tight">Criar Nova Senha</CardTitle>
               <CardDescription className="text-sm">
                 Redefinindo acesso para <span className="font-semibold text-foreground">{email}</span>
@@ -182,10 +199,12 @@ function ResetPasswordContent() {
             </CardHeader>
             <CardContent className="space-y-4 pt-4">
               {error && (
-                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive flex items-center gap-2 border border-destructive/20">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  {error}
-                </div>
+                <Alert variant="destructive" className="py-2.5">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-sm font-medium">
+                    {error}
+                  </AlertDescription>
+                </Alert>
               )}
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

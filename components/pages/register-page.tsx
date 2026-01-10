@@ -12,8 +12,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { GraduationCap, Mail, Lock, User, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Mail, Lock, User, Loader2, ArrowLeft, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { toast } from '@/lib/toast'
 import { motion } from 'framer-motion'
 
@@ -79,9 +81,17 @@ export function RegisterPage() {
       >
         <Card className="shadow-2xl border-primary/10">
           <CardHeader className="text-center space-y-1">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <GraduationCap className="h-8 w-8" />
-            </div>
+            <Link href="/" className="mx-auto mb-4 block w-fit hover:opacity-80 transition-opacity">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 overflow-hidden">
+                <Image 
+                  src="/assets/img/logo.png" 
+                  alt="Histórico Acadêmico Logo" 
+                  width={48} 
+                  height={48}
+                  className="object-contain"
+                />
+              </div>
+            </Link>
             <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Criar Cadastro</CardTitle>
             <CardDescription className="text-sm">
               Comece a organizar sua jornada acadêmica hoje mesmo
@@ -89,9 +99,12 @@ export function RegisterPage() {
           </CardHeader>
           <CardContent className="space-y-4 pt-2">
             {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive border border-destructive/20">
-                {error}
-              </div>
+              <Alert variant="destructive" className="py-2.5">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-sm font-medium">
+                  {error}
+                </AlertDescription>
+              </Alert>
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

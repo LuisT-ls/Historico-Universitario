@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { GraduationCap, Home, ArrowLeft, Search } from 'lucide-react'
+import Image from 'next/image'
+import { Home, ArrowLeft, Search } from 'lucide-react'
 
 export default function NotFound() {
   return (
@@ -16,9 +17,17 @@ export default function NotFound() {
           transition={{ duration: 0.5, type: 'spring' }}
           className="relative inline-block"
         >
-          <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <GraduationCap className="h-16 w-16" />
-          </div>
+          <Link href="/" className="mx-auto block hover:opacity-80 transition-opacity">
+            <div className="flex h-32 w-32 items-center justify-center rounded-full bg-primary/10 overflow-hidden">
+              <Image 
+                src="/assets/img/logo.png" 
+                alt="Logo" 
+                width={80} 
+                height={80}
+                className="object-contain"
+              />
+            </div>
+          </Link>
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}

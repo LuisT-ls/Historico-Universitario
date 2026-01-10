@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GraduationCap, User, LogOut, LogIn, Menu, X, Home, Clock } from 'lucide-react'
 import { signOut } from 'firebase/auth'
+import Image from 'next/image'
 import { auth } from '@/lib/firebase/config'
 import { cn, clearUserData } from '@/lib/utils'
 import {
@@ -76,8 +77,14 @@ export function Header() {
           {/* Logo e Data/Hora */}
           <div className="flex items-center gap-4 sm:gap-6">
             <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary">
-                <GraduationCap className="h-6 w-6" />
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 overflow-hidden">
+                <Image 
+                  src="/assets/img/logo.png" 
+                  alt="Logo" 
+                  width={28} 
+                  height={28}
+                  className="object-contain"
+                />
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-lg font-bold text-foreground">Histórico Acadêmico</h1>
@@ -162,7 +169,13 @@ export function Header() {
           <SheetContent side="right" className="w-[280px] sm:w-[320px]">
             <SheetHeader className="mb-8">
               <SheetTitle className="flex items-center gap-2">
-                <GraduationCap className="h-5 w-5 text-primary" />
+                <Image 
+                  src="/assets/img/logo.png" 
+                  alt="Logo" 
+                  width={20} 
+                  height={20}
+                  className="object-contain"
+                />
                 Menu
               </SheetTitle>
             </SheetHeader>

@@ -12,8 +12,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { GraduationCap, Mail, Loader2, ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Mail, Loader2, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { toast } from '@/lib/toast'
 
 const forgotPasswordSchema = z.object({
@@ -87,17 +89,28 @@ export function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-            <GraduationCap className="h-8 w-8 text-primary" />
-          </div>
+          <Link href="/" className="mx-auto mb-4 block w-fit hover:opacity-80 transition-opacity">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 overflow-hidden">
+              <Image 
+                src="/assets/img/logo.png" 
+                alt="Histórico Acadêmico Logo" 
+                width={48} 
+                height={48}
+                className="object-contain"
+              />
+            </div>
+          </Link>
           <CardTitle className="text-2xl">Recuperar Senha</CardTitle>
           <CardDescription>Digite seu e-mail para receber um link de redefinição de senha</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {error && (
-            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-              {error}
-            </div>
+            <Alert variant="destructive" className="py-2.5">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-sm font-medium">
+                {error}
+              </AlertDescription>
+            </Alert>
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
