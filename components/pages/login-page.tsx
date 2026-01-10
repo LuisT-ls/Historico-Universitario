@@ -141,6 +141,16 @@ export function LoginPage() {
             </Button>
           </form>
 
+          <div className="text-center text-sm">
+            <span className="text-muted-foreground">Não tem uma conta? </span>
+            <Link
+              href="/register"
+              className="font-medium text-primary hover:underline"
+            >
+              Criar cadastro
+            </Link>
+          </div>
+
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
