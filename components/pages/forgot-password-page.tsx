@@ -42,7 +42,11 @@ export function ForgotPasswordPage() {
     setError(null)
 
     try {
-      await sendPasswordResetEmail(auth, data.email)
+      const actionCodeSettings = {
+        url: `${window.location.origin}/reset-password`,
+        handleCodeInApp: true,
+      }
+      await sendPasswordResetEmail(auth, data.email, actionCodeSettings)
       setIsSubmitted(true)
       toast.success('E-mail de recuperação enviado com sucesso!')
     } catch (err: unknown) {
