@@ -11,7 +11,7 @@ import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } 
 import { db } from '@/lib/firebase/config'
 import { calcularResultado } from '@/lib/utils'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
-import type { Curso, Disciplina } from '@/types'
+import type { Curso, Disciplina, Certificado } from '@/types'
 import { toast } from '@/lib/toast'
 
 // Carregamento dinâmico para componentes pesados ou que usam libs grandes
@@ -52,6 +52,7 @@ export function HomePage() {
   const { user, loading: authLoading } = useAuth()
   const [cursoAtual, setCursoAtual] = useState<Curso>('BICTI')
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
+  const [certificados, setCertificados] = useState<Certificado[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const formRef = useRef<DisciplineFormRef>(null)
 
@@ -100,6 +101,24 @@ export function HomePage() {
             updatedAt: data.updatedAt?.toDate?.() || data.updatedAt || new Date(),
           } as Disciplina)
         })
+
+        // Carregar certificados do Firebase
+        const certificadosRef = collection(db, 'certificados')
+        const qCert = query(certificadosRef, where('userId', '==', user.uid))
+        const certSnapshot = await getDocs(qCert)
+
+        const certificadosFirebase: Certificado[] = []
+        certSnapshot.forEach((doc) => {
+          const data = doc.data()
+          certificadosFirebase.push({
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate?.() || data.createdAt || new Date(),
+            updatedAt: data.updatedAt?.toDate?.() || data.updatedAt || new Date(),
+          } as Certificado)
+        })
+
+        setCertificados(certificadosFirebase)
 
         // Filtrar por curso atual
         let disciplinasDoCurso = disciplinasFirebase.filter((d) => d.curso === cursoAtual)
@@ -354,7 +373,7 @@ export function HomePage() {
           />
         </div>
         <div className="lg:col-span-1">
-          <Summary disciplinas={disciplinas} cursoAtual={cursoAtual} />
+          <Summary disciplinas={disciplinas} certificados={certificados} cursoAtual={cursoAtual} />
         </div>
       </div>
 

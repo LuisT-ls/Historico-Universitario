@@ -33,8 +33,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore'
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
-import { db, storage } from '@/lib/firebase/config'
+import { db } from '@/lib/firebase/config'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
 import { sanitizeInput, sanitizeLongText } from '@/lib/utils'
 import type { Certificado, TipoCertificado, StatusCertificado } from '@/types'
@@ -63,7 +62,6 @@ export function CertificadosPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState({
     titulo: '',
@@ -73,7 +71,7 @@ export function CertificadosPage() {
     dataInicio: '',
     dataFim: '',
     descricao: '',
-    arquivo: null as File | null,
+    linkExterno: '',
   })
 
   // Carregar certificados
@@ -131,48 +129,16 @@ export function CertificadosPage() {
       .reduce((sum, c) => sum + c.cargaHoraria, 0),
   }
 
-  // Upload de arquivo
-  const uploadFile = async (file: File, userId: string): Promise<string> => {
-    if (!storage) throw new Error('Storage não inicializado')
-
-    // Validar tipo de arquivo
-    if (file.type !== 'application/pdf') {
-      throw new Error('Apenas arquivos PDF são aceitos')
-    }
-
-    // Validar tamanho (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      throw new Error('O arquivo deve ter no máximo 10MB')
-    }
-
-    const timestamp = Date.now()
-    const fileName = `${timestamp}_${file.name}`
-    const storageRef = ref(storage, `certificados/${userId}/${fileName}`)
-
-    await uploadBytes(storageRef, file)
-    const downloadURL = await getDownloadURL(storageRef)
-
-    return downloadURL
-  }
-
   // Salvar certificado
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !db || !storage) return
-
-    if (!formData.arquivo) {
-      setError('Por favor, selecione um arquivo PDF')
-      return
-    }
+    if (!user || !db) return
 
     setIsSubmitting(true)
     setError(null)
     setSuccess(null)
 
     try {
-      // Upload do arquivo
-      const arquivoURL = await uploadFile(formData.arquivo, user.uid)
-
       // Criar certificado com dados sanitizados
       const certificado: Omit<Certificado, 'id'> = {
         userId: user.uid,
@@ -183,9 +149,8 @@ export function CertificadosPage() {
         dataInicio: formData.dataInicio,
         dataFim: formData.dataFim,
         descricao: formData.descricao ? sanitizeLongText(formData.descricao) : undefined,
-        arquivoURL,
-        nomeArquivo: sanitizeInput(formData.arquivo.name),
-        status: 'pendente',
+        linkExterno: formData.linkExterno ? sanitizeInput(formData.linkExterno) : undefined,
+        status: 'aprovado',
         dataCadastro: new Date().toISOString(),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -207,20 +172,9 @@ export function CertificadosPage() {
 
   // Excluir certificado
   const handleDelete = async () => {
-    if (!user || !db || !storage || !deleteId) return
+    if (!user || !db || !deleteId) return
 
     try {
-      const certificado = certificados.find((c) => c.id === deleteId)
-      if (!certificado) return
-
-      // Excluir arquivo do Storage
-      try {
-        const fileRef = ref(storage, certificado.arquivoURL)
-        await deleteObject(fileRef)
-      } catch (error) {
-        console.warn('Erro ao excluir arquivo do Storage:', error)
-      }
-
       // Excluir documento do Firestore
       await deleteDoc(doc(db, 'certificados', deleteId))
 
@@ -244,11 +198,8 @@ export function CertificadosPage() {
       dataInicio: '',
       dataFim: '',
       descricao: '',
-      arquivo: null,
+      linkExterno: '',
     })
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
   }
 
   // Visualizar certificado
@@ -257,9 +208,13 @@ export function CertificadosPage() {
     setShowViewModal(true)
   }
 
-  // Download certificado
+  // Abrir link do certificado
   const handleDownload = (certificado: Certificado) => {
-    window.open(certificado.arquivoURL, '_blank')
+    if (certificado.linkExterno) {
+      window.open(certificado.linkExterno, '_blank')
+    } else if (certificado.arquivoURL) {
+      window.open(certificado.arquivoURL, '_blank')
+    }
   }
 
   // Exportar certificados
@@ -523,21 +478,15 @@ export function CertificadosPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="arquivo">Certificado (PDF)</Label>
+                  <Label htmlFor="linkExterno">Link do Certificado (Google Drive / Dropbox)</Label>
                   <Input
-                    id="arquivo"
-                    type="file"
-                    accept=".pdf"
-                    ref={fileInputRef}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) {
-                        setFormData({ ...formData, arquivo: file })
-                      }
-                    }}
-                    required
+                    id="linkExterno"
+                    type="url"
+                    value={formData.linkExterno}
+                    onChange={(e) => setFormData({ ...formData, linkExterno: e.target.value })}
+                    placeholder="https://drive.google.com/..."
                   />
-                  <p className="text-xs text-muted-foreground">Somente arquivos PDF são aceitos (máx. 10MB)</p>
+                  <p className="text-xs text-muted-foreground">Opcional: Adicione um link para visualização do comprovante</p>
                 </div>
 
                 <div className="flex gap-2">
@@ -649,15 +598,18 @@ export function CertificadosPage() {
                             onClick={() => handleView(certificado)}
                           >
                             <Eye className="h-4 w-4 mr-1" />
-                            Ver
+                            Detalhes
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDownload(certificado)}
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
+                          {certificado.linkExterno && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDownload(certificado)}
+                              title="Abrir Link"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"
@@ -742,23 +694,40 @@ export function CertificadosPage() {
                   <p className="text-sm">{selectedCertificado.descricao}</p>
                 </div>
               )}
-              <div className="pt-4 border-t">
-                <iframe
-                  src={selectedCertificado.arquivoURL}
-                  className="w-full h-96 border rounded"
-                  title="Visualização do certificado"
-                />
-              </div>
+              {selectedCertificado.linkExterno && (
+                <div className="pt-2">
+                  <Label className="text-muted-foreground">Link do Comprovante</Label>
+                  <p className="text-sm break-all">
+                    <a
+                      href={selectedCertificado.linkExterno}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      {selectedCertificado.linkExterno}
+                    </a>
+                  </p>
+                </div>
+              )}
+              {selectedCertificado.arquivoURL && (
+                <div className="pt-4 border-t">
+                  <iframe
+                    src={selectedCertificado.arquivoURL}
+                    className="w-full h-96 border rounded"
+                    title="Visualização do certificado"
+                  />
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowViewModal(false)}>
               Fechar
             </Button>
-            {selectedCertificado && (
+            {selectedCertificado && (selectedCertificado.linkExterno || selectedCertificado.arquivoURL) && (
               <Button onClick={() => handleDownload(selectedCertificado)}>
                 <Download className="mr-2 h-4 w-4" />
-                Download
+                Abrir Comprovante
               </Button>
             )}
           </DialogFooter>

@@ -105,8 +105,9 @@ export interface Certificado {
   dataInicio: string
   dataFim: string
   descricao?: string
-  arquivoURL: string
-  nomeArquivo: string
+  arquivoURL?: string
+  nomeArquivo?: string
+  linkExterno?: string
   status: StatusCertificado
   dataCadastro: string
   createdAt?: Date

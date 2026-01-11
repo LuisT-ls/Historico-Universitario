@@ -28,7 +28,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
-import type { Disciplina, Curso, Natureza } from '@/types'
+import type { Disciplina, Curso, Natureza, Certificado } from '@/types'
 
 // Importação dinâmica dos gráficos para reduzir o bundle inicial
 const PieChartSummary = dynamic(() => import('./charts/pie-chart-summary'), {
@@ -51,10 +51,11 @@ const BarChartSummary = dynamic(() => import('./charts/bar-chart-summary'), {
 
 interface SummaryProps {
   disciplinas: Disciplina[]
+  certificados?: Certificado[]
   cursoAtual: Curso
 }
 
-export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
+export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryProps) {
   const cursoConfig = CURSOS[cursoAtual]
 
   const estatisticas = useMemo(() => {
@@ -98,10 +99,16 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
     const totalTrancamentos = disciplinas.filter((d) => d.resultado === 'TR').length
     const totalDispensadas = disciplinas.filter((d) => d.dispensada).length
 
+    // Horas de certificados aprovados
+    const totalHorasCertificados = certificados
+      .filter((c) => c.status === 'aprovado')
+      .reduce((sum, c) => sum + c.cargaHoraria, 0)
+
     const chEmCurso = disciplinasEmCurso.reduce((sum, d) => sum + d.ch, 0)
-    // Total CH: disciplinas aprovadas + AC (AC não tem resultado, mas conta nas horas)
+    // Total CH: disciplinas aprovadas + AC + certificados aprovados
     const totalCH = disciplinasAprovadas.reduce((sum, d) => sum + d.ch, 0) + 
-                    disciplinasAC.reduce((sum, d) => sum + d.ch, 0)
+                    disciplinasAC.reduce((sum, d) => sum + d.ch, 0) +
+                    totalHorasCertificados
     const totalCHComEmCurso = totalCH + chEmCurso
 
     const mediaGeral =
@@ -162,6 +169,9 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
         horasPorNatureza.AC += d.ch
       }
     })
+
+    // Adicionar horas dos certificados aprovados
+    horasPorNatureza.AC += totalHorasCertificados
 
     // Redistribuir excesso de horas optativas para LV
     const naturezasParaLV = ['OX', 'OG', 'OH', 'OZ'] // Naturezas cujo excesso vai para LV
@@ -263,7 +273,7 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
       dadosGraficoBarras,
       coresGrafico,
     }
-  }, [disciplinas, cursoConfig.totalHoras])
+  }, [disciplinas, certificados, cursoConfig.totalHoras, cursoAtual])
 
   const requisitos = cursoConfig.requisitos
 
