@@ -44,6 +44,7 @@ const TIPOS_CERTIFICADO: { value: TipoCertificado; label: string }[] = [
   { value: 'workshop', label: 'Workshop' },
   { value: 'palestra', label: 'Palestra' },
   { value: 'evento', label: 'Evento' },
+  { value: 'congresso', label: 'Congresso' },
   { value: 'projeto', label: 'Projeto de Extensão' },
   { value: 'pesquisa', label: 'Projeto de Pesquisa' },
   { value: 'monitoria', label: 'Monitoria' },

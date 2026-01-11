@@ -87,6 +87,7 @@ export type TipoCertificado =
   | 'workshop'
   | 'palestra'
   | 'evento'
+  | 'congresso'
   | 'projeto'
   | 'pesquisa'
   | 'monitoria'
