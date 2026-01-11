@@ -52,11 +52,16 @@ if (typeof window !== 'undefined') {
       }).catch(err => console.warn('Analytics failed:', err))
     }
 
-    // Só inicializa quando o navegador estiver ocioso ou após 5 segundos
-    if (document.readyState === 'complete') {
-      setTimeout(initAnalytics, 5000)
+    // Só inicializa quando o navegador estiver realmente ocioso
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => setTimeout(initAnalytics, 3000), { timeout: 10000 })
     } else {
-      window.addEventListener('load', () => setTimeout(initAnalytics, 5000))
+      // Fallback para navegadores sem suporte
+      if (document.readyState === 'complete') {
+        setTimeout(initAnalytics, 5000)
+      } else {
+        window.addEventListener('load', () => setTimeout(initAnalytics, 5000))
+      }
     }
   } else {
     app = getApps()[0]

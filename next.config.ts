@@ -15,7 +15,17 @@ const nextConfig: NextConfig = {
       'firebase/auth',
       'firebase/firestore',
       'firebase/storage',
+      '@/components/ui/button',
+      '@/components/ui/card',
+      '@/components/ui/input',
     ],
+  },
+  // Modernizar saída para evitar polyfills desnecessários
+  transpilePackages: [],
+  modularizeImports: {
+    'lucide-react': {
+      transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
+    },
   },
   images: {
     formats: ['image/avif', 'image/webp'],
