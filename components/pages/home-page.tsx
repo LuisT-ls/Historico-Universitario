@@ -1,23 +1,46 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Header } from '@/components/layout/header'
-import { Footer } from '@/components/layout/footer'
 import { CourseSelection } from '@/components/features/course-selection'
 import { DisciplineForm, type DisciplineFormRef } from '@/components/features/discipline-form'
 import { DisciplineSearch } from '@/components/features/discipline-search'
 import { AcademicHistory } from '@/components/features/academic-history'
-import { Summary } from '@/components/features/summary'
-import { Simulation } from '@/components/features/simulation'
 import { useAuth } from '@/components/auth-provider'
-import { GraduationCap } from 'lucide-react'
+import dynamic from 'next/dynamic'
+import { Loader2 } from 'lucide-react'
+
+// Carregamento dinâmico para componentes pesados
+const Summary = dynamic(() => import('@/components/features/summary').then(mod => mod.Summary), {
+  loading: () => (
+    <div className="h-64 flex items-center justify-center border rounded-lg bg-muted/10">
+      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="text-sm">Carregando resumo...</span>
+      </div>
+    </div>
+  ),
+  ssr: false
+})
+
 import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { calcularResultado } from '@/lib/utils'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
 import type { Curso, Disciplina } from '@/types'
 import { toast } from '@/lib/toast'
-import { Toaster } from 'sonner'
+
+// Carregamento dinâmico para componentes pesados
+const Simulation = dynamic(() => import('@/components/features/simulation').then(mod => mod.Simulation), {
+  loading: () => (
+    <div className="h-32 flex items-center justify-center border-2 border-dashed rounded-lg mt-8">
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        <span>Carregando simulador...</span>
+      </div>
+    </div>
+  ),
+  ssr: false
+})
 
 export function HomePage() {
   const { user, loading: authLoading } = useAuth()
@@ -296,61 +319,40 @@ export function HomePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Toaster position="bottom-right" richColors />
-      <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <header className="mb-10">
-          <div className="mb-4 text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 flex items-center justify-center gap-3">
-              <GraduationCap className="h-8 w-8 sm:h-10 sm:w-10 text-primary animate-bounce" />
-              Histórico Acadêmico
-            </h1>
-            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              Gerencie seu histórico acadêmico, monitore seu progresso e acompanhe os requisitos
-              para formatura nos cursos de <strong className="text-foreground">BICTI</strong>,{' '}
-              <strong className="text-foreground">Engenharia de Produção</strong> e{' '}
-              <strong className="text-foreground">Engenharia Elétrica</strong>.
-            </p>
-          </div>
-        </header>
-
-        {isLoading && (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>Carregando disciplinas...</p>
-          </div>
-        )}
-
-        <CourseSelection cursoAtual={cursoAtual} onCursoChange={handleCursoChange} />
-
-        <DisciplineSearch cursoAtual={cursoAtual} onSelect={handleDisciplineSelect} />
-
-        <DisciplineForm
-          ref={formRef}
-          cursoAtual={cursoAtual}
-          onAdd={handleAddDisciplina}
-          onUpdate={handleUpdateDisciplina}
-          disciplinas={disciplinas}
-        />
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-          <div className="lg:col-span-2">
-            <AcademicHistory
-              disciplinas={disciplinas}
-              cursoAtual={cursoAtual}
-              onRemove={handleRemoveDisciplina}
-              onEdit={handleEditDisciplina}
-            />
-          </div>
-          <div className="lg:col-span-1">
-            <Summary disciplinas={disciplinas} cursoAtual={cursoAtual} />
-          </div>
+    <>
+      {isLoading && (
+        <div className="text-center py-8 text-muted-foreground">
+          <p>Carregando disciplinas...</p>
         </div>
+      )}
 
-        <Simulation disciplinas={disciplinas} cursoAtual={cursoAtual} />
-      </main>
-      <Footer />
-    </div>
+      <CourseSelection cursoAtual={cursoAtual} onCursoChange={handleCursoChange} />
+
+      <DisciplineSearch cursoAtual={cursoAtual} onSelect={handleDisciplineSelect} />
+
+      <DisciplineForm
+        ref={formRef}
+        cursoAtual={cursoAtual}
+        onAdd={handleAddDisciplina}
+        onUpdate={handleUpdateDisciplina}
+        disciplinas={disciplinas}
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+        <div className="lg:col-span-2">
+          <AcademicHistory
+            disciplinas={disciplinas}
+            cursoAtual={cursoAtual}
+            onRemove={handleRemoveDisciplina}
+            onEdit={handleEditDisciplina}
+          />
+        </div>
+        <div className="lg:col-span-1">
+          <Summary disciplinas={disciplinas} cursoAtual={cursoAtual} />
+        </div>
+      </div>
+
+      <Simulation disciplinas={disciplinas} cursoAtual={cursoAtual} />
+    </>
   )
 }
-
