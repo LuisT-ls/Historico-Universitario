@@ -15,7 +15,7 @@ export function CourseSelection({ cursoAtual, onCursoChange }: CourseSelectionPr
   return (
     <Card className="mb-8">
       <CardHeader>
-        <CardTitle>Seleção de Curso</CardTitle>
+        <CardTitle as="h2">Seleção de Curso</CardTitle>
         <CardDescription>Selecione seu curso para calcular os requisitos corretos</CardDescription>
       </CardHeader>
       <CardContent>

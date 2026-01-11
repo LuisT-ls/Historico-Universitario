@@ -92,7 +92,7 @@ export function RegisterPage() {
                 />
               </div>
             </Link>
-            <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Criar Cadastro</CardTitle>
+            <CardTitle as="h1" className="text-2xl font-bold tracking-tight text-foreground">Criar Cadastro</CardTitle>
             <CardDescription className="text-sm">
               Comece a organizar sua jornada acadêmica hoje mesmo
             </CardDescription>

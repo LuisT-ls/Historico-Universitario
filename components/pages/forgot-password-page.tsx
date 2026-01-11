@@ -100,7 +100,7 @@ export function ForgotPasswordPage() {
               />
             </div>
           </Link>
-          <CardTitle className="text-2xl">Recuperar Senha</CardTitle>
+          <CardTitle as="h1" className="text-2xl">Recuperar Senha</CardTitle>
           <CardDescription>Digite seu e-mail para receber um link de redefinição de senha</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

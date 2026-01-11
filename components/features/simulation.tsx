@@ -378,7 +378,7 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
       <CardHeader className="simulation-header border-b pb-4">
         <div className="flex items-center justify-between gap-6">
           <div className="flex-1">
-            <CardTitle className="text-2xl font-bold flex items-center gap-2">
+            <CardTitle as="h2" className="text-2xl font-bold flex items-center gap-2">
               <Calculator className="h-6 w-6 text-primary" />
               Simulador "E Se?"
             </CardTitle>

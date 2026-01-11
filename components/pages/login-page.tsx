@@ -84,7 +84,7 @@ export function LoginPage() {
               />
             </div>
           </Link>
-          <CardTitle className="text-2xl">Histórico Acadêmico</CardTitle>
+          <CardTitle as="h1" className="text-2xl">Histórico Acadêmico</CardTitle>
           <CardDescription>Bem-vindo(a) de volta! Faça login para continuar</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

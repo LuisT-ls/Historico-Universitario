@@ -252,7 +252,7 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
       {/* Indicadores de Progresso */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle as="h2" className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5" />
             Progresso para Formatura
           </CardTitle>
@@ -281,30 +281,44 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
           {/* Previsão de Formatura */}
           <div className={`p-4 rounded-lg border ${
             estatisticas.previsaoFormatura.podeFormarEsteSemestre
-              ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800'
+              ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800'
               : estatisticas.previsaoFormatura.semestresRestantes <= 2
-              ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800'
-              : 'bg-muted/30'
+              ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-800'
+              : 'bg-muted/50 border-border'
           }`}>
             <div className="flex items-start gap-3">
               <Clock className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
                 estatisticas.previsaoFormatura.podeFormarEsteSemestre
-                  ? 'text-green-600 dark:text-green-400'
+                  ? 'text-green-700 dark:text-green-400'
                   : estatisticas.previsaoFormatura.semestresRestantes <= 2
-                  ? 'text-blue-600 dark:text-blue-400'
+                  ? 'text-blue-700 dark:text-blue-400'
                   : 'text-primary'
               }`} />
               <div className="flex-1">
-                <h4 className="text-sm font-semibold mb-1">Previsão de Formatura</h4>
+                <h4 className={`text-sm font-semibold mb-1 ${
+                  estatisticas.previsaoFormatura.podeFormarEsteSemestre
+                    ? 'text-green-900 dark:text-green-100'
+                    : estatisticas.previsaoFormatura.semestresRestantes <= 2
+                    ? 'text-blue-900 dark:text-blue-100'
+                    : 'text-foreground'
+                }`}>
+                  Previsão de Formatura
+                </h4>
                 <p className={`text-sm ${
                   estatisticas.previsaoFormatura.podeFormarEsteSemestre
-                    ? 'text-green-700 dark:text-green-300'
-                    : 'text-muted-foreground'
+                    ? 'text-green-800 dark:text-green-200'
+                    : estatisticas.previsaoFormatura.semestresRestantes <= 2
+                    ? 'text-blue-800 dark:text-blue-200'
+                    : 'text-foreground/90'
                 }`}>
                   {estatisticas.previsaoFormatura.texto}
                 </p>
                 {estatisticas.previsaoFormatura.disciplinasNecessarias && (
-                  <p className="text-xs text-muted-foreground mt-2 italic">
+                  <p className={`text-xs mt-2 italic ${
+                    estatisticas.previsaoFormatura.podeFormarEsteSemestre
+                      ? 'text-green-700/80 dark:text-green-300/80'
+                      : 'text-muted-foreground'
+                  }`}>
                     Baseado em 6 disciplinas por semestre
                   </p>
                 )}
@@ -314,24 +328,45 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
 
           <div className={`p-4 rounded-lg border-2 ${
             estatisticas.statusCR.class === 'excellent'
-              ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800'
+              ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800'
               : estatisticas.statusCR.class === 'good'
-              ? 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800'
+              ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-800'
               : estatisticas.statusCR.class === 'regular'
-              ? 'bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800'
-              : 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800'
+              ? 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-800'
+              : 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800'
           }`}>
             <div className="flex items-start gap-3">
-              <Star className={`h-5 w-5 ${
-                estatisticas.statusCR.class === 'excellent' ? 'text-green-600 dark:text-green-400' :
-                estatisticas.statusCR.class === 'good' ? 'text-blue-600 dark:text-blue-400' :
-                estatisticas.statusCR.class === 'regular' ? 'text-yellow-600 dark:text-yellow-400' :
-                'text-red-600 dark:text-red-400'
+              <Star className={`h-5 w-5 mt-0.5 ${
+                estatisticas.statusCR.class === 'excellent' ? 'text-green-700 dark:text-green-400' :
+                estatisticas.statusCR.class === 'good' ? 'text-blue-700 dark:text-blue-400' :
+                estatisticas.statusCR.class === 'regular' ? 'text-yellow-700 dark:text-yellow-400' :
+                'text-red-700 dark:text-red-400'
               }`} />
               <div className="flex-1">
-                <h3 className="font-semibold mb-1">Status Acadêmico</h3>
-                <p className="text-sm mb-1">{estatisticas.statusCR.text}</p>
-                <p className="text-lg font-bold">CR: {estatisticas.cr.toFixed(2)}</p>
+                <h3 className={`font-semibold mb-1 ${
+                  estatisticas.statusCR.class === 'excellent' ? 'text-green-900 dark:text-green-100' :
+                  estatisticas.statusCR.class === 'good' ? 'text-blue-900 dark:text-blue-100' :
+                  estatisticas.statusCR.class === 'regular' ? 'text-yellow-900 dark:text-yellow-100' :
+                  'text-red-900 dark:text-red-100'
+                }`}>
+                  Status Acadêmico
+                </h3>
+                <p className={`text-sm mb-1 ${
+                  estatisticas.statusCR.class === 'excellent' ? 'text-green-800 dark:text-green-200' :
+                  estatisticas.statusCR.class === 'good' ? 'text-blue-800 dark:text-blue-200' :
+                  estatisticas.statusCR.class === 'regular' ? 'text-yellow-800 dark:text-yellow-200' :
+                  'text-red-800 dark:text-red-200'
+                }`}>
+                  {estatisticas.statusCR.text}
+                </p>
+                <p className={`text-lg font-bold ${
+                  estatisticas.statusCR.class === 'excellent' ? 'text-green-900 dark:text-green-50' :
+                  estatisticas.statusCR.class === 'good' ? 'text-blue-900 dark:text-blue-50' :
+                  estatisticas.statusCR.class === 'regular' ? 'text-yellow-900 dark:text-yellow-50' :
+                  'text-red-900 dark:text-red-50'
+                }`}>
+                  CR: {estatisticas.cr.toFixed(2)}
+                </p>
               </div>
             </div>
           </div>

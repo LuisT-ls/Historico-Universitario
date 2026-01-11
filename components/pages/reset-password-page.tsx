@@ -193,7 +193,7 @@ function ResetPasswordContent() {
                   />
                 </div>
               </Link>
-              <CardTitle className="text-2xl font-bold tracking-tight">Criar Nova Senha</CardTitle>
+              <CardTitle as="h1" className="text-2xl font-bold tracking-tight">Criar Nova Senha</CardTitle>
               <CardDescription className="text-sm">
                 Redefinindo acesso para <span className="font-semibold text-foreground">{email}</span>
               </CardDescription>

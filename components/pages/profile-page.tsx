@@ -729,7 +729,7 @@ export function ProfilePage() {
           {/* Informações Pessoais */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle as="h2" className="flex items-center gap-2">
                 <User className="h-5 w-5" />
                 Informações Pessoais
               </CardTitle>
@@ -852,7 +852,7 @@ export function ProfilePage() {
           {/* Configurações da Conta */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle as="h2" className="flex items-center gap-2">
                 <Settings className="h-5 w-5" />
                 Configurações da Conta
               </CardTitle>
@@ -951,7 +951,7 @@ export function ProfilePage() {
           {/* Estatísticas */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle as="h2" className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5" />
                 Estatísticas
               </CardTitle>
@@ -1001,7 +1001,7 @@ export function ProfilePage() {
           {/* Segurança da Conta */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle as="h2" className="flex items-center gap-2">
                 <Shield className="h-5 w-5" />
                 Segurança da Conta
               </CardTitle>

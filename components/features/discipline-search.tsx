@@ -153,7 +153,7 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
   return (
     <Card className="mb-8">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle as="h2" className="flex items-center gap-2">
           <Search className="h-5 w-5" />
           Buscar Disciplina
         </CardTitle>

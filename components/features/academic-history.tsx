@@ -92,7 +92,7 @@ export function AcademicHistory({
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle as="h2" className="flex items-center gap-2">
               <span>📋</span> Disciplinas Cursadas
             </CardTitle>
             <CardDescription>
