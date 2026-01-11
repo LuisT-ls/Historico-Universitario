@@ -53,14 +53,16 @@ if (typeof window !== 'undefined') {
     }
 
     // Só inicializa quando o navegador estiver realmente ocioso
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    const hasIdleCallback = 'requestIdleCallback' in window
+    if (hasIdleCallback) {
       window.requestIdleCallback(() => setTimeout(initAnalytics, 3000), { timeout: 10000 })
-    } else if (typeof window !== 'undefined') {
+    } else {
       // Fallback para navegadores sem suporte
       if (document.readyState === 'complete') {
         setTimeout(initAnalytics, 5000)
       } else {
-        window.addEventListener('load', () => setTimeout(initAnalytics, 5000))
+        const win = window as Window & typeof globalThis
+        win.addEventListener('load', () => setTimeout(initAnalytics, 5000))
       }
     }
   } else {
