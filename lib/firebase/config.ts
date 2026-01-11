@@ -53,9 +53,9 @@ if (typeof window !== 'undefined') {
     }
 
     // Só inicializa quando o navegador estiver realmente ocioso
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => setTimeout(initAnalytics, 3000), { timeout: 10000 })
-    } else {
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      window.requestIdleCallback(() => setTimeout(initAnalytics, 3000), { timeout: 10000 })
+    } else if (typeof window !== 'undefined') {
       // Fallback para navegadores sem suporte
       if (document.readyState === 'complete') {
         setTimeout(initAnalytics, 5000)
