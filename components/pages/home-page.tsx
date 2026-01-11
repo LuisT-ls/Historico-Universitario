@@ -7,6 +7,12 @@ import { AcademicHistory } from '@/components/features/academic-history'
 import { useAuth } from '@/components/auth-provider'
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
+import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
+import { db } from '@/lib/firebase/config'
+import { calcularResultado } from '@/lib/utils'
+import { getFirebaseErrorMessage } from '@/lib/error-handler'
+import type { Curso, Disciplina } from '@/types'
+import { toast } from '@/lib/toast'
 
 // Carregamento dinâmico para componentes pesados ou que usam libs grandes
 const Summary = dynamic(() => import('@/components/features/summary').then(mod => mod.Summary), {
