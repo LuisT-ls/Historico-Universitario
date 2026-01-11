@@ -1,9 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { CourseSelection } from '@/components/features/course-selection'
 import type { DisciplineFormRef } from '@/components/features/discipline-form'
-import { AcademicHistory } from '@/components/features/academic-history'
 import { useAuth } from '@/components/auth-provider'
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
@@ -15,6 +13,26 @@ import type { Curso, Disciplina, Certificado } from '@/types'
 import { toast } from '@/lib/toast'
 
 // Carregamento dinâmico para componentes pesados ou que usam libs grandes
+const CourseSelection = dynamic(() => import('@/components/features/course-selection').then(mod => mod.CourseSelection), {
+  ssr: true,
+  loading: () => <div className="h-20 animate-pulse bg-muted/10 rounded-lg" />
+})
+
+const DisciplineSearch = dynamic(() => import('@/components/features/discipline-search').then(mod => mod.DisciplineSearch), {
+  ssr: false,
+  loading: () => <div className="h-24 animate-pulse bg-muted/10 rounded-lg mt-4" />
+})
+
+const DisciplineForm = dynamic(() => import('@/components/features/discipline-form').then(mod => mod.DisciplineForm), {
+  ssr: false,
+  loading: () => <div className="h-40 animate-pulse bg-muted/10 rounded-lg mt-8" />
+})
+
+const AcademicHistory = dynamic(() => import('@/components/features/academic-history').then(mod => mod.AcademicHistory), {
+  ssr: false,
+  loading: () => <div className="h-96 animate-pulse bg-muted/10 rounded-lg" />
+})
+
 const Summary = dynamic(() => import('@/components/features/summary').then(mod => mod.Summary), {
   loading: () => (
     <div className="h-64 flex items-center justify-center border rounded-lg bg-muted/10">
@@ -24,15 +42,6 @@ const Summary = dynamic(() => import('@/components/features/summary').then(mod =
       </div>
     </div>
   ),
-  ssr: false
-})
-
-const DisciplineForm = dynamic(() => import('@/components/features/discipline-form').then(mod => mod.DisciplineForm), {
-  ssr: false,
-  loading: () => <div className="h-40 animate-pulse bg-muted/10 rounded-lg mt-8" />
-})
-
-const DisciplineSearch = dynamic(() => import('@/components/features/discipline-search').then(mod => mod.DisciplineSearch), {
   ssr: false
 })
 

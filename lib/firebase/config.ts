@@ -1,9 +1,9 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app'
 import { getAuth, type Auth } from 'firebase/auth'
 import { getFirestore, type Firestore } from 'firebase/firestore'
-import { getStorage, type FirebaseStorage } from 'firebase/storage'
 import { GoogleAuthProvider } from 'firebase/auth'
 import type { Analytics } from 'firebase/analytics'
+import type { FirebaseStorage } from 'firebase/storage'
 
 let app: FirebaseApp | undefined
 let auth: Auth | undefined
@@ -27,44 +27,44 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || 'G-ZBMBGR6J39',
 }
 
+// Função lazy para carregar Storage apenas quando necessário
+async function getStorageLazy() {
+  if (storage) return storage
+  if (!app) return undefined
+  
+  const { getStorage } = await import('firebase/storage')
+  storage = getStorage(app)
+  return storage
+}
+
 if (typeof window !== 'undefined') {
   // Client-side initialization
   if (!getApps().length) {
     app = initializeApp(firebaseConfig)
     auth = getAuth(app)
     db = getFirestore(app)
-    storage = getStorage(app)
     googleProvider = new GoogleAuthProvider()
 
-    if (typeof window !== 'undefined') {
-      // Delay analytics para não impactar o LCP/Performance inicial no mobile
-      const initAnalytics = () => {
-        import('firebase/analytics').then(({ getAnalytics }) => {
-          analytics = getAnalytics(app!)
-        }).catch(err => console.warn('Analytics failed:', err))
-      }
+    // Delay analytics para não impactar o LCP/Performance inicial no mobile
+    const initAnalytics = () => {
+      import('firebase/analytics').then(({ getAnalytics }) => {
+        analytics = getAnalytics(app!)
+      }).catch(err => console.warn('Analytics failed:', err))
+    }
 
-      // Só inicializa quando o navegador estiver ocioso ou após 4 segundos
-      if (document.readyState === 'complete') {
-        setTimeout(initAnalytics, 4000)
-      } else {
-        window.addEventListener('load', () => setTimeout(initAnalytics, 4000))
-      }
+    // Só inicializa quando o navegador estiver ocioso ou após 5 segundos
+    if (document.readyState === 'complete') {
+      setTimeout(initAnalytics, 5000)
+    } else {
+      window.addEventListener('load', () => setTimeout(initAnalytics, 5000))
     }
   } else {
     app = getApps()[0]
     auth = getAuth(app)
     db = getFirestore(app)
-    storage = getStorage(app)
     googleProvider = new GoogleAuthProvider()
-    
-    if (typeof window !== 'undefined') {
-      import('firebase/analytics').then(({ getAnalytics }) => {
-        analytics = getAnalytics(app!)
-      })
-    }
   }
 }
 
-export { app, auth, db, storage, analytics, googleProvider }
+export { app, auth, db, storage, analytics, googleProvider, getStorageLazy }
 
