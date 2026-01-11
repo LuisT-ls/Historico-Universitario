@@ -2,14 +2,13 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { CourseSelection } from '@/components/features/course-selection'
-import { DisciplineForm, type DisciplineFormRef } from '@/components/features/discipline-form'
-import { DisciplineSearch } from '@/components/features/discipline-search'
+import type { DisciplineFormRef } from '@/components/features/discipline-form'
 import { AcademicHistory } from '@/components/features/academic-history'
 import { useAuth } from '@/components/auth-provider'
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
 
-// Carregamento dinâmico para componentes pesados
+// Carregamento dinâmico para componentes pesados ou que usam libs grandes
 const Summary = dynamic(() => import('@/components/features/summary').then(mod => mod.Summary), {
   loading: () => (
     <div className="h-64 flex items-center justify-center border rounded-lg bg-muted/10">
@@ -22,14 +21,15 @@ const Summary = dynamic(() => import('@/components/features/summary').then(mod =
   ssr: false
 })
 
-import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
-import { db } from '@/lib/firebase/config'
-import { calcularResultado } from '@/lib/utils'
-import { getFirebaseErrorMessage } from '@/lib/error-handler'
-import type { Curso, Disciplina } from '@/types'
-import { toast } from '@/lib/toast'
+const DisciplineForm = dynamic(() => import('@/components/features/discipline-form').then(mod => mod.DisciplineForm), {
+  ssr: false,
+  loading: () => <div className="h-40 animate-pulse bg-muted/10 rounded-lg mt-8" />
+})
 
-// Carregamento dinâmico para componentes pesados
+const DisciplineSearch = dynamic(() => import('@/components/features/discipline-search').then(mod => mod.DisciplineSearch), {
+  ssr: false
+})
+
 const Simulation = dynamic(() => import('@/components/features/simulation').then(mod => mod.Simulation), {
   loading: () => (
     <div className="h-32 flex items-center justify-center border-2 border-dashed rounded-lg mt-8">

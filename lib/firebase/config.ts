@@ -37,9 +37,19 @@ if (typeof window !== 'undefined') {
     googleProvider = new GoogleAuthProvider()
 
     if (typeof window !== 'undefined') {
-      import('firebase/analytics').then(({ getAnalytics }) => {
-        analytics = getAnalytics(app!)
-      })
+      // Delay analytics para não impactar o LCP/Performance inicial no mobile
+      const initAnalytics = () => {
+        import('firebase/analytics').then(({ getAnalytics }) => {
+          analytics = getAnalytics(app!)
+        }).catch(err => console.warn('Analytics failed:', err))
+      }
+
+      // Só inicializa quando o navegador estiver ocioso ou após 4 segundos
+      if (document.readyState === 'complete') {
+        setTimeout(initAnalytics, 4000)
+      } else {
+        window.addEventListener('load', () => setTimeout(initAnalytics, 4000))
+      }
     }
   } else {
     app = getApps()[0]

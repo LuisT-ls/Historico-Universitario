@@ -116,6 +116,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning className="scroll-smooth">
       <head>
+        <link rel="preconnect" href="https://historico-universitario-abc12.firebaseapp.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{const e=localStorage.getItem("historico-ufba-dark-mode")==="true";if(e){document.documentElement.classList.add("dark-mode");document.documentElement.style.colorScheme="dark"}else{document.documentElement.classList.remove("dark-mode");document.documentElement.style.colorScheme="light"}}catch(e){document.documentElement.classList.remove("dark-mode")}})();`,
