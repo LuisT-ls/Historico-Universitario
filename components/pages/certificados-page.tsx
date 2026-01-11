@@ -36,6 +36,7 @@ import { collection, query, where, getDocs, addDoc, deleteDoc, doc } from 'fireb
 import { db } from '@/lib/firebase/config'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
 import { sanitizeInput, sanitizeLongText } from '@/lib/utils'
+import { toast } from '@/lib/toast'
 import type { Certificado, TipoCertificado, StatusCertificado } from '@/types'
 
 const TIPOS_CERTIFICADO: { value: TipoCertificado; label: string }[] = [
@@ -61,7 +62,6 @@ export function CertificadosPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
 
   const [formData, setFormData] = useState({
     titulo: '',
@@ -136,7 +136,6 @@ export function CertificadosPage() {
 
     setIsSubmitting(true)
     setError(null)
-    setSuccess(null)
 
     try {
       // Criar certificado com dados sanitizados
@@ -158,7 +157,11 @@ export function CertificadosPage() {
 
       await addDoc(collection(db, 'certificados'), certificado)
 
-      setSuccess('Certificado salvo com sucesso!')
+      toast.success('Certificado salvo com sucesso!', {
+        description: certificado.titulo,
+        duration: 3000,
+      })
+      
       setShowForm(false)
       resetForm()
       await loadCertificados()
@@ -178,7 +181,7 @@ export function CertificadosPage() {
       // Excluir documento do Firestore
       await deleteDoc(doc(db, 'certificados', deleteId))
 
-      setSuccess('Certificado excluído com sucesso!')
+      toast.success('Certificado excluído com sucesso!')
       setShowDeleteModal(false)
       setDeleteId(null)
       await loadCertificados()
@@ -292,21 +295,6 @@ export function CertificadosPage() {
               size="icon"
               className="absolute right-2 top-2"
               onClick={() => setError(null)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </Alert>
-        )}
-
-        {success && (
-          <Alert className="mb-4 bg-green-50 border-green-200">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">{success}</AlertDescription>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-2"
-              onClick={() => setSuccess(null)}
             >
               <X className="h-4 w-4" />
             </Button>
