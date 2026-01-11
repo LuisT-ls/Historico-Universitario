@@ -23,6 +23,7 @@ import {
   CheckCircle,
   Hourglass,
   Plus,
+  Pencil,
   Download,
   Trash2,
   Eye,
@@ -32,7 +33,7 @@ import {
   X,
 } from 'lucide-react'
 import { useAuth } from '@/components/auth-provider'
-import { collection, query, where, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore'
+import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
 import { sanitizeInput, sanitizeLongText } from '@/lib/utils'
@@ -62,6 +63,7 @@ export function CertificadosPage() {
   const [showViewModal, setShowViewModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const [formData, setFormData] = useState({
@@ -130,7 +132,7 @@ export function CertificadosPage() {
       .reduce((sum, c) => sum + c.cargaHoraria, 0),
   }
 
-  // Salvar certificado
+  // Salvar ou atualizar certificado
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user || !db) return
@@ -139,8 +141,7 @@ export function CertificadosPage() {
     setError(null)
 
     try {
-      // Criar certificado com dados sanitizados
-      const certificado: Omit<Certificado, 'id'> = {
+      const certificadoData = {
         userId: user.uid,
         titulo: sanitizeInput(formData.titulo),
         tipo: formData.tipo as TipoCertificado,
@@ -150,20 +151,37 @@ export function CertificadosPage() {
         dataFim: formData.dataFim,
         descricao: formData.descricao ? sanitizeLongText(formData.descricao) : undefined,
         linkExterno: formData.linkExterno ? sanitizeInput(formData.linkExterno) : undefined,
-        status: 'aprovado',
-        dataCadastro: new Date().toISOString(),
-        createdAt: new Date(),
+        status: 'aprovado' as StatusCertificado,
         updatedAt: new Date(),
       }
 
-      await addDoc(collection(db, 'certificados'), certificado)
+      if (editingId) {
+        // Atualizar certificado existente
+        const certificadoRef = doc(db, 'certificados', editingId)
+        await updateDoc(certificadoRef, certificadoData)
 
-      toast.success('Certificado salvo com sucesso!', {
-        description: certificado.titulo,
-        duration: 3000,
-      })
+        toast.success('Certificado atualizado!', {
+          description: certificadoData.titulo,
+          duration: 3000,
+        })
+      } else {
+        // Criar novo certificado
+        const novoCertificado = {
+          ...certificadoData,
+          dataCadastro: new Date().toISOString(),
+          createdAt: new Date(),
+        }
+
+        await addDoc(collection(db, 'certificados'), novoCertificado)
+
+        toast.success('Certificado salvo com sucesso!', {
+          description: certificadoData.titulo,
+          duration: 3000,
+        })
+      }
       
       setShowForm(false)
+      setEditingId(null)
       resetForm()
       await loadCertificados()
     } catch (error: unknown) {
@@ -204,6 +222,25 @@ export function CertificadosPage() {
       descricao: '',
       linkExterno: '',
     })
+    setEditingId(null)
+  }
+
+  // Editar certificado
+  const handleEdit = (certificado: Certificado) => {
+    setFormData({
+      titulo: certificado.titulo,
+      tipo: certificado.tipo,
+      instituicao: certificado.instituicao,
+      cargaHoraria: certificado.cargaHoraria.toString(),
+      dataInicio: certificado.dataInicio,
+      dataFim: certificado.dataFim,
+      descricao: certificado.descricao || '',
+      linkExterno: certificado.linkExterno || '',
+    })
+    setEditingId(certificado.id || null)
+    setShowForm(true)
+    // Scroll suave para o formulário
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   // Visualizar certificado
@@ -370,10 +407,23 @@ export function CertificadosPage() {
           <Card className="mb-8">
             <CardHeader>
               <CardTitle as="h2" className="flex items-center gap-2">
-                <Plus className="h-5 w-5" />
-                Adicionar Certificado
+                {editingId ? (
+                  <>
+                    <Pencil className="h-5 w-5" />
+                    Editar Certificado
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-5 w-5" />
+                    Adicionar Certificado
+                  </>
+                )}
               </CardTitle>
-              <CardDescription>Cadastre um novo certificado ou atividade complementar</CardDescription>
+              <CardDescription>
+                {editingId 
+                  ? 'Edite os dados do certificado ou atividade complementar' 
+                  : 'Cadastre um novo certificado ou atividade complementar'}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -483,12 +533,12 @@ export function CertificadosPage() {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Salvando...
+                        {editingId ? 'Atualizando...' : 'Salvando...'}
                       </>
                     ) : (
                       <>
-                        <FileText className="mr-2 h-4 w-4" />
-                        Salvar Certificado
+                        {editingId ? <Pencil className="mr-2 h-4 w-4" /> : <FileText className="mr-2 h-4 w-4" />}
+                        {editingId ? 'Atualizar Certificado' : 'Salvar Certificado'}
                       </>
                     )}
                   </Button>
@@ -588,6 +638,14 @@ export function CertificadosPage() {
                           >
                             <Eye className="h-4 w-4 mr-1" />
                             Detalhes
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(certificado)}
+                            title="Editar"
+                          >
+                            <Pencil className="h-4 w-4" />
                           </Button>
                           {certificado.linkExterno && (
                             <Button
