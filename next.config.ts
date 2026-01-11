@@ -5,8 +5,6 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   productionBrowserSourceMaps: false,
-  optimizeFonts: true,
-  swcMinify: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
@@ -28,17 +26,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      // Otimizações para reduzir bundle no cliente
-      config.optimization = {
-        ...config.optimization,
-        usedExports: true,
-        sideEffects: false,
-      }
-    }
-    return config
-  },
+  // Turbopack config vazio para silenciar o warning
+  turbopack: {},
   headers: async () => {
     return [
       {
