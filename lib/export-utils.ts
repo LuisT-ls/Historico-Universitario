@@ -1,6 +1,3 @@
-import * as XLSX from 'xlsx'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 import type { UserStatistics } from '@/types'
 
 export function exportAsJSON(backup: any) {
@@ -17,7 +14,10 @@ export function exportAsJSON(backup: any) {
     setTimeout(() => URL.revokeObjectURL(link.href), 100)
 }
 
-export function exportAsXLSX(backup: any, disciplinas: any[], statistics: UserStatistics) {
+export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: UserStatistics) {
+    // Importação dinâmica para reduzir o bundle inicial
+    const XLSX = await import('xlsx')
+
     const wb = XLSX.utils.book_new()
 
     // Aba 1: Resumo
@@ -120,7 +120,11 @@ export function exportAsXLSX(backup: any, disciplinas: any[], statistics: UserSt
 }
 
 
-export function exportAsPDF(backup: any, disciplinas: any[], statistics: UserStatistics) {
+export async function exportAsPDF(backup: any, disciplinas: any[], statistics: UserStatistics) {
+    // Importações dinâmicas para reduzir o bundle inicial
+    const { default: jsPDF } = await import('jspdf')
+    const { default: autoTable } = await import('jspdf-autotable')
+
     const doc = new jsPDF()
     const pageWidth = doc.internal.pageSize.getWidth()
     const dateStr = new Date().toLocaleDateString('pt-BR')
@@ -253,4 +257,3 @@ export function exportAsPDF(backup: any, disciplinas: any[], statistics: UserSta
     // Salvar PDF
     doc.save(`historico-universitario-${new Date().toISOString().split('T')[0]}.pdf`)
 }
-

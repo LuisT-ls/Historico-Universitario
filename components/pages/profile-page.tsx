@@ -508,10 +508,10 @@ export function ProfilePage() {
           exportAsJSON(backup)
           break
         case 'xlsx':
-          exportAsXLSX(backup, disciplinas, statistics)
+          await exportAsXLSX(backup, disciplinas, statistics)
           break
         case 'pdf':
-          exportAsPDF(backup, disciplinas, statistics)
+          await exportAsPDF(backup, disciplinas, statistics)
           break
       }
 

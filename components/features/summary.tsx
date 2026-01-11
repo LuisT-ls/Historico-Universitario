@@ -25,9 +25,29 @@ import {
   Lightbulb,
   BarChart3,
   PieChart as PieChartIcon,
+  Loader2,
 } from 'lucide-react'
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts'
+import dynamic from 'next/dynamic'
 import type { Disciplina, Curso, Natureza } from '@/types'
+
+// Importação dinâmica dos gráficos para reduzir o bundle inicial
+const PieChartSummary = dynamic(() => import('./charts/pie-chart-summary'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-64 flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  ),
+})
+
+const BarChartSummary = dynamic(() => import('./charts/bar-chart-summary'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-64 flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  ),
+})
 
 interface SummaryProps {
   disciplinas: Disciplina[]
@@ -481,35 +501,10 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
             <CardDescription>Distribuição de horas cursadas por tipo de disciplina</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={estatisticas.dadosGraficoPizza}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {estatisticas.dadosGraficoPizza.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={estatisticas.coresGrafico[index % estatisticas.coresGrafico.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value: number, name: string, props: any) => [
-                      `${value}h`,
-                      props.payload.nameFull || name,
-                    ]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+            <PieChartSummary 
+              data={estatisticas.dadosGraficoPizza} 
+              colors={estatisticas.coresGrafico} 
+            />
           </CardContent>
         </Card>
       )}
@@ -525,18 +520,7 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
             <CardDescription>Disciplinas aprovadas e total por período</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={estatisticas.dadosGraficoBarras}>
-                  <XAxis dataKey="periodo" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="aprovadas" fill="#10b981" name="Aprovadas" />
-                  <Bar dataKey="total" fill="#3b82f6" name="Total" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <BarChartSummary data={estatisticas.dadosGraficoBarras} />
           </CardContent>
         </Card>
       )}
