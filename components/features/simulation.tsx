@@ -588,7 +588,7 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
                 {/* CR */}
                 <Card className="impact-card">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
+                    <CardTitle as="h4" className="text-base flex items-center gap-2">
                       <TrendingUp className="h-4 w-4" />
                       Coeficiente de Rendimento (CR)
                     </CardTitle>
@@ -629,7 +629,7 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
                 {/* CH */}
                 <Card className="impact-card">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
+                    <CardTitle as="h4" className="text-base flex items-center gap-2">
                       <Calculator className="h-4 w-4" />
                       Carga Horária (CH)
                     </CardTitle>
@@ -658,7 +658,7 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
                 {/* Formatura */}
                 <Card className="impact-card">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
+                    <CardTitle as="h4" className="text-base flex items-center gap-2">
                       <GraduationCap className="h-4 w-4" />
                       Formatura
                     </CardTitle>

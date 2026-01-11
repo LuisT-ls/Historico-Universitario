@@ -425,7 +425,7 @@ export function CertificadosPage() {
         {showForm && (
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle as="h2" className="flex items-center gap-2">
                 <Plus className="h-5 w-5" />
                 Adicionar Certificado
               </CardTitle>

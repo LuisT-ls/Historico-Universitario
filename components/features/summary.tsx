@@ -295,7 +295,7 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
                   : 'text-primary'
               }`} />
               <div className="flex-1">
-                <h4 className={`text-sm font-semibold mb-1 ${
+                <h3 className={`text-sm font-semibold mb-1 ${
                   estatisticas.previsaoFormatura.podeFormarEsteSemestre
                     ? 'text-green-900 dark:text-green-100'
                     : estatisticas.previsaoFormatura.semestresRestantes <= 2
@@ -303,7 +303,7 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
                     : 'text-foreground'
                 }`}>
                   Previsão de Formatura
-                </h4>
+                </h3>
                 <p className={`text-sm ${
                   estatisticas.previsaoFormatura.podeFormarEsteSemestre
                     ? 'text-green-800 dark:text-green-200'
@@ -391,7 +391,7 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
       {/* Métricas Gerais */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle as="h2" className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
             Métricas Gerais
           </CardTitle>
@@ -474,7 +474,7 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
       {estatisticas.dadosGraficoPizza.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle as="h2" className="flex items-center gap-2">
               <PieChartIcon className="h-5 w-5" />
               Horas por Natureza
             </CardTitle>
@@ -518,7 +518,7 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
       {estatisticas.dadosGraficoBarras.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle as="h2" className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />
               Progresso por Semestre
             </CardTitle>
@@ -544,7 +544,7 @@ export function Summary({ disciplinas, cursoAtual }: SummaryProps) {
       {/* Requisitos para Formatura */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle as="h2" className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5" />
             Requisitos para Formatura
           </CardTitle>

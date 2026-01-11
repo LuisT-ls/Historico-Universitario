@@ -67,7 +67,7 @@ export function ForgotPasswordPage() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10">
               <CheckCircle2 className="h-8 w-8 text-green-500" />
             </div>
-            <CardTitle className="text-2xl">E-mail Enviado</CardTitle>
+            <CardTitle as="h1" className="text-2xl">E-mail Enviado</CardTitle>
             <CardDescription>
               Se houver uma conta associada a este e-mail, você receberá instruções para redefinir sua senha em breve.
             </CardDescription>

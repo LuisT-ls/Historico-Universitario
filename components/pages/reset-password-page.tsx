@@ -137,7 +137,7 @@ function ResetPasswordContent() {
               <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10">
                 <CheckCircle2 className="h-10 w-10 text-green-500" />
               </div>
-              <CardTitle className="text-2xl font-bold">Senha Alterada!</CardTitle>
+              <CardTitle as="h1" className="text-2xl font-bold">Senha Alterada!</CardTitle>
               <CardDescription className="text-base px-4">
                 Sua conta está segura novamente. Você será redirecionado para o login em instantes.
               </CardDescription>
@@ -161,7 +161,7 @@ function ResetPasswordContent() {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
                 <AlertCircle className="h-8 w-8 text-destructive" />
               </div>
-              <CardTitle className="text-xl">Link Inválido</CardTitle>
+              <CardTitle as="h1" className="text-xl">Link Inválido</CardTitle>
               <CardDescription className="text-base">
                 {error}
               </CardDescription>
