@@ -19,12 +19,13 @@ export default function NotFound() {
         >
           <Link href="/" className="mx-auto block hover:opacity-80 transition-opacity">
             <div className="flex h-32 w-32 items-center justify-center rounded-full bg-primary/10 overflow-hidden">
-              <Image 
-                src="/assets/img/logo.png" 
-                alt="Logo" 
-                width={80} 
+              <Image
+                src="/assets/img/logo.png"
+                alt="Logo"
+                width={80}
                 height={80}
                 className="object-contain"
+                priority
               />
             </div>
           </Link>

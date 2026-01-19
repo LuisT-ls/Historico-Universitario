@@ -81,6 +81,7 @@ export function LoginPage() {
                 width={48}
                 height={48}
                 className="object-contain"
+                priority
               />
             </div>
           </Link>

@@ -78,12 +78,13 @@ export function Header() {
           <div className="flex items-center gap-4 sm:gap-6">
             <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 overflow-hidden">
-                <Image 
-                  src="/assets/img/logo.png" 
-                  alt="Logo" 
-                  width={28} 
+                <Image
+                  src="/assets/img/logo.png"
+                  alt="Logo"
+                  width={28}
                   height={28}
                   className="object-contain"
+                  priority
                 />
               </div>
               <div className="hidden sm:block">
@@ -169,12 +170,13 @@ export function Header() {
           <SheetContent side="right" className="w-[280px] sm:w-[320px]">
             <SheetHeader className="mb-8">
               <SheetTitle className="flex items-center gap-2">
-                <Image 
-                  src="/assets/img/logo.png" 
-                  alt="Logo" 
-                  width={20} 
+                <Image
+                  src="/assets/img/logo.png"
+                  alt="Logo"
+                  width={20}
                   height={20}
                   className="object-contain"
+                  priority
                 />
                 Menu
               </SheetTitle>

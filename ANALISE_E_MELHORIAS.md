@@ -301,13 +301,13 @@ const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
 - Documentar parâmetros e retornos
 - Adicionar exemplos de uso
 
-### 4. **Otimização de Imagens**
+### 4. **Otimização de Imagens** [CONCLUÍDO]
 **Problema:** Imagens podem não estar otimizadas.
 
 **Solução:**
-- Usar `next/image` para todas as imagens
-- Adicionar lazy loading
-- Otimizar tamanhos de imagem
+- Usar `next/image` para todas as imagens (Implementado)
+- Adicionar lazy loading (Nativo do Next.js)
+- Otimizar tamanhos de imagem e LCP com `priority` (Implementado)
 
 ---
 
@@ -316,7 +316,7 @@ const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
 ### Fase 1 - Segurança (CRÍTICO)
 - [ ] Remover credenciais hardcoded
 - [ ] Validar variáveis de ambiente
-- [ ] Melhorar tratamento de erros
+- [x] Melhorar tratamento de erros
 - [ ] Adicionar sanitização de inputs
 
 ### Fase 2 - Performance (ALTA)
@@ -332,8 +332,8 @@ const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
 - [ ] Criar serviços separados
 
 ### Fase 4 - UX (MÉDIA)
-- [ ] Melhorar mensagens de erro
-- [ ] Adicionar feedback de loading
+- [x] Melhorar mensagens de erro
+- [x] Adicionar feedback de loading
 - [ ] Melhorar acessibilidade
 - [ ] Melhorar validação de formulários
 
@@ -341,7 +341,7 @@ const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
 - [ ] Sistema de logging
 - [ ] Documentação JSDoc
 - [ ] Testes automatizados
-- [ ] Otimização de imagens
+- [x] Otimização de imagens
 
 ---
 

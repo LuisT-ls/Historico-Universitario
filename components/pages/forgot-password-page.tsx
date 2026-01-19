@@ -98,6 +98,7 @@ export function ForgotPasswordPage() {
                 width={48}
                 height={48}
                 className="object-contain"
+                priority
               />
             </div>
           </Link>

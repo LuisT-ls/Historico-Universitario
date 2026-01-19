@@ -124,6 +124,7 @@ function ResetPasswordContent() {
                     width={24}
                     height={24}
                     className="object-contain"
+                    priority
                   />
                 </div>
               </div>
@@ -200,6 +201,7 @@ function ResetPasswordContent() {
                     width={48}
                     height={48}
                     className="object-contain"
+                    priority
                   />
                 </div>
               </Link>
