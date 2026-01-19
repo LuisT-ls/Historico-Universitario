@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     template: '%s | Histórico Acadêmico',
   },
   description:
-    'Sistema GRATUITO para gerenciar histórico acadêmico! Calcule CR automaticamente, controle disciplinas, requisitos de formatura. BICTI e Engenharias. Acesse já!',
+    'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, controle disciplinas e acompanhe seu progresso em BICTI e Engenharias. Acesse agora!',
   keywords: [
     'histórico acadêmico online gratuito',
     'sistema acadêmico brasileiro',
@@ -127,6 +127,23 @@ export default function RootLayout({
         />
         <meta name="theme-color" content="#000000" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'Histórico Acadêmico',
+              url: 'https://historicoacademico.vercel.app',
+              description: 'Sistema gratuito para gerenciar histórico acadêmico e calcular CR.',
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: 'https://historicoacademico.vercel.app/home?q={search_term_string}',
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
+        />
       </head>
       <body className={inter.className}>
         <Providers>{children}</Providers>
