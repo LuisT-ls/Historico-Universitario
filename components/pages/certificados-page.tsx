@@ -16,7 +16,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   GraduationCap,
   Clock,
@@ -29,6 +28,7 @@ import {
   Eye,
   FileText,
   Loader2,
+  AlertCircle,
   AlertTriangle,
   X,
 } from 'lucide-react'
@@ -36,9 +36,10 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/components/auth-provider'
 import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
-import { getFirebaseErrorMessage } from '@/lib/error-handler'
+import { handleError, type AppError } from '@/lib/error-handler'
 import { cn, sanitizeInput, sanitizeLongText } from '@/lib/utils'
 import { toast } from '@/lib/toast'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import type { Certificado, TipoCertificado, StatusCertificado } from '@/types'
 
 const TIPOS_CERTIFICADO: { value: TipoCertificado; label: string }[] = [
@@ -57,7 +58,7 @@ const TIPOS_CERTIFICADO: { value: TipoCertificado; label: string }[] = [
 export function CertificadosPage() {
   const { user, loading: authLoading } = useAuth()
   const [certificados, setCertificados] = useState<Certificado[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true) // Changed initial state to true
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [selectedCertificado, setSelectedCertificado] = useState<Certificado | null>(null)
@@ -65,7 +66,7 @@ export function CertificadosPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<AppError | null>(null) // Changed type to AppError
 
   const [formData, setFormData] = useState({
     titulo: '',
@@ -109,7 +110,9 @@ export function CertificadosPage() {
       setCertificados(certificadosData)
     } catch (error: unknown) {
       console.error('Erro ao carregar certificados:', error)
-      setError(getFirebaseErrorMessage(error))
+      const appError = handleError(error) // Updated error handling
+      setError(appError)
+      toast.error(appError.message)
     } finally {
       setIsLoading(false)
     }
@@ -187,7 +190,9 @@ export function CertificadosPage() {
       await loadCertificados()
     } catch (error: unknown) {
       console.error('Erro ao salvar certificado:', error)
-      setError(getFirebaseErrorMessage(error))
+      const appError = handleError(error) // Updated error handling
+      setError(appError)
+      toast.error(appError.message)
     } finally {
       setIsSubmitting(false)
     }
@@ -207,7 +212,9 @@ export function CertificadosPage() {
       await loadCertificados()
     } catch (error: unknown) {
       console.error('Erro ao excluir certificado:', error)
-      setError(getFirebaseErrorMessage(error))
+      const appError = handleError(error) // Updated error handling
+      setError(appError)
+      toast.error(appError.message)
     }
   }
 
@@ -326,9 +333,15 @@ export function CertificadosPage() {
 
         {/* Alertas */}
         {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
+          <Alert variant="destructive" className="mb-6"> {/* Changed className to mb-6 */}
+            <AlertCircle className="h-4 w-4" /> {/* Changed icon to AlertCircle */}
+            <div className="flex-1">
+              <AlertTitle className="text-sm font-bold m-0">{error.title}</AlertTitle> {/* Display error title */}
+              <AlertDescription className="text-sm">
+                {error.message} {/* Display error message */}
+                {error.action && <p className="mt-1 font-medium italic opacity-90">{error.action}</p>} {/* Display error action if present */}
+              </AlertDescription>
+            </div>
             <Button
               variant="ghost"
               size="icon"

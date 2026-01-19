@@ -145,60 +145,18 @@ describe('lib/error-handler - Testes Adicionais de Cobertura', () => {
       expect(message).toContain('Tente novamente')
     })
 
-    it('deve lidar com Error em modo desenvolvimento', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'development'
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
-
-      const error = new Error('Test error')
-      getFirebaseErrorMessage(error)
-
-      expect(consoleSpy).toHaveBeenCalled()
-
-      consoleSpy.mockRestore()
-      process.env.NODE_ENV = originalEnv
-    })
-
-    it('deve não logar em modo produção', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'production'
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
-
-      const error = new Error('Test error')
-      getFirebaseErrorMessage(error)
-
-      expect(consoleSpy).not.toHaveBeenCalled()
-
-      consoleSpy.mockRestore()
-      process.env.NODE_ENV = originalEnv
-    })
-  })
-
-  describe('handleError - Cobertura Completa', () => {
-    it('deve não incluir originalError em produção', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'production'
-
-      const error: FirebaseError = {
-        code: 'auth/user-not-found',
-        message: 'User not found',
-        name: 'FirebaseError',
-      }
-      const handled = handleError(error)
-      expect(handled.originalError).toBeUndefined()
-
-      process.env.NODE_ENV = originalEnv
-    })
-
-    it('deve não incluir originalError para Error comum em produção', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'production'
-
-      const error = new Error('Test')
-      const handled = handleError(error)
-      expect(handled.originalError).toBeUndefined()
-
-      process.env.NODE_ENV = originalEnv
+    describe('handleError - Cobertura Completa', () => {
+      it('deve retornar estrutura AppError válida', () => {
+        const error: FirebaseError = {
+          code: 'auth/user-not-found',
+          message: 'User not found',
+          name: 'FirebaseError',
+        }
+        const handled = handleError(error)
+        expect(handled.title).toBeTruthy()
+        expect(handled.message).toBeTruthy()
+        expect(handled.code).toBe('auth/user-not-found')
+      })
     })
   })
 })

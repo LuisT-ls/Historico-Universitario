@@ -7,12 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
 import { auth, googleProvider } from '@/lib/firebase/config'
-import { getFirebaseErrorMessage } from '@/lib/error-handler'
+import { handleError, type AppError } from '@/lib/error-handler'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -27,7 +27,7 @@ type LoginFormData = z.infer<typeof loginSchema>
 export function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<AppError | null>(null)
 
   const {
     register,
@@ -47,7 +47,7 @@ export function LoginPage() {
       await signInWithEmailAndPassword(auth, data.email, data.password)
       router.push('/')
     } catch (err: unknown) {
-      setError(getFirebaseErrorMessage(err))
+      setError(handleError(err))
     } finally {
       setIsLoading(false)
     }
@@ -63,7 +63,7 @@ export function LoginPage() {
       await signInWithPopup(auth, googleProvider)
       router.push('/')
     } catch (err: unknown) {
-      setError(getFirebaseErrorMessage(err))
+      setError(handleError(err))
     } finally {
       setIsLoading(false)
     }
@@ -75,10 +75,10 @@ export function LoginPage() {
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto mb-4 block w-fit hover:opacity-80 transition-opacity">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 overflow-hidden">
-              <Image 
-                src="/assets/img/logo.png" 
-                alt="Histórico Acadêmico Logo" 
-                width={48} 
+              <Image
+                src="/assets/img/logo.png"
+                alt="Histórico Acadêmico Logo"
+                width={48}
                 height={48}
                 className="object-contain"
               />
@@ -91,9 +91,13 @@ export function LoginPage() {
           {error && (
             <Alert variant="destructive" className="py-2.5">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-sm font-medium">
-                {error}
-              </AlertDescription>
+              <div className="flex-1">
+                <AlertTitle className="text-sm font-bold m-0">{error.title}</AlertTitle>
+                <AlertDescription className="text-sm">
+                  {error.message}
+                  {error.action && <p className="mt-1 font-medium italic opacity-90">{error.action}</p>}
+                </AlertDescription>
+              </div>
             </Alert>
           )}
 

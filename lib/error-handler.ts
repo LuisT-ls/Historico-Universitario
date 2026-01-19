@@ -1,9 +1,15 @@
-/**
- * Utilitários para tratamento seguro de erros do Firebase
- * Previne exposição de informações sensíveis ao usuário
- */
-
 import { FirebaseError } from 'firebase/app'
+
+/**
+ * Estrutura padronizada para erros da aplicação
+ */
+export interface AppError {
+  title: string
+  message: string
+  action?: string
+  code?: string
+  originalError?: unknown
+}
 
 /**
  * Verifica se um erro é uma instância de FirebaseError
@@ -19,135 +25,187 @@ export function isFirebaseError(error: unknown): error is FirebaseError {
 }
 
 /**
- * Mapeia códigos de erro do Firebase Authentication para mensagens amigáveis
+ * Mapeia códigos de erro do Firebase Authentication para AppError
  */
-function getAuthErrorMessage(code: string): string {
-  const errorMap: Record<string, string> = {
-    'auth/user-not-found': 'Usuário não encontrado. Verifique seu e-mail.',
-    'auth/wrong-password': 'Senha incorreta.',
-    'auth/invalid-email': 'E-mail inválido. Verifique o formato.',
-    'auth/user-disabled': 'Esta conta foi desabilitada. Entre em contato com o suporte.',
-    'auth/email-already-in-use': 'Este e-mail já está em uso.',
-    'auth/weak-password': 'A senha é muito fraca. Use pelo menos 6 caracteres.',
-    'auth/operation-not-allowed': 'Operação não permitida.',
-    'auth/too-many-requests': 'Muitas tentativas. Aguarde alguns minutos e tente novamente.',
-    'auth/network-request-failed': 'Erro de conexão. Verifique sua internet.',
-    'auth/invalid-credential': 'Credenciais inválidas. Verifique seu e-mail e senha.',
-    'auth/requires-recent-login': 'Por segurança, faça login novamente.',
-    'auth/popup-closed-by-user': 'Login cancelado.',
-    'auth/cancelled-popup-request': 'Login cancelado.',
-    'auth/popup-blocked': 'Popup bloqueado. Permita popups para este site.',
+function getAuthError(code: string): AppError {
+  const errorMap: Record<string, AppError> = {
+    'auth/user-not-found': {
+      title: 'Usuário não encontrado',
+      message: 'Não encontramos nenhuma conta com este e-mail.',
+      action: 'Verifique se o e-mail está correto ou crie uma nova conta.'
+    },
+    'auth/wrong-password': {
+      title: 'Senha incorreta',
+      message: 'A senha digitada não confere com este usuário.',
+      action: 'Tente novamente ou use a opção "Esqueci minha senha" para redefinir.'
+    },
+    'auth/invalid-email': {
+      title: 'E-mail inválido',
+      message: 'O formato do e-mail digitado não é válido.',
+      action: 'Certifique-se de digitar um e-mail no formato exemplo@email.com.'
+    },
+    'auth/user-disabled': {
+      title: 'Conta desabilitada',
+      message: 'Esta conta foi suspensa por nossos administradores.',
+      action: 'Entre em contato com o suporte para entender o motivo.'
+    },
+    'auth/email-already-in-use': {
+      title: 'E-mail já cadastrado',
+      message: 'Já existe uma conta associada a este endereço de e-mail.',
+      action: 'Tente fazer login ou use um e-mail diferente para se cadastrar.'
+    },
+    'auth/weak-password': {
+      title: 'Senha fraca',
+      message: 'A senha escolhida não atende aos requisitos mínimos de segurança.',
+      action: 'Crie uma senha mais forte com pelo menos 6 caracteres, incluindo letras e números.'
+    },
+    'auth/too-many-requests': {
+      title: 'Muitas tentativas',
+      message: 'O acesso a esta conta foi temporariamente bloqueado devido a várias tentativas falhas.',
+      action: 'Aguarde alguns minutos e tente novamente mais tarde.'
+    },
+    'auth/network-request-failed': {
+      title: 'Erro de conexão',
+      message: 'Não foi possível estabelecer contato com nossos servidores.',
+      action: 'Verifique sua conexão com a internet e tente novamente.'
+    },
+    'auth/invalid-credential': {
+      title: 'Credenciais inválidas',
+      message: 'Seu e-mail ou senha estão incorretos.',
+      action: 'Verifique os dados digitados e tente novamente.'
+    },
+    'auth/popup-closed-by-user': {
+      title: 'Login cancelado',
+      message: 'Você fechou a janela de autenticação antes de concluir o processo.',
+      action: 'Clique no botão de login novamente para reiniciar o processo.'
+    },
+    'auth/popup-blocked': {
+      title: 'Janela bloqueada',
+      message: 'Seu navegador impediu a abertura da janela de autenticação.',
+      action: 'Permita que este site abra janelas pop-up e tente novamente.'
+    },
   }
 
-  return errorMap[code] || 'Erro ao realizar autenticação. Tente novamente.'
+  return errorMap[code] || {
+    title: 'Erro de Autenticação',
+    message: 'Não foi possível concluir o acesso à sua conta.',
+    action: 'Tente novamente em instantes ou entre em contato com o suporte.'
+  }
 }
 
 /**
- * Mapeia códigos de erro do Firestore para mensagens amigáveis
+ * Mapeia códigos de erro do Firestore para AppError
  */
-function getFirestoreErrorMessage(code: string): string {
-  const errorMap: Record<string, string> = {
-    'permission-denied': 'Permissão negada. Verifique se você tem acesso a este recurso.',
-    'unavailable': 'Serviço temporariamente indisponível. Tente novamente em alguns instantes.',
-    'not-found': 'Recurso não encontrado.',
-    'already-exists': 'Este recurso já existe.',
-    'failed-precondition': 'Operação não pode ser realizada no momento.',
-    'aborted': 'Operação foi cancelada.',
-    'out-of-range': 'Valor fora do intervalo permitido.',
-    'unimplemented': 'Funcionalidade não implementada.',
-    'internal': 'Erro interno do servidor. Tente novamente mais tarde.',
-    'deadline-exceeded': 'Tempo limite excedido. Tente novamente.',
-    'cancelled': 'Operação foi cancelada.',
-    'data-loss': 'Erro ao processar dados.',
-    'unauthenticated': 'Você precisa estar autenticado para realizar esta ação.',
-    'resource-exhausted': 'Limite de recursos excedido. Tente novamente mais tarde.',
-    'invalid-argument': 'Dados inválidos. Verifique os campos preenchidos.',
+function getFirestoreError(code: string): AppError {
+  const errorMap: Record<string, AppError> = {
+    'permission-denied': {
+      title: 'Acesso negado',
+      message: 'Você não tem permissão para realizar esta operação.',
+      action: 'Verifique se você está logado corretamente.'
+    },
+    'unavailable': {
+      title: 'Serviço indisponível',
+      message: 'Estamos com instabilidade temporária em nosso banco de dados.',
+      action: 'Aguarde alguns segundos e tente a operação novamente.'
+    },
+    'not-found': {
+      title: 'Não encontrado',
+      message: 'O registro que você está tentando acessar não existe.',
+      action: 'Verifique se os dados estão corretos ou recarregue a página.'
+    },
+    'resource-exhausted': {
+      title: 'Limite atingido',
+      message: 'Atingimos o limite de processamento para sua conta no momento.',
+      action: 'Tente novamente em alguns minutos.'
+    },
+    'invalid-argument': {
+      title: 'Dados inválidos',
+      message: 'As informações enviadas contêm erros de formato ou campos obrigatórios faltando.',
+      action: 'Revise o formulário e tente enviar novamente.'
+    },
   }
 
-  return errorMap[code] || 'Erro ao processar dados. Tente novamente.'
+  return errorMap[code] || {
+    title: 'Erro de Dados',
+    message: 'Ocorreu um problema ao processar suas informações.',
+    action: 'Tente novamente. Se o erro persistir, recarregue a página.'
+  }
 }
 
 /**
- * Mapeia códigos de erro do Firebase Storage para mensagens amigáveis
+ * Mapeia códigos de erro do Storage para AppError
  */
-function getStorageErrorMessage(code: string): string {
-  const errorMap: Record<string, string> = {
-    'storage/unauthorized': 'Você não tem permissão para realizar esta ação.',
-    'storage/canceled': 'Upload cancelado.',
-    'storage/unknown': 'Erro desconhecido ao fazer upload.',
-    'storage/invalid-format': 'Formato de arquivo inválido.',
-    'storage/invalid-checksum': 'Arquivo corrompido. Verifique o arquivo e tente novamente.',
-    'storage/invalid-event-name': 'Erro interno. Tente novamente.',
-    'storage/invalid-url': 'URL inválida.',
-    'storage/invalid-argument': 'Dados inválidos. Verifique o arquivo.',
-    'storage/no-default-bucket': 'Configuração de armazenamento inválida.',
-    'storage/cannot-slice-blob': 'Erro ao processar arquivo. Tente novamente.',
-    'storage/server-file-wrong-size': 'Tamanho do arquivo incorreto. Tente novamente.',
-    'storage/quota-exceeded': 'Limite de armazenamento excedido.',
-    'storage/unauthenticated': 'Você precisa estar autenticado para fazer upload.',
-    'storage/retry-limit-exceeded': 'Muitas tentativas. Aguarde e tente novamente.',
-    'storage/download-file-not-found': 'Arquivo não encontrado.',
+function getStorageError(code: string): AppError {
+  const errorMap: Record<string, AppError> = {
+    'storage/unauthorized': {
+      title: 'Upload negado',
+      message: 'Sua conta não tem permissão para hospedar este arquivo.',
+      action: 'Tente fazer login novamente.'
+    },
+    'storage/quota-exceeded': {
+      title: 'Espaço esgotado',
+      message: 'Seu limite de armazenamento no servidor foi atingido.',
+      action: 'Remova arquivos antigos antes de tentar novos uploads.'
+    },
+    'storage/invalid-format': {
+      title: 'Formato inválido',
+      message: 'O arquivo selecionado não é suportado pelo sistema.',
+      action: 'Tente enviar o arquivo em outro formato (PDF, JPG, PNG).'
+    },
   }
 
-  return errorMap[code] || 'Erro ao processar arquivo. Tente novamente.'
+  return errorMap[code] || {
+    title: 'Erro de Arquivo',
+    message: 'Houve um problema ao processar seu arquivo.',
+    action: 'Verifique o tamanho e o formato do arquivo e tente novamente.'
+  }
 }
 
 /**
- * Obtém mensagem de erro amigável baseada no tipo de erro do Firebase
+ * Obtém mensagem de erro amigável (string) baseada no código do Firebase
+ * Mantido para compatibilidade legado
  */
 export function getFirebaseErrorMessage(error: unknown): string {
-  if (!isFirebaseError(error)) {
-    // Se não for erro do Firebase, retornar mensagem genérica
-    if (error instanceof Error) {
-      // Logar erro completo no console para debug (apenas em desenvolvimento)
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Erro não tratado:', error)
-      }
-      return 'Ocorreu um erro inesperado. Tente novamente.'
-    }
-    return 'Ocorreu um erro. Tente novamente.'
-  }
-
-  const code = error.code
-
-  // Determinar tipo de erro baseado no código
-  if (code.startsWith('auth/')) {
-    return getAuthErrorMessage(code)
-  }
-
-  if (code.startsWith('storage/')) {
-    return getStorageErrorMessage(code)
-  }
-
-  // Firestore e outros erros
-  return getFirestoreErrorMessage(code)
+  const handled = handleError(error)
+  return handled.message
 }
 
 /**
- * Tipo para erros tratados
+ * Trata um erro e retorna uma estrutura padronizada AppError
  */
-export interface HandledError {
-  message: string
-  code?: string
-  originalError?: unknown
-}
-
-/**
- * Trata um erro e retorna uma estrutura padronizada
- */
-export function handleError(error: unknown): HandledError {
-  const message = getFirebaseErrorMessage(error)
+export function handleError(error: unknown): AppError {
+  let appError: AppError
 
   if (isFirebaseError(error)) {
-    return {
-      message,
-      code: error.code,
-      originalError: process.env.NODE_ENV === 'development' ? error : undefined,
+    const code = error.code
+
+    if (code.startsWith('auth/')) {
+      appError = getAuthError(code)
+    } else if (code.startsWith('storage/')) {
+      appError = getStorageError(code)
+    } else {
+      appError = getFirestoreError(code)
+    }
+
+    appError.code = code
+  } else if (error instanceof Error) {
+    appError = {
+      title: 'Erro inesperado',
+      message: error.message || 'Ocorreu um erro interno no sistema.',
+      action: 'Tente recarregar a página e repetir a operação.'
+    }
+  } else {
+    appError = {
+      title: 'Erro desconhecido',
+      message: 'Não foi possível identificar a causa do problema.',
+      action: 'Tente novamente mais tarde.'
     }
   }
 
-  return {
-    message,
-    originalError: process.env.NODE_ENV === 'development' ? error : undefined,
+  // Anexar erro original apenas em desenvolvimento
+  if (process.env.NODE_ENV === 'development') {
+    appError.originalError = error
   }
+
+  return appError
 }

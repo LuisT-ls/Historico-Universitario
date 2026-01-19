@@ -7,12 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import { auth } from '@/lib/firebase/config'
-import { getFirebaseErrorMessage } from '@/lib/error-handler'
+import { handleError, type AppError } from '@/lib/error-handler'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { Mail, Lock, User, Loader2, ArrowLeft, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -37,7 +37,7 @@ export function RegisterPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<AppError | null>(null)
 
   const {
     register,
@@ -56,7 +56,7 @@ export function RegisterPage() {
     try {
       // 1. Criar usuário no Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password)
-      
+
       // 2. Atualizar o nome do usuário no perfil
       await updateProfile(userCredential.user, {
         displayName: data.name
@@ -65,8 +65,9 @@ export function RegisterPage() {
       toast.success('Cadastro realizado com sucesso!')
       router.push('/')
     } catch (err: unknown) {
-      setError(getFirebaseErrorMessage(err))
-      toast.error('Erro ao realizar cadastro.')
+      const appError = handleError(err)
+      setError(appError)
+      toast.error(appError.message)
     } finally {
       setIsLoading(false)
     }
@@ -83,10 +84,10 @@ export function RegisterPage() {
           <CardHeader className="text-center space-y-1">
             <Link href="/" className="mx-auto mb-4 block w-fit hover:opacity-80 transition-opacity">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 overflow-hidden">
-                <Image 
-                  src="/assets/img/logo.png" 
-                  alt="Histórico Acadêmico Logo" 
-                  width={48} 
+                <Image
+                  src="/assets/img/logo.png"
+                  alt="Histórico Acadêmico Logo"
+                  width={48}
                   height={48}
                   className="object-contain"
                 />
@@ -101,9 +102,13 @@ export function RegisterPage() {
             {error && (
               <Alert variant="destructive" className="py-2.5">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-sm font-medium">
-                  {error}
-                </AlertDescription>
+                <div className="flex-1">
+                  <AlertTitle className="text-sm font-bold m-0">{error.title}</AlertTitle>
+                  <AlertDescription className="text-sm">
+                    {error.message}
+                    {error.action && <p className="mt-1 font-medium italic opacity-90">{error.action}</p>}
+                  </AlertDescription>
+                </div>
               </Alert>
             )}
 

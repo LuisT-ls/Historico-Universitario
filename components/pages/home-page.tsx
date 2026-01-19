@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { calcularResultado } from '@/lib/utils'
-import { getFirebaseErrorMessage } from '@/lib/error-handler'
+import { handleError } from '@/lib/error-handler'
 import type { Curso, Disciplina, Certificado } from '@/types'
 import { toast } from '@/lib/toast'
 
@@ -236,18 +236,15 @@ export function HomePage() {
         duration: 3000,
       })
     } catch (error: unknown) {
-      console.error('Erro ao adicionar disciplina:', error)
-      const errorMessage = getFirebaseErrorMessage(error)
+      console.error('Error adding discipline:', error)
+      const errorData = handleError(error)
       // Em caso de erro, ainda adicionar localmente mas logar o erro
-      console.warn('Adicionando disciplina apenas localmente devido ao erro:', errorMessage)
+      console.warn('Adicionando disciplina apenas localmente devido ao erro:', errorData.message)
       const novasDisciplinas = [...disciplinas, disciplina]
       setDisciplinas(novasDisciplinas)
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
 
-      toast.error('Erro ao adicionar disciplina', {
-        description: errorMessage,
-        duration: 4000,
-      })
+      toast.error(errorData.message)
     }
   }
 
@@ -278,19 +275,16 @@ export function HomePage() {
         duration: 3000,
       })
     } catch (error: unknown) {
-      console.error('Erro ao atualizar disciplina:', error)
-      const errorMessage = getFirebaseErrorMessage(error)
-      console.warn('Atualizando disciplina apenas localmente devido ao erro:', errorMessage)
+      console.error('Error saving data:', error)
+      const errorData = handleError(error)
+      console.warn('Atualizando disciplina apenas localmente devido ao erro:', errorData.message)
       // Mesmo com erro, atualizar localmente
       const novasDisciplinas = [...disciplinas]
       novasDisciplinas[index] = disciplina
       setDisciplinas(novasDisciplinas)
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
 
-      toast.error('Erro ao atualizar disciplina', {
-        description: errorMessage,
-        duration: 4000,
-      })
+      toast.error(errorData.message)
     }
   }
 
@@ -316,18 +310,15 @@ export function HomePage() {
         duration: 3000,
       })
     } catch (error: unknown) {
-      console.error('Erro ao remover disciplina:', error)
-      const errorMessage = getFirebaseErrorMessage(error)
-      console.warn('Removendo disciplina apenas localmente devido ao erro:', errorMessage)
+      console.error('Error removing discipline:', error)
+      const errorData = handleError(error)
+      console.warn('Removendo disciplina apenas localmente devido ao erro:', errorData.message)
       // Mesmo com erro, remover localmente
       const novasDisciplinas = disciplinas.filter((_, i) => i !== index)
       setDisciplinas(novasDisciplinas)
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
 
-      toast.error('Erro ao remover disciplina', {
-        description: errorMessage,
-        duration: 4000,
-      })
+      toast.error(errorData.message)
     }
   }
 

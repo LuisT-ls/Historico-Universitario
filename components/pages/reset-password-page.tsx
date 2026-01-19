@@ -7,12 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth'
 import { auth } from '@/lib/firebase/config'
-import { getFirebaseErrorMessage } from '@/lib/error-handler'
+import { handleError, type AppError } from '@/lib/error-handler'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { Lock, Loader2, CheckCircle2, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -38,7 +38,7 @@ function ResetPasswordContent() {
   const [isVerifying, setIsVerifying] = useState(true)
   const [isSuccess, setIsSuccess] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<AppError | null>(null)
   const [email, setEmail] = useState<string | null>(null)
 
   const mode = searchParams.get('mode')
@@ -47,7 +47,11 @@ function ResetPasswordContent() {
   useEffect(() => {
     async function verifyCode() {
       if (!auth || !oobCode || mode !== 'resetPassword') {
-        setError('Link de recuperação inválido ou expirado.')
+        setError({
+          title: 'Link Inválido',
+          message: 'O link de recuperação de senha é inválido ou já expirou.',
+          action: 'Por favor, solicite um novo link de recuperação.'
+        })
         setIsVerifying(false)
         return
       }
@@ -56,7 +60,11 @@ function ResetPasswordContent() {
         const userEmail = await verifyPasswordResetCode(auth, oobCode)
         setEmail(userEmail)
       } catch (err: unknown) {
-        setError('O link de recuperação de senha é inválido ou já foi utilizado.')
+        setError({
+          title: 'Link Expirado',
+          message: 'Este link de recuperação já foi utilizado ou expirou.',
+          action: 'Solicite uma nova redefinição de senha para continuar.'
+        })
       } finally {
         setIsVerifying(false)
       }
@@ -87,8 +95,9 @@ function ResetPasswordContent() {
         router.push('/login')
       }, 3000)
     } catch (err: unknown) {
-      setError(getFirebaseErrorMessage(err))
-      toast.error('Erro ao redefinir a senha.')
+      const appError = handleError(err)
+      setError(appError)
+      toast.error(appError.message)
     } finally {
       setIsLoading(false)
     }
@@ -109,10 +118,10 @@ function ResetPasswordContent() {
               <div className="relative">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6">
-                  <Image 
-                    src="/assets/img/logo.png" 
-                    alt="Logo" 
-                    width={24} 
+                  <Image
+                    src="/assets/img/logo.png"
+                    alt="Logo"
+                    width={24}
                     height={24}
                     className="object-contain"
                   />
@@ -161,9 +170,10 @@ function ResetPasswordContent() {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
                 <AlertCircle className="h-8 w-8 text-destructive" />
               </div>
-              <CardTitle as="h1" className="text-xl">Link Inválido</CardTitle>
-              <CardDescription className="text-base">
-                {error}
+              <CardTitle as="h1" className="text-xl">{error.title}</CardTitle>
+              <CardDescription className="text-base text-center">
+                <p>{error.message}</p>
+                {error.action && <p className="mt-2 text-sm font-medium italic text-destructive/80">{error.action}</p>}
               </CardDescription>
             </CardHeader>
             <CardFooter>
@@ -184,10 +194,10 @@ function ResetPasswordContent() {
             <CardHeader className="text-center space-y-1">
               <Link href="/" className="mx-auto mb-4 block w-fit hover:opacity-80 transition-opacity">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 overflow-hidden">
-                  <Image 
-                    src="/assets/img/logo.png" 
-                    alt="Histórico Acadêmico Logo" 
-                    width={48} 
+                  <Image
+                    src="/assets/img/logo.png"
+                    alt="Histórico Acadêmico Logo"
+                    width={48}
                     height={48}
                     className="object-contain"
                   />
@@ -202,9 +212,13 @@ function ResetPasswordContent() {
               {error && (
                 <Alert variant="destructive" className="py-2.5">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="text-sm font-medium">
-                    {error}
-                  </AlertDescription>
+                  <div className="flex-1">
+                    <AlertTitle className="text-sm font-bold m-0">{error.title}</AlertTitle>
+                    <AlertDescription className="text-sm">
+                      {error.message}
+                      {error.action && <p className="mt-1 font-medium italic opacity-90">{error.action}</p>}
+                    </AlertDescription>
+                  </div>
                 </Alert>
               )}
 

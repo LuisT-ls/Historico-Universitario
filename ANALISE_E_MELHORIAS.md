@@ -222,22 +222,6 @@ export class ErrorBoundary extends Component<Props, State> {
 
 ## 🟢 MÉDIA PRIORIDADE - UX e Acessibilidade
 
-### 1. **Mensagens de Erro Genéricas**
-**Problema:** Mensagens de erro não são amigáveis.
-
-**Solução:**
-- Criar sistema de mensagens traduzidas
-- Adicionar códigos de erro específicos
-- Mostrar ações sugeridas quando possível
-
-### 2. **Falta de Feedback de Loading**
-**Problema:** Algumas operações não mostram feedback visual.
-
-**Solução:**
-- Adicionar skeletons durante carregamento
-- Usar toast notifications para feedback
-- Implementar progress indicators
-
 ### 3. **Acessibilidade (ARIA)**
 **Problema:** Alguns elementos podem melhorar acessibilidade.
 
