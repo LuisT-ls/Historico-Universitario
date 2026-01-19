@@ -48,16 +48,18 @@
 Configure as seguintes variáveis de ambiente no painel do Vercel:
 
 ```env
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyCP_TfNncuAqCxUTs0FvLJ0XnfXY9lorTU
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=historico-universitario-abc12.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=historico-universitario-abc12
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=historico-universitario-abc12.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=333663970992
-NEXT_PUBLIC_FIREBASE_APP_ID=1:333663970992:web:4532164b749f1e38883d75
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-ZBMBGR6J39
+# Configure estas variáveis com suas credenciais reais do Firebase
+# Consulte .env.example para o template completo
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key_here
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id_here
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id_here
+NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id_here
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id_here
 ```
 
-**Nota:** O código tem valores padrão, mas é recomendado usar variáveis de ambiente para maior segurança.
+**Importante:** As credenciais do Firebase agora devem ser configuradas exclusivamente via variáveis de ambiente. O código não contém mais valores padrão por questões de segurança.
 
 ### 2. Configurações do Projeto
 
