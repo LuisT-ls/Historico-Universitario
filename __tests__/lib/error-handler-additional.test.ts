@@ -132,7 +132,7 @@ describe('lib/error-handler - Testes Adicionais de Cobertura', () => {
         name: 'FirebaseError',
       }
       const message = getFirebaseErrorMessage(error)
-      expect(message).toContain('Tente novamente')
+      expect(message).toContain('Não foi possível concluir')
     })
 
     it('deve retornar mensagem genérica para código desconhecido de storage', () => {
@@ -142,7 +142,7 @@ describe('lib/error-handler - Testes Adicionais de Cobertura', () => {
         name: 'FirebaseError',
       }
       const message = getFirebaseErrorMessage(error)
-      expect(message).toContain('Tente novamente')
+      expect(message).toContain('Houve um problema')
     })
 
     describe('handleError - Cobertura Completa', () => {

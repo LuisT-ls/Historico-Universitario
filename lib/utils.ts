@@ -266,10 +266,10 @@ export function calcularTendenciaNotas(
   const primeirasNotas = disciplinasOrdenadas.slice(0, metade)
   const ultimasNotas = disciplinasOrdenadas.slice(-metade)
 
-  const mediaInicial = primeirasNotas.reduce((sum, d) => sum + d.nota, 0) / primeirasNotas.length
-  const mediaFinal = ultimasNotas.reduce((sum, d) => sum + d.nota, 0) / ultimasNotas.length
+  const mediaRecente = primeirasNotas.reduce((sum, d) => sum + d.nota, 0) / primeirasNotas.length
+  const mediaAntiga = ultimasNotas.reduce((sum, d) => sum + d.nota, 0) / ultimasNotas.length
 
-  const diferenca = mediaFinal - mediaInicial
+  const diferenca = mediaRecente - mediaAntiga
 
   if (diferenca > 0.5) {
     return {

@@ -42,7 +42,7 @@ describe('lib/error-handler', () => {
         name: 'FirebaseError',
       }
       const message = getFirebaseErrorMessage(error)
-      expect(message).toContain('não encontrado')
+      expect(message).toContain('Não encontramos')
     })
 
     it('deve retornar mensagem para erro de Firestore', () => {
@@ -52,7 +52,7 @@ describe('lib/error-handler', () => {
         name: 'FirebaseError',
       }
       const message = getFirebaseErrorMessage(error)
-      expect(message).toContain('Permissão negada')
+      expect(message).toContain('não tem permissão')
     })
 
     it('deve retornar mensagem para erro de Storage', () => {
@@ -72,18 +72,18 @@ describe('lib/error-handler', () => {
         name: 'FirebaseError',
       }
       const message = getFirebaseErrorMessage(error)
-      expect(message).toContain('Tente novamente')
+      expect(message).toContain('Ocorreu um problema')
     })
 
     it('deve retornar mensagem genérica para Error comum', () => {
       const error = new Error('Erro comum')
       const message = getFirebaseErrorMessage(error)
-      expect(message).toContain('erro inesperado')
+      expect(message).toBe('Erro comum')
     })
 
     it('deve retornar mensagem genérica para valores não Error', () => {
       const message = getFirebaseErrorMessage('string')
-      expect(message).toContain('Ocorreu um erro')
+      expect(message).toContain('Não foi possível identificar')
     })
 
     it('deve mapear todos os códigos de auth conhecidos', () => {

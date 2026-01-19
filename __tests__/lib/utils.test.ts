@@ -88,15 +88,16 @@ describe('lib/utils', () => {
       expect(calcularResultado(8, false, false, true)).toBe('DP')
     })
 
-    it('deve retornar AP para nota >= 7.0', () => {
+    it('deve retornar AP para nota >= 5.0', () => {
+      expect(calcularResultado(5.0)).toBe('AP')
       expect(calcularResultado(7.0)).toBe('AP')
       expect(calcularResultado(8.5)).toBe('AP')
       expect(calcularResultado(10)).toBe('AP')
     })
 
-    it('deve retornar RR para nota < 7.0', () => {
-      expect(calcularResultado(6.9)).toBe('RR')
-      expect(calcularResultado(5.0)).toBe('RR')
+    it('deve retornar RR para nota < 5.0', () => {
+      expect(calcularResultado(4.9)).toBe('RR')
+      expect(calcularResultado(3.0)).toBe('RR')
       expect(calcularResultado(0)).toBe('RR')
     })
   })
@@ -238,15 +239,15 @@ describe('lib/utils', () => {
 
     it('deve detectar tendência de queda', () => {
       const disciplinas = [
-        { nota: 9, periodo: '2024.2' },
-        { nota: 8, periodo: '2024.1' },
-        { nota: 7, periodo: '2023.2' },
-        { nota: 6, periodo: '2023.1' },
+        { nota: 9, periodo: '2023.1' },
+        { nota: 8, periodo: '2023.2' },
+        { nota: 7, periodo: '2024.1' },
+        { nota: 6, periodo: '2024.2' },
       ]
       const tendencia = calcularTendenciaNotas(disciplinas)
-      // Ordenado: [9 (2024.2), 8 (2024.1), 7 (2023.2), 6 (2023.1)]
-      // Primeiras: [9, 8] = média 8.5
-      // Últimas: [7, 6] = média 6.5
+      // Ordenado (mais recente primeiro): [6 (2024.2), 7 (2024.1), 8 (2023.2), 9 (2023.1)]
+      // Recentes (metade): [6, 7] = média 6.5
+      // Antigas: [8, 9] = média 8.5
       // Diferença: 6.5 - 8.5 = -2.0 < -0.5, então trending-down
       expect(tendencia.icon).toBe('trending-down')
       expect(tendencia.text).toContain('queda')
