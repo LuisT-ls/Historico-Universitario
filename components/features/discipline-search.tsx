@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Search, X, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { logger } from '@/lib/logger'
 import type { Curso, Natureza } from '@/types'
 
 interface DisciplinaData {
@@ -37,7 +38,7 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
         const data = await response.json()
         setDisciplinasData(data)
       } catch (error) {
-        console.error('Erro ao carregar disciplinas:', error)
+        logger.error('Erro ao carregar disciplinas:', error)
       } finally {
         setIsLoading(false)
       }

@@ -283,32 +283,11 @@ const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
 
 ---
 
-## 🔵 BAIXA PRIORIDADE - Melhorias Gerais
-
-### 1. **Console.log em Produção**
-**Problema:** 67 ocorrências de `console.log/error/warn`.
-
-**Solução:**
-- Criar sistema de logging
-- Remover logs de debug em produção
-- Usar biblioteca como `pino` ou `winston`
-
-### 2. **Documentação de Código** [CONCLUÍDO]
-**Problema:** Falta documentação JSDoc em funções complexas.
-
-**Solução:**
-- Adicionar JSDoc em todas as funções públicas (Implementado em /lib e componentes core)
-- Documentar parâmetros e retornos (Implementado)
-- Adicionar exemplos de uso (Implementado)
-
----
-
 ## 📋 Checklist de Implementação
 
 ### Fase 1 - Segurança (CRÍTICO)
 - [ ] Remover credenciais hardcoded
 - [ ] Validar variáveis de ambiente
-- [x] Melhorar tratamento de erros
 - [ ] Adicionar sanitização de inputs
 
 ### Fase 2 - Performance (ALTA)
@@ -324,16 +303,12 @@ const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
 - [ ] Criar serviços separados
 
 ### Fase 4 - UX (MÉDIA)
-- [x] Melhorar mensagens de erro
-- [x] Adicionar feedback de loading
 - [ ] Melhorar acessibilidade
 - [ ] Melhorar validação de formulários
 
 ### Fase 5 - Melhorias Gerais (BAIXA)
 - [ ] Sistema de logging
-- [x] Documentação JSDoc
 - [ ] Testes automatizados
-- [x] Otimização de imagens
 
 ---
 

@@ -12,6 +12,7 @@ import { calcularResultado } from '@/lib/utils'
 import { handleError } from '@/lib/error-handler'
 import type { Curso, Disciplina, Certificado } from '@/types'
 import { toast } from '@/lib/toast'
+import { logger } from '@/lib/logger'
 
 // Carregamento dinâmico para componentes pesados ou que usam libs grandes
 const CourseSelection = dynamic(() => import('@/components/features/course-selection').then(mod => mod.CourseSelection), {
@@ -150,7 +151,7 @@ export function HomePage() {
             const parsed = JSON.parse(stored)
             setDisciplinas(Array.isArray(parsed) ? parsed : [])
           } catch (error) {
-            console.error('Erro ao parsear disciplinas do localStorage:', error)
+            logger.error('Erro ao parsear disciplinas do localStorage:', error)
             setDisciplinas([])
           }
         } else {
@@ -158,7 +159,7 @@ export function HomePage() {
         }
       }
     } catch (error: unknown) {
-      console.error('Erro ao carregar disciplinas:', error)
+      logger.error('Erro ao carregar disciplinas:', error)
       // Fallback para localStorage em caso de erro
       try {
         const stored = localStorage.getItem(`disciplinas_${cursoAtual}`)
@@ -200,7 +201,7 @@ export function HomePage() {
       try {
         localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinas))
       } catch (error) {
-        console.error('Erro ao salvar disciplinas:', error)
+        logger.error('Erro ao salvar disciplinas:', error)
       }
     }
     setCursoAtual(curso)
@@ -236,10 +237,10 @@ export function HomePage() {
         duration: 3000,
       })
     } catch (error: unknown) {
-      console.error('Error adding discipline:', error)
+      logger.error('Error adding discipline:', error)
       const errorData = handleError(error)
       // Em caso de erro, ainda adicionar localmente mas logar o erro
-      console.warn('Adicionando disciplina apenas localmente devido ao erro:', errorData.message)
+      logger.warn('Adicionando disciplina apenas localmente devido ao erro:', { error: errorData.message })
       const novasDisciplinas = [...disciplinas, disciplina]
       setDisciplinas(novasDisciplinas)
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novasDisciplinas))
@@ -275,9 +276,9 @@ export function HomePage() {
         duration: 3000,
       })
     } catch (error: unknown) {
-      console.error('Error saving data:', error)
+      logger.error('Error saving data:', error)
       const errorData = handleError(error)
-      console.warn('Atualizando disciplina apenas localmente devido ao erro:', errorData.message)
+      logger.warn('Atualizando disciplina apenas localmente devido ao erro:', { error: errorData.message })
       // Mesmo com erro, atualizar localmente
       const novasDisciplinas = [...disciplinas]
       novasDisciplinas[index] = disciplina
@@ -310,9 +311,9 @@ export function HomePage() {
         duration: 3000,
       })
     } catch (error: unknown) {
-      console.error('Error removing discipline:', error)
+      logger.error('Error removing discipline:', error)
       const errorData = handleError(error)
-      console.warn('Removendo disciplina apenas localmente devido ao erro:', errorData.message)
+      logger.warn('Removendo disciplina apenas localmente devido ao erro:', { error: errorData.message })
       // Mesmo com erro, remover localmente
       const novasDisciplinas = disciplinas.filter((_, i) => i !== index)
       setDisciplinas(novasDisciplinas)

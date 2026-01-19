@@ -39,6 +39,7 @@ import { db } from '@/lib/firebase/config'
 import { handleError, type AppError } from '@/lib/error-handler'
 import { cn, sanitizeInput, sanitizeLongText } from '@/lib/utils'
 import { toast } from '@/lib/toast'
+import { logger } from '@/lib/logger'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import type { Certificado, TipoCertificado, StatusCertificado } from '@/types'
 
@@ -109,7 +110,7 @@ export function CertificadosPage() {
 
       setCertificados(certificadosData)
     } catch (error: unknown) {
-      console.error('Erro ao carregar certificados:', error)
+      logger.error('Erro ao carregar certificados:', error)
       const appError = handleError(error) // Updated error handling
       setError(appError)
       toast.error(appError.message)
@@ -189,7 +190,7 @@ export function CertificadosPage() {
       resetForm()
       await loadCertificados()
     } catch (error: unknown) {
-      console.error('Erro ao salvar certificado:', error)
+      logger.error('Erro ao salvar certificado:', error)
       const appError = handleError(error) // Updated error handling
       setError(appError)
       toast.error(appError.message)
@@ -211,7 +212,7 @@ export function CertificadosPage() {
       setDeleteId(null)
       await loadCertificados()
     } catch (error: unknown) {
-      console.error('Erro ao excluir certificado:', error)
+      logger.error('Erro ao excluir certificado:', error)
       const appError = handleError(error) // Updated error handling
       setError(appError)
       toast.error(appError.message)

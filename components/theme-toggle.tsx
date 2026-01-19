@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Moon, Sun } from 'lucide-react'
+import { logger } from '@/lib/logger'
 import { cn } from '@/lib/utils'
 
 export function ThemeToggle() {
@@ -11,11 +12,11 @@ export function ThemeToggle() {
   useEffect(() => {
     // Carregar preferência do localStorage apenas uma vez
     if (typeof window === 'undefined') return
-    
+
     try {
       const darkModeEnabled = localStorage.getItem('historico-ufba-dark-mode') === 'true'
       setIsDark(darkModeEnabled)
-      
+
       // Sincronizar com o estado atual do DOM (caso o script inline já tenha aplicado)
       const hasDarkMode = document.documentElement.classList.contains('dark-mode')
       if (darkModeEnabled !== hasDarkMode) {
@@ -27,10 +28,10 @@ export function ThemeToggle() {
           document.documentElement.style.colorScheme = 'light'
         }
       }
-      
+
       setMounted(true)
     } catch (error) {
-      console.error('Erro ao carregar tema:', error)
+      logger.error('Erro ao carregar tema:', error)
       setMounted(true)
     }
   }, [])
@@ -50,7 +51,7 @@ export function ThemeToggle() {
         localStorage.setItem('historico-ufba-dark-mode', 'false')
       }
     } catch (error) {
-      console.error('Erro ao alternar tema:', error)
+      logger.error('Erro ao alternar tema:', error)
     }
   }
 

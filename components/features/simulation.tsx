@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { CURSOS, NATUREZA_LABELS } from '@/lib/constants'
 import { getPeriodoMaisRecente, sanitizeInput, calcularCR, calcularCreditos, calcularPCH, calcularPCR, calcularPrevisaoFormaturaCompleta } from '@/lib/utils'
 import { PlusCircle, X, TrendingUp, TrendingDown, Calculator, Trash2, Search, GraduationCap } from 'lucide-react'
+import { logger } from '@/lib/logger'
 import type { Curso, Disciplina, Natureza } from '@/types'
 
 interface DisciplinaData {
@@ -108,7 +109,7 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
         const data = await response.json()
         setDisciplinasData(data)
       } catch (error) {
-        console.error('Erro ao carregar disciplinas:', error)
+        logger.error('Erro ao carregar disciplinas:', error)
       }
     }
 
@@ -223,8 +224,8 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
     const disciplinasEmCurso = disciplinas.filter(
       (d) => (d.resultado === 'DP' || d.emcurso === true) && !d.dispensada && d.natureza !== 'AC'
     )
-    const totalCH = disciplinasAprovadas.reduce((sum, d) => sum + d.ch, 0) + 
-                    disciplinasAC.reduce((sum, d) => sum + d.ch, 0)
+    const totalCH = disciplinasAprovadas.reduce((sum, d) => sum + d.ch, 0) +
+      disciplinasAC.reduce((sum, d) => sum + d.ch, 0)
     const chEmCurso = disciplinasEmCurso.reduce((sum, d) => sum + d.ch, 0)
     const totalCHComEmCurso = totalCH + chEmCurso
 
@@ -256,8 +257,8 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
     const disciplinasEmCurso = todasDisciplinas.filter(
       (d) => (d.resultado === 'DP' || d.emcurso === true) && !d.dispensada && d.natureza !== 'AC'
     )
-    const totalCH = disciplinasAprovadas.reduce((sum, d) => sum + d.ch, 0) + 
-                    disciplinasAC.reduce((sum, d) => sum + d.ch, 0)
+    const totalCH = disciplinasAprovadas.reduce((sum, d) => sum + d.ch, 0) +
+      disciplinasAC.reduce((sum, d) => sum + d.ch, 0)
     const chEmCurso = disciplinasEmCurso.reduce((sum, d) => sum + d.ch, 0)
     const totalCHComEmCurso = totalCH + chEmCurso
 
@@ -383,7 +384,7 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
               Simulador "E Se?"
             </CardTitle>
             <CardDescription className="mt-2">
-              Simule como será sua vida acadêmica após cursar as disciplinas desejadas no próximo semestre. 
+              Simule como será sua vida acadêmica após cursar as disciplinas desejadas no próximo semestre.
               Todas as disciplinas simuladas são consideradas aprovadas para planejar sua trajetória até a formatura.
             </CardDescription>
           </div>
@@ -475,9 +476,8 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
                         key={`${disciplina.codigo}-${index}`}
                         type="button"
                         onClick={() => handleSelectDisciplina(disciplina)}
-                        className={`w-full text-left px-4 py-3 hover:bg-accent transition-colors ${
-                          index === selectedIndex ? 'bg-accent' : ''
-                        } ${index !== searchResults.length - 1 ? 'border-b' : ''}`}
+                        className={`w-full text-left px-4 py-3 hover:bg-accent transition-colors ${index === selectedIndex ? 'bg-accent' : ''
+                          } ${index !== searchResults.length - 1 ? 'border-b' : ''}`}
                       >
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex-1 min-w-0">
@@ -512,9 +512,8 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
                   <select
                     id="sim-natureza"
                     {...register('natureza')}
-                    className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                      errors.natureza ? 'border-red-500' : ''
-                    }`}
+                    className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.natureza ? 'border-red-500' : ''
+                      }`}
                   >
                     <option value="">Selecione...</option>
                     {naturezasDisponiveis.map((nat) => (
@@ -601,9 +600,8 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
                     <div className="impact-value">
                       <span className="label text-sm text-muted-foreground">Simulado: </span>
                       <span
-                        className={`value font-semibold ${
-                          impacto.cr.diferenca >= 0 ? 'positive text-green-600' : 'negative text-red-600'
-                        }`}
+                        className={`value font-semibold ${impacto.cr.diferenca >= 0 ? 'positive text-green-600' : 'negative text-red-600'
+                          }`}
                       >
                         {formatarNumero(impacto.cr.simulado)}
                       </span>
@@ -611,9 +609,8 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
                     <div className="impact-value border-t pt-2">
                       <span className="label text-sm text-muted-foreground">Diferença: </span>
                       <span
-                        className={`value font-bold ${
-                          impacto.cr.diferenca >= 0 ? 'positive text-green-600' : 'negative text-red-600'
-                        }`}
+                        className={`value font-bold ${impacto.cr.diferenca >= 0 ? 'positive text-green-600' : 'negative text-red-600'
+                          }`}
                       >
                         {impacto.cr.diferenca >= 0 ? (
                           <TrendingUp className="h-4 w-4 inline mr-1" />
@@ -673,11 +670,10 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
                     <div className="impact-value">
                       <span className="label text-sm text-muted-foreground">Horas faltantes (Simulado): </span>
                       <span
-                        className={`value font-semibold ${
-                          impacto.formatura.simulado.horasFaltantes < impacto.formatura.atual.horasFaltantes
-                            ? 'positive text-green-600'
-                            : ''
-                        }`}
+                        className={`value font-semibold ${impacto.formatura.simulado.horasFaltantes < impacto.formatura.atual.horasFaltantes
+                          ? 'positive text-green-600'
+                          : ''
+                          }`}
                       >
                         {impacto.formatura.simulado.horasFaltantes}h
                       </span>
@@ -729,13 +725,12 @@ export function Simulation({ disciplinas, cursoAtual }: SimulationProps) {
                     {disciplinasSimuladas.map((disc, index) => (
                       <tr
                         key={index}
-                        className={`${
-                          disc.resultado === 'AP'
-                            ? 'simulada-aprovada'
-                            : disc.resultado === 'RR'
-                              ? 'simulada-reprovada'
-                              : ''
-                        } hover:bg-muted/20 transition-colors`}
+                        className={`${disc.resultado === 'AP'
+                          ? 'simulada-aprovada'
+                          : disc.resultado === 'RR'
+                            ? 'simulada-reprovada'
+                            : ''
+                          } hover:bg-muted/20 transition-colors`}
                       >
                         <td className="px-4 py-3 text-sm">{disc.periodo}</td>
                         <td className="px-4 py-3 text-sm font-mono">{disc.codigo}</td>

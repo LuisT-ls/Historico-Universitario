@@ -11,6 +11,7 @@ import { signOut } from 'firebase/auth'
 import Image from 'next/image'
 import { auth } from '@/lib/firebase/config'
 import { cn, clearUserData } from '@/lib/utils'
+import { logger } from '@/lib/logger'
 import {
   Sheet,
   SheetContent,
@@ -60,7 +61,7 @@ export function Header() {
       router.push('/')
       router.refresh() // Forçar atualização da página para limpar estado
     } catch (error) {
-      console.error('Erro ao fazer logout:', error)
+      logger.error('Erro ao fazer logout:', error)
     }
   }
 

@@ -55,6 +55,7 @@ import { toast, setNotificationsEnabled } from '@/lib/toast'
 import { Toaster } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
+import { logger } from '@/lib/logger'
 
 export function ProfilePage() {
   const router = useRouter()
@@ -183,13 +184,13 @@ export function ProfilePage() {
             { merge: true }
           )
         } catch (error) {
-          console.error('Erro ao criar perfil inicial:', error)
+          logger.error('Erro ao criar perfil inicial:', error)
         }
 
         setProfile(initialProfile)
       }
     } catch (error) {
-      console.error('Erro ao carregar perfil:', error)
+      logger.error('Erro ao carregar perfil:', error)
     } finally {
       setIsLoading(false)
     }
@@ -227,7 +228,7 @@ export function ProfilePage() {
       const stats = calcularEstatisticas(disciplinas)
       setStatistics(stats)
     } catch (error) {
-      console.error('Erro ao carregar estatísticas:', error)
+      logger.error('Erro ao carregar estatísticas:', error)
     }
   }
 
@@ -274,7 +275,7 @@ export function ProfilePage() {
         duration: 3000,
       })
     } catch (error: unknown) {
-      console.error('Erro ao salvar perfil:', error)
+      logger.error('Erro ao salvar perfil:', error)
       const errorMessage = getFirebaseErrorMessage(error)
       toast.error('Erro ao salvar perfil', {
         description: errorMessage,
@@ -347,7 +348,7 @@ export function ProfilePage() {
         setSettingsSuccess((prev) => ({ ...prev, [key]: false }))
       }, 2000)
     } catch (error: unknown) {
-      console.error('Erro ao salvar configurações:', error)
+      logger.error('Erro ao salvar configurações:', error)
       const errorMessage = getFirebaseErrorMessage(error)
 
       setSettingsError({ ...settingsError, [key]: errorMessage })
@@ -423,7 +424,7 @@ export function ProfilePage() {
       setPasswordData({ current: '', new: '', confirm: '' })
       setShowPasswords({ current: false, new: false, confirm: false, delete: false })
     } catch (error: unknown) {
-      console.error('Erro ao alterar senha:', error)
+      logger.error('Erro ao alterar senha:', error)
       const errorMessage = getFirebaseErrorMessage(error)
       toast.error('Erro ao alterar senha', {
         description: errorMessage,
@@ -475,7 +476,7 @@ export function ProfilePage() {
           })
         })
       } catch (error) {
-        console.warn('Erro ao buscar certificados:', error)
+        logger.warn('Erro ao buscar certificados:', { error })
       }
 
       // Buscar perfil
@@ -522,7 +523,7 @@ export function ProfilePage() {
         duration: 3000,
       })
     } catch (error) {
-      console.error('Erro ao exportar dados:', error)
+      logger.error('Erro ao exportar dados:', error)
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
       toast.error('Erro ao exportar dados', {
         description: errorMessage,
@@ -599,7 +600,7 @@ export function ProfilePage() {
           operationsCount++
         })
       } catch (error) {
-        console.warn('Erro ao buscar disciplinas para exclusão:', error)
+        logger.warn('Erro ao buscar disciplinas para exclusão:', { error })
       }
 
       // 2. Excluir certificados (se houver)
@@ -612,7 +613,7 @@ export function ProfilePage() {
           operationsCount++
         })
       } catch (error) {
-        console.warn('Erro ao buscar certificados para exclusão:', error)
+        logger.warn('Erro ao buscar certificados para exclusão:', { error })
       }
 
       // 3. Excluir perfil do usuário
@@ -624,7 +625,7 @@ export function ProfilePage() {
           operationsCount++
         }
       } catch (error) {
-        console.warn('Erro ao buscar perfil para exclusão:', error)
+        logger.warn('Erro ao buscar perfil para exclusão:', { error })
       }
 
       // Executar todas as exclusões do Firestore
@@ -640,7 +641,7 @@ export function ProfilePage() {
         localStorage.clear()
         sessionStorage.clear()
       } catch (error) {
-        console.warn('Erro ao limpar storage local:', error)
+        logger.warn('Erro ao limpar storage local:', { error })
       }
 
       toast.success('Conta excluída', {
@@ -649,7 +650,7 @@ export function ProfilePage() {
       })
       router.push('/')
     } catch (error: unknown) {
-      console.error('Erro ao excluir conta:', error)
+      logger.error('Erro ao excluir conta:', error)
       const errorMessage = getFirebaseErrorMessage(error)
       toast.error('Erro ao excluir conta', {
         description: errorMessage,

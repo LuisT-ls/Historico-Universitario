@@ -1,4 +1,5 @@
 import { toast as sonnerToast } from 'sonner'
+import { logger } from '@/lib/logger'
 
 /**
  * Wrapper para toast que respeita as configurações de notificação do usuário
@@ -70,6 +71,6 @@ export function setNotificationsEnabled(enabled: boolean) {
     try {
         localStorage.setItem('notificationsEnabled', enabled.toString())
     } catch (error) {
-        console.error('Erro ao salvar configuração de notificações:', error)
+        logger.error('Erro ao salvar configuração de notificações:', error)
     }
 }

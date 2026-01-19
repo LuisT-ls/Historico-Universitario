@@ -4,6 +4,7 @@ import { getFirestore, type Firestore } from 'firebase/firestore'
 import { GoogleAuthProvider } from 'firebase/auth'
 import type { Analytics } from 'firebase/analytics'
 import type { FirebaseStorage } from 'firebase/storage'
+import { logger } from '@/lib/logger'
 
 let app: FirebaseApp | undefined
 let auth: Auth | undefined
@@ -31,7 +32,7 @@ const firebaseConfig = {
 async function getStorageLazy() {
   if (storage) return storage
   if (!app) return undefined
-  
+
   const { getStorage } = await import('firebase/storage')
   storage = getStorage(app)
   return storage
@@ -49,7 +50,7 @@ if (typeof window !== 'undefined') {
     const initAnalytics = () => {
       import('firebase/analytics').then(({ getAnalytics }) => {
         analytics = getAnalytics(app!)
-      }).catch(err => console.warn('Analytics failed:', err))
+      }).catch(err => logger.warn('Analytics failed:', { error: err }))
     }
 
     // Só inicializa quando o navegador estiver realmente ocioso

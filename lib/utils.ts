@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import type { Disciplina } from '@/types'
+import { logger } from '@/lib/logger'
 
 /**
  * Utilitário para combinar classes do Tailwind CSS com suporte a condições
@@ -544,9 +545,9 @@ export function clearUserData(): void {
     // Limpar todo o sessionStorage
     sessionStorage.clear()
 
-    console.log('Dados do usuário limpos com sucesso')
+    logger.info('Dados do usuário limpos com sucesso')
   } catch (error) {
-    console.error('Erro ao limpar dados do usuário:', error)
+    logger.error('Erro ao limpar dados do usuário:', error)
   }
 }
 
