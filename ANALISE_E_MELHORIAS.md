@@ -8,18 +8,25 @@ A aplicação está bem estruturada e funcional, mas há várias oportunidades d
 
 ## 🔴 CRÍTICO - Segurança
 
-### 1. **Credenciais Firebase Hardcoded** ⚠️ CRÍTICO
-**Arquivo:** `lib/firebase/config.ts` (linhas 16-27)
+### 1. **Credenciais Firebase Hardcoded** [RESOLVIDO] ✅
+**Arquivo:** `lib/firebase/config.ts`
 
 **Problema:**
 ```typescript
+// ANTES (INSEGURO):
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyCP_TfNncuAqCxUTs0FvLJ0XnfXY9lorTU',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'hardcoded_value',
   // ... valores hardcoded como fallback
 }
 ```
 
 **Risco:** Credenciais expostas no código fonte podem ser comprometidas.
+
+**Solução Implementada:**
+- ✅ Removidos todos os valores hardcoded
+- ✅ Adicionada validação de variáveis de ambiente
+- ✅ Criado arquivo `.env.example` com template
+- ✅ Implementados erros descritivos para variáveis faltando
 
 **Solução:**
 - Remover todos os valores hardcoded
@@ -243,34 +250,6 @@ export class ErrorBoundary extends Component<Props, State> {
 ---
 
 ## 🟢 MÉDIA PRIORIDADE - TypeScript
-
-### 1. **Tipos Mais Específicos** [CONCLUÍDO]
-**Problema:** Alguns tipos são muito genéricos.
-
-**Solução:**
-```typescript
-// Implementado: Branded types para IDs
-type DisciplinaId = string & { readonly __brand: 'DisciplinaId' }
-type UserId = string & { readonly __brand: 'UserId' }
-type CertificadoId = string & { readonly __brand: 'CertificadoId' }
-
-// Implementado: Union types
-type ResultadoDisciplina = 'AP' | 'RR' | 'TR' | 'DP'
-
-// Implementado: Type-safe constants
-const RESULTADO_LABELS: Record<ResultadoDisciplina, string> = {
-  AP: 'Aprovado',
-  RR: 'Reprovado',
-  TR: 'Trancado',
-  DP: 'Dispensado',
-}
-
-const STATUS_CERTIFICADO_LABELS: Record<StatusCertificado, string> = {
-  pendente: 'Pendente',
-  aprovado: 'Aprovado',
-  reprovado: 'Reprovado',
-}
-```
 
 ### 2. **Validação de Tipos em Runtime**
 **Problema:** Dados do Firestore podem não corresponder aos tipos esperados.
