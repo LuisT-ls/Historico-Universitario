@@ -91,64 +91,6 @@ catch (error: unknown) {
 }
 ```
 
-### 2. **Falta de Error Boundaries** [IMPLEMENTADO] ✅
-**Problema:** Erros não tratados podem quebrar toda a aplicação.
-
-**Solução Implementada:**
-- ✅ Criado componente `ErrorBoundary` em `components/error-boundary.tsx`
-- ✅ Integrado Error Logging com sistema de logs
-- ✅ UI de fallback user-friendly com opção de reset
-- ✅ Wrapped toda aplicação no layout raiz
-- ✅ Detalhes de erro visíveis apenas em desenvolvimento
-
-**Solução:**
-```typescript
-// Criar ErrorBoundary component
-'use client'
-
-import { Component, ReactNode } from 'react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-
-interface Props {
-  children: ReactNode
-  fallback?: ReactNode
-}
-
-interface State {
-  hasError: boolean
-  error?: Error
-}
-
-export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary capturou um erro:', error, errorInfo)
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback || (
-        <Alert variant="destructive">
-          <AlertDescription>
-            Algo deu errado. Por favor, recarregue a página.
-          </AlertDescription>
-        </Alert>
-      )
-    }
-
-    return this.props.children
-  }
-}
-```
-
 ### 3. **Falta de Hooks Customizados**
 **Problema:** Lógica repetida em vários componentes.
 
@@ -159,14 +101,19 @@ export class ErrorBoundary extends Component<Props, State> {
 - `hooks/useDisciplinas.ts` - Gerenciamento de disciplinas
 - `hooks/useCertificados.ts` - Gerenciamento de certificados
 
-### 4. **Falta de Serviços Separados**
+### 4. **Falta de Serviços Separados** [IMPLEMENTADO] ✅
 **Problema:** Lógica de negócio misturada com componentes.
 
-**Solução:** Criar serviços:
-- `services/firestore.service.ts`
-- `services/storage.service.ts`
-- `services/auth.service.ts`
-- `services/calculations.service.ts`
+**Solução Implementada:**
+- ✅ Criado `services/firestore.service.ts` - CRUD para disciplinas, certificados, perfis
+- ✅ Criado `services/storage.service.ts` - Upload/download de arquivos
+- ✅ Criado `services/auth.service.ts` - Autenticação e gerenciamento de usuários
+- ✅ Criado `services/calculations.service.ts` - Cálculos de negócio
+
+**Benefícios:**
+- Separação clara de responsabilidades
+- Código mais testável e reutilizável
+- Manutenção simplificada
 
 ---
 
