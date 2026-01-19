@@ -1,5 +1,10 @@
 import type { UserStatistics } from '@/types'
 
+/**
+ * Gera e inicia o download de um arquivo JSON contendo o backup dos dados.
+ * 
+ * @param backup - Objeto contendo os dados do histórico e perfil para exportação
+ */
 export function exportAsJSON(backup: any) {
     const dataStr = JSON.stringify(backup, null, 2)
     const dataBlob = new Blob([dataStr], { type: 'application/json' })
@@ -14,6 +19,14 @@ export function exportAsJSON(backup: any) {
     setTimeout(() => URL.revokeObjectURL(link.href), 100)
 }
 
+/**
+ * Gera e inicia o download de um arquivo Excel (.xlsx) formatado.
+ * Cria abas separadas para o resumo geral e para cada período letivo.
+ * 
+ * @param backup - Objeto de backup (usado para dados do perfil)
+ * @param disciplinas - Lista completa de disciplinas
+ * @param statistics - Estatísticas calculadas do usuário
+ */
 export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: UserStatistics) {
     // Importação dinâmica para reduzir o bundle inicial
     const XLSX = await import('xlsx')
@@ -120,6 +133,15 @@ export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: 
 }
 
 
+/**
+ * Gera e inicia o download de um arquivo PDF formatado e profissional.
+ * Inclui cabeçalho com dados do aluno, resumo estatístico e tabelas por período.
+ * utiliza jspdf e jspdf-autotable.
+ * 
+ * @param backup - Objeto de backup (usado para dados do perfil)
+ * @param disciplinas - Lista completa de disciplinas
+ * @param statistics - Estatísticas calculadas do usuário
+ */
 export async function exportAsPDF(backup: any, disciplinas: any[], statistics: UserStatistics) {
     // Importações dinâmicas para reduzir o bundle inicial
     const { default: jsPDF } = await import('jspdf')

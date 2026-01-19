@@ -2,10 +2,26 @@ import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import type { Disciplina } from '@/types'
 
+/**
+ * Utilitário para combinar classes do Tailwind CSS com suporte a condições
+ * e resolução de conflitos (merging).
+ * 
+ * @param inputs - Classes, arrays ou objetos de classes a serem combinados
+ * @returns String de classes otimizada
+ * 
+ * @example
+ * cn('px-2 py-1', isSelected && 'bg-blue-500')
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/**
+ * Formata uma data no padrão brasileiro (DD/MM/AAAA HH:mm)
+ * 
+ * @param date - Objeto Date ou string de data para formatar
+ * @returns String formatada: "19/01/2026 14:30"
+ */
 export function formatDate(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date
   return new Intl.DateTimeFormat('pt-BR', {
@@ -17,6 +33,12 @@ export function formatDate(date: Date | string): string {
   }).format(d)
 }
 
+/**
+ * Identifica o período letivo mais recente em uma lista de disciplinas
+ * 
+ * @param disciplinas - Lista de objetos contendo o campo periodo (Ex: "2023.1")
+ * @returns O período mais recente ou null se a lista estiver vazia
+ */
 export function getPeriodoMaisRecente(disciplinas: Array<{ periodo: string }>): string | null {
   if (disciplinas.length === 0) return null
 
@@ -34,6 +56,13 @@ export function getPeriodoMaisRecente(disciplinas: Array<{ periodo: string }>): 
   return periodos[0] || null
 }
 
+/**
+ * Função de comparação para ordenação de períodos (do mais recente para o mais antigo)
+ * 
+ * @param a - Período A (Ex: "2023.1")
+ * @param b - Período B (Ex: "2022.2")
+ * @returns Número indicando a ordem para o método .sort()
+ */
 export function compararPeriodos(a: string, b: string): number {
   const [anoA, semA] = a.split('.').map(Number)
   const [anoB, semB] = b.split('.').map(Number)
@@ -42,6 +71,16 @@ export function compararPeriodos(a: string, b: string): number {
   return semB - semA // Semestre mais recente primeiro
 }
 
+/**
+ * Calcula o resultado acadêmico (Aprovado, Reprovado, etc) baseado na nota e status
+ * 
+ * @param nota - Valor da nota (0 a 10)
+ * @param trancamento - Se a disciplina foi trancada
+ * @param dispensada - Se houve dispensa (aproveitamento)
+ * @param emcurso - Se a disciplina ainda está sendo cursada
+ * @param natureza - Natureza da disciplina (AC, OB, OP, etc)
+ * @returns Sigla do resultado: 'AP', 'RR', 'TR', 'DP' ou undefined
+ */
 export function calcularResultado(
   nota: number,
   trancamento?: boolean,
@@ -58,6 +97,13 @@ export function calcularResultado(
   return nota >= 5.0 ? 'AP' : 'RR'
 }
 
+/**
+ * Calcula a média aritmética simples ponderada pela carga horária
+ * de uma lista de disciplinas.
+ * 
+ * @param disciplinas - Lista de disciplinas com nota e ch
+ * @returns Valor da média calculado
+ */
 export function calcularMediaGeral(disciplinas: Array<{ nota: number; ch: number }>): number {
   if (disciplinas.length === 0) return 0
 
@@ -67,6 +113,13 @@ export function calcularMediaGeral(disciplinas: Array<{ nota: number; ch: number
   return totalCH > 0 ? totalPCH / totalCH : 0
 }
 
+/**
+ * Calcula o Coeficiente de Rendimento (CR) seguindo as regras acadêmicas:
+ * Desconsidera dispensas e Atividades Complementares (AC).
+ * 
+ * @param disciplinas - Lista de disciplinas
+ * @returns Valor do CR (0 a 10)
+ */
 export function calcularCR(
   disciplinas: Array<{ nota: number; ch: number; dispensada?: boolean; natureza?: string }>
 ): number {
@@ -82,6 +135,13 @@ export function calcularCR(
   return somaCH > 0 ? somaPCH / somaCH : 0
 }
 
+/**
+ * Converte a Carga Horária (CH) total em número de créditos
+ * (Geralmente 1 crédito = 15 horas)
+ * 
+ * @param disciplinas - Lista de disciplinas
+ * @returns Total de créditos
+ */
 export function calcularCreditos(
   disciplinas: Array<{ ch: number; dispensada?: boolean; natureza?: string }>
 ): number {
@@ -92,6 +152,12 @@ export function calcularCreditos(
   return disciplinasValidas.reduce((sum, d) => sum + d.ch / 15, 0)
 }
 
+/**
+ * Calcula o Produto de Carga Horária (PCH) - Soma de (Nota * CH)
+ * 
+ * @param disciplinas - Lista de disciplinas
+ * @returns Valor do PCH
+ */
 export function calcularPCH(
   disciplinas: Array<{ nota: number; ch: number; dispensada?: boolean; natureza?: string }>
 ): number {
@@ -102,6 +168,12 @@ export function calcularPCH(
   return disciplinasValidas.reduce((sum, d) => sum + d.ch * d.nota, 0)
 }
 
+/**
+ * Calcula o Produto de Crédito por Rendimento (PCR) - Soma de (Créditos * Nota)
+ * 
+ * @param disciplinas - Lista de disciplinas
+ * @returns Valor do PCR
+ */
 export function calcularPCR(
   disciplinas: Array<{ nota: number; ch: number; dispensada?: boolean; natureza?: string }>
 ): number {
@@ -112,6 +184,12 @@ export function calcularPCR(
   return disciplinasValidas.reduce((sum, d) => sum + (d.ch / 15) * d.nota, 0)
 }
 
+/**
+ * Retorna metadados visuais (cor, ícone, feedback) baseados no valor do CR
+ * 
+ * @param cr - Valor do Coeficiente de Rendimento
+ * @returns Objeto com classe CSS, nome do ícone (lucide) e texto motivacional
+ */
 export function getStatusCR(cr: number): {
   class: string
   icon: string
@@ -144,6 +222,12 @@ export function getStatusCR(cr: number): {
   }
 }
 
+/**
+ * Analisa a variação das notas ao longo dos períodos para identificar tendências
+ * 
+ * @param disciplinas - Histórico de disciplinas
+ * @returns Objeto com ícone de tendência e texto descritivo da variação
+ */
 export function calcularTendenciaNotas(
   disciplinas: Array<{
     nota: number
@@ -204,6 +288,17 @@ export function calcularTendenciaNotas(
   }
 }
 
+/**
+ * Realiza uma simulação estatística da previsão de formatura baseada no ritmo atual do aluno
+ * 
+ * @param disciplinas - Histórico completo
+ * @param totalCH - Carga horária já concluída
+ * @param totalCHComEmCurso - CH concluída + CH das matérias atuais
+ * @param chEmCurso - CH das matérias que estão sendo cursadas agora
+ * @param totalHorasNecessarias - Meta de horas do curso
+ * @param disciplinasEmCurso - Lista de objetos das disciplinas atuais
+ * @returns Projeção detalhada com tempo estimado e se é possível formar no semestre
+ */
 export function calcularPrevisaoFormaturaCompleta(
   disciplinas: Disciplina[],
   totalCH: number,
@@ -376,6 +471,12 @@ export function sanitizeLongText(input: string): string {
     .replace(/\n{3,}/g, '\n\n') // Limita múltiplas quebras de linha
 }
 
+/**
+ * Compila estatísticas rápidas sobre o progresso acadêmico
+ * 
+ * @param disciplinas - Lista total de disciplinas
+ * @returns Objeto com totais, contagens e média arredondada
+ */
 export function calcularEstatisticas(disciplinas: Disciplina[]): {
   totalDisciplines: number
   completedDisciplines: number

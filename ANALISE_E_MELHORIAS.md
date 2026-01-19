@@ -293,21 +293,13 @@ const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
 - Remover logs de debug em produção
 - Usar biblioteca como `pino` ou `winston`
 
-### 2. **Documentação de Código**
+### 2. **Documentação de Código** [CONCLUÍDO]
 **Problema:** Falta documentação JSDoc em funções complexas.
 
 **Solução:**
-- Adicionar JSDoc em todas as funções públicas
-- Documentar parâmetros e retornos
-- Adicionar exemplos de uso
-
-### 4. **Otimização de Imagens** [CONCLUÍDO]
-**Problema:** Imagens podem não estar otimizadas.
-
-**Solução:**
-- Usar `next/image` para todas as imagens (Implementado)
-- Adicionar lazy loading (Nativo do Next.js)
-- Otimizar tamanhos de imagem e LCP com `priority` (Implementado)
+- Adicionar JSDoc em todas as funções públicas (Implementado em /lib e componentes core)
+- Documentar parâmetros e retornos (Implementado)
+- Adicionar exemplos de uso (Implementado)
 
 ---
 
@@ -339,7 +331,7 @@ const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
 
 ### Fase 5 - Melhorias Gerais (BAIXA)
 - [ ] Sistema de logging
-- [ ] Documentação JSDoc
+- [x] Documentação JSDoc
 - [ ] Testes automatizados
 - [x] Otimização de imagens
 

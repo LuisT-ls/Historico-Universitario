@@ -14,6 +14,13 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
 })
 
+/**
+ * Provedor de Contexto de Autenticação.
+ * Gerencia o estado do usuário logado via Firebase Auth e fornece o contexto
+ * para toda a aplicação.
+ * 
+ * @param children - Componentes filhos que terão acesso ao contexto
+ */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -35,6 +42,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>
 }
 
+/**
+ * Hook customizado para acessar o contexto de autenticação de forma simples.
+ * 
+ * @returns Objeto contendo o usuário atual (User | null) e o estado de carregamento (loading)
+ * 
+ * @example
+ * const { user, loading } = useAuth()
+ */
 export function useAuth() {
   return useContext(AuthContext)
 }

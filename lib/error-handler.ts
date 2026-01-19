@@ -25,7 +25,10 @@ export function isFirebaseError(error: unknown): error is FirebaseError {
 }
 
 /**
- * Mapeia códigos de erro do Firebase Authentication para AppError
+ * Mapeia códigos de erro do Firebase Authentication para a estrutura AppError padronizada.
+ * 
+ * @param code - Código de erro retornado pelo Firebase (Ex: 'auth/user-not-found')
+ * @returns Objeto AppError com mensagens em português e sugestões de ação
  */
 function getAuthError(code: string): AppError {
   const errorMap: Record<string, AppError> = {
@@ -94,7 +97,10 @@ function getAuthError(code: string): AppError {
 }
 
 /**
- * Mapeia códigos de erro do Firestore para AppError
+ * Mapeia códigos de erro do Firestore para a estrutura AppError padronizada.
+ * 
+ * @param code - Código de erro retornado pelo Firestore (Ex: 'permission-denied')
+ * @returns Objeto AppError com mensagens em português e sugestões de ação
  */
 function getFirestoreError(code: string): AppError {
   const errorMap: Record<string, AppError> = {
@@ -133,7 +139,10 @@ function getFirestoreError(code: string): AppError {
 }
 
 /**
- * Mapeia códigos de erro do Storage para AppError
+ * Mapeia códigos de erro do Firebase Storage para a estrutura AppError padronizada.
+ * 
+ * @param code - Código de erro retornado pelo Storage (Ex: 'storage/unauthorized')
+ * @returns Objeto AppError com mensagens em português e sugestões de ação
  */
 function getStorageError(code: string): AppError {
   const errorMap: Record<string, AppError> = {
@@ -171,7 +180,15 @@ export function getFirebaseErrorMessage(error: unknown): string {
 }
 
 /**
- * Trata um erro e retorna uma estrutura padronizada AppError
+ * Função principal de tratamento de erros da aplicação.
+ * Identifica a origem do erro (Firebase, Error genérico ou desconhecido)
+ * e o converte para o formato standard AppError.
+ * 
+ * @param error - O objeto de erro capturado no try/catch
+ * @returns O erro processado e pronto para exibição na UI
+ * 
+ * @example
+ * try { ... } catch (err) { setError(handleError(err)) }
  */
 export function handleError(error: unknown): AppError {
   let appError: AppError
