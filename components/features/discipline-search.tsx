@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search, X, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Curso, Natureza } from '@/types'
@@ -200,9 +200,8 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
                   key={`${disciplina.codigo}-${index}`}
                   type="button"
                   onClick={() => handleSelect(disciplina)}
-                  className={`w-full text-left px-4 py-3 hover:bg-accent transition-colors ${
-                    index === selectedIndex ? 'bg-accent' : ''
-                  } ${index !== results.length - 1 ? 'border-b' : ''}`}
+                  className={`w-full text-left px-4 py-3 hover:bg-accent transition-colors ${index === selectedIndex ? 'bg-accent' : ''
+                    } ${index !== results.length - 1 ? 'border-b' : ''}`}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex-1 min-w-0">

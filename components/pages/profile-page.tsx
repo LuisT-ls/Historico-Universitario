@@ -53,6 +53,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { exportAsJSON, exportAsXLSX, exportAsPDF } from '@/lib/export-utils'
 import { toast, setNotificationsEnabled } from '@/lib/toast'
 import { Toaster } from 'sonner'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 
 export function ProfilePage() {
   const router = useRouter()
@@ -656,7 +658,7 @@ export function ProfilePage() {
     }
   }
 
-  if (authLoading || isLoading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -739,23 +741,31 @@ export function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Nome Completo</Label>
-                  <Input
-                    id="fullName"
-                    value={profile?.nome || ''}
-                    onChange={(e) => setProfile({ ...profile!, nome: e.target.value })}
-                    placeholder="Seu nome completo"
-                  />
+                  {isLoading ? (
+                    <Skeleton className="h-10 w-full" />
+                  ) : (
+                    <Input
+                      id="fullName"
+                      value={profile?.nome || ''}
+                      onChange={(e) => setProfile({ ...profile!, nome: e.target.value })}
+                      placeholder="Seu nome completo"
+                    />
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={isPrivate ? maskSensitiveData(profile?.email || user.email || '', 'email') : (profile?.email || user.email || '')}
-                    disabled
-                    placeholder="Seu e-mail será exibido aqui"
-                    className={isPrivate ? 'blur-sm select-none' : ''}
-                  />
+                  {isLoading ? (
+                    <Skeleton className="h-10 w-full" />
+                  ) : (
+                    <Input
+                      id="email"
+                      type="email"
+                      value={isPrivate ? maskSensitiveData(profile?.email || user.email || '', 'email') : (profile?.email || user.email || '')}
+                      disabled
+                      placeholder="Seu e-mail será exibido aqui"
+                      className={isPrivate ? 'blur-sm select-none' : ''}
+                    />
+                  )}
                   <p className="text-xs text-muted-foreground">
                     {isPrivate ? 'E-mail oculto por privacidade' : 'O e-mail não pode ser alterado'}
                   </p>
@@ -765,39 +775,51 @@ export function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="institution">Instituição</Label>
-                  <Input
-                    id="institution"
-                    value={profile?.institution || ''}
-                    onChange={(e) => setProfile({ ...profile!, institution: e.target.value })}
-                    placeholder="Nome da sua universidade"
-                  />
+                  {isLoading ? (
+                    <Skeleton className="h-10 w-full" />
+                  ) : (
+                    <Input
+                      id="institution"
+                      value={profile?.institution || ''}
+                      onChange={(e) => setProfile({ ...profile!, institution: e.target.value })}
+                      placeholder="Nome da sua universidade"
+                    />
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="course">Curso</Label>
-                  <Input
-                    id="course"
-                    value={profile?.curso || ''}
-                    onChange={(e) => setProfile({ ...profile!, curso: e.target.value as Curso })}
-                    placeholder="Ex: Engenharia de Produção"
-                  />
+                  {isLoading ? (
+                    <Skeleton className="h-10 w-full" />
+                  ) : (
+                    <Input
+                      id="course"
+                      value={profile?.curso || ''}
+                      onChange={(e) => setProfile({ ...profile!, curso: e.target.value as Curso })}
+                      placeholder="Ex: Engenharia de Produção"
+                    />
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="enrollment">Matrícula</Label>
-                  <Input
-                    id="enrollment"
-                    value={isPrivate ? maskSensitiveData(profile?.matricula || '', 'enrollment') : (profile?.matricula || '')}
-                    onChange={(e) => {
-                      if (!isPrivate) {
-                        setProfile({ ...profile!, matricula: e.target.value })
-                      }
-                    }}
-                    placeholder="Número de matrícula"
-                    disabled={isPrivate}
-                    className={isPrivate ? 'blur-sm select-none' : ''}
-                  />
+                  {isLoading ? (
+                    <Skeleton className="h-10 w-full" />
+                  ) : (
+                    <Input
+                      id="enrollment"
+                      value={isPrivate ? maskSensitiveData(profile?.matricula || '', 'enrollment') : (profile?.matricula || '')}
+                      onChange={(e) => {
+                        if (!isPrivate) {
+                          setProfile({ ...profile!, matricula: e.target.value })
+                        }
+                      }}
+                      placeholder="Número de matrícula"
+                      disabled={isPrivate}
+                      className={isPrivate ? 'blur-sm select-none' : ''}
+                    />
+                  )}
                   {isPrivate && (
                     <p className="text-xs text-muted-foreground">Matrícula oculta por privacidade</p>
                   )}

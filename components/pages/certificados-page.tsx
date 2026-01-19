@@ -32,11 +32,12 @@ import {
   AlertTriangle,
   X,
 } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/components/auth-provider'
 import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
-import { sanitizeInput, sanitizeLongText } from '@/lib/utils'
+import { cn, sanitizeInput, sanitizeLongText } from '@/lib/utils'
 import { toast } from '@/lib/toast'
 import type { Certificado, TipoCertificado, StatusCertificado } from '@/types'
 
@@ -179,7 +180,7 @@ export function CertificadosPage() {
           duration: 3000,
         })
       }
-      
+
       setShowForm(false)
       setEditingId(null)
       resetForm()
@@ -296,7 +297,7 @@ export function CertificadosPage() {
     }
   }
 
-  if (authLoading || isLoading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
@@ -341,65 +342,31 @@ export function CertificadosPage() {
 
         {/* Estatísticas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-primary/10">
-                  <GraduationCap className="h-6 w-6 text-primary" />
+          {[
+            { label: 'Total de Certificados', value: stats.total, sub: 'Certificados cadastrados', icon: GraduationCap, iconColor: 'text-primary', bgColor: 'bg-primary/10' },
+            { label: 'Horas Validadas', value: stats.horasValidadas, sub: 'Horas aprovadas', icon: Clock, iconColor: 'text-green-600', bgColor: 'bg-green-500/10' },
+            { label: 'Atividades Aprovadas', value: stats.atividadesAprovadas, sub: 'Certificados aprovados', icon: CheckCircle, iconColor: 'text-blue-600', bgColor: 'bg-blue-500/10' },
+            { label: 'Horas Pendentes', value: stats.horasPendentes, sub: 'Aguardando validação', icon: Hourglass, iconColor: 'text-yellow-600', bgColor: 'bg-yellow-500/10' },
+          ].map((stat, i) => (
+            <Card key={i}>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4">
+                  <div className={cn("p-3 rounded-lg", stat.bgColor)}>
+                    <stat.icon className={cn("h-6 w-6", stat.iconColor)} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    {isLoading ? (
+                      <Skeleton className="h-8 w-16 my-1" />
+                    ) : (
+                      <p className="text-2xl font-bold">{stat.value}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">{stat.sub}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Total de Certificados</p>
-                  <p className="text-2xl font-bold">{stats.total}</p>
-                  <p className="text-xs text-muted-foreground">Certificados cadastrados</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-green-500/10">
-                  <Clock className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Horas Validadas</p>
-                  <p className="text-2xl font-bold">{stats.horasValidadas}</p>
-                  <p className="text-xs text-muted-foreground">Horas aprovadas</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-blue-500/10">
-                  <CheckCircle className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Atividades Aprovadas</p>
-                  <p className="text-2xl font-bold">{stats.atividadesAprovadas}</p>
-                  <p className="text-xs text-muted-foreground">Certificados aprovados</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-yellow-500/10">
-                  <Hourglass className="h-6 w-6 text-yellow-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Horas Pendentes</p>
-                  <p className="text-2xl font-bold">{stats.horasPendentes}</p>
-                  <p className="text-xs text-muted-foreground">Aguardando validação</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Formulário */}
@@ -420,8 +387,8 @@ export function CertificadosPage() {
                 )}
               </CardTitle>
               <CardDescription>
-                {editingId 
-                  ? 'Edite os dados do certificado ou atividade complementar' 
+                {editingId
+                  ? 'Edite os dados do certificado ou atividade complementar'
                   : 'Cadastre um novo certificado ou atividade complementar'}
               </CardDescription>
             </CardHeader>
@@ -584,7 +551,34 @@ export function CertificadosPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {certificados.length === 0 ? (
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i}>
+                    <CardContent className="pt-6 space-y-4">
+                      <div className="flex justify-between">
+                        <div className="space-y-2 flex-1">
+                          <Skeleton className="h-6 w-3/4" />
+                          <Skeleton className="h-4 w-1/2" />
+                        </div>
+                        <Skeleton className="h-6 w-20" />
+                      </div>
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-2/3" />
+                      </div>
+                      <div className="flex gap-2 pt-2 border-t">
+                        <Skeleton className="h-9 flex-1" />
+                        <Skeleton className="h-9 w-9" />
+                        <Skeleton className="h-9 w-9" />
+                        <Skeleton className="h-9 w-9" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : certificados.length === 0 ? (
               <div className="text-center py-12">
                 <GraduationCap className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
                 <p className="text-muted-foreground">

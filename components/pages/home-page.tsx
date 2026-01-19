@@ -5,6 +5,7 @@ import type { DisciplineFormRef } from '@/components/features/discipline-form'
 import { useAuth } from '@/components/auth-provider'
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { calcularResultado } from '@/lib/utils'
@@ -34,26 +35,12 @@ const AcademicHistory = dynamic(() => import('@/components/features/academic-his
 })
 
 const Summary = dynamic(() => import('@/components/features/summary').then(mod => mod.Summary), {
-  loading: () => (
-    <div className="h-64 flex items-center justify-center border rounded-lg bg-muted/10">
-      <div className="flex flex-col items-center gap-2 text-muted-foreground">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="text-sm">Carregando resumo...</span>
-      </div>
-    </div>
-  ),
+  loading: () => <Skeleton className="h-64 w-full" />,
   ssr: false
 })
 
 const Simulation = dynamic(() => import('@/components/features/simulation').then(mod => mod.Simulation), {
-  loading: () => (
-    <div className="h-32 flex items-center justify-center border-2 border-dashed rounded-lg mt-8">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <Loader2 className="h-5 w-5 animate-spin" />
-        <span>Carregando simulador...</span>
-      </div>
-    </div>
-  ),
+  loading: () => <Skeleton className="h-96 w-full" />,
   ssr: false
 })
 
