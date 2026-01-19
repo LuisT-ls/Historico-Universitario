@@ -244,29 +244,28 @@ export class ErrorBoundary extends Component<Props, State> {
 
 ## 🟢 MÉDIA PRIORIDADE - TypeScript
 
-### 1. **Tipos Mais Específicos**
+### 1. **Tipos Mais Específicos** [CONCLUÍDO]
 **Problema:** Alguns tipos são muito genéricos.
 
 **Solução:**
 ```typescript
-// Em vez de:
-interface Certificado {
-  id?: string
-  // ...
+// Implementado: Branded types para IDs
+type DisciplinaId = string & { readonly __brand: 'DisciplinaId' }
+type UserId = string & { readonly __brand: 'UserId' }
+type CertificadoId = string & { readonly __brand: 'CertificadoId' }
+
+// Implementado: Union types
+type ResultadoDisciplina = 'AP' | 'RR' | 'TR' | 'DP'
+
+// Implementado: Type-safe constants
+const RESULTADO_LABELS: Record<ResultadoDisciplina, string> = {
+  AP: 'Aprovado',
+  RR: 'Reprovado',
+  TR: 'Trancado',
+  DP: 'Dispensado',
 }
 
-// Usar:
-type CertificadoId = string
-
-interface Certificado {
-  id: CertificadoId
-  userId: UserId
-  // ...
-}
-
-// Criar tipos para status
-type StatusCertificado = 'pendente' | 'aprovado' | 'reprovado'
-const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
+const STATUS_CERTIFICADO_LABELS: Record<StatusCertificado, string> = {
   pendente: 'Pendente',
   aprovado: 'Aprovado',
   reprovado: 'Reprovado',
@@ -307,7 +306,6 @@ const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
 - [ ] Melhorar validação de formulários
 
 ### Fase 5 - Melhorias Gerais (BAIXA)
-- [x] Sistema de logging
 - [ ] Testes automatizados
 
 ---
