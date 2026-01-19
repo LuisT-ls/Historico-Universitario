@@ -56,6 +56,7 @@ import { Toaster } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { logger } from '@/lib/logger'
+import { createUserId } from '@/lib/constants'
 
 export function ProfilePage() {
   const router = useRouter()
@@ -133,7 +134,7 @@ export function ProfilePage() {
       if (userSnap.exists()) {
         const userData = userSnap.data()
         setProfile({
-          uid: user.uid,
+          uid: createUserId(user.uid),
           nome: userData.name || user.displayName || '',
           email: userData.email || user.email || '',
           curso: userData.profile?.course || 'BICTI',
@@ -149,7 +150,7 @@ export function ProfilePage() {
       } else {
         // Criar perfil inicial
         const initialProfile: Profile = {
-          uid: user.uid,
+          uid: createUserId(user.uid),
           nome: user.displayName || '',
           email: user.email || '',
           curso: 'BICTI',

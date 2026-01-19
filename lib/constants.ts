@@ -50,3 +50,12 @@ export const NATUREZA_LABELS: Record<string, string> = {
   OZ: 'OZ - Optativa Artística',
 }
 
+// Re-export type-safe constants for convenience
+export {
+  RESULTADO_LABELS,
+  STATUS_CERTIFICADO_LABELS,
+  TIPO_CERTIFICADO_LABELS,
+  createDisciplinaId,
+  createUserId,
+  createCertificadoId,
+} from './type-constants'

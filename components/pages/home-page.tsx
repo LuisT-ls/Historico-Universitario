@@ -13,6 +13,7 @@ import { handleError } from '@/lib/error-handler'
 import type { Curso, Disciplina, Certificado } from '@/types'
 import { toast } from '@/lib/toast'
 import { logger } from '@/lib/logger'
+import { createDisciplinaId } from '@/lib/constants'
 
 // Carregamento dinâmico para componentes pesados ou que usam libs grandes
 const CourseSelection = dynamic(() => import('@/components/features/course-selection').then(mod => mod.CourseSelection), {
@@ -222,7 +223,7 @@ export function HomePage() {
         delete (disciplineData as any).id
 
         const docRef = await addDoc(collection(db, 'disciplines'), disciplineData)
-        disciplina.id = docRef.id
+        disciplina.id = createDisciplinaId(docRef.id)
       }
 
       // Atualizar estado local

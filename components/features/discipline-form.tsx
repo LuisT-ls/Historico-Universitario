@@ -14,6 +14,7 @@ import { CURSOS, NATUREZA_LABELS } from '@/lib/constants'
 import { calcularResultado, getPeriodoMaisRecente, sanitizeInput } from '@/lib/utils'
 import { PlusCircle, X } from 'lucide-react'
 import { logger } from '@/lib/logger'
+import { createDisciplinaId } from '@/lib/constants'
 import type { Curso, Disciplina, Natureza } from '@/types'
 
 const disciplineSchema = z
@@ -232,7 +233,7 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
 
         // Se estiver em modo de edição, atualizar ao invés de adicionar
         if (editingIndex !== null && onUpdate) {
-          disciplina.id = editingId
+          disciplina.id = editingId ? createDisciplinaId(editingId) : undefined
           onUpdate(disciplina, editingIndex)
           setEditingIndex(null)
           setEditingId(undefined)

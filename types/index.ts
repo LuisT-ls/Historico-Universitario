@@ -1,3 +1,9 @@
+// Branded types for type-safe IDs
+export type DisciplinaId = string & { readonly __brand: 'DisciplinaId' }
+export type UserId = string & { readonly __brand: 'UserId' }
+export type CertificadoId = string & { readonly __brand: 'CertificadoId' }
+
+// Course types
 export type Curso = 'BICTI' | 'ENG_PROD' | 'ENG_ELET'
 
 export type Natureza =
@@ -10,8 +16,12 @@ export type Natureza =
   | 'OX'
   | 'OZ'
 
+// Discipline result types
+export type ResultadoDisciplina = 'AP' | 'RR' | 'TR' | 'DP'
+
+// Discipline interface
 export interface Disciplina {
-  id?: string
+  id?: DisciplinaId
   periodo: string
   codigo: string
   nome: string
@@ -21,7 +31,7 @@ export interface Disciplina {
   trancamento?: boolean
   dispensada?: boolean
   emcurso?: boolean
-  resultado?: 'AP' | 'RR' | 'TR' | 'DP'
+  resultado?: ResultadoDisciplina
   curso?: Curso
   createdAt?: Date
   updatedAt?: Date
@@ -51,15 +61,17 @@ export interface Resumo {
   horasPorNatureza: Record<Natureza, number>
 }
 
+// User interface
 export interface User {
-  uid: string
+  uid: UserId
   email: string | null
   displayName: string | null
   photoURL: string | null
 }
 
+// Profile interface
 export interface Profile {
-  uid: string
+  uid: UserId
   nome?: string
   email?: string
   curso?: Curso
@@ -96,9 +108,10 @@ export type TipoCertificado =
 
 export type StatusCertificado = 'pendente' | 'aprovado' | 'reprovado'
 
+// Certificate interface
 export interface Certificado {
-  id?: string
-  userId: string
+  id?: CertificadoId
+  userId: UserId
   titulo: string
   tipo: TipoCertificado
   instituicao: string
