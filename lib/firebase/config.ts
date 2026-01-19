@@ -73,10 +73,31 @@ if (typeof window !== 'undefined') {
     googleProvider = new GoogleAuthProvider()
 
     // Delay analytics para não impactar o LCP/Performance inicial no mobile
+    // Apenas em produção para evitar erros de conexão em desenvolvimento
     const initAnalytics = () => {
-      import('firebase/analytics').then(({ getAnalytics }) => {
-        analytics = getAnalytics(app!)
-      }).catch(err => logger.warn('Analytics failed:', { error: err }))
+      // Não inicializar analytics em desenvolvimento
+      if (process.env.NODE_ENV !== 'production') {
+        logger.info('Analytics desabilitado em ambiente de desenvolvimento')
+        return
+      }
+
+      import('firebase/analytics')
+        .then(({ getAnalytics, isSupported }) => {
+          // Verificar se o Analytics é suportado antes de inicializar
+          isSupported().then((supported) => {
+            if (supported) {
+              analytics = getAnalytics(app!)
+              logger.info('Analytics inicializado com sucesso')
+            } else {
+              logger.info('Analytics não suportado neste ambiente')
+            }
+          })
+        })
+        .catch((err) => {
+          // Erros de Analytics não devem quebrar a aplicação
+          // Comum em ambientes com ad-blockers ou restrições de rede
+          logger.warn('Analytics não pôde ser inicializado:', { error: err.message })
+        })
     }
 
     // Só inicializa quando o navegador estiver realmente ocioso
