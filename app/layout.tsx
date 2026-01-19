@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     siteName: 'Histórico Acadêmico - Sistema Acadêmico Gratuito',
     title: 'Histórico Acadêmico Online Gratuito - Gerencie seu Histórico Acadêmico',
     description:
-      'Sistema GRATUITO para gerenciar histórico acadêmico! Calcule CR automaticamente, controle disciplinas, requisitos de formatura. BICTI e Engenharias.',
+      'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, controle disciplinas e acompanhe seu progresso em BICTI e Engenharias. Acesse agora!',
     images: [
       {
         url: 'https://historicoacademico.vercel.app/assets/img/og-image.jpg',
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Histórico Acadêmico Online Gratuito - Sistema Acadêmico',
     description:
-      'Sistema gratuito para gerenciar histórico acadêmico, calcular CR e acompanhar disciplinas. Para todos os cursos!',
+      'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, acompanhe disciplinas e controle seu progresso. Para todos os cursos!',
     images: ['https://historicoacademico.vercel.app/assets/img/og-image.jpg'],
   },
   alternates: {
@@ -135,7 +135,7 @@ export default function RootLayout({
               '@type': 'WebSite',
               name: 'Histórico Acadêmico',
               url: 'https://historicoacademico.vercel.app',
-              description: 'Sistema gratuito para gerenciar histórico acadêmico e calcular CR.',
+              description: 'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, controle disciplinas e acompanhe seu progresso.',
               potentialAction: {
                 '@type': 'SearchAction',
                 target: 'https://historicoacademico.vercel.app/home?q={search_term_string}',

@@ -8,7 +8,7 @@ import { Toaster } from 'sonner'
 export const metadata: Metadata = {
   title: 'Histórico Acadêmico Online Gratuito - Gerencie seu Histórico Acadêmico',
   description:
-    'Sistema GRATUITO para gerenciar histórico acadêmico! Calcule CR automaticamente, controle disciplinas, requisitos de formatura. BICTI e Engenharias. Acesse já!',
+    'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, controle disciplinas e acompanhe seu progresso em BICTI e Engenharias. Acesse agora!',
 }
 
 export default function Home() {
@@ -20,10 +20,10 @@ export default function Home() {
         <header className="mb-10">
           <div className="mb-4 text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 overflow-hidden mx-auto mb-4 shadow-sm border border-primary/5">
-              <Image 
-                src="/assets/img/logo.png" 
-                alt="Logo" 
-                width={56} 
+              <Image
+                src="/assets/img/logo.png"
+                alt="Logo"
+                width={56}
                 height={56}
                 className="object-contain"
                 priority
@@ -40,7 +40,7 @@ export default function Home() {
             </p>
           </div>
         </header>
-        
+
         <HomePage />
       </main>
       <Footer />

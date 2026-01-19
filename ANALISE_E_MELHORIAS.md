@@ -309,14 +309,6 @@ const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
 - Adicionar lazy loading
 - Otimizar tamanhos de imagem
 
-### 5. **SEO**
-**Problema:** Algumas páginas podem melhorar SEO.
-
-**Solução:**
-- Adicionar structured data (JSON-LD)
-- Melhorar meta descriptions
-- Adicionar Open Graph dinâmico
-
 ---
 
 ## 📋 Checklist de Implementação
