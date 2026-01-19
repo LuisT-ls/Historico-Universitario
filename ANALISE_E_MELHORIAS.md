@@ -307,7 +307,7 @@ const STATUS_CERTIFICADO: Record<StatusCertificado, string> = {
 - [ ] Melhorar validação de formulários
 
 ### Fase 5 - Melhorias Gerais (BAIXA)
-- [ ] Sistema de logging
+- [x] Sistema de logging
 - [ ] Testes automatizados
 
 ---
