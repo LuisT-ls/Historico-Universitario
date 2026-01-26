@@ -117,9 +117,12 @@ export function AcademicHistory({
           </div>
         ) : (
           <Accordion type="multiple" defaultValue={[disciplinasPorPeriodo.periodosOrdenados[0]]} className="space-y-4">
-            {disciplinasPorPeriodo.periodosOrdenados.map((periodo) => {
+            {disciplinasPorPeriodo.periodosOrdenados.map((periodo, idx) => {
               const disciplinasDoPeriodo = disciplinasPorPeriodo.grupos[periodo]
               const aprovadasCount = disciplinasDoPeriodo.filter(d => d.resultado === 'AP').length
+              
+              // Cálculo do número sequencial do semestre (do mais antigo para o mais recente)
+              const semestreSequencial = disciplinasPorPeriodo.periodosOrdenados.length - idx
 
               return (
                 <AccordionItem
@@ -129,8 +132,8 @@ export function AcademicHistory({
                 >
                   <AccordionTrigger className="hover:no-underline py-4">
                     <div className="flex items-center gap-4 text-left">
-                      <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold">
-                        {periodo.split('.')[1]}º
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border border-primary/20 shadow-inner">
+                        {semestreSequencial}º
                       </div>
                       <div>
                         <h3 className="font-bold text-lg">Semestre {periodo}</h3>
