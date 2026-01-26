@@ -8,7 +8,7 @@ import { Toaster } from 'sonner'
 export const metadata: Metadata = {
   title: 'Histórico Acadêmico Online Gratuito - Gerencie seu Histórico Acadêmico',
   description:
-    'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, controle disciplinas e acompanhe seu progresso em BICTI e Engenharias. Sistema completo para estudantes universitários brasileiros. Acesse agora!',
+    'Gerencie seu histórico acadêmico! Calcule CR, controle disciplinas e acompanhe seu progresso em BICTI e Engenharias. Sistema completo para estudantes do ICTI-UFBA. Acesse agora!',
   keywords: [
     'histórico acadêmico online',
     'calcular CR universitário',
