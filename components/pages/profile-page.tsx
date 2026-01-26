@@ -38,6 +38,7 @@ import {
   reauthenticateWithPopup
 } from 'firebase/auth'
 import { db, auth, googleProvider } from '@/lib/firebase/config'
+import { CURSOS } from '@/lib/constants'
 import { calcularEstatisticas, sanitizeInput } from '@/lib/utils'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
 import type { Profile, Curso, Disciplina, UserStatistics } from '@/types'
@@ -793,12 +794,19 @@ export function ProfilePage() {
                   {isLoading ? (
                     <Skeleton className="h-10 w-full" />
                   ) : (
-                    <Input
+                    <select
                       id="course"
                       value={profile?.curso || ''}
                       onChange={(e) => setProfile({ ...profile!, curso: e.target.value as Curso })}
-                      placeholder="Ex: Engenharia de Produção"
-                    />
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    >
+                      <option value="">Selecione seu curso</option>
+                      {Object.entries(CURSOS).map(([key, value]) => (
+                        <option key={key} value={key}>
+                          {value.nome}
+                        </option>
+                      ))}
+                    </select>
                   )}
                 </div>
               </div>

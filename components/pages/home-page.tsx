@@ -411,7 +411,7 @@ export function HomePage() {
         </div>
       )}
 
-      <CourseSelection cursoAtual={cursoAtual} onCursoChange={handleCursoChange} />
+      {!user && <CourseSelection cursoAtual={cursoAtual} onCursoChange={handleCursoChange} />}
 
       <PDFImport onImport={handleImportDisciplinas} />
 
