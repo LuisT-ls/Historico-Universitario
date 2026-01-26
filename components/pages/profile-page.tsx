@@ -72,129 +72,49 @@ export function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
-  const [showSensitive, setShowSensitive] = useState({
-    email: false,
-    enrollment: false,
-  })
+  const [showSensitive, setShowSensitive] = useState({ email: false, enrollment: false })
   const [settingsSaving, setSettingsSaving] = useState<{ [key: string]: boolean }>({})
   const [settingsError, setSettingsError] = useState<{ [key: string]: string | null }>({})
   const [settingsSuccess, setSettingsSuccess] = useState<{ [key: string]: boolean }>({})
   const [changePasswordOpen, setChangePasswordOpen] = useState(false)
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
-  const [passwordData, setPasswordData] = useState({
-    current: '',
-    new: '',
-    confirm: '',
-  })
+  const [passwordData, setPasswordData] = useState({ current: '', new: '', confirm: '' })
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deletePassword, setDeletePassword] = useState('')
   const [exportFormat, setExportFormat] = useState<'json' | 'xlsx' | 'pdf'>('json')
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false,
-    delete: false,
-  })
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login')
-    }
+    if (!authLoading && !user) router.push('/login')
   }, [user, authLoading, router])
 
   useEffect(() => {
-    if (!user) {
-      // Limpar estado quando não houver usuário
-      setProfile(null)
-      setStatistics({
-        totalDisciplines: 0,
-        completedDisciplines: 0,
-        inProgressDisciplines: 0,
-        averageGrade: 0,
-      })
-      return
-    }
-
-    if (user && db) {
-      loadProfile()
-      loadStatistics()
-    }
+    if (!user) return
+    loadProfile()
+    loadStatistics()
   }, [user])
-
-  // Sincronizar configuração de notificações com localStorage
-  useEffect(() => {
-    if (profile?.settings?.notifications !== undefined) {
-      setNotificationsEnabled(profile.settings.notifications)
-    }
-  }, [profile?.settings?.notifications])
 
   const loadProfile = async () => {
     if (!user || !db) return
-
     setIsLoading(true)
     try {
-      // Carregar dados do documento users/{uid}
       const userRef = doc(db, 'users', user.uid)
       const userSnap = await getDoc(userRef)
-
       if (userSnap.exists()) {
-        const userData = userSnap.data()
+        const data = userSnap.data()
         setProfile({
           uid: createUserId(user.uid),
-          nome: userData.name || user.displayName || '',
-          email: userData.email || user.email || '',
-          curso: userData.profile?.course || 'BICTI',
-          matricula: userData.profile?.enrollment || '',
-          institution: userData.profile?.institution || '',
-          startYear: userData.profile?.startYear || new Date().getFullYear(),
-          startSemester: userData.profile?.startSemester || '1',
+          nome: data.name || user.displayName || '',
+          email: data.email || user.email || '',
+          curso: data.profile?.course || 'BICTI',
+          matricula: data.profile?.enrollment || '',
+          institution: data.profile?.institution || '',
+          startYear: data.profile?.startYear || new Date().getFullYear(),
+          startSemester: data.profile?.startSemester || '1',
           settings: {
-            notifications: userData.settings?.notifications !== false,
-            privacy: userData.settings?.privacy || 'private',
+            notifications: data.settings?.notifications !== false,
+            privacy: data.settings?.privacy || 'private',
           },
         })
-      } else {
-        // Criar perfil inicial
-        const initialProfile: Profile = {
-          uid: createUserId(user.uid),
-          nome: user.displayName || '',
-          email: user.email || '',
-          curso: 'BICTI',
-          startYear: new Date().getFullYear(),
-          startSemester: '1',
-          settings: {
-            notifications: true,
-            privacy: 'private',
-          },
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }
-
-        // Salvar perfil inicial no Firestore
-        try {
-          await setDoc(
-            userRef,
-            {
-              name: initialProfile.nome ? sanitizeInput(initialProfile.nome) : initialProfile.nome,
-              email: initialProfile.email || user.email,
-              profile: {
-                course: initialProfile.curso,
-                enrollment: initialProfile.matricula || '',
-                institution: initialProfile.institution || '',
-                startYear: initialProfile.startYear,
-                startSemester: initialProfile.startSemester,
-              },
-              settings: initialProfile.settings,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            },
-            { merge: true }
-          )
-        } catch (error) {
-          logger.error('Erro ao criar perfil inicial:', error)
-        }
-
-        setProfile(initialProfile)
       }
     } catch (error) {
       logger.error('Erro ao carregar perfil:', error)
@@ -205,35 +125,12 @@ export function ProfilePage() {
 
   const loadStatistics = async () => {
     if (!user || !db) return
-
     try {
-      // Buscar disciplinas do usuário
-      const disciplinesRef = collection(db, 'disciplines')
-      const q = query(disciplinesRef, where('userId', '==', user.uid))
-      const querySnapshot = await getDocs(q)
-
-      const disciplinas: Disciplina[] = []
-      querySnapshot.forEach((doc) => {
-        const data = doc.data()
-        disciplinas.push({
-          id: doc.id,
-          periodo: data.periodo || '',
-          codigo: data.codigo || '',
-          nome: data.nome || '',
-          natureza: data.natureza,
-          ch: data.ch || 0,
-          nota: data.nota || 0,
-          trancamento: data.trancamento || false,
-          dispensada: data.dispensada || false,
-          emcurso: data.emcurso || false,
-          resultado: data.resultado,
-          curso: data.curso,
-        } as Disciplina)
-      })
-
-      // Calcular estatísticas
-      const stats = calcularEstatisticas(disciplinas)
-      setStatistics(stats)
+      const q = query(collection(db, 'disciplines'), where('userId', '==', user.uid))
+      const snap = await getDocs(q)
+      const discs: Disciplina[] = []
+      snap.forEach(doc => discs.push({ id: doc.id, ...doc.data() } as any))
+      setStatistics(calcularEstatisticas(discs))
     } catch (error) {
       logger.error('Erro ao carregar estatísticas:', error)
     }
@@ -241,942 +138,180 @@ export function ProfilePage() {
 
   const handleSave = async () => {
     if (!user || !db || !profile) return
-
     setIsSaving(true)
     try {
-      const userRef = doc(db, 'users', user.uid)
-
-      // Garantir que as configurações existam
-      const currentSettings = profile.settings || {
-        notifications: true,
-        privacy: 'private',
-      }
-
-      await setDoc(
-        userRef,
-        {
-          name: profile.nome ? sanitizeInput(profile.nome) : profile.nome,
-          email: profile.email || user.email,
-          profile: {
-            course: profile.curso,
-            enrollment: profile.matricula,
-            institution: profile.institution,
-            startYear: profile.startYear,
-            startSemester: profile.startSemester,
-          },
-          settings: currentSettings, // Preservar configurações
-          updatedAt: new Date(),
+      await setDoc(doc(db, 'users', user.uid), {
+        name: sanitizeInput(profile.nome || ''),
+        profile: {
+          course: profile.curso,
+          enrollment: profile.matricula,
+          institution: profile.institution,
+          startYear: profile.startYear,
+          startSemester: profile.startSemester,
         },
-        { merge: true }
-      )
-
-      // Atualizar estado local para garantir sincronização
-      setProfile({
-        ...profile,
-        settings: currentSettings,
-      })
-
-      // Feedback de sucesso
+        updatedAt: new Date(),
+      }, { merge: true })
       setSaveSuccess(true)
       setTimeout(() => setSaveSuccess(false), 3000)
-
-      // Mostrar notificação de sucesso
-      toast.success('Informações salvas!', {
-        description: 'Suas informações pessoais foram atualizadas',
-        duration: 3000,
-      })
-    } catch (error: unknown) {
-      logger.error('Erro ao salvar perfil:', error)
-      const errorMessage = getFirebaseErrorMessage(error)
-      toast.error('Erro ao salvar perfil', {
-        description: errorMessage,
-        duration: 4000,
-      })
+      toast.success('Perfil atualizado!')
+    } catch (error) {
+      toast.error('Erro ao salvar perfil')
     } finally {
       setIsSaving(false)
     }
   }
 
-  const handleSettingsChange = async (key: 'notifications' | 'privacy', value: boolean | string) => {
+  const handleSettingsChange = async (key: string, value: any) => {
     if (!user || !db || !profile) return
-
-    // Validação
-    if (key === 'privacy' && value !== 'private' && value !== 'public') {
-      setSettingsError({ ...settingsError, [key]: 'Valor de privacidade inválido' })
-      return
-    }
-
-    if (key === 'notifications' && typeof value !== 'boolean') {
-      setSettingsError({ ...settingsError, [key]: 'Valor de notificações inválido' })
-      return
-    }
-
-    // Limpar estados anteriores
-    setSettingsError({ ...settingsError, [key]: null })
-    setSettingsSuccess({ ...settingsSuccess, [key]: false })
-    setSettingsSaving({ ...settingsSaving, [key]: true })
-
+    setSettingsSaving(prev => ({ ...prev, [key]: true }))
     try {
-      const userRef = doc(db, 'users', user.uid)
-
-      // Garantir que as configurações existam
-      const currentSettings = profile.settings || {
-        notifications: true,
-        privacy: 'private',
-      }
-
-      await setDoc(
-        userRef,
-        {
-          settings: {
-            ...currentSettings,
-            [key]: value,
-          },
-          updatedAt: new Date(),
-        },
-        { merge: true }
-      )
-
-      // Atualizar estado local
-      setProfile({
-        ...profile,
-        settings: {
-          ...currentSettings,
-          [key]: value,
-        },
-      })
-
-      // Se for configuração de notificações, atualizar localStorage também
-      if (key === 'notifications') {
-        setNotificationsEnabled(value === true || value === 'true')
-      }
-
-      // Feedback de sucesso
-      setSettingsSuccess({ ...settingsSuccess, [key]: true })
-
-      // Limpar sucesso após 2 segundos
-      setTimeout(() => {
-        setSettingsSuccess((prev) => ({ ...prev, [key]: false }))
-      }, 2000)
-    } catch (error: unknown) {
-      logger.error('Erro ao salvar configurações:', error)
-      const errorMessage = getFirebaseErrorMessage(error)
-
-      setSettingsError({ ...settingsError, [key]: errorMessage })
-
-      // Limpar erro após 5 segundos
-      setTimeout(() => {
-        setSettingsError((prev) => ({ ...prev, [key]: null }))
-      }, 5000)
+      await setDoc(doc(db, 'users', user.uid), {
+        settings: { ...profile.settings, [key]: value },
+        updatedAt: new Date(),
+      }, { merge: true })
+      setProfile(prev => prev ? ({ ...prev, settings: { ...prev.settings, [key]: value } }) : null)
+      setSettingsSuccess(prev => ({ ...prev, [key]: true }))
+      setTimeout(() => setSettingsSuccess(prev => ({ ...prev, [key]: false })), 2000)
+    } catch (error) {
+      toast.error('Erro ao salvar configuração')
     } finally {
-      setSettingsSaving({ ...settingsSaving, [key]: false })
+      setSettingsSaving(prev => ({ ...prev, [key]: false }))
     }
   }
 
   const handleChangePassword = async () => {
-    if (!user || !auth) return
-
-    // Verificar se é usuário Google (não pode alterar senha)
-    const isGoogleUser = user.providerData?.some((p) => p.providerId === 'google.com')
-    if (isGoogleUser) {
-      toast.error('Ação não permitida', {
-        description: 'Usuários que fazem login com Google não podem alterar senha através desta interface',
-        duration: 4000,
-      })
-      return
-    }
-
-    if (!passwordData.current) {
-      toast.error('Campo obrigatório', {
-        description: 'Por favor, digite sua senha atual',
-        duration: 3000,
-      })
-      return
-    }
-
-    if (passwordData.new !== passwordData.confirm) {
-      toast.error('Senhas não correspondem', {
-        description: 'A nova senha e a confirmação devem ser iguais',
-        duration: 3000,
-      })
-      return
-    }
-
-    if (passwordData.new.length < 6) {
-      toast.error('Senha muito curta', {
-        description: 'A nova senha deve ter pelo menos 6 caracteres',
-        duration: 3000,
-      })
-      return
-    }
-
-    // Validação de força da senha básica
-    if (passwordData.new === passwordData.current) {
-      toast.error('Senha inválida', {
-        description: 'A nova senha deve ser diferente da senha atual',
-        duration: 3000,
-      })
-      return
-    }
-
+    if (!user || !auth || passwordData.new !== passwordData.confirm) return
     try {
-      // Reautenticar usuário
-      const credential = EmailAuthProvider.credential(user.email!, passwordData.current)
-      await reauthenticateWithCredential(user, credential)
-
-      // Alterar senha
+      const cred = EmailAuthProvider.credential(user.email!, passwordData.current)
+      await reauthenticateWithCredential(user, cred)
       await updatePassword(user, passwordData.new)
-
-      toast.success('Senha alterada!', {
-        description: 'Sua senha foi atualizada com sucesso',
-        duration: 3000,
-      })
+      toast.success('Senha alterada!')
       setChangePasswordOpen(false)
-      setPasswordData({ current: '', new: '', confirm: '' })
-      setShowPasswords({ current: false, new: false, confirm: false, delete: false })
-    } catch (error: unknown) {
-      logger.error('Erro ao alterar senha:', error)
-      const errorMessage = getFirebaseErrorMessage(error)
-      toast.error('Erro ao alterar senha', {
-        description: errorMessage,
-        duration: 4000,
-      })
-    }
-  }
-
-  const handleExportData = async () => {
-    if (!user || !db) return
-
-    try {
-      // Buscar todas as disciplinas
-      const disciplinesRef = collection(db, 'disciplines')
-      const q = query(disciplinesRef, where('userId', '==', user.uid))
-      const querySnapshot = await getDocs(q)
-
-      const disciplinas: any[] = []
-      querySnapshot.forEach((doc) => {
-        const data = doc.data()
-        disciplinas.push({
-          id: doc.id,
-          periodo: data.periodo || '',
-          codigo: data.codigo || '',
-          nome: data.nome || '',
-          natureza: data.natureza || '',
-          ch: data.ch || 0,
-          nota: data.nota || 0,
-          trancamento: data.trancamento || false,
-          dispensada: data.dispensada || false,
-          emcurso: data.emcurso || false,
-          resultado: data.resultado || null,
-          curso: data.curso || '',
-          createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt || null,
-          updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt || null,
-        })
-      })
-
-      // Buscar certificados (se houver)
-      let certificados: any[] = []
-      try {
-        const certificadosRef = collection(db, 'certificados')
-        const certQuery = query(certificadosRef, where('userId', '==', user.uid))
-        const certSnapshot = await getDocs(certQuery)
-        certSnapshot.forEach((doc) => {
-          certificados.push({
-            id: doc.id,
-            ...doc.data(),
-          })
-        })
-      } catch (error) {
-        logger.warn('Erro ao buscar certificados:', { error })
-      }
-
-      // Buscar perfil
-      const userRef = doc(db, 'users', user.uid)
-      const userSnap = await getDoc(userRef)
-      const userData = userSnap.exists() ? userSnap.data() : {}
-
-      // Criar objeto de backup completo
-      const backup = {
-        version: '1.0',
-        exportedAt: new Date().toISOString(),
-        exportedBy: user.email || user.uid,
-        user: {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-        },
-        profile: userData,
-        disciplines: disciplinas,
-        certificados: certificados,
-        statistics: statistics,
-        metadata: {
-          totalDisciplines: disciplinas.length,
-          totalCertificates: certificados.length,
-          exportFormat: exportFormat.toUpperCase(),
-        },
-      }
-
-      // Exportar no formato selecionado
-      switch (exportFormat) {
-        case 'json':
-          exportAsJSON(backup)
-          break
-        case 'xlsx':
-          await exportAsXLSX(backup, disciplinas, statistics)
-          break
-        case 'pdf':
-          await exportAsPDF(backup, disciplinas, statistics)
-          break
-      }
-
-      toast.success('Dados exportados com sucesso!', {
-        description: `Arquivo ${exportFormat.toUpperCase()} baixado`,
-        duration: 3000,
-      })
     } catch (error) {
-      logger.error('Erro ao exportar dados:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
-      toast.error('Erro ao exportar dados', {
-        description: errorMessage,
-        duration: 4000,
-      })
+      toast.error('Erro ao alterar senha')
     }
   }
 
   const handleDeleteAccount = async () => {
-    if (!user || !auth || !db) return
-
-    if (deleteConfirm !== 'EXCLUIR') {
-      toast.error('Confirmação necessária', {
-        description: 'Por favor, digite EXCLUIR para confirmar',
-        duration: 3000,
-      })
-      return
-    }
-
-    // Verificar se é usuário Google
-    const isGoogleUser = user.providerData?.some((p) => p.providerId === 'google.com')
-
-    if (!isGoogleUser && !deletePassword) {
-      toast.error('Senha necessária', {
-        description: 'Por favor, digite sua senha para confirmar',
-        duration: 3000,
-      })
-      return
-    }
-
+    if (!user || deleteConfirm !== 'EXCLUIR') return
     try {
-      // Reautenticação necessária antes de excluir
-      if (isGoogleUser) {
-        // Para usuários Google, reautenticar com popup
-        try {
-          if (!googleProvider) {
-            throw new Error('Google Auth Provider não está disponível')
-          }
-          await reauthenticateWithPopup(user, googleProvider)
-        } catch (reauthError: any) {
-          if (reauthError.code === 'auth/popup-closed-by-user') {
-            toast.warning('Exclusão cancelada', {
-              description: 'Reautenticação cancelada',
-              duration: 3000,
-            })
-            return
-          }
-          throw reauthError
-        }
-      } else {
-        // Para usuários email/password, reautenticar com senha
-        if (!deletePassword) {
-          toast.error('Senha necessária', {
-            description: 'Por favor, digite sua senha para confirmar',
-            duration: 3000,
-          })
-          return
-        }
-        const credential = EmailAuthProvider.credential(user.email!, deletePassword)
-        await reauthenticateWithCredential(user, credential)
-      }
-
-      // Usar batch para operações atômicas
-      const batch = writeBatch(db)
-      let operationsCount = 0
-
-      // 1. Excluir todas as disciplinas
-      try {
-        const disciplinesRef = collection(db, 'disciplines')
-        const q = query(disciplinesRef, where('userId', '==', user.uid))
-        const querySnapshot = await getDocs(q)
-        querySnapshot.forEach((doc) => {
-          batch.delete(doc.ref)
-          operationsCount++
-        })
-      } catch (error) {
-        logger.warn('Erro ao buscar disciplinas para exclusão:', { error })
-      }
-
-      // 2. Excluir certificados (se houver)
-      try {
-        const certificadosRef = collection(db, 'certificados')
-        const certQuery = query(certificadosRef, where('userId', '==', user.uid))
-        const certSnapshot = await getDocs(certQuery)
-        certSnapshot.forEach((doc) => {
-          batch.delete(doc.ref)
-          operationsCount++
-        })
-      } catch (error) {
-        logger.warn('Erro ao buscar certificados para exclusão:', { error })
-      }
-
-      // 3. Excluir perfil do usuário
-      try {
-        const userRef = doc(db, 'users', user.uid)
-        const userSnap = await getDoc(userRef)
-        if (userSnap.exists()) {
-          batch.delete(userRef)
-          operationsCount++
-        }
-      } catch (error) {
-        logger.warn('Erro ao buscar perfil para exclusão:', { error })
-      }
-
-      // Executar todas as exclusões do Firestore
-      if (operationsCount > 0) {
-        await batch.commit()
-      }
-
-      // 4. Excluir usuário do Authentication
+      const cred = EmailAuthProvider.credential(user.email!, deletePassword)
+      await reauthenticateWithCredential(user, cred)
       await deleteUser(user)
-
-      // 5. Limpar dados locais
-      try {
-        localStorage.clear()
-        sessionStorage.clear()
-      } catch (error) {
-        logger.warn('Erro ao limpar storage local:', { error })
-      }
-
-      toast.success('Conta excluída', {
-        description: 'Sua conta foi removida permanentemente',
-        duration: 3000,
-      })
       router.push('/')
-    } catch (error: unknown) {
-      logger.error('Erro ao excluir conta:', error)
-      const errorMessage = getFirebaseErrorMessage(error)
-      toast.error('Erro ao excluir conta', {
-        description: errorMessage,
-        duration: 4000,
-      })
+    } catch (error) {
+      toast.error('Erro ao excluir conta')
     }
   }
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    )
+  const maskSensitive = (val: string, show: boolean) => {
+    if (!val) return ''
+    if (show) return val
+    return val.slice(0, 2) + '••••' + val.slice(-2)
   }
 
-  if (!user) {
-    return null
-  }
-
-  const isGoogleUser = user.providerData?.some((p) => p.providerId === 'google.com')
-  const isPrivate = profile?.settings?.privacy === 'private'
-
-  // Função para mascarar dados sensíveis quando privado ou toggle off
-  const maskSensitiveData = (value: string | null | undefined, type: 'email' | 'enrollment' = 'email'): string => {
-    if (!value || value.trim() === '') return value || ''
-    
-    // Se não estiver no modo privado E o toggle de visibilidade estiver ligado, mostra o dado real
-    if (!isPrivate && showSensitive[type]) return value
-
-    if (type === 'email') {
-      // Mascarar e-mail: ex: user@example.com -> u***@e***.com
-      const [localPart, domain] = value.split('@')
-      if (!domain || !localPart) return '••••••••'
-
-      // Mascarar parte local (antes do @)
-      const maskedLocal = localPart.length > 1
-        ? localPart[0] + '•'.repeat(Math.min(localPart.length - 1, 3))
-        : '•'.repeat(3)
-
-      // Mascarar domínio
-      const domainParts = domain.split('.')
-      if (domainParts.length === 0) return `${maskedLocal}@••••`
-
-      const domainName = domainParts[0]
-      const domainExt = domainParts.slice(1).join('.')
-      const maskedDomain = domainName.length > 1
-        ? domainName[0] + '•'.repeat(Math.min(domainName.length - 1, 3))
-        : '•'.repeat(3)
-
-      return domainExt
-        ? `${maskedLocal}@${maskedDomain}.${domainExt}`
-        : `${maskedLocal}@${maskedDomain}`
-    } else {
-      // Mascarar matrícula: ex: 123456789 -> 123••••89
-      const trimmedValue = value.trim()
-      if (trimmedValue.length <= 2) return '••••'
-      if (trimmedValue.length <= 4) return '••••'
-
-      const start = trimmedValue.slice(0, 3)
-      const end = trimmedValue.slice(-2)
-      const middleLength = trimmedValue.length - 5
-      const maskedMiddle = '•'.repeat(Math.min(middleLength, 6))
-
-      return `${start}${maskedMiddle}${end}`
-    }
-  }
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8" /></div>
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Toaster position="bottom-right" richColors />
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="mb-8">
+      <main className="flex-1 container mx-auto px-4 py-12">
+        <div className="mb-12">
           <h1 className="text-4xl font-black tracking-tight mb-2">Meu Perfil</h1>
-          <p className="text-sm text-slate-400 font-medium">
-            Gerencie suas informações pessoais e configurações da conta
-          </p>
+          <p className="text-slate-400">Gerencie suas informações e configurações</p>
         </div>
 
-        <div className="space-y-8">
-          {/* Estatísticas */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="rounded-xl border-none border-t-4 border-t-blue-500 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden transition-all hover:shadow-md">
-              <CardContent className="p-5">
+        <div className="space-y-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { label: 'Disciplinas', value: statistics.totalDisciplines, color: 'border-t-blue-500', icon: Book, iconColor: 'text-blue-500' },
+              { label: 'Concluídas', value: statistics.completedDisciplines, color: 'border-t-green-500', icon: CheckCircle, iconColor: 'text-green-500' },
+              { label: 'Em Andamento', value: statistics.inProgressDisciplines, color: 'border-t-sky-400', icon: Clock, iconColor: 'text-sky-400' },
+              { label: 'Média', value: statistics.averageGrade.toFixed(1), color: 'border-t-yellow-500', icon: Star, iconColor: 'text-yellow-500' },
+            ].map((stat, i) => (
+              <Card key={i} className={cn("rounded-xl border-none border-t-4 bg-slate-900/50 backdrop-blur-sm p-6 transition-all hover:translate-y-[-4px]", stat.color)}>
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-blue-500/10 text-blue-500">
-                    <Book className="h-6 w-6" />
-                  </div>
+                  <div className={cn("p-3 rounded-xl bg-slate-800", stat.iconColor)}><stat.icon className="h-6 w-6" /></div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none mb-1">Disciplinas</p>
-                    <p className="text-2xl font-black leading-none">{statistics.totalDisciplines}</p>
-                    <p className="text-[10px] font-medium text-slate-500 mt-1">Total cadastradas</p>
+                    <p className="text-[10px] font-bold uppercase text-slate-500">{stat.label}</p>
+                    <p className="text-3xl font-black">{stat.value}</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-xl border-none border-t-4 border-t-green-500 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden transition-all hover:shadow-md">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-green-500/10 text-green-500">
-                    <CheckCircle className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none mb-1">Concluídas</p>
-                    <p className="text-2xl font-black leading-none">{statistics.completedDisciplines}</p>
-                    <p className="text-[10px] font-medium text-slate-500 mt-1">Disciplinas finalizadas</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-xl border-none border-t-4 border-t-blue-400 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden transition-all hover:shadow-md">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-blue-400/10 text-blue-400">
-                    <Clock className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none mb-1">Em Andamento</p>
-                    <p className="text-2xl font-black leading-none">{statistics.inProgressDisciplines}</p>
-                    <p className="text-[10px] font-medium text-slate-500 mt-1">Disciplinas atuais</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-xl border-none border-t-4 border-t-yellow-500 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden transition-all hover:shadow-md">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-500">
-                    <Star className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none mb-1">Média Geral</p>
-                    <p className="text-2xl font-black leading-none">{statistics.averageGrade.toFixed(1)}</p>
-                    <p className="text-[10px] font-medium text-slate-500 mt-1">Nota média</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </Card>
+            ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="space-y-8">
-              {/* Informações Pessoais */}
-              <Card className="rounded-2xl border-none shadow-sm bg-card overflow-hidden">
-                <CardHeader className="pb-4">
-                  <CardTitle as="h2" className="flex items-center gap-2 text-xl font-semibold">
-                    <User className="h-5 w-5 text-primary" />
-                    Informações Pessoais
-                  </CardTitle>
-                  <CardDescription className="text-sm text-slate-400">Atualize seus dados pessoais e acadêmicos</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName" className="text-xs font-bold uppercase tracking-wider text-slate-400">Nome Completo</Label>
-                      {isLoading ? (
-                        <Skeleton className="h-11 w-full rounded-xl" />
-                      ) : (
-                        <Input
-                          id="fullName"
-                          value={profile?.nome || ''}
-                          onChange={(e) => setProfile({ ...profile!, nome: e.target.value })}
-                          placeholder="Seu nome completo"
-                          className="h-11 rounded-xl bg-slate-800/50 border-slate-700 focus:ring-primary/20 transition-all"
-                        />
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-slate-400">E-mail</Label>
-                      {isLoading ? (
-                        <Skeleton className="h-11 w-full rounded-xl" />
-                      ) : (
-                        <div className="relative">
-                          <Input
-                            id="email"
-                            type={showSensitive.email ? 'text' : 'password'}
-                            value={showSensitive.email ? (profile?.email || user.email || '') : maskSensitiveData(profile?.email || user.email || '', 'email')}
-                            disabled
-                            placeholder="Seu e-mail"
-                            className={cn(
-                              "h-11 rounded-xl bg-slate-800/50 border-slate-700 pr-10 transition-all",
-                              !showSensitive.email && "font-mono"
-                            )}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowSensitive(prev => ({ ...prev, email: !prev.email }))}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-                          >
-                            {showSensitive.email ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </button>
-                        </div>
-                      )}
-                      <p className="text-[10px] text-slate-500 font-medium">
-                        O e-mail não pode ser alterado diretamente
-                      </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <Card className="rounded-2xl border-none bg-slate-900/50 p-8 space-y-8">
+              <div className="flex items-center gap-3"><User className="h-6 w-6 text-blue-500" /><h2 className="text-2xl font-bold">Dados Pessoais</h2></div>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase text-slate-500">Nome Completo</Label>
+                  <Input value={profile?.nome || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, nome: e.target.value }) : null)} className="h-12 rounded-xl bg-slate-800/50 border-slate-700" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase text-slate-500">E-mail</Label>
+                  <div className="relative">
+                    <Input value={maskSensitive(profile?.email || '', showSensitive.email)} disabled className="h-12 rounded-xl bg-slate-800/50 border-slate-700 pr-12" />
+                    <button type="button" onClick={() => setShowSensitive(p => ({ ...p, email: !p.email }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                      {showSensitive.email ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-slate-500">Matrícula</Label>
+                    <div className="relative">
+                      <Input value={maskSensitive(profile?.matricula || '', showSensitive.enrollment)} onChange={e => setProfile(prev => prev ? ({ ...prev, matricula: e.target.value }) : null)} className="h-12 rounded-xl bg-slate-800/50 border-slate-700 pr-12" />
+                      <button type="button" onClick={() => setShowSensitive(p => ({ ...p, enrollment: !p.enrollment }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                        {showSensitive.enrollment ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="institution" className="text-xs font-bold uppercase tracking-wider text-slate-400">Instituição</Label>
-                      {isLoading ? (
-                        <Skeleton className="h-11 w-full rounded-xl" />
-                      ) : (
-                        <Input
-                          id="institution"
-                          value={profile?.institution || ''}
-                          onChange={(e) => setProfile({ ...profile!, institution: e.target.value })}
-                          placeholder="Nome da sua universidade"
-                          className="h-11 rounded-xl bg-slate-800/50 border-slate-700 focus:ring-primary/20 transition-all"
-                        />
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="course" className="text-xs font-bold uppercase tracking-wider text-slate-400">Curso</Label>
-                      {isLoading ? (
-                        <Skeleton className="h-11 w-full rounded-xl" />
-                      ) : (
-                        <select
-                          id="course"
-                          value={profile?.curso || ''}
-                          onChange={(e) => setProfile({ ...profile!, curso: e.target.value as Curso })}
-                          className="flex h-11 w-full rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
-                        >
-                          <option value="">Selecione seu curso</option>
-                          {Object.entries(CURSOS).map(([key, value]) => (
-                            <option key={key} value={key}>
-                              {value.nome}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-slate-500">Curso</Label>
+                    <select value={profile?.curso || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, curso: e.target.value as Curso }) : null)} className="w-full h-12 rounded-xl bg-slate-800/50 border border-slate-700 px-4 text-sm focus:outline-none">
+                      {Object.entries(CURSOS).map(([k, v]) => <option key={k} value={k}>{v.nome}</option>)}
+                    </select>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="enrollment" className="text-xs font-bold uppercase tracking-wider text-slate-400">Matrícula</Label>
-                      {isLoading ? (
-                        <Skeleton className="h-11 w-full rounded-xl" />
-                      ) : (
-                        <div className="relative">
-                          <Input
-                            id="enrollment"
-                            type={showSensitive.enrollment ? 'text' : 'password'}
-                            value={showSensitive.enrollment ? (profile?.matricula || '') : maskSensitiveData(profile?.matricula || '', 'enrollment')}
-                            onChange={(e) => {
-                              if (showSensitive.enrollment) {
-                                setProfile({ ...profile!, matricula: e.target.value })
-                              }
-                            }}
-                            placeholder="Sua matrícula"
-                            className={cn(
-                              "h-11 rounded-xl bg-slate-800/50 border-slate-700 pr-10 transition-all",
-                              !showSensitive.enrollment && "font-mono"
-                            )}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowSensitive(prev => ({ ...prev, enrollment: !prev.enrollment }))}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-                          >
-                            {showSensitive.enrollment ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="startYear" className="text-xs font-bold uppercase tracking-wider text-slate-400">Ano Ingresso</Label>
-                      <Input
-                        id="startYear"
-                        type="number"
-                        min="2000"
-                        max="2030"
-                        value={profile?.startYear || new Date().getFullYear()}
-                        onChange={(e) =>
-                          setProfile({ ...profile!, startYear: parseInt(e.target.value) })
-                        }
-                        className="h-11 rounded-xl bg-slate-800/50 border-slate-700 focus:ring-primary/20 transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="startSemester" className="text-xs font-bold uppercase tracking-wider text-slate-400">Semestre</Label>
-                      <select
-                        id="startSemester"
-                        value={profile?.startSemester || '1'}
-                        onChange={(e) =>
-                          setProfile({ ...profile!, startSemester: e.target.value as '1' | '2' })
-                        }
-                        className="flex h-11 w-full rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
-                      >
-                        <option value="1">1º Semestre</option>
-                        <option value="2">2º Semestre</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end pt-4">
-                    <Button 
-                      onClick={handleSave} 
-                      disabled={isSaving}
-                      className={cn(
-                        "h-11 px-8 rounded-xl font-bold transition-all duration-300",
-                        saveSuccess ? "bg-green-600 hover:bg-green-600" : "bg-primary hover:bg-primary/90"
-                      )}
-                    >
-                      {isSaving ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Salvando...
-                        </>
-                      ) : saveSuccess ? (
-                        <>
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                          Salvo com Sucesso!
-                        </>
-                      ) : (
-                        <>
-                          <Save className="mr-2 h-4 w-4" />
-                          Salvar Alterações
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+                <div className="flex justify-end pt-4">
+                  <Button onClick={handleSave} disabled={isSaving} className={cn("h-12 px-10 rounded-xl font-bold transition-all", saveSuccess ? "bg-green-600" : "bg-blue-600 hover:bg-blue-500")}>
+                    {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : saveSuccess ? 'Confirmado!' : 'Salvar Alterações'}
+                  </Button>
+                </div>
+              </div>
+            </Card>
 
             <div className="space-y-8">
-              {/* Configurações da Conta */}
-              <Card className="rounded-2xl border-none shadow-sm bg-card overflow-hidden">
-                <CardHeader className="pb-4">
-                  <CardTitle as="h2" className="flex items-center gap-2 text-xl font-semibold">
-                    <Settings className="h-5 w-5 text-primary" />
-                    Configurações da Conta
-                  </CardTitle>
-                  <CardDescription className="text-sm text-slate-400">Gerencie suas preferências e configurações</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Notificações */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-4 bg-slate-800/30 border border-slate-700/50 rounded-xl transition-all hover:bg-slate-800/50">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                          <Bell className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-semibold">Notificações</h3>
-                          <p className="text-xs text-slate-400">Receber avisos importantes</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {settingsSaving.notifications && (
-                          <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
-                        )}
-                        {settingsSuccess.notifications && (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        )}
-                        <select
-                          value={profile?.settings?.notifications !== false ? 'true' : 'false'}
-                          onChange={(e) =>
-                            handleSettingsChange('notifications', e.target.value === 'true')
-                          }
-                          disabled={settingsSaving.notifications}
-                          className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer"
-                        >
-                          <option value="true">Ativar</option>
-                          <option value="false">Desativar</option>
-                        </select>
-                      </div>
-                    </div>
-                    {settingsError.notifications && (
-                      <Alert variant="destructive" className="rounded-xl py-2">
-                        <AlertDescription className="text-xs">{settingsError.notifications}</AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-
-                  {/* Privacidade */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-4 bg-slate-800/30 border border-slate-700/50 rounded-xl transition-all hover:bg-slate-800/50">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                          {profile?.settings?.privacy === 'public' ? (
-                            <Globe className="h-5 w-5" />
-                          ) : (
-                            <Lock className="h-5 w-5" />
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-semibold">Privacidade</h3>
-                          <p className="text-xs text-slate-400">Visibilidade dos seus dados</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {settingsSaving.privacy && (
-                          <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
-                        )}
-                        {settingsSuccess.privacy && (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        )}
-                        <select
-                          value={profile?.settings?.privacy || 'private'}
-                          onChange={(e) => handleSettingsChange('privacy', e.target.value)}
-                          disabled={settingsSaving.privacy}
-                          className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer"
-                        >
-                          <option value="private">Privado</option>
-                          <option value="public">Público</option>
-                        </select>
-                      </div>
-                    </div>
-                    {settingsError.privacy && (
-                      <Alert variant="destructive" className="rounded-xl py-2">
-                        <AlertDescription className="text-xs">{settingsError.privacy}</AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Segurança da Conta */}
-              <Card className="rounded-2xl border-none shadow-sm bg-card overflow-hidden">
-                <CardHeader className="pb-4">
-                  <CardTitle as="h2" className="flex items-center gap-2 text-xl font-semibold">
-                    <Shield className="h-5 w-5 text-primary" />
-                    Segurança da Conta
-                  </CardTitle>
-                  <CardDescription className="text-sm text-slate-400">Ações importantes para proteger sua conta</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="p-4 bg-slate-800/30 border border-slate-700/50 rounded-xl transition-all hover:bg-slate-800/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-slate-700/50 text-slate-300">
-                          <Key className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-semibold">Alterar Senha</h3>
-                          <p className="text-xs text-slate-400">Mantenha sua conta segura</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" onClick={() => setChangePasswordOpen(true)} className="rounded-lg h-9">
-                        Alterar
+              <Card className="rounded-2xl border-none bg-slate-900/50 p-8 space-y-6">
+                <div className="flex items-center gap-3"><Settings className="h-6 w-6 text-blue-500" /><h2 className="text-xl font-bold">Preferências</h2></div>
+                <div className="space-y-4">
+                  {[
+                    { label: 'Notificações', key: 'notifications', icon: Bell, val: profile?.settings?.notifications },
+                    { label: 'Perfil Público', key: 'privacy', icon: Globe, val: profile?.settings?.privacy === 'public' },
+                  ].map(set => (
+                    <div key={set.key} className="flex items-center justify-between p-4 bg-slate-800/30 rounded-xl border border-slate-700/50">
+                      <div className="flex items-center gap-3"><set.icon className="h-5 w-5 text-slate-400" /><span className="text-sm font-medium">{set.label}</span></div>
+                      <Button variant="ghost" size="sm" onClick={() => handleSettingsChange(set.key as any, set.key === 'privacy' ? (set.val ? 'private' : 'public') : !set.val)} className={cn("rounded-lg h-8 px-4 border border-slate-700", set.val ? "bg-blue-500/10 text-blue-400" : "text-slate-500")}>
+                        {set.val ? 'Ativado' : 'Desativado'}
                       </Button>
                     </div>
-                  </div>
+                  ))}
+                </div>
+              </Card>
 
-                  <div className="p-4 bg-slate-800/30 border border-slate-700/50 rounded-xl transition-all hover:bg-slate-800/50">
-                    <div className="flex flex-col gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-slate-700/50 text-slate-300">
-                          <Download className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-semibold">Exportar Dados</h3>
-                          <p className="text-xs text-slate-400">Faça backup do seu histórico</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <select
-                          id="exportFormat"
-                          value={exportFormat}
-                          onChange={(e) => setExportFormat(e.target.value as 'json' | 'xlsx' | 'pdf')}
-                          className="h-9 flex-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer"
-                        >
-                          <option value="json">JSON</option>
-                          <option value="xlsx">Excel</option>
-                          <option value="pdf">PDF</option>
-                        </select>
-
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleExportData}
-                          className="h-9 rounded-lg px-4"
-                        >
-                          <Download className="mr-2 h-3.5 w-3.5" />
-                          Baixar
-                        </Button>
-                      </div>
+              <Card className="rounded-2xl border-none bg-slate-900/50 p-8 space-y-6">
+                <div className="flex items-center gap-3"><Shield className="h-6 w-6 text-red-500" /><h2 className="text-xl font-bold">Segurança</h2></div>
+                <div className="space-y-4">
+                  <Button variant="outline" onClick={() => setChangePasswordOpen(true)} className="w-full h-12 rounded-xl border-slate-700 hover:bg-slate-800">Alterar Senha de Acesso</Button>
+                  <div className="pt-6 border-t border-slate-800">
+                    <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-xl flex justify-between items-center group">
+                      <div><h3 className="text-sm font-bold text-red-500">Zona de Perigo</h3><p className="text-[10px] text-slate-500">Exclusão permanente de dados</p></div>
+                      <Button variant="outline" onClick={() => setDeleteAccountOpen(true)} className="h-9 border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white transition-all">Excluir Conta</Button>
                     </div>
                   </div>
-
-                  {/* Danger Zone */}
-                  <div className="mt-6 pt-6 border-t border-slate-700/50">
-                    <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-xl group transition-all">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
-                            <Trash2 className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-semibold text-red-500">Excluir Conta</h3>
-                            <p className="text-xs text-slate-400">Ação irreversível</p>
-                          </div>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => setDeleteAccountOpen(true)}
-                          className="rounded-lg h-9 border-red-500/50 text-red-500 bg-transparent hover:bg-red-500 hover:text-white transition-all duration-300"
-                        >
-                          Excluir Conta
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
+                </div>
               </Card>
             </div>
           </div>
@@ -1184,232 +319,29 @@ export function ProfilePage() {
       </main>
       <Footer />
 
-      {/* Modal de Alteração de Senha */}
       <Dialog open={changePasswordOpen} onOpenChange={setChangePasswordOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Key className="h-5 w-5" />
-              Alterar Senha
-            </DialogTitle>
-            <DialogDescription>
-              {isGoogleUser
-                ? 'Usuários que fazem login com Google não podem alterar senha através desta interface. A senha é gerenciada pela sua conta Google.'
-                : 'Digite sua senha atual e a nova senha para alterar.'}
-            </DialogDescription>
-          </DialogHeader>
-          {isGoogleUser ? (
-            <>
-              <Alert>
-                <AlertDescription>
-                  Usuários que fazem login com Google não podem alterar senha através desta interface.
-                  Para alterar sua senha, acesse sua{' '}
-                  <a
-                    href="https://myaccount.google.com/security"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary underline hover:text-primary/80"
-                  >
-                    conta Google
-                  </a>
-                  .
-                </AlertDescription>
-              </Alert>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setChangePasswordOpen(false)}>
-                  Fechar
-                </Button>
-              </DialogFooter>
-            </>
-          ) : (
-            <>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="currentPassword">Senha Atual</Label>
-                  <div className="relative">
-                    <Input
-                      id="currentPassword"
-                      type={showPasswords.current ? 'text' : 'password'}
-                      value={passwordData.current}
-                      onChange={(e) =>
-                        setPasswordData({ ...passwordData, current: e.target.value })
-                      }
-                      required
-                      placeholder="Digite sua senha atual"
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPasswords({ ...showPasswords, current: !showPasswords.current })}
-                      className="absolute right-0 top-0 h-full w-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors focus:outline-none bg-transparent border-none shadow-none"
-                    >
-                      {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="newPassword">Nova Senha</Label>
-                  <div className="relative">
-                    <Input
-                      id="newPassword"
-                      type={showPasswords.new ? 'text' : 'password'}
-                      value={passwordData.new}
-                      onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })}
-                      required
-                      minLength={6}
-                      placeholder="Mínimo de 6 caracteres"
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPasswords({ ...showPasswords, new: !showPasswords.new })}
-                      className="absolute right-0 top-0 h-full w-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors focus:outline-none bg-transparent border-none shadow-none"
-                    >
-                      {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    A senha deve ter pelo menos 6 caracteres
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirmNewPassword">Confirmar Nova Senha</Label>
-                  <div className="relative">
-                    <Input
-                      id="confirmNewPassword"
-                      type={showPasswords.confirm ? 'text' : 'password'}
-                      value={passwordData.confirm}
-                      onChange={(e) =>
-                        setPasswordData({ ...passwordData, confirm: e.target.value })
-                      }
-                      required
-                      minLength={6}
-                      placeholder="Digite a nova senha novamente"
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPasswords({ ...showPasswords, confirm: !showPasswords.confirm })}
-                      className="absolute right-0 top-0 h-full w-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors focus:outline-none bg-transparent border-none shadow-none"
-                    >
-                      {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <DialogFooter className="flex flex-col-reverse sm:flex-row gap-4 sm:gap-4 mt-6">
-                <Button variant="outline" onClick={() => {
-                  setChangePasswordOpen(false)
-                  setPasswordData({ current: '', new: '', confirm: '' })
-                  setShowPasswords({ current: false, new: false, confirm: false, delete: false })
-                }} className="w-full sm:w-auto">
-                  Cancelar
-                </Button>
-                <Button
-                  onClick={handleChangePassword}
-                  disabled={!passwordData.current || !passwordData.new || !passwordData.confirm}
-                  className="w-full sm:w-auto"
-                >
-                  <Save className="mr-2 h-4 w-4" />
-                  Alterar Senha
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Exclusão de Conta */}
-      <Dialog open={deleteAccountOpen} onOpenChange={setDeleteAccountOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-destructive">
-              <Trash2 className="h-5 w-5" />
-              Confirmar Exclusão
-            </DialogTitle>
-            <DialogDescription>
-              Para confirmar a exclusão permanente da sua conta e de todos os seus dados, digite{' '}
-              <strong>EXCLUIR</strong> no campo abaixo:
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Alert variant="destructive">
-              <AlertDescription>
-                Esta ação não pode ser desfeita. Todos os seus dados serão permanentemente
-                excluídos.
-              </AlertDescription>
-            </Alert>
-            <div className="space-y-2">
-              <Label htmlFor="deleteConfirmInput">Digite EXCLUIR para confirmar</Label>
-              <Input
-                id="deleteConfirmInput"
-                value={deleteConfirm}
-                onChange={(e) => setDeleteConfirm(e.target.value)}
-                placeholder="Digite EXCLUIR"
-                onPaste={(e) => {
-                  e.preventDefault()
-                  toast.error('Confirmação necessária', {
-                    description: 'Você deve digitar manualmente a palavra EXCLUIR',
-                    duration: 3000,
-                  })
-                }}
-              />
-              <p className="text-xs text-muted-foreground">
-                Atenção: não é possível colar, é necessário digitar manualmente.
-              </p>
-            </div>
-
-            {!isGoogleUser && (
-              <div className="space-y-2">
-                <Label htmlFor="deletePasswordInput">Digite sua senha para confirmar</Label>
-                <div className="relative">
-                  <Input
-                    id="deletePasswordInput"
-                    type={showPasswords.delete ? 'text' : 'password'}
-                    value={deletePassword}
-                    onChange={(e) => setDeletePassword(e.target.value)}
-                    placeholder="Senha da sua conta"
-                    className="pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPasswords({ ...showPasswords, delete: !showPasswords.delete })}
-                    className="absolute right-0 top-0 h-full w-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors focus:outline-none"
-                  >
-                    {showPasswords.delete ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Sua senha é necessária para confirmar a exclusão por segurança.
-                </p>
-              </div>
-            )}
-
-            {isGoogleUser && (
-              <Alert>
-                <AlertDescription>
-                  <strong>Usuário Google:</strong> Após confirmar, você será redirecionado para
-                  fazer login novamente com o Google para finalizar a exclusão da conta.
-                </AlertDescription>
-              </Alert>
-            )}
+        <DialogContent className="bg-slate-900 border-slate-800 rounded-2xl max-w-sm">
+          <DialogHeader><DialogTitle>Segurança</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-4">
+            <Input type="password" placeholder="Senha Atual" value={passwordData.current} onChange={e => setPasswordData({...passwordData, current: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+            <Input type="password" placeholder="Nova Senha" value={passwordData.new} onChange={e => setPasswordData({...passwordData, new: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+            <Input type="password" placeholder="Confirmar Nova Senha" value={passwordData.confirm} onChange={e => setPasswordData({...passwordData, confirm: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
           </div>
-          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-4 sm:gap-4 mt-6">
-            <Button variant="outline" onClick={() => setDeleteAccountOpen(false)} className="w-full sm:w-auto">
-              Cancelar
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteAccount}
-              disabled={deleteConfirm !== 'EXCLUIR' || (!isGoogleUser && !deletePassword)}
-              className="w-full sm:w-auto"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Excluir Permanentemente
-            </Button>
-          </DialogFooter>
+          <Button onClick={handleChangePassword} className="w-full h-12 rounded-xl bg-blue-600 font-bold">Confirmar Alteração</Button>
         </DialogContent>
       </Dialog>
-    </div >
+
+      <Dialog open={deleteAccountOpen} onOpenChange={setDeleteAccountOpen}>
+        <DialogContent className="bg-slate-900 border-slate-800 rounded-2xl max-w-sm">
+          <DialogHeader><DialogTitle className="text-red-500">Excluir Conta</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-4 text-center">
+            <p className="text-sm text-slate-400">Esta ação é irreversível. Digite <strong>EXCLUIR</strong> para confirmar:</p>
+            <Input value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} className="h-12 text-center rounded-xl bg-slate-800 border-red-500/50 uppercase" />
+            <Input type="password" placeholder="Sua Senha" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+          </div>
+          <Button variant="destructive" onClick={handleDeleteAccount} className="w-full h-12 rounded-xl font-bold">Excluir Permanentemente</Button>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
