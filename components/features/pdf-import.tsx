@@ -78,6 +78,9 @@ export function PDFImport({ onImport }: PDFImportProps) {
               <p className="text-xs text-muted-foreground">
                 Importe seu histórico do SIGAA (PDF) para preencher tudo em segundos.
               </p>
+              <div className="mt-2 text-[10px] text-muted-foreground/80 leading-tight border-l-2 border-primary/20 pl-2">
+                <strong>Como obter o PDF:</strong> Acesse o SIGAA {'>'} Menu Discente {'>'} Ensino {'>'} Emitir Histórico.
+              </div>
             </div>
           </div>
           
