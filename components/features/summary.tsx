@@ -381,16 +381,16 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
             <div className={cn(
               "p-4 rounded-2xl border transition-all",
               estatisticas.previsaoFormatura.podeFormarEsteSemestre
-                ? 'bg-green-500/5 border-green-500/20'
+                ? 'bg-green-500/10 border-green-500/20 dark:bg-green-500/5'
                 : estatisticas.previsaoFormatura.semestresRestantes <= 2
-                  ? 'bg-blue-500/5 border-blue-500/20'
-                  : 'bg-muted/30 border-transparent'
+                  ? 'bg-blue-500/10 border-blue-500/20 dark:bg-blue-500/5'
+                  : 'bg-muted/50 border-transparent'
             )}>
               <div className="flex items-start gap-3">
                 <div className={cn(
                   "p-2 rounded-xl",
-                  estatisticas.previsaoFormatura.podeFormarEsteSemestre ? "bg-green-500/10 text-green-500" :
-                    estatisticas.previsaoFormatura.semestresRestantes <= 2 ? "bg-blue-500/10 text-blue-500" : "bg-primary/10 text-primary"
+                  estatisticas.previsaoFormatura.podeFormarEsteSemestre ? "bg-green-500/20 text-green-600 dark:text-green-400" :
+                    estatisticas.previsaoFormatura.semestresRestantes <= 2 ? "bg-blue-500/20 text-blue-600 dark:text-blue-400" : "bg-primary/10 text-primary"
                 )}>
                   <Clock className="h-5 w-5" />
                 </div>
@@ -404,18 +404,18 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
             {/* Status CR */}
             <div className={cn(
               "p-4 rounded-2xl border transition-all",
-              estatisticas.statusCR.class === 'excellent' ? 'bg-green-500/5 border-green-500/20' :
-                estatisticas.statusCR.class === 'good' ? 'bg-blue-500/5 border-blue-500/20' :
-                  estatisticas.statusCR.class === 'regular' ? 'bg-yellow-500/5 border-yellow-500/20' :
-                    'bg-red-500/5 border-red-500/20'
+              estatisticas.statusCR.class === 'excellent' ? 'bg-green-500/10 border-green-500/20 dark:bg-green-500/5' :
+                estatisticas.statusCR.class === 'good' ? 'bg-blue-500/10 border-blue-500/20 dark:bg-blue-500/5' :
+                  estatisticas.statusCR.class === 'regular' ? 'bg-yellow-500/10 border-yellow-500/20 dark:bg-yellow-500/5' :
+                    'bg-red-500/10 border-red-500/20 dark:bg-red-500/5'
             )}>
               <div className="flex items-start gap-3">
                 <div className={cn(
                   "p-2 rounded-xl",
-                  estatisticas.statusCR.class === 'excellent' ? "bg-green-500/10 text-green-500" :
-                    estatisticas.statusCR.class === 'good' ? "bg-blue-500/10 text-blue-500" :
-                      estatisticas.statusCR.class === 'regular' ? "bg-yellow-500/10 text-yellow-500" :
-                        "bg-red-500/10 text-red-500"
+                  estatisticas.statusCR.class === 'excellent' ? "bg-green-500/20 text-green-600 dark:text-green-400" :
+                    estatisticas.statusCR.class === 'good' ? "bg-blue-500/20 text-blue-600 dark:text-blue-400" :
+                      estatisticas.statusCR.class === 'regular' ? "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400" :
+                        "bg-red-500/20 text-red-600 dark:text-red-400"
                 )}>
                   <Star className="h-5 w-5" />
                 </div>

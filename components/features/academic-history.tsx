@@ -128,11 +128,11 @@ export function AcademicHistory({
                 <AccordionItem
                   key={periodo}
                   value={periodo}
-                  className="bg-card border rounded-2xl shadow-sm px-4 overflow-hidden"
+                  className="bg-card border rounded-2xl shadow-sm overflow-hidden"
                 >
-                  <AccordionTrigger className="hover:no-underline py-4">
+                  <AccordionTrigger className="hover:no-underline py-4 px-4 focus:bg-transparent focus:outline-none focus-visible:bg-muted/50">
                     <div className="flex items-center gap-4 text-left">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border border-primary/20 shadow-inner">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border border-primary/20">
                         {semestreSequencial}º
                       </div>
                       <div>
@@ -143,7 +143,7 @@ export function AcademicHistory({
                       </div>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-6">
+                  <AccordionContent className="pt-2 pb-6 px-4">
                     <div className="grid grid-cols-1 gap-3">
                       {disciplinasDoPeriodo.map((disciplina, index) => {
                         const indexReal = disciplinas.findIndex(
