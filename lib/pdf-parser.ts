@@ -2,6 +2,9 @@ import * as pdfjs from 'pdfjs-dist';
 import { Disciplina, Natureza, ResultadoDisciplina } from '@/types';
 import { calcularResultado } from './utils';
 
+// Importar o catálogo de disciplinas para inferência de natureza
+import disciplinasData from '@/assets/data/disciplinas.json';
+
 // Configurar o worker do PDF.js
 // Usar unpkg que tem todas as versões do npm (cdnjs pode não ter versões recentes)
 // IMPORTANTE: Para o worker funcionar corretamente no navegador, ele precisa ser carregado do mesmo domínio ou via Blob
@@ -17,6 +20,7 @@ export interface ParsedHistory {
   nomeAluno?: string;
   matricula?: string;
   curso?: string;
+  avisos?: string[];
 }
 
 /**
@@ -52,11 +56,21 @@ const mapSituacao = (situacao: string): {
 /**
  * Mapeia as naturezas do SIGAA para o tipo Natureza
  */
-const mapNatureza = (natureza: string): Natureza => {
+const mapNatureza = (natureza: string, codigo: string): Natureza => {
   const n = natureza.toUpperCase();
   if (n === 'EB') return 'OB';
   if (n === 'EP') return 'OP';
   if (n === 'EC') return 'AC';
+  
+  // Se a natureza for vazia ou desconhecida, tentar inferir pelo código da disciplina
+  if (!n || n === 'OB' || n === '-') {
+    // Procurar em todos os cursos do JSON
+    for (const cursoDisciplinas of Object.values(disciplinasData)) {
+      const disc = cursoDisciplinas.find(d => d.codigo === codigo || codigo.startsWith(d.codigo));
+      if (disc) return disc.natureza as Natureza;
+    }
+  }
+
   // Se for uma das naturezas conhecidas, retorna ela mesma
   const validNatures: Natureza[] = ['AC', 'LV', 'OB', 'OG', 'OH', 'OP', 'OX', 'OZ'];
   if (validNatures.includes(n as Natureza)) return n as Natureza;
@@ -106,6 +120,7 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
   const lines = text.split('\n');
 
   const disciplinas: Disciplina[] = [];
+  const avisos: string[] = [];
   let nomeAluno = '';
   let matricula = '';
   let curso = '';
@@ -161,8 +176,39 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
 
     if (!nome || nome.length < 2 || nome === 'Componente Curricular') continue;
 
+    // Tentar inferir a natureza pelo código ou pelo NOME da disciplina no catálogo
+    const findNaturezaNoCatalogo = (codigo: string, nomeDisciplina: string): Natureza | null => {
+      for (const cursoDisciplinas of Object.values(disciplinasData)) {
+        // Tentar por código primeiro
+        const discPorCodigo = cursoDisciplinas.find(d => d.codigo === codigo || codigo.startsWith(d.codigo));
+        if (discPorCodigo) return discPorCodigo.natureza as Natureza;
+
+        // Tentar por nome (comparação exata em maiúsculo)
+        const discPorNome = cursoDisciplinas.find(d => d.nome.toUpperCase() === nomeDisciplina.toUpperCase());
+        if (discPorNome) return discPorNome.natureza as Natureza;
+      }
+      return null;
+    };
+
     const { resultado, trancamento, dispensada, emcurso } = mapSituacao(situacaoRaw);
-    const natureza = mapNatureza(naturezaRaw);
+    
+    // Prioridade: 1. Catálogo (por código ou nome) | 2. PDF (naturezaRaw) | 3. Padrão (OB)
+    let naturezaCatalogo = findNaturezaNoCatalogo(codigo, nome);
+    
+    // Lógica especial para BICTI: 
+    // Se a disciplina não existe no catálogo do BICTI mas existe em outros cursos, 
+    // ou se não existe em nenhum catálogo, marcar como OP (Optativa) para o usuário revisar.
+    const existeNoBicti = disciplinasData.BICTI.some(d => d.codigo === codigo || d.nome.toUpperCase() === nome.toUpperCase());
+    
+    if (!existeNoBicti && naturezaCatalogo === 'OB') {
+      // Se no catálogo geral é OB mas não existe no BICTI, provavelmente é de outro curso
+      naturezaCatalogo = 'OP';
+      if (!avisos.includes('Algumas disciplinas de outros cursos foram marcadas como OP. Revise-as no seu histórico.')) {
+        avisos.push('Algumas disciplinas de outros cursos foram marcadas como OP. Revise-as no seu histórico.');
+      }
+    }
+
+    const natureza = naturezaCatalogo || mapNatureza(naturezaRaw, codigo);
 
     disciplinas.push({
       periodo,
@@ -182,6 +228,7 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
     disciplinas,
     nomeAluno,
     matricula,
-    curso
+    curso,
+    avisos
   };
 }

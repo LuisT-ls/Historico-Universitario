@@ -34,6 +34,16 @@ export function PDFImport({ onImport }: PDFImportProps) {
         toast.error('Não foi possível encontrar disciplinas no arquivo. Verifique se o PDF é um histórico oficial do SIGAA.')
       } else {
         onImport(result.disciplinas)
+        
+        if (result.avisos && result.avisos.length > 0) {
+          result.avisos.forEach(aviso => {
+            toast.info('Aviso de Importação', {
+              description: aviso,
+              duration: 6000
+            })
+          })
+        }
+
         toast.success(`${result.disciplinas.length} disciplinas importadas com sucesso!`)
         
         if (result.nomeAluno) {
