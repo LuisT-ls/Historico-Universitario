@@ -56,10 +56,23 @@ const TIPOS_CERTIFICADO: { value: TipoCertificado; label: string }[] = [
   { value: 'outro', label: 'Outro' },
 ]
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  LayoutGrid,
+  List,
+  Search,
+  MoreVertical,
+} from 'lucide-react'
+
 export function CertificadosPage() {
   const { user, loading: authLoading } = useAuth()
   const [certificados, setCertificados] = useState<Certificado[]>([])
-  const [isLoading, setIsLoading] = useState(true) // Changed initial state to true
+  const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [selectedCertificado, setSelectedCertificado] = useState<Certificado | null>(null)
@@ -67,7 +80,12 @@ export function CertificadosPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [error, setError] = useState<AppError | null>(null) // Changed type to AppError
+  const [error, setError] = useState<AppError | null>(null)
+  
+  // Novos estados para filtros e visualização
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterType, setFilterType] = useState<string>('todos')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const [formData, setFormData] = useState({
     titulo: '',
@@ -78,6 +96,14 @@ export function CertificadosPage() {
     dataFim: '',
     descricao: '',
     linkExterno: '',
+  })
+
+  // Filtragem de certificados
+  const filteredCertificados = certificados.filter((c) => {
+    const matchesSearch = c.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         c.instituicao.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesType = filterType === 'todos' || c.tipo === filterType
+    return matchesSearch && matchesType
   })
 
   // Carregar certificados
@@ -282,13 +308,13 @@ export function CertificadosPage() {
   const getStatusColor = (status: StatusCertificado) => {
     switch (status) {
       case 'aprovado':
-        return 'text-green-600 bg-green-50 border-green-200'
+        return 'text-green-600 bg-green-500/10 border-green-500/20 dark:text-green-400 dark:bg-green-500/5'
       case 'reprovado':
-        return 'text-red-600 bg-red-50 border-red-200'
+        return 'text-red-600 bg-red-500/10 border-red-500/20 dark:text-red-400 dark:bg-red-500/5'
       case 'pendente':
-        return 'text-yellow-600 bg-yellow-50 border-yellow-200'
+        return 'text-yellow-600 bg-yellow-500/10 border-yellow-500/20 dark:text-yellow-400 dark:bg-yellow-500/5'
       default:
-        return 'text-gray-600 bg-gray-50 border-gray-200'
+        return 'text-muted-foreground bg-muted border-transparent'
     }
   }
 
@@ -323,12 +349,12 @@ export function CertificadosPage() {
       <main className="flex-1 container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2 flex items-center gap-3">
+          <h1 className="text-3xl md:text-4xl font-black text-foreground mb-2 flex items-center gap-3 tracking-tight">
             <GraduationCap className="h-8 w-8 text-primary" />
-            Certificados e Atividades Complementares
+            Certificados
           </h1>
-          <p className="text-muted-foreground">
-            Gerencie seus certificados, comprovantes de extensão e outras atividades complementares
+          <p className="text-sm font-medium text-muted-foreground max-w-2xl">
+            Gerencie seus comprovantes e atividades complementares para validação de carga horária.
           </p>
         </div>
 
@@ -355,27 +381,29 @@ export function CertificadosPage() {
         )}
 
         {/* Estatísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Total de Certificados', value: stats.total, sub: 'Certificados cadastrados', icon: GraduationCap, iconColor: 'text-primary', bgColor: 'bg-primary/10' },
-            { label: 'Horas Validadas', value: stats.horasValidadas, sub: 'Horas aprovadas', icon: Clock, iconColor: 'text-green-600', bgColor: 'bg-green-500/10' },
-            { label: 'Atividades Aprovadas', value: stats.atividadesAprovadas, sub: 'Certificados aprovados', icon: CheckCircle, iconColor: 'text-blue-600', bgColor: 'bg-blue-500/10' },
-            { label: 'Horas Pendentes', value: stats.horasPendentes, sub: 'Aguardando validação', icon: Hourglass, iconColor: 'text-yellow-600', bgColor: 'bg-yellow-500/10' },
+            { label: 'Total', value: stats.total, sub: 'Cadastrados', icon: FileText, iconColor: 'text-primary', bgColor: 'bg-primary/10' },
+            { label: 'Validadas', value: `${stats.horasValidadas}h`, sub: 'Horas aprovadas', icon: CheckCircle, iconColor: 'text-green-600', bgColor: 'bg-green-500/10' },
+            { label: 'Aprovadas', value: stats.atividadesAprovadas, sub: 'Atividades', icon: GraduationCap, iconColor: 'text-blue-600', bgColor: 'bg-blue-500/10' },
+            { label: 'Pendentes', value: `${stats.horasPendentes}h`, sub: 'Aguardando', icon: Hourglass, iconColor: 'text-yellow-600', bgColor: 'bg-yellow-500/10' },
           ].map((stat, i) => (
-            <Card key={i}>
-              <CardContent className="pt-6">
+            <Card key={i} className="rounded-xl border-none shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
+              <CardContent className="p-4">
                 <div className="flex items-center gap-4">
-                  <div className={cn("p-3 rounded-lg", stat.bgColor)}>
-                    <stat.icon className={cn("h-6 w-6", stat.iconColor)} />
+                  <div className={cn("p-2.5 rounded-xl shrink-0", stat.bgColor)}>
+                    <stat.icon className={cn("h-5 w-5", stat.iconColor)} />
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    {isLoading ? (
-                      <Skeleton className="h-8 w-16 my-1" />
-                    ) : (
-                      <p className="text-2xl font-bold">{stat.value}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground">{stat.sub}</p>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 leading-none mb-1">{stat.label}</p>
+                    <div className="flex items-baseline gap-1">
+                      {isLoading ? (
+                        <Skeleton className="h-6 w-12" />
+                      ) : (
+                        <p className="text-xl font-black leading-none">{stat.value}</p>
+                      )}
+                      <span className="text-[10px] font-medium text-muted-foreground truncate">{stat.sub}</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -536,12 +564,12 @@ export function CertificadosPage() {
         )}
 
         {/* Lista de Certificados */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
+        <Card className="rounded-2xl border-none shadow-sm bg-card overflow-hidden">
+          <CardHeader className="pb-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <CardTitle as="h2" className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
+                <CardTitle as="h2" className="flex items-center gap-2 text-xl font-bold">
+                  <FileText className="h-5 w-5 text-primary" />
                   Meus Certificados
                 </CardTitle>
                 <CardDescription>
@@ -550,136 +578,247 @@ export function CertificadosPage() {
                     : `${certificados.length} certificado(s) cadastrado(s)`}
                 </CardDescription>
               </div>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center bg-muted/50 rounded-lg p-1 mr-2">
+                  <Button
+                    variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    className="h-8 w-8 rounded-md"
+                    onClick={() => setViewMode('grid')}
+                    title="Visualização em Grade"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    className="h-8 w-8 rounded-md"
+                    onClick={() => setViewMode('list')}
+                    title="Visualização em Lista"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
                 {certificados.length > 0 && (
-                  <Button variant="outline" onClick={handleExport}>
+                  <Button variant="outline" size="sm" onClick={handleExport} className="h-9 rounded-lg">
                     <Download className="mr-2 h-4 w-4" />
                     Exportar
                   </Button>
                 )}
-                <Button onClick={() => setShowForm(!showForm)}>
+                <Button size="sm" onClick={() => setShowForm(!showForm)} className="h-9 rounded-lg">
                   <Plus className="mr-2 h-4 w-4" />
                   {showForm ? 'Cancelar' : 'Adicionar'}
                 </Button>
               </div>
             </div>
+
+            {/* Barra de Filtros */}
+            {certificados.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-center gap-3 mt-6 pt-4 border-t border-border/50">
+                <div className="relative w-full sm:flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
+                  <Input
+                    placeholder="Buscar por título ou instituição..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9 h-10 rounded-xl bg-muted/30 border-none focus-visible:ring-1 focus-visible:ring-primary/20"
+                  />
+                </div>
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className="h-10 w-full sm:w-[200px] rounded-xl border-none bg-muted/30 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/20"
+                >
+                  <option value="todos">Todas as categorias</option>
+                  {TIPOS_CERTIFICADO.map((tipo) => (
+                    <option key={tipo.value} value={tipo.value}>
+                      {tipo.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3].map((i) => (
-                  <Card key={i}>
-                    <CardContent className="pt-6 space-y-4">
+                  <Card key={i} className="rounded-xl border-border/50">
+                    <CardContent className="p-4 space-y-4">
                       <div className="flex justify-between">
                         <div className="space-y-2 flex-1">
-                          <Skeleton className="h-6 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
+                          <Skeleton className="h-5 w-3/4" />
+                          <Skeleton className="h-3 w-1/2" />
                         </div>
-                        <Skeleton className="h-6 w-20" />
+                        <Skeleton className="h-5 w-16 rounded-full" />
                       </div>
                       <div className="space-y-2">
-                        <Skeleton className="h-4 w-full" />
-                        <Skeleton className="h-4 w-full" />
-                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-3 w-full" />
+                        <Skeleton className="h-3 w-2/3" />
                       </div>
-                      <div className="flex gap-2 pt-2 border-t">
-                        <Skeleton className="h-9 flex-1" />
-                        <Skeleton className="h-9 w-9" />
-                        <Skeleton className="h-9 w-9" />
-                        <Skeleton className="h-9 w-9" />
+                      <div className="flex gap-2 pt-2 border-t border-border/50">
+                        <Skeleton className="h-8 flex-1 rounded-lg" />
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                        <Skeleton className="h-8 w-8 rounded-lg" />
                       </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
-            ) : certificados.length === 0 ? (
-              <div className="text-center py-12">
-                <GraduationCap className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
-                <p className="text-muted-foreground">
-                  Comece adicionando seu primeiro certificado ou atividade complementar
+            ) : filteredCertificados.length === 0 ? (
+              <div className="text-center py-16 bg-muted/10 rounded-2xl border border-dashed border-border/50">
+                <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+                <p className="text-muted-foreground font-medium">
+                  {searchTerm || filterType !== 'todos' 
+                    ? 'Nenhum certificado encontrado com esses filtros' 
+                    : 'Comece adicionando seu primeiro certificado ou atividade complementar'}
                 </p>
+                {(searchTerm || filterType !== 'todos') && (
+                  <Button 
+                    variant="link" 
+                    onClick={() => {setSearchTerm(''); setFilterType('todos')}}
+                    className="mt-2 text-primary"
+                  >
+                    Limpar filtros
+                  </Button>
+                )}
               </div>
-            ) : (
+            ) : viewMode === 'grid' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {certificados.map((certificado) => (
-                  <Card key={certificado.id} className="relative">
-                    <CardContent className="pt-6">
+                {filteredCertificados.map((certificado) => (
+                  <Card key={certificado.id} className="group relative rounded-xl border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-300 bg-card overflow-hidden">
+                    {/* Badge de Status Discreto */}
+                    <div className={cn(
+                      "absolute top-3 right-3 h-2 w-2 rounded-full shadow-sm z-10",
+                      certificado.status === 'aprovado' ? 'bg-green-500 shadow-green-500/50' :
+                      certificado.status === 'pendente' ? 'bg-yellow-500 shadow-yellow-500/50' : 'bg-red-500 shadow-red-500/50'
+                    )} title={getStatusLabel(certificado.status)} />
+
+                    <CardContent className="p-4 pt-5">
                       <div className="space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg mb-1">{certificado.titulo}</h3>
-                            <p className="text-sm text-muted-foreground">{certificado.instituicao}</p>
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-sm leading-tight mb-1 group-hover:text-primary transition-colors line-clamp-1" title={certificado.titulo}>
+                            {certificado.titulo}
+                          </h3>
+                          <p className="text-[11px] text-muted-foreground font-medium truncate">{certificado.instituicao}</p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/30">
+                          <div className="flex flex-col">
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60">Carga Horária</span>
+                            <span className="text-xs font-black text-foreground">{certificado.cargaHoraria}h</span>
                           </div>
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded border ${getStatusColor(
-                              certificado.status
-                            )}`}
-                          >
-                            {getStatusLabel(certificado.status)}
-                          </span>
+                          <div className="flex flex-col">
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60">Categoria</span>
+                            <span className="text-xs font-bold text-foreground truncate">
+                              {TIPOS_CERTIFICADO.find((t) => t.value === certificado.tipo)?.label || certificado.tipo}
+                            </span>
+                          </div>
                         </div>
 
-                        <div className="space-y-1 text-sm">
-                          <p className="text-muted-foreground">
-                            <strong>Tipo:</strong>{' '}
-                            {TIPOS_CERTIFICADO.find((t) => t.value === certificado.tipo)?.label || certificado.tipo}
-                          </p>
-                          <p className="text-muted-foreground">
-                            <strong>Carga Horária:</strong> {certificado.cargaHoraria}h
-                          </p>
-                          <p className="text-muted-foreground">
-                            <strong>Período:</strong>{' '}
-                            {new Date(certificado.dataInicio).toLocaleDateString('pt-BR')} -{' '}
-                            {new Date(certificado.dataFim).toLocaleDateString('pt-BR')}
-                          </p>
-                          {certificado.descricao && (
-                            <p className="text-muted-foreground line-clamp-2">{certificado.descricao}</p>
-                          )}
-                        </div>
-
-                        <div className="flex gap-2 pt-2 border-t">
+                        <div className="flex items-center justify-between gap-2 pt-3">
                           <Button
-                            variant="outline"
+                            variant="secondary"
                             size="sm"
-                            className="flex-1"
+                            className="h-8 flex-1 text-[11px] font-bold rounded-lg bg-primary/5 text-primary hover:bg-primary/10"
                             onClick={() => handleView(certificado)}
                           >
-                            <Eye className="h-4 w-4 mr-1" />
+                            <Eye className="h-3.5 w-3.5 mr-1.5" />
                             Detalhes
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(certificado)}
-                            title="Editar"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          {certificado.linkExterno && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDownload(certificado)}
-                              title="Abrir Link"
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setDeleteId(certificado.id || null)
-                              setShowDeleteModal(true)
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                          
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-muted">
+                                <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-40 rounded-xl">
+                              <DropdownMenuItem onClick={() => handleEdit(certificado)} className="gap-2 cursor-pointer">
+                                <Pencil className="h-4 w-4" />
+                                <span>Editar</span>
+                              </DropdownMenuItem>
+                              {(certificado.linkExterno || certificado.arquivoURL) && (
+                                <DropdownMenuItem onClick={() => handleDownload(certificado)} className="gap-2 cursor-pointer">
+                                  <Download className="h-4 w-4" />
+                                  <span>Download</span>
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem 
+                                onClick={() => {
+                                  setDeleteId(certificado.id || null)
+                                  setShowDeleteModal(true)
+                                }} 
+                                className="gap-2 text-destructive focus:text-destructive cursor-pointer"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                <span>Excluir</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            ) : (
+              /* Visualização em Lista (Tabela Compacta) */
+              <div className="overflow-x-auto rounded-xl border border-border/50">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-muted/30 border-b border-border/50 text-left">
+                      <th className="p-3 font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Status</th>
+                      <th className="p-3 font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Título</th>
+                      <th className="p-3 font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Instituição</th>
+                      <th className="p-3 font-bold text-[10px] uppercase tracking-wider text-muted-foreground text-center">CH</th>
+                      <th className="p-3 font-bold text-[10px] uppercase tracking-wider text-muted-foreground">Categoria</th>
+                      <th className="p-3 font-bold text-[10px] uppercase tracking-wider text-muted-foreground text-right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredCertificados.map((certificado) => (
+                      <tr key={certificado.id} className="border-b border-border/30 hover:bg-muted/20 transition-colors group">
+                        <td className="p-3">
+                          <div className={cn(
+                            "h-2 w-2 rounded-full",
+                            certificado.status === 'aprovado' ? 'bg-green-500' :
+                            certificado.status === 'pendente' ? 'bg-yellow-500' : 'bg-red-500'
+                          )} title={getStatusLabel(certificado.status)} />
+                        </td>
+                        <td className="p-3 font-semibold text-xs max-w-[200px] truncate">{certificado.titulo}</td>
+                        <td className="p-3 text-xs text-muted-foreground truncate max-w-[150px]">{certificado.instituicao}</td>
+                        <td className="p-3 text-xs font-black text-center">{certificado.cargaHoraria}h</td>
+                        <td className="p-3 text-xs">
+                          <span className="bg-muted px-2 py-0.5 rounded text-[10px] font-bold text-muted-foreground uppercase">
+                            {TIPOS_CERTIFICADO.find((t) => t.value === certificado.tipo)?.label || certificado.tipo}
+                          </span>
+                        </td>
+                        <td className="p-3 text-right">
+                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md" onClick={() => handleView(certificado)}>
+                              <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md" onClick={() => handleEdit(certificado)}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-7 w-7 rounded-md text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => {
+                                setDeleteId(certificado.id || null)
+                                setShowDeleteModal(true)
+                              }}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </CardContent>
