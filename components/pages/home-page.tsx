@@ -39,11 +39,6 @@ const Summary = dynamic(() => import('@/components/features/summary').then(mod =
   ssr: false
 })
 
-const Simulation = dynamic(() => import('@/components/features/simulation').then(mod => mod.Simulation), {
-  loading: () => <Skeleton className="h-96 w-full rounded-2xl" />,
-  ssr: false
-})
-
 export function HomePage() {
   const { user, loading: authLoading } = useAuth()
   const [cursoAtual, setCursoAtual] = useState<Curso>('BICTI')
@@ -434,8 +429,9 @@ export function HomePage() {
         onUpdate={handleUpdateDisciplina}
         disciplinas={disciplinas}
       />
-
-      <Simulation disciplinas={disciplinas} cursoAtual={cursoAtual} />
+    </div>
+  )
+}
     </div>
   )
 }

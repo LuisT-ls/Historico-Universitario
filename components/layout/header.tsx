@@ -67,6 +67,7 @@ export function Header() {
 
   const navItems = [
     { href: '/', label: 'Início', icon: Home, show: !isHomePage },
+    { href: '/simulador', label: 'Simulador', icon: Calculator, show: true },
     { href: '/certificados', label: 'Certificados', icon: GraduationCap, show: true },
     { href: '/profile', label: 'Perfil', icon: User, show: !!user },
   ]
