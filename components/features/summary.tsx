@@ -105,43 +105,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
       .reduce((sum, c) => sum + c.cargaHoraria, 0)
 
     const chEmCurso = disciplinasEmCurso.reduce((sum, d) => sum + d.ch, 0)
-    // Total CH: disciplinas aprovadas + AC + certificados aprovados
-    const totalCH = disciplinasAprovadas.reduce((sum, d) => sum + d.ch, 0) + 
-                    disciplinasAC.reduce((sum, d) => sum + d.ch, 0) +
-                    totalHorasCertificados
-    const totalCHComEmCurso = totalCH + chEmCurso
-
-    const mediaGeral =
-      disciplinasComNota.length > 0
-        ? disciplinasComNota.reduce((sum, d) => sum + d.nota, 0) / disciplinasComNota.length
-        : 0
-
-    const cr = calcularCR(disciplinas)
-    const creditos = calcularCreditos(disciplinas)
-    const pch = calcularPCH(disciplinas)
-    const pcr = calcularPCR(disciplinas)
-
-    const percentualAprovacao =
-      totalDisciplinas > 0 ? (totalAprovacoes / totalDisciplinas) * 100 : 0
-
-    const progressoFormatura =
-      totalCHComEmCursoParaProgresso > 0
-        ? Math.min((totalCHComEmCursoParaProgresso / cursoConfig.totalHoras) * 100, 100)
-        : 0
-
-    const statusCR = getStatusCR(cr)
-    const tendenciaNotas = calcularTendenciaNotas(disciplinas)
     
-    // Calcular previsão de formatura
-    const previsaoFormatura = calcularPrevisaoFormaturaCompleta(
-      disciplinas,
-      totalCHParaProgresso,
-      totalCHComEmCursoParaProgresso,
-      chEmCurso,
-      cursoConfig.totalHoras,
-      disciplinasEmCurso
-    )
-
     // Horas por natureza - cálculo correto considerando LV
     const horasPorNatureza: Record<Natureza, number> = {
       AC: 0,
@@ -208,6 +172,37 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
     // Para o progresso e métricas, usamos o total limitado
     const totalCHParaProgresso = totalCHLimitado
     const totalCHComEmCursoParaProgresso = totalCHParaProgresso + chEmCurso
+
+    const mediaGeral =
+      disciplinasComNota.length > 0
+        ? disciplinasComNota.reduce((sum, d) => sum + d.nota, 0) / disciplinasComNota.length
+        : 0
+
+    const cr = calcularCR(disciplinas)
+    const creditos = calcularCreditos(disciplinas)
+    const pch = calcularPCH(disciplinas)
+    const pcr = calcularPCR(disciplinas)
+
+    const percentualAprovacao =
+      totalDisciplinas > 0 ? (totalAprovacoes / totalDisciplinas) * 100 : 0
+
+    const progressoFormatura =
+      totalCHComEmCursoParaProgresso > 0
+        ? Math.min((totalCHComEmCursoParaProgresso / cursoConfig.totalHoras) * 100, 100)
+        : 0
+
+    const statusCR = getStatusCR(cr)
+    const tendenciaNotas = calcularTendenciaNotas(disciplinas)
+    
+    // Calcular previsão de formatura
+    const previsaoFormatura = calcularPrevisaoFormaturaCompleta(
+      disciplinas,
+      totalCHParaProgresso,
+      totalCHComEmCursoParaProgresso,
+      chEmCurso,
+      cursoConfig.totalHoras,
+      disciplinasEmCurso
+    )
 
     // Dados para gráfico de pizza
     const dadosGraficoPizza = Object.entries(horasPorNatureza)
