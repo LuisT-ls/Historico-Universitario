@@ -1182,7 +1182,6 @@ export function ProfilePage() {
           </div>
         </div>
       </main>
-      </main >
       <Footer />
 
       {/* Modal de Alteração de Senha */}
