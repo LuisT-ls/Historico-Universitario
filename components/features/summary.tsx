@@ -125,8 +125,8 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
       totalDisciplinas > 0 ? (totalAprovacoes / totalDisciplinas) * 100 : 0
 
     const progressoFormatura =
-      totalCHComEmCurso > 0
-        ? Math.min((totalCHComEmCurso / cursoConfig.totalHoras) * 100, 100)
+      totalCHComEmCursoParaProgresso > 0
+        ? Math.min((totalCHComEmCursoParaProgresso / cursoConfig.totalHoras) * 100, 100)
         : 0
 
     const statusCR = getStatusCR(cr)
@@ -135,8 +135,8 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
     // Calcular previsão de formatura
     const previsaoFormatura = calcularPrevisaoFormaturaCompleta(
       disciplinas,
-      totalCH,
-      totalCHComEmCurso,
+      totalCHParaProgresso,
+      totalCHComEmCursoParaProgresso,
       chEmCurso,
       cursoConfig.totalHoras,
       disciplinasEmCurso
@@ -173,34 +173,41 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
     // Adicionar horas dos certificados aprovados
     horasPorNatureza.AC += totalHorasCertificados
 
-    // Redistribuir excesso de horas optativas para LV
-    const naturezasParaLV = ['OX', 'OG', 'OH', 'OZ'] // Naturezas cujo excesso vai para LV
+    // Redistribuir excesso de horas optativas para LV e limitar ao requisito
+    const naturezasParaLimitar = ['AC', 'OX', 'OG', 'OH', 'OZ', 'OB', 'OP']
     let totalExcessoLV = 0
 
-    naturezasParaLV.forEach((nat) => {
+    naturezasParaLimitar.forEach((nat) => {
       const natureza = nat as Natureza
       const requisito = cursoConfig.requisitos[natureza]
-      if (horasPorNatureza[natureza] && requisito) {
+      
+      if (horasPorNatureza[natureza] && requisito && requisito > 0) {
         if (horasPorNatureza[natureza] > requisito) {
           const excesso = horasPorNatureza[natureza] - requisito
-          totalExcessoLV += excesso
-          horasPorNatureza[natureza] = requisito // Limitar ao requisito
+          
+          // Apenas naturezas optativas específicas redistribuem excesso para LV
+          const naturezasRedistribuemParaLV = ['OX', 'OG', 'OH', 'OZ']
+          if (naturezasRedistribuemParaLV.includes(natureza)) {
+            totalExcessoLV += excesso
+          }
+          
+          horasPorNatureza[natureza] = requisito // Limitar ao requisito para o cálculo do total
         }
       }
     })
 
-    // OB pode ultrapassar o teto (até 680h para BICTI), mas o excesso não é redistribuído
-    if (horasPorNatureza.OB && cursoConfig.requisitos.OB) {
-      // Para BICTI, OB pode ir até 680h (requisito é 600h)
-      const tetoOB = cursoAtual === 'BICTI' ? 680 : cursoConfig.requisitos.OB
-      if (horasPorNatureza.OB > tetoOB) {
-        horasPorNatureza.OB = tetoOB
-      }
-      // Não redistribuir excesso de OB para LV
+    // Adicionar excesso de optativas ao LV e limitar LV também
+    horasPorNatureza.LV += totalExcessoLV
+    if (cursoConfig.requisitos.LV && horasPorNatureza.LV > cursoConfig.requisitos.LV) {
+      horasPorNatureza.LV = cursoConfig.requisitos.LV
     }
 
-    // Adicionar excesso de optativas ao LV
-    horasPorNatureza.LV += totalExcessoLV
+    // Total CH recalculado com as horas limitadas
+    const totalCHLimitado = Object.values(horasPorNatureza).reduce((sum, h) => sum + h, 0)
+    
+    // Para o progresso e métricas, usamos o total limitado
+    const totalCHParaProgresso = totalCHLimitado
+    const totalCHComEmCursoParaProgresso = totalCHParaProgresso + chEmCurso
 
     // Dados para gráfico de pizza
     const dadosGraficoPizza = Object.entries(horasPorNatureza)
@@ -260,8 +267,8 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
       creditos,
       pch,
       pcr,
-      totalCH,
-      totalCHComEmCurso,
+      totalCH: totalCHParaProgresso,
+      totalCHComEmCurso: totalCHComEmCursoParaProgresso,
       chEmCurso,
       percentualAprovacao,
       progressoFormatura,
@@ -304,7 +311,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
                 {estatisticas.totalCHComEmCurso}h de {cursoConfig.totalHoras}h
                 {estatisticas.chEmCurso > 0 && ` (${estatisticas.chEmCurso}h em curso)`}
               </span>
-              <span>{cursoConfig.totalHoras - estatisticas.totalCHComEmCurso}h restantes</span>
+              <span>{Math.max(0, cursoConfig.totalHoras - estatisticas.totalCHComEmCurso)}h restantes</span>
             </div>
           </div>
 
