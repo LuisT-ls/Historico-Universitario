@@ -72,7 +72,14 @@ export function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
-  const [showSensitive, setShowSensitive] = useState({ email: false, enrollment: false })
+  const [showSensitive, setShowSensitive] = useState({ 
+    email: false, 
+    enrollment: false,
+    currentPass: false,
+    newPass: false,
+    confirmPass: false,
+    deletePass: false
+  })
   const [settingsSaving, setSettingsSaving] = useState<{ [key: string]: boolean }>({})
   const [settingsError, setSettingsError] = useState<{ [key: string]: string | null }>({})
   const [settingsSuccess, setSettingsSuccess] = useState<{ [key: string]: boolean }>({})
@@ -287,7 +294,7 @@ export function ProfilePage() {
                   <Label className="text-[10px] font-bold uppercase text-slate-500">E-mail</Label>
                   <div className="relative">
                     <Input value={maskSensitive(profile?.email, 'email')} disabled className="h-12 rounded-xl bg-slate-800/50 border-slate-700 pr-12" />
-                    <button type="button" onClick={() => setShowSensitive(p => ({ ...p, email: !p.email }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                    <button type="button" onClick={() => setShowSensitive(p => ({ ...p, email: !p.email }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 bg-transparent border-none p-0 focus:outline-none">
                       {showSensitive.email ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
@@ -297,7 +304,7 @@ export function ProfilePage() {
                     <Label className="text-[10px] font-bold uppercase text-slate-500">Matrícula</Label>
                     <div className="relative">
                       <Input value={maskSensitive(profile?.matricula, 'enrollment')} onChange={e => setProfile(prev => prev ? ({ ...prev, matricula: e.target.value }) : null)} className="h-12 rounded-xl bg-slate-800/50 border-slate-700 pr-12" />
-                      <button type="button" onClick={() => setShowSensitive(p => ({ ...p, enrollment: !p.enrollment }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                      <button type="button" onClick={() => setShowSensitive(p => ({ ...p, enrollment: !p.enrollment }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 bg-transparent border-none p-0 focus:outline-none">
                         {showSensitive.enrollment ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                       </button>
                     </div>
@@ -373,15 +380,30 @@ export function ProfilePage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label className="text-xs font-bold text-slate-500">Senha Atual</Label>
-              <Input type="password" value={passwordData.current} onChange={e => setPasswordData({...passwordData, current: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+              <div className="relative">
+                <Input type={showSensitive.currentPass ? "text" : "password"} value={passwordData.current} onChange={e => setPasswordData({...passwordData, current: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700 pr-12" />
+                <button type="button" onClick={() => setShowSensitive(p => ({ ...p, currentPass: !p.currentPass }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 bg-transparent border-none p-0 focus:outline-none">
+                  {showSensitive.currentPass ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-bold text-slate-500">Nova Senha</Label>
-              <Input type="password" value={passwordData.new} onChange={e => setPasswordData({...passwordData, new: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+              <div className="relative">
+                <Input type={showSensitive.newPass ? "text" : "password"} value={passwordData.new} onChange={e => setPasswordData({...passwordData, new: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700 pr-12" />
+                <button type="button" onClick={() => setShowSensitive(p => ({ ...p, newPass: !p.newPass }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 bg-transparent border-none p-0 focus:outline-none">
+                  {showSensitive.newPass ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-bold text-slate-500">Confirmar Nova Senha</Label>
-              <Input type="password" value={passwordData.confirm} onChange={e => setPasswordData({...passwordData, confirm: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+              <div className="relative">
+                <Input type={showSensitive.confirmPass ? "text" : "password"} value={passwordData.confirm} onChange={e => setPasswordData({...passwordData, confirm: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700 pr-12" />
+                <button type="button" onClick={() => setShowSensitive(p => ({ ...p, confirmPass: !p.confirmPass }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 bg-transparent border-none p-0 focus:outline-none">
+                  {showSensitive.confirmPass ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
             </div>
           </div>
           <Button onClick={handleChangePassword} className="w-full h-12 rounded-xl bg-blue-600 font-bold hover:bg-blue-500">Confirmar Alteração</Button>
@@ -402,7 +424,12 @@ export function ProfilePage() {
             {!user?.providerData?.some(p => p.providerId === 'google.com') && (
               <div className="space-y-2 text-left">
                 <Label className="text-xs font-bold text-slate-500">Sua Senha</Label>
-                <Input type="password" placeholder="Sua Senha" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+                <div className="relative">
+                  <Input type={showSensitive.deletePass ? "text" : "password"} placeholder="Sua Senha" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} className="h-12 rounded-xl bg-slate-800 border-slate-700 pr-12" />
+                  <button type="button" onClick={() => setShowSensitive(p => ({ ...p, deletePass: !p.deletePass }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 bg-transparent border-none p-0 focus:outline-none">
+                    {showSensitive.deletePass ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
               </div>
             )}
           </div>
