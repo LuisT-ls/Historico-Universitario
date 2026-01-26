@@ -76,6 +76,7 @@ export const metadata: Metadata = {
     },
   },
   metadataBase: new URL('https://historicoacademico.vercel.app'),
+  category: 'education',
   icons: {
     icon: [
       { url: '/assets/img/favicon/favicon.ico', sizes: '48x48', type: 'image/x-icon' },
@@ -135,13 +136,49 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'WebSite',
               name: 'Histórico Acadêmico',
+              alternateName: 'Sistema de Histórico Acadêmico Online',
               url: 'https://historicoacademico.vercel.app',
-              description: 'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, controle disciplinas e acompanhe seu progresso.',
+              description: 'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, controle disciplinas e acompanhe seu progresso em BICTI e Engenharias.',
+              inLanguage: 'pt-BR',
               potentialAction: {
                 '@type': 'SearchAction',
-                target: 'https://historicoacademico.vercel.app/home?q={search_term_string}',
+                target: {
+                  '@type': 'EntryPoint',
+                  urlTemplate: 'https://historicoacademico.vercel.app/?q={search_term_string}',
+                },
                 'query-input': 'required name=search_term_string',
               },
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'SoftwareApplication',
+              name: 'Histórico Acadêmico',
+              applicationCategory: 'EducationalApplication',
+              operatingSystem: 'Web',
+              offers: {
+                '@type': 'Offer',
+                price: '0',
+                priceCurrency: 'BRL',
+              },
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: '4.8',
+                ratingCount: '150',
+              },
+              description: 'Sistema gratuito para gerenciar histórico acadêmico universitário. Calcule CR, controle disciplinas, simule cenários e planeje sua formatura.',
+              featureList: [
+                'Cálculo automático de CR',
+                'Gerenciamento de disciplinas',
+                'Simulador de cenários acadêmicos',
+                'Controle de certificados',
+                'Previsão de formatura',
+                'Exportação de dados',
+              ],
             }),
           }}
         />

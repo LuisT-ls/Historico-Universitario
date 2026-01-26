@@ -1,3 +1,6 @@
+# Robots.txt para Histórico Acadêmico
+# Permite indexação das páginas públicas
+
 User-agent: *
 Allow: /
 Allow: /sitemap.xml
@@ -6,16 +9,38 @@ Allow: /legal/terms
 Allow: /legal/privacy
 Allow: /assets/img/
 Allow: /assets/css/
+Allow: /certificados
+Allow: /simulador
 
-# Proteger áreas sensíveis
+# Proteger áreas sensíveis e privadas
 Disallow: /api/
 Disallow: /_next/
 Disallow: /admin/
 Disallow: /dashboard/
 Disallow: /temp/
 Disallow: /backup/
+Disallow: /profile
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Googlebot específico
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /profile
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Bingbot
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /profile
 
 # Crawl-delay para não sobrecarregar o servidor
-Crawl-delay: 10
+Crawl-delay: 1
 
+# Sitemap
 Sitemap: https://historicoacademico.vercel.app/sitemap.xml
