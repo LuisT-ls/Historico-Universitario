@@ -186,8 +186,8 @@ export function Header() {
               </SheetTitle>
             </SheetHeader>
 
-            <div className="p-4 space-y-6">
-              <nav className="space-y-1">
+            <div className="p-4 space-y-8">
+              <nav className="flex flex-col gap-2">
                 {/* Links de navegação */}
                 {navItems.map((item) => {
                   if (!item.show) return null
