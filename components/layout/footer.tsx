@@ -3,12 +3,12 @@ import { Github, Linkedin, Instagram, Heart, ExternalLink, Share2, Terminal } fr
 
 export function Footer() {
   return (
-    <footer className="border-t border-slate-800 bg-slate-900/50 backdrop-blur-md">
+    <footer className="border-t border-border bg-muted/30 dark:border-slate-800 dark:bg-slate-900/50 backdrop-blur-md">
       <div className="container py-12 px-4 sm:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <section>
-            <h3 className="text-lg font-bold text-slate-100 mb-6 tracking-tight">Sobre o Projeto</h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
+            <h3 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight">Sobre o Projeto</h3>
+            <p className="text-sm text-muted-foreground dark:text-slate-400 leading-relaxed">
               O Histórico Acadêmico é uma ferramenta desenvolvida para auxiliar estudantes dos
               cursos de BICTI, Engenharia de Produção e Engenharia Elétrica no acompanhamento do
               seu progresso acadêmico de forma simples e intuitiva.
@@ -16,16 +16,16 @@ export function Footer() {
           </section>
 
           <section>
-            <h3 className="text-lg font-bold text-slate-100 mb-6 tracking-tight">Desenvolvedor</h3>
-            <p className="text-sm text-slate-400 mb-6">
-              Desenvolvido com carinho por <strong className="text-slate-200">Luís Teixeira</strong>
+            <h3 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight">Desenvolvedor</h3>
+            <p className="text-sm text-muted-foreground dark:text-slate-400 mb-6">
+              Desenvolvido com carinho por <strong className="text-foreground dark:text-slate-200">Luís Teixeira</strong>
             </p>
             <nav className="flex gap-5" aria-label="Redes sociais do desenvolvedor">
               <a
                 href="https://github.com/LuisT-ls"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-300"
+                className="p-2 rounded-lg bg-muted dark:bg-slate-800/50 text-muted-foreground dark:text-slate-400 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-slate-800 transition-all duration-300"
                 aria-label="Visitar perfil do Luís Teixeira no GitHub"
               >
                 <Github className="h-5 w-5" />
@@ -34,7 +34,7 @@ export function Footer() {
                 href="https://linkedin.com/in/luis-tei"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-300"
+                className="p-2 rounded-lg bg-muted dark:bg-slate-800/50 text-muted-foreground dark:text-slate-400 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-slate-800 transition-all duration-300"
                 aria-label="Visitar perfil do Luís Teixeira no LinkedIn"
               >
                 <Linkedin className="h-5 w-5" />
@@ -43,7 +43,7 @@ export function Footer() {
                 href="https://instagram.com/luis.tei"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-300"
+                className="p-2 rounded-lg bg-muted dark:bg-slate-800/50 text-muted-foreground dark:text-slate-400 hover:text-foreground dark:hover:text-white hover:bg-accent dark:hover:bg-slate-800 transition-all duration-300"
                 aria-label="Visitar perfil do Luís Teixeira no Instagram"
               >
                 <Instagram className="h-5 w-5" />
@@ -52,16 +52,16 @@ export function Footer() {
           </section>
 
           <section>
-            <h3 className="text-lg font-bold text-slate-100 mb-6 tracking-tight">Recursos Úteis</h3>
+            <h3 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight">Recursos Úteis</h3>
             <ul className="space-y-4">
               <li>
                 <a
                   href="https://icti-share.vercel.app/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-all duration-300 group"
+                  className="flex items-center gap-2 text-sm text-muted-foreground dark:text-slate-400 hover:text-foreground dark:hover:text-white transition-all duration-300 group"
                 >
-                  <div className="p-1.5 rounded-md bg-slate-800/50 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-all">
+                  <div className="p-1.5 rounded-md bg-muted dark:bg-slate-800/50 group-hover:bg-primary/10 dark:group-hover:bg-blue-500/20 group-hover:text-primary dark:group-hover:text-blue-400 transition-all">
                     <Share2 className="h-4 w-4" />
                   </div>
                   <span>ICTI Share</span>
@@ -73,9 +73,9 @@ export function Footer() {
                   href="https://icti-python.vercel.app/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-all duration-300 group"
+                  className="flex items-center gap-2 text-sm text-muted-foreground dark:text-slate-400 hover:text-foreground dark:hover:text-white transition-all duration-300 group"
                 >
-                  <div className="p-1.5 rounded-md bg-slate-800/50 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-all">
+                  <div className="p-1.5 rounded-md bg-muted dark:bg-slate-800/50 group-hover:bg-primary/10 dark:group-hover:bg-blue-500/20 group-hover:text-primary dark:group-hover:text-blue-400 transition-all">
                     <Terminal className="h-4 w-4" />
                   </div>
                   <span>ICTI Python</span>
@@ -86,11 +86,11 @@ export function Footer() {
           </section>
 
           <section>
-            <h3 className="text-lg font-bold text-slate-100 mb-6 tracking-tight flex items-center gap-2">
+            <h3 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight flex items-center gap-2">
               <Heart className="h-5 w-5 text-red-500 fill-red-500/20" />
               Apoie o Projeto
             </h3>
-            <p className="text-sm text-slate-400 mb-6 leading-relaxed">
+            <p className="text-sm text-muted-foreground dark:text-slate-400 mb-6 leading-relaxed">
               Este projeto é totalmente gratuito e open source. Se ele te ajudou, considere dar uma
               estrela no GitHub!
             </p>
@@ -98,7 +98,7 @@ export function Footer() {
               href="https://github.com/LuisT-ls/Historico-Universitario"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-all duration-300 shadow-lg shadow-blue-900/20"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 dark:bg-blue-600 dark:hover:bg-blue-500 text-primary-foreground dark:text-white text-sm font-bold transition-all duration-300 shadow-lg shadow-primary/20 dark:shadow-blue-900/20"
               aria-label="Visitar repositório do projeto no GitHub"
             >
               <Github className="h-4 w-4" />
@@ -107,16 +107,16 @@ export function Footer() {
           </section>
         </div>
 
-        <div className="border-t border-slate-800/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[13px] text-slate-500">
+        <div className="border-t border-border dark:border-slate-800/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[13px] text-muted-foreground dark:text-slate-500">
           <p className="font-medium">
             &copy; {new Date().getFullYear()} Histórico Acadêmico. Todos os direitos reservados.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/legal/terms" className="hover:text-slate-300 transition-colors opacity-80 hover:opacity-100">
+            <Link href="/legal/terms" className="hover:text-foreground dark:hover:text-slate-300 transition-colors opacity-80 hover:opacity-100">
               Termos de Uso
             </Link>
-            <div className="h-1 w-1 rounded-full bg-slate-700" />
-            <Link href="/legal/privacy" className="hover:text-slate-300 transition-colors opacity-80 hover:opacity-100">
+            <div className="h-1 w-1 rounded-full bg-muted-foreground/40 dark:bg-slate-700" />
+            <Link href="/legal/privacy" className="hover:text-foreground dark:hover:text-slate-300 transition-colors opacity-80 hover:opacity-100">
               Privacidade
             </Link>
           </div>

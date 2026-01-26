@@ -196,7 +196,7 @@ export function HomePage() {
       <ActionBar cursoAtual={cursoAtual} onCursoChange={handleCursoChange} onImport={loadDisciplinas} />
 
       <div className="space-y-1">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/60 px-1">Busca Rápida</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground/60 px-1">Busca Rápida</h2>
         <DisciplineSearch cursoAtual={cursoAtual} onSelect={(d) => formRef.current?.fillForm(d)} />
       </div>
 

@@ -169,7 +169,7 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
               setShowResults(true)
             }
           }}
-          className="pl-11 pr-10 h-12 rounded-xl border-none bg-card shadow-sm text-base font-medium placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-primary/20"
+          className="pl-11 pr-10 h-12 rounded-xl border-none bg-card shadow-sm text-base font-medium placeholder:text-muted-foreground/60 dark:placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-primary/20"
           disabled={isLoading}
         />
         {searchTerm && (

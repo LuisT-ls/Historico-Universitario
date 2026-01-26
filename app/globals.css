@@ -235,6 +235,13 @@ body {
   opacity: 1;
 }
 
+/* Light mode placeholder styles - melhor contraste */
+html:not(.dark-mode) input::placeholder,
+html:not(.dark-mode) textarea::placeholder {
+  color: hsl(var(--muted-foreground) / 0.7);
+  opacity: 1;
+}
+
 /* Specific dark mode styles for elements that might need them */
 .dark-mode .watermark-logo {
   background: linear-gradient(145deg, #121212, #2c3e50);
@@ -984,4 +991,51 @@ select::-ms-expand {
 .dark-mode .overflow-x-auto::-webkit-scrollbar-thumb:hover,
 .dark-mode .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary) / 0.5;
+}
+
+/* Light mode specific styles - melhor contraste */
+html:not(.dark-mode) {
+  --muted-foreground-light: 215.4 16.3% 46.9%;
+}
+
+html:not(.dark-mode) input,
+html:not(.dark-mode) select,
+html:not(.dark-mode) textarea {
+  border-color: hsl(var(--border));
+}
+
+html:not(.dark-mode) input:focus,
+html:not(.dark-mode) select:focus,
+html:not(.dark-mode) textarea:focus {
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+/* Melhorar contraste de bordas no modo claro */
+html:not(.dark-mode) .border-border {
+  border-color: hsl(var(--border));
+}
+
+/* Garantir que textos tenham bom contraste no modo claro */
+html:not(.dark-mode) .text-muted-foreground {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Footer no modo claro */
+html:not(.dark-mode) footer {
+  background-color: hsl(var(--muted) / 0.3);
+  border-top-color: hsl(var(--border));
+}
+
+html:not(.dark-mode) footer h3 {
+  color: hsl(var(--foreground));
+}
+
+html:not(.dark-mode) footer p,
+html:not(.dark-mode) footer a:not([class*="bg-"]) {
+  color: hsl(var(--muted-foreground));
+}
+
+html:not(.dark-mode) footer a:hover:not([class*="bg-"]) {
+  color: hsl(var(--foreground));
 }
