@@ -71,6 +71,11 @@ export function ProfilePage() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [showSensitive, setShowSensitive] = useState({
+    email: false,
+    enrollment: false,
+  })
   const [settingsSaving, setSettingsSaving] = useState<{ [key: string]: boolean }>({})
   const [settingsError, setSettingsError] = useState<{ [key: string]: string | null }>({})
   const [settingsSuccess, setSettingsSuccess] = useState<{ [key: string]: boolean }>({})
@@ -271,7 +276,11 @@ export function ProfilePage() {
         settings: currentSettings,
       })
 
-      // Mostrar notificação de sucesso (pode usar um toast component)
+      // Feedback de sucesso
+      setSaveSuccess(true)
+      setTimeout(() => setSaveSuccess(false), 3000)
+
+      // Mostrar notificação de sucesso
       toast.success('Informações salvas!', {
         description: 'Suas informações pessoais foram atualizadas',
         duration: 3000,
@@ -676,9 +685,12 @@ export function ProfilePage() {
   const isGoogleUser = user.providerData?.some((p) => p.providerId === 'google.com')
   const isPrivate = profile?.settings?.privacy === 'private'
 
-  // Função para mascarar dados sensíveis quando privado
+  // Função para mascarar dados sensíveis quando privado ou toggle off
   const maskSensitiveData = (value: string | null | undefined, type: 'email' | 'enrollment' = 'email'): string => {
-    if (!isPrivate || !value || value.trim() === '') return value || ''
+    if (!value || value.trim() === '') return value || ''
+    
+    // Se não estiver no modo privado E o toggle de visibilidade estiver ligado, mostra o dado real
+    if (!isPrivate && showSensitive[type]) return value
 
     if (type === 'email') {
       // Mascarar e-mail: ex: user@example.com -> u***@e***.com
@@ -724,397 +736,452 @@ export function ProfilePage() {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Meu Perfil</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-4xl font-black tracking-tight mb-2">Meu Perfil</h1>
+          <p className="text-sm text-slate-400 font-medium">
             Gerencie suas informações pessoais e configurações da conta
           </p>
         </div>
 
-        <div className="space-y-6">
-          {/* Informações Pessoais */}
-          <Card>
-            <CardHeader>
-              <CardTitle as="h2" className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Informações Pessoais
-              </CardTitle>
-              <CardDescription>Atualize seus dados pessoais e acadêmicos</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Nome Completo</Label>
-                  {isLoading ? (
-                    <Skeleton className="h-10 w-full" />
-                  ) : (
-                    <Input
-                      id="fullName"
-                      value={profile?.nome || ''}
-                      onChange={(e) => setProfile({ ...profile!, nome: e.target.value })}
-                      placeholder="Seu nome completo"
-                    />
-                  )}
+        <div className="space-y-8">
+          {/* Estatísticas */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="rounded-xl border-none border-t-4 border-t-blue-500 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden transition-all hover:shadow-md">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-blue-500/10 text-blue-500">
+                    <Book className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none mb-1">Disciplinas</p>
+                    <p className="text-2xl font-black leading-none">{statistics.totalDisciplines}</p>
+                    <p className="text-[10px] font-medium text-slate-500 mt-1">Total cadastradas</p>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">E-mail</Label>
-                  {isLoading ? (
-                    <Skeleton className="h-10 w-full" />
-                  ) : (
-                    <Input
-                      id="email"
-                      type="email"
-                      value={isPrivate ? maskSensitiveData(profile?.email || user.email || '', 'email') : (profile?.email || user.email || '')}
-                      disabled
-                      placeholder="Seu e-mail será exibido aqui"
-                      className={isPrivate ? 'blur-sm select-none' : ''}
-                    />
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    {isPrivate ? 'E-mail oculto por privacidade' : 'O e-mail não pode ser alterado'}
-                  </p>
-                </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="institution">Instituição</Label>
-                  {isLoading ? (
-                    <Skeleton className="h-10 w-full" />
-                  ) : (
-                    <Input
-                      id="institution"
-                      value={profile?.institution || ''}
-                      onChange={(e) => setProfile({ ...profile!, institution: e.target.value })}
-                      placeholder="Nome da sua universidade"
-                    />
-                  )}
+            <Card className="rounded-xl border-none border-t-4 border-t-green-500 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden transition-all hover:shadow-md">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-green-500/10 text-green-500">
+                    <CheckCircle className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none mb-1">Concluídas</p>
+                    <p className="text-2xl font-black leading-none">{statistics.completedDisciplines}</p>
+                    <p className="text-[10px] font-medium text-slate-500 mt-1">Disciplinas finalizadas</p>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="course">Curso</Label>
-                  {isLoading ? (
-                    <Skeleton className="h-10 w-full" />
-                  ) : (
-                    <select
-                      id="course"
-                      value={profile?.curso || ''}
-                      onChange={(e) => setProfile({ ...profile!, curso: e.target.value as Curso })}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    >
-                      <option value="">Selecione seu curso</option>
-                      {Object.entries(CURSOS).map(([key, value]) => (
-                        <option key={key} value={key}>
-                          {value.nome}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="enrollment">Matrícula</Label>
-                  {isLoading ? (
-                    <Skeleton className="h-10 w-full" />
-                  ) : (
-                    <Input
-                      id="enrollment"
-                      value={isPrivate ? maskSensitiveData(profile?.matricula || '', 'enrollment') : (profile?.matricula || '')}
-                      onChange={(e) => {
-                        if (!isPrivate) {
-                          setProfile({ ...profile!, matricula: e.target.value })
-                        }
-                      }}
-                      placeholder="Número de matrícula"
-                      disabled={isPrivate}
-                      className={isPrivate ? 'blur-sm select-none' : ''}
-                    />
-                  )}
-                  {isPrivate && (
-                    <p className="text-xs text-muted-foreground">Matrícula oculta por privacidade</p>
-                  )}
+            <Card className="rounded-xl border-none border-t-4 border-t-blue-400 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden transition-all hover:shadow-md">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-blue-400/10 text-blue-400">
+                    <Clock className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none mb-1">Em Andamento</p>
+                    <p className="text-2xl font-black leading-none">{statistics.inProgressDisciplines}</p>
+                    <p className="text-[10px] font-medium text-slate-500 mt-1">Disciplinas atuais</p>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="startYear">Ano de Ingresso</Label>
-                  <Input
-                    id="startYear"
-                    type="number"
-                    min="2000"
-                    max="2030"
-                    value={profile?.startYear || new Date().getFullYear()}
-                    onChange={(e) =>
-                      setProfile({ ...profile!, startYear: parseInt(e.target.value) })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="startSemester">Semestre de Ingresso</Label>
-                  <select
-                    id="startSemester"
-                    value={profile?.startSemester || '1'}
-                    onChange={(e) =>
-                      setProfile({ ...profile!, startSemester: e.target.value as '1' | '2' })
-                    }
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  >
-                    <option value="1">1º Semestre</option>
-                    <option value="2">2º Semestre</option>
-                  </select>
-                </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="flex justify-end pt-4">
-                <Button onClick={handleSave} disabled={isSaving}>
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Salvando...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Salvar Alterações
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            <Card className="rounded-xl border-none border-t-4 border-t-yellow-500 shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden transition-all hover:shadow-md">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-500">
+                    <Star className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none mb-1">Média Geral</p>
+                    <p className="text-2xl font-black leading-none">{statistics.averageGrade.toFixed(1)}</p>
+                    <p className="text-[10px] font-medium text-slate-500 mt-1">Nota média</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Configurações da Conta */}
-          <Card>
-            <CardHeader>
-              <CardTitle as="h2" className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Configurações da Conta
-              </CardTitle>
-              <CardDescription>Gerencie suas preferências e configurações</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Notificações */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Bell className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <h3 className="font-semibold">Notificações</h3>
-                      <p className="text-sm text-muted-foreground">Receber avisos importantes</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-8">
+              {/* Informações Pessoais */}
+              <Card className="rounded-2xl border-none shadow-sm bg-card overflow-hidden">
+                <CardHeader className="pb-4">
+                  <CardTitle as="h2" className="flex items-center gap-2 text-xl font-semibold">
+                    <User className="h-5 w-5 text-primary" />
+                    Informações Pessoais
+                  </CardTitle>
+                  <CardDescription className="text-sm text-slate-400">Atualize seus dados pessoais e acadêmicos</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="fullName" className="text-xs font-bold uppercase tracking-wider text-slate-400">Nome Completo</Label>
+                      {isLoading ? (
+                        <Skeleton className="h-11 w-full rounded-xl" />
+                      ) : (
+                        <Input
+                          id="fullName"
+                          value={profile?.nome || ''}
+                          onChange={(e) => setProfile({ ...profile!, nome: e.target.value })}
+                          placeholder="Seu nome completo"
+                          className="h-11 rounded-xl bg-slate-800/50 border-slate-700 focus:ring-primary/20 transition-all"
+                        />
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-slate-400">E-mail</Label>
+                      {isLoading ? (
+                        <Skeleton className="h-11 w-full rounded-xl" />
+                      ) : (
+                        <div className="relative">
+                          <Input
+                            id="email"
+                            type={showSensitive.email ? 'text' : 'password'}
+                            value={showSensitive.email ? (profile?.email || user.email || '') : maskSensitiveData(profile?.email || user.email || '', 'email')}
+                            disabled
+                            placeholder="Seu e-mail"
+                            className={cn(
+                              "h-11 rounded-xl bg-slate-800/50 border-slate-700 pr-10 transition-all",
+                              !showSensitive.email && "font-mono"
+                            )}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowSensitive(prev => ({ ...prev, email: !prev.email }))}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                          >
+                            {showSensitive.email ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                      )}
+                      <p className="text-[10px] text-slate-500 font-medium">
+                        O e-mail não pode ser alterado diretamente
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {settingsSaving.notifications && (
-                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    )}
-                    {settingsSuccess.notifications && (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                    )}
-                    <select
-                      value={profile?.settings?.notifications !== false ? 'true' : 'false'}
-                      onChange={(e) =>
-                        handleSettingsChange('notifications', e.target.value === 'true')
-                      }
-                      disabled={settingsSaving.notifications}
-                      className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <option value="true">Ativar</option>
-                      <option value="false">Desativar</option>
-                    </select>
-                  </div>
-                </div>
-                {settingsError.notifications && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{settingsError.notifications}</AlertDescription>
-                  </Alert>
-                )}
-              </div>
 
-              {/* Privacidade */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    {profile?.settings?.privacy === 'public' ? (
-                      <Globe className="h-5 w-5 text-muted-foreground" />
-                    ) : (
-                      <Lock className="h-5 w-5 text-muted-foreground" />
-                    )}
-                    <div>
-                      <h3 className="font-semibold">Privacidade</h3>
-                      <p className="text-sm text-muted-foreground">Visibilidade dos seus dados</p>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {profile?.settings?.privacy === 'public' ? (
-                          <span className="flex items-center gap-1">
-                            <Globe className="h-3 w-3" /> Público - Seus dados podem ser visualizados por outros usuários
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1">
-                            <Lock className="h-3 w-3" /> Privado - Apenas você pode visualizar seus dados
-                          </span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="institution" className="text-xs font-bold uppercase tracking-wider text-slate-400">Instituição</Label>
+                      {isLoading ? (
+                        <Skeleton className="h-11 w-full rounded-xl" />
+                      ) : (
+                        <Input
+                          id="institution"
+                          value={profile?.institution || ''}
+                          onChange={(e) => setProfile({ ...profile!, institution: e.target.value })}
+                          placeholder="Nome da sua universidade"
+                          className="h-11 rounded-xl bg-slate-800/50 border-slate-700 focus:ring-primary/20 transition-all"
+                        />
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="course" className="text-xs font-bold uppercase tracking-wider text-slate-400">Curso</Label>
+                      {isLoading ? (
+                        <Skeleton className="h-11 w-full rounded-xl" />
+                      ) : (
+                        <select
+                          id="course"
+                          value={profile?.curso || ''}
+                          onChange={(e) => setProfile({ ...profile!, curso: e.target.value as Curso })}
+                          className="flex h-11 w-full rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
+                        >
+                          <option value="">Selecione seu curso</option>
+                          {Object.entries(CURSOS).map(([key, value]) => (
+                            <option key={key} value={key}>
+                              {value.nome}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="enrollment" className="text-xs font-bold uppercase tracking-wider text-slate-400">Matrícula</Label>
+                      {isLoading ? (
+                        <Skeleton className="h-11 w-full rounded-xl" />
+                      ) : (
+                        <div className="relative">
+                          <Input
+                            id="enrollment"
+                            type={showSensitive.enrollment ? 'text' : 'password'}
+                            value={showSensitive.enrollment ? (profile?.matricula || '') : maskSensitiveData(profile?.matricula || '', 'enrollment')}
+                            onChange={(e) => {
+                              if (showSensitive.enrollment) {
+                                setProfile({ ...profile!, matricula: e.target.value })
+                              }
+                            }}
+                            placeholder="Sua matrícula"
+                            className={cn(
+                              "h-11 rounded-xl bg-slate-800/50 border-slate-700 pr-10 transition-all",
+                              !showSensitive.enrollment && "font-mono"
+                            )}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowSensitive(prev => ({ ...prev, enrollment: !prev.enrollment }))}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                          >
+                            {showSensitive.enrollment ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="startYear" className="text-xs font-bold uppercase tracking-wider text-slate-400">Ano Ingresso</Label>
+                      <Input
+                        id="startYear"
+                        type="number"
+                        min="2000"
+                        max="2030"
+                        value={profile?.startYear || new Date().getFullYear()}
+                        onChange={(e) =>
+                          setProfile({ ...profile!, startYear: parseInt(e.target.value) })
+                        }
+                        className="h-11 rounded-xl bg-slate-800/50 border-slate-700 focus:ring-primary/20 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="startSemester" className="text-xs font-bold uppercase tracking-wider text-slate-400">Semestre</Label>
+                      <select
+                        id="startSemester"
+                        value={profile?.startSemester || '1'}
+                        onChange={(e) =>
+                          setProfile({ ...profile!, startSemester: e.target.value as '1' | '2' })
+                        }
+                        className="flex h-11 w-full rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
+                      >
+                        <option value="1">1º Semestre</option>
+                        <option value="2">2º Semestre</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-4">
+                    <Button 
+                      onClick={handleSave} 
+                      disabled={isSaving}
+                      className={cn(
+                        "h-11 px-8 rounded-xl font-bold transition-all duration-300",
+                        saveSuccess ? "bg-green-600 hover:bg-green-600" : "bg-primary hover:bg-primary/90"
+                      )}
+                    >
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Salvando...
+                        </>
+                      ) : saveSuccess ? (
+                        <>
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Salvo com Sucesso!
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Salvar Alterações
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="space-y-8">
+              {/* Configurações da Conta */}
+              <Card className="rounded-2xl border-none shadow-sm bg-card overflow-hidden">
+                <CardHeader className="pb-4">
+                  <CardTitle as="h2" className="flex items-center gap-2 text-xl font-semibold">
+                    <Settings className="h-5 w-5 text-primary" />
+                    Configurações da Conta
+                  </CardTitle>
+                  <CardDescription className="text-sm text-slate-400">Gerencie suas preferências e configurações</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Notificações */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-4 bg-slate-800/30 border border-slate-700/50 rounded-xl transition-all hover:bg-slate-800/50">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                          <Bell className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold">Notificações</h3>
+                          <p className="text-xs text-slate-400">Receber avisos importantes</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {settingsSaving.notifications && (
+                          <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
                         )}
+                        {settingsSuccess.notifications && (
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        )}
+                        <select
+                          value={profile?.settings?.notifications !== false ? 'true' : 'false'}
+                          onChange={(e) =>
+                            handleSettingsChange('notifications', e.target.value === 'true')
+                          }
+                          disabled={settingsSaving.notifications}
+                          className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer"
+                        >
+                          <option value="true">Ativar</option>
+                          <option value="false">Desativar</option>
+                        </select>
+                      </div>
+                    </div>
+                    {settingsError.notifications && (
+                      <Alert variant="destructive" className="rounded-xl py-2">
+                        <AlertDescription className="text-xs">{settingsError.notifications}</AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+
+                  {/* Privacidade */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-4 bg-slate-800/30 border border-slate-700/50 rounded-xl transition-all hover:bg-slate-800/50">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                          {profile?.settings?.privacy === 'public' ? (
+                            <Globe className="h-5 w-5" />
+                          ) : (
+                            <Lock className="h-5 w-5" />
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold">Privacidade</h3>
+                          <p className="text-xs text-slate-400">Visibilidade dos seus dados</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {settingsSaving.privacy && (
+                          <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
+                        )}
+                        {settingsSuccess.privacy && (
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        )}
+                        <select
+                          value={profile?.settings?.privacy || 'private'}
+                          onChange={(e) => handleSettingsChange('privacy', e.target.value)}
+                          disabled={settingsSaving.privacy}
+                          className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer"
+                        >
+                          <option value="private">Privado</option>
+                          <option value="public">Público</option>
+                        </select>
+                      </div>
+                    </div>
+                    {settingsError.privacy && (
+                      <Alert variant="destructive" className="rounded-xl py-2">
+                        <AlertDescription className="text-xs">{settingsError.privacy}</AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Segurança da Conta */}
+              <Card className="rounded-2xl border-none shadow-sm bg-card overflow-hidden">
+                <CardHeader className="pb-4">
+                  <CardTitle as="h2" className="flex items-center gap-2 text-xl font-semibold">
+                    <Shield className="h-5 w-5 text-primary" />
+                    Segurança da Conta
+                  </CardTitle>
+                  <CardDescription className="text-sm text-slate-400">Ações importantes para proteger sua conta</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 bg-slate-800/30 border border-slate-700/50 rounded-xl transition-all hover:bg-slate-800/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-slate-700/50 text-slate-300">
+                          <Key className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold">Alterar Senha</h3>
+                          <p className="text-xs text-slate-400">Mantenha sua conta segura</p>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => setChangePasswordOpen(true)} className="rounded-lg h-9">
+                        Alterar
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-slate-800/30 border border-slate-700/50 rounded-xl transition-all hover:bg-slate-800/50">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-slate-700/50 text-slate-300">
+                          <Download className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold">Exportar Dados</h3>
+                          <p className="text-xs text-slate-400">Faça backup do seu histórico</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <select
+                          id="exportFormat"
+                          value={exportFormat}
+                          onChange={(e) => setExportFormat(e.target.value as 'json' | 'xlsx' | 'pdf')}
+                          className="h-9 flex-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer"
+                        >
+                          <option value="json">JSON</option>
+                          <option value="xlsx">Excel</option>
+                          <option value="pdf">PDF</option>
+                        </select>
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleExportData}
+                          className="h-9 rounded-lg px-4"
+                        >
+                          <Download className="mr-2 h-3.5 w-3.5" />
+                          Baixar
+                        </Button>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {settingsSaving.privacy && (
-                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    )}
-                    {settingsSuccess.privacy && (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                    )}
-                    <select
-                      value={profile?.settings?.privacy || 'private'}
-                      onChange={(e) => handleSettingsChange('privacy', e.target.value)}
-                      disabled={settingsSaving.privacy}
-                      className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <option value="private">Privado</option>
-                      <option value="public">Público</option>
-                    </select>
-                  </div>
-                </div>
-                {settingsError.privacy && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{settingsError.privacy}</AlertDescription>
-                  </Alert>
-                )}
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Estatísticas */}
-          <Card>
-            <CardHeader>
-              <CardTitle as="h2" className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
-                Estatísticas
-              </CardTitle>
-              <CardDescription>Resumo do seu progresso acadêmico</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Book className="h-5 w-5 text-primary" />
-                    <h3 className="font-semibold">Disciplinas</h3>
-                  </div>
-                  <div className="text-2xl font-bold">{statistics.totalDisciplines}</div>
-                  <div className="text-sm text-muted-foreground">Total cadastradas</div>
-                </div>
-
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-center gap-3 mb-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                    <h3 className="font-semibold">Concluídas</h3>
-                  </div>
-                  <div className="text-2xl font-bold">{statistics.completedDisciplines}</div>
-                  <div className="text-sm text-muted-foreground">Disciplinas finalizadas</div>
-                </div>
-
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Clock className="h-5 w-5 text-blue-500" />
-                    <h3 className="font-semibold">Em Andamento</h3>
-                  </div>
-                  <div className="text-2xl font-bold">{statistics.inProgressDisciplines}</div>
-                  <div className="text-sm text-muted-foreground">Disciplinas atuais</div>
-                </div>
-
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Star className="h-5 w-5 text-yellow-500" />
-                    <h3 className="font-semibold">Média Geral</h3>
-                  </div>
-                  <div className="text-2xl font-bold">{statistics.averageGrade.toFixed(1)}</div>
-                  <div className="text-sm text-muted-foreground">Nota média</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Segurança da Conta */}
-          <Card>
-            <CardHeader>
-              <CardTitle as="h2" className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Segurança da Conta
-              </CardTitle>
-              <CardDescription>Ações importantes para proteger sua conta</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Key className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <h3 className="font-semibold">Alterar Senha</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Atualize sua senha para manter a conta segura
-                      </p>
+                  {/* Danger Zone */}
+                  <div className="mt-6 pt-6 border-t border-slate-700/50">
+                    <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-xl group transition-all">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
+                            <Trash2 className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-semibold text-red-500">Excluir Conta</h3>
+                            <p className="text-xs text-slate-400">Ação irreversível</p>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setDeleteAccountOpen(true)}
+                          className="rounded-lg h-9 border-red-500/50 text-red-500 bg-transparent hover:bg-red-500 hover:text-white transition-all duration-300"
+                        >
+                          Excluir Conta
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                  <Button variant="outline" onClick={() => setChangePasswordOpen(true)}>
-                    Alterar Senha
-                  </Button>
-                </div>
-              </div>
-
-              <div className="p-4 border rounded-lg">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <Download className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <h3 className="font-semibold">Exportar Dados</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Faça backup dos seus dados acadêmicos
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col md:flex-row items-stretch md:items-end gap-3 w-full md:w-auto">
-                    <div className="space-y-1">
-                      <Label htmlFor="exportFormat" className="text-xs text-muted-foreground">Formato:</Label>
-                      <select
-                        id="exportFormat"
-                        value={exportFormat}
-                        onChange={(e) => setExportFormat(e.target.value as 'json' | 'xlsx' | 'pdf')}
-                        className="flex h-10 w-full md:w-[150px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      >
-                        <option value="json">JSON</option>
-                        <option value="xlsx">Excel</option>
-                        <option value="pdf">PDF</option>
-                      </select>
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      onClick={handleExportData}
-                      className="h-10 w-full md:w-auto"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Exportar
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 border rounded-lg border-destructive">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Trash2 className="h-5 w-5 text-red-500" />
-                    <div>
-                      <h3 className="font-semibold text-red-500">Excluir Conta</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Exclua permanentemente sua conta e todos os dados
-                      </p>
-                    </div>
-                  </div>
-                  <Button variant="destructive" onClick={() => setDeleteAccountOpen(true)}>
-                    Excluir Conta
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
+      </main>
       </main >
       <Footer />
 
