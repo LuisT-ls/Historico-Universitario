@@ -36,6 +36,11 @@ const AcademicHistory = dynamic(() => import('@/components/features/academic-his
   loading: () => <div className="h-96 animate-pulse bg-muted/10 rounded-lg" />
 })
 
+const PDFImport = dynamic(() => import('@/components/features/pdf-import').then(mod => mod.PDFImport), {
+  ssr: false,
+  loading: () => <div className="h-40 animate-pulse bg-muted/10 rounded-lg mb-8" />
+})
+
 const Summary = dynamic(() => import('@/components/features/summary').then(mod => mod.Summary), {
   loading: () => <Skeleton className="h-64 w-full" />,
   ssr: false
@@ -328,6 +333,72 @@ export function HomePage() {
     formRef.current?.editDiscipline(disciplina, index)
   }
 
+  const handleImportDisciplinas = async (novasDisciplinas: Disciplina[]) => {
+    try {
+      setIsLoading(true)
+      
+      // Filtrar duplicadas (mesmo período e código)
+      const disciplinasFiltradas = novasDisciplinas.filter(nova => 
+        !disciplinas.some(existente => 
+          existente.codigo === nova.codigo && existente.periodo === nova.periodo
+        )
+      )
+
+      if (disciplinasFiltradas.length === 0) {
+        toast.info('Nenhuma disciplina nova para importar.', {
+          description: 'Todas as disciplinas do arquivo já constam no seu histórico.'
+        })
+        return
+      }
+
+      // Adicionar curso atual às disciplinas importadas
+      const disciplinasComCurso = disciplinasFiltradas.map(d => ({
+        ...d,
+        curso: cursoAtual,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }))
+
+      // Se autenticado, salvar no Firestore em lote (batch)
+      if (user && db) {
+        const { writeBatch, collection, doc } = await import('firebase/firestore')
+        const firestore = db // Referência local para garantir narrowing de tipo
+        const batch = writeBatch(firestore)
+        
+        disciplinasComCurso.forEach(disciplina => {
+          const newDocRef = doc(collection(firestore, 'disciplines'))
+          const disciplineData = {
+            ...disciplina,
+            userId: user.uid
+          }
+          // Remover id temporário se existir
+          delete (disciplineData as any).id
+          batch.set(newDocRef, disciplineData)
+          // Adicionar o ID gerado para o estado local
+          disciplina.id = createDisciplinaId(newDocRef.id)
+        })
+
+        await batch.commit()
+      }
+
+      // Atualizar estado local
+      const listaFinal = [...disciplinas, ...disciplinasComCurso]
+      setDisciplinas(listaFinal)
+      
+      // Salvar no localStorage
+      localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(listaFinal))
+
+      toast.success('Importação concluída!', {
+        description: `${disciplinasComCurso.length} novas disciplinas foram adicionadas.`
+      })
+    } catch (error) {
+      logger.error('Erro ao importar disciplinas:', error)
+      toast.error('Erro ao importar disciplinas. Tente novamente.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleDisciplineSelect = (disciplina: { codigo: string; nome: string; natureza: string; ch?: number }) => {
     formRef.current?.fillForm(disciplina)
   }
@@ -341,6 +412,8 @@ export function HomePage() {
       )}
 
       <CourseSelection cursoAtual={cursoAtual} onCursoChange={handleCursoChange} />
+
+      <PDFImport onImport={handleImportDisciplinas} />
 
       <DisciplineSearch cursoAtual={cursoAtual} onSelect={handleDisciplineSelect} />
 
