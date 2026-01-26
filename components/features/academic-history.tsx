@@ -5,8 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Trash2, Edit } from 'lucide-react'
 import type { Disciplina, Curso } from '@/types'
-import { calcularResultado, compararPeriodos } from '@/lib/utils'
+import { calcularResultado, compararPeriodos, cn } from '@/lib/utils'
 import { NATUREZA_LABELS } from '@/lib/constants'
+
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 
 interface AcademicHistoryProps {
   disciplinas: Disciplina[]
@@ -72,249 +79,145 @@ export function AcademicHistory({
     }
   }
 
-  const getResultadoColor = (resultado?: string) => {
+  const getResultadoBadgeStyles = (resultado?: string) => {
     switch (resultado) {
       case 'AP':
-        return 'text-green-600 dark:text-green-400'
+        return 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20'
       case 'RR':
-        return 'text-red-600 dark:text-red-400'
+        return 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
       case 'TR':
-        return 'text-yellow-600 dark:text-yellow-400'
+        return 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20'
       case 'DP':
-        return 'text-blue-600 dark:text-blue-400'
+        return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
       default:
-        return 'text-muted-foreground'
+        return 'bg-muted text-muted-foreground border-transparent'
     }
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-none shadow-none bg-transparent">
+      <CardHeader className="px-0 pt-0">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle as="h2" className="flex items-center gap-2">
+            <CardTitle as="h2" className="flex items-center gap-2 text-2xl font-bold">
               <span>📋</span> Disciplinas Cursadas
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-base">
               {disciplinas.length} disciplina{disciplinas.length !== 1 ? 's' : ''} registrada
-              {disciplinas.length !== 1 ? 's' : ''}
+              {disciplinas.length !== 1 ? 's' : ''} organizada por semestre
             </CardDescription>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-0">
         {disciplinas.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>Nenhuma disciplina cadastrada ainda.</p>
-            <p className="text-sm mt-2">Adicione disciplinas usando o formulário acima.</p>
+          <div className="text-center py-12 bg-card border rounded-2xl shadow-sm text-muted-foreground">
+            <p className="text-lg font-medium">Nenhuma disciplina cadastrada ainda.</p>
+            <p className="text-sm mt-2">Clique no botão "+" para adicionar disciplinas ou importe seu histórico.</p>
           </div>
         ) : (
-          <>
-            {/* Mobile View - Cards */}
-            <div className="block md:hidden space-y-4">
-              {disciplinasPorPeriodo.periodosOrdenados.map((periodo) => {
-                const disciplinasDoPeriodo = disciplinasPorPeriodo.grupos[periodo]
+          <Accordion type="multiple" defaultValue={[disciplinasPorPeriodo.periodosOrdenados[0]]} className="space-y-4">
+            {disciplinasPorPeriodo.periodosOrdenados.map((periodo) => {
+              const disciplinasDoPeriodo = disciplinasPorPeriodo.grupos[periodo]
+              const aprovadasCount = disciplinasDoPeriodo.filter(d => d.resultado === 'AP').length
 
-                return (
-                  <div key={periodo} className="space-y-3">
-                    {/* Cabeçalho do período */}
-                    <div className="bg-muted/50 px-3 py-2 rounded-md">
-                      <h3 className="text-sm font-semibold">Período {periodo}</h3>
+              return (
+                <AccordionItem
+                  key={periodo}
+                  value={periodo}
+                  className="bg-card border rounded-2xl shadow-sm px-4 overflow-hidden"
+                >
+                  <AccordionTrigger className="hover:no-underline py-4">
+                    <div className="flex items-center gap-4 text-left">
+                      <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold">
+                        {periodo.split('.')[1]}º
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg">Semestre {periodo}</h3>
+                        <p className="text-xs text-muted-foreground">
+                          {disciplinasDoPeriodo.length} disciplinas • {aprovadasCount} aprovadas
+                        </p>
+                      </div>
                     </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-6">
+                    <div className="grid grid-cols-1 gap-3">
+                      {disciplinasDoPeriodo.map((disciplina, index) => {
+                        const indexReal = disciplinas.findIndex(
+                          (d) => d.id === disciplina.id ||
+                            (d.codigo === disciplina.codigo && d.periodo === disciplina.periodo)
+                        )
 
-                    {/* Cards das disciplinas */}
-                    {disciplinasDoPeriodo.map((disciplina, index) => {
-                      const indexReal = disciplinas.findIndex(
-                        (d) => d.id === disciplina.id ||
-                          (d.codigo === disciplina.codigo && d.periodo === disciplina.periodo)
-                      )
+                        const isAC = disciplina.natureza === 'AC'
+                        const notaDisplay = isAC || disciplina.trancamento || disciplina.dispensada ? '-' : (disciplina.nota || 0).toFixed(1)
 
-                      const isAC = disciplina.natureza === 'AC'
-                      const pch = isAC || disciplina.trancamento ? 0 : disciplina.ch * (disciplina.nota || 0)
-                      const notaDisplay = isAC || disciplina.trancamento || disciplina.dispensada ? '-' : (disciplina.nota || 0).toFixed(1)
-                      const pchDisplay = isAC ? '-' : pch.toFixed(1)
-
-                      return (
-                        <div
-                          key={disciplina.id || `${disciplina.codigo}-${periodo}-${index}`}
-                          className="bg-card border border-border rounded-lg p-3 space-y-2"
-                        >
-                          {/* Header com código e ações */}
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-mono font-semibold bg-muted px-2 py-0.5 rounded">
-                                  {disciplina.codigo}
-                                </span>
-                                <span className="text-xs bg-muted px-2 py-0.5 rounded">
-                                  {disciplina.natureza || '-'}
-                                </span>
+                        return (
+                          <div
+                            key={disciplina.id || `${disciplina.codigo}-${periodo}-${index}`}
+                            className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-muted/30 hover:bg-muted/50 rounded-xl transition-all border border-transparent hover:border-border"
+                          >
+                            <div className="flex items-start gap-4 flex-1">
+                              <div className={cn(
+                                "flex items-center justify-center h-10 w-10 rounded-lg border text-xs font-bold shrink-0",
+                                getResultadoBadgeStyles(disciplina.resultado)
+                              )}>
+                                {isAC ? 'AC' : getResultadoLabel(disciplina.resultado, true)}
                               </div>
-                              <h4 className="text-sm font-medium leading-tight">{disciplina.nome}</h4>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground/70 bg-muted px-1.5 py-0.5 rounded">
+                                    {disciplina.codigo}
+                                  </span>
+                                  <span className="text-[10px] font-bold text-muted-foreground/70 uppercase">
+                                    {NATUREZA_LABELS[disciplina.natureza] || disciplina.natureza}
+                                  </span>
+                                </div>
+                                <h4 className="text-sm font-semibold leading-tight truncate pr-4">{disciplina.nome}</h4>
+                              </div>
                             </div>
-                            <div className="flex gap-1 shrink-0">
-                              {onEdit && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7"
-                                  onClick={() => onEdit(disciplina, indexReal >= 0 ? indexReal : index)}
-                                  aria-label={`Editar ${disciplina.nome}`}
-                                >
-                                  <Edit className="h-3.5 w-3.5" />
-                                </Button>
-                              )}
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => onRemove(indexReal >= 0 ? indexReal : index)}
-                                aria-label={`Remover ${disciplina.nome}`}
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
-                          </div>
 
-                          {/* Informações em grid */}
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs pt-2 border-t border-border/50">
-                            <div>
-                              <span className="text-muted-foreground">CH:</span>{' '}
-                              <span className="font-medium">{disciplina.ch}h</span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Nota:</span>{' '}
-                              <span className="font-medium">{notaDisplay}</span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">PCH:</span>{' '}
-                              <span className="font-medium">{pchDisplay}</span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Status:</span>{' '}
-                              <span className={`font-semibold ${getResultadoColor(disciplina.resultado)}`}>
-                                {isAC ? 'AC' : getResultadoLabel(disciplina.resultado, true)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )
-              })}
-            </div>
+                            <div className="flex items-center justify-between sm:justify-end gap-6 mt-4 sm:mt-0">
+                              <div className="flex gap-8">
+                                <div className="text-center">
+                                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-0.5">CH</p>
+                                  <p className="text-sm font-mono font-bold">{disciplina.ch}h</p>
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-0.5">Nota</p>
+                                  <p className="text-sm font-mono font-bold">{notaDisplay}</p>
+                                </div>
+                              </div>
 
-            {/* Desktop/Tablet View - Table with Horizontal Scroll */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full border-collapse text-xs min-w-[800px]">
-                <thead>
-                  <tr className="border-b-2 border-border bg-muted/30">
-                    <th className="text-left px-2 py-2 text-xs font-semibold min-w-[80px]">Semestre</th>
-                    <th className="text-left px-2 py-2 text-xs font-semibold min-w-[90px]">Código</th>
-                    <th className="text-left px-2 py-2 text-xs font-semibold min-w-[200px]">Disciplina</th>
-                    <th className="text-center px-2 py-2 text-xs font-semibold min-w-[70px]">Natureza</th>
-                    <th className="text-center px-2 py-2 text-xs font-semibold min-w-[50px]">CH</th>
-                    <th className="text-center px-2 py-2 text-xs font-semibold min-w-[60px]">Nota</th>
-                    <th className="text-center px-2 py-2 text-xs font-semibold min-w-[60px]">PCH</th>
-                    <th className="text-center px-2 py-2 text-xs font-semibold min-w-[70px]">RES</th>
-                    <th className="text-center px-2 py-2 text-xs font-semibold min-w-[90px]">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {disciplinasPorPeriodo.periodosOrdenados.map((periodo, periodoIndex) => {
-                    const disciplinasDoPeriodo = disciplinasPorPeriodo.grupos[periodo]
-
-                    return (
-                      <React.Fragment key={periodo}>
-                        {/* Espaçamento antes do primeiro período */}
-                        {periodoIndex === 0 && (
-                          <tr>
-                            <td colSpan={9} className="h-1"></td>
-                          </tr>
-                        )}
-
-                        {/* Cabeçalho do período */}
-                        <tr className="periodo-header">
-                          <td colSpan={9} className="px-2 py-2 text-xs font-semibold bg-muted/20">
-                            Período {periodo}
-                          </td>
-                        </tr>
-
-                        {/* Disciplinas do período */}
-                        {disciplinasDoPeriodo.map((disciplina, index) => {
-                          const indexReal = disciplinas.findIndex(
-                            (d) => d.id === disciplina.id ||
-                              (d.codigo === disciplina.codigo && d.periodo === disciplina.periodo)
-                          )
-
-                          const isAC = disciplina.natureza === 'AC'
-                          const pch = isAC || disciplina.trancamento ? 0 : disciplina.ch * (disciplina.nota || 0)
-                          const notaDisplay = isAC || disciplina.trancamento || disciplina.dispensada ? '-' : (disciplina.nota || 0).toFixed(1)
-                          const pchDisplay = isAC ? '-' : pch.toFixed(1)
-
-                          return (
-                            <tr
-                              key={disciplina.id || `${disciplina.codigo}-${periodo}-${index}`}
-                              className="border-b border-border/50 hover:bg-muted/30 transition-colors"
-                            >
-                              <td className="px-2 py-2 text-xs">{disciplina.periodo}</td>
-                              <td className="px-2 py-2 text-xs font-mono font-medium">{disciplina.codigo}</td>
-                              <td className="px-2 py-2 text-xs" title={disciplina.nome}>
-                                {disciplina.nome}
-                              </td>
-                              <td className="px-2 py-2 text-xs text-center">
-                                <span className="font-medium" title={NATUREZA_LABELS[disciplina.natureza] || disciplina.natureza}>
-                                  {disciplina.natureza || '-'}
-                                </span>
-                              </td>
-                              <td className="px-2 py-2 text-xs text-center">{disciplina.ch}</td>
-                              <td className="px-2 py-2 text-xs text-center">{notaDisplay}</td>
-                              <td className="px-2 py-2 text-xs text-center">{pchDisplay}</td>
-                              <td className={`px-2 py-2 text-xs font-medium text-center ${getResultadoColor(disciplina.resultado)}`} title={isAC ? 'Atividade Complementar' : getResultadoLabel(disciplina.resultado)}>
-                                {isAC ? 'AC' : getResultadoLabel(disciplina.resultado, true)}
-                              </td>
-                              <td className="px-2 py-2">
-                                <div className="flex gap-1 justify-center">
-                                  {onEdit && (
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-7 w-7"
-                                      onClick={() => onEdit(disciplina, indexReal >= 0 ? indexReal : index)}
-                                      aria-label={`Editar ${disciplina.nome}`}
-                                    >
-                                      <Edit className="h-3.5 w-3.5" />
-                                    </Button>
-                                  )}
+                              <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                {onEdit && (
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-7 w-7"
-                                    onClick={() => onRemove(indexReal >= 0 ? indexReal : index)}
-                                    aria-label={`Remover ${disciplina.nome}`}
+                                    className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary"
+                                    onClick={() => onEdit(disciplina, indexReal >= 0 ? indexReal : index)}
                                   >
-                                    <Trash2 className="h-3.5 w-3.5" />
+                                    <Edit className="h-4 w-4" />
                                   </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          )
-                        })}
-
-                        {/* Espaçamento entre períodos (exceto no último) */}
-                        {periodoIndex < disciplinasPorPeriodo.periodosOrdenados.length - 1 && (
-                          <tr>
-                            <td colSpan={9} className="h-3"></td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-lg hover:bg-destructive/10 hover:text-destructive"
+                                  onClick={() => onRemove(indexReal >= 0 ? indexReal : index)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )
+            })}
+          </Accordion>
         )}
       </CardContent>
     </Card>

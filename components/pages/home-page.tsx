@@ -15,39 +15,32 @@ import { toast } from '@/lib/toast'
 import { logger } from '@/lib/logger'
 import { createDisciplinaId } from '@/lib/constants'
 
-// Carregamento dinâmico para componentes pesados ou que usam libs grandes
-const CourseSelection = dynamic(() => import('@/components/features/course-selection').then(mod => mod.CourseSelection), {
-  ssr: true,
-  loading: () => <div className="h-20 animate-pulse bg-muted/10 rounded-lg" />
+const ActionBar = dynamic(() => import('@/components/features/action-bar').then(mod => mod.ActionBar), {
+  ssr: false,
+  loading: () => <div className="h-14 animate-pulse bg-muted/10 rounded-xl mb-6" />
 })
 
 const DisciplineSearch = dynamic(() => import('@/components/features/discipline-search').then(mod => mod.DisciplineSearch), {
   ssr: false,
-  loading: () => <div className="h-24 animate-pulse bg-muted/10 rounded-lg mt-4" />
+  loading: () => <div className="h-12 animate-pulse bg-muted/10 rounded-xl mt-4" />
 })
 
 const DisciplineForm = dynamic(() => import('@/components/features/discipline-form').then(mod => mod.DisciplineForm), {
   ssr: false,
-  loading: () => <div className="h-40 animate-pulse bg-muted/10 rounded-lg mt-8" />
 })
 
 const AcademicHistory = dynamic(() => import('@/components/features/academic-history').then(mod => mod.AcademicHistory), {
   ssr: false,
-  loading: () => <div className="h-96 animate-pulse bg-muted/10 rounded-lg" />
-})
-
-const PDFImport = dynamic(() => import('@/components/features/pdf-import').then(mod => mod.PDFImport), {
-  ssr: false,
-  loading: () => <div className="h-40 animate-pulse bg-muted/10 rounded-lg mb-8" />
+  loading: () => <div className="h-96 animate-pulse bg-muted/10 rounded-2xl" />
 })
 
 const Summary = dynamic(() => import('@/components/features/summary').then(mod => mod.Summary), {
-  loading: () => <Skeleton className="h-64 w-full" />,
+  loading: () => <Skeleton className="h-64 w-full rounded-2xl" />,
   ssr: false
 })
 
 const Simulation = dynamic(() => import('@/components/features/simulation').then(mod => mod.Simulation), {
-  loading: () => <Skeleton className="h-96 w-full" />,
+  loading: () => <Skeleton className="h-96 w-full rounded-2xl" />,
   ssr: false
 })
 
@@ -404,18 +397,35 @@ export function HomePage() {
   }
 
   return (
-    <>
+    <div className="space-y-8">
       {isLoading && (
-        <div className="text-center py-8 text-muted-foreground">
-          <p>Carregando disciplinas...</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+          <div className="bg-card p-6 rounded-2xl shadow-xl border flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="font-medium">Atualizando histórico...</p>
+          </div>
         </div>
       )}
 
-      {!user && <CourseSelection cursoAtual={cursoAtual} onCursoChange={handleCursoChange} />}
+      <ActionBar
+        cursoAtual={cursoAtual}
+        onCursoChange={handleCursoChange}
+        onImport={handleImportDisciplinas}
+      />
 
-      <PDFImport onImport={handleImportDisciplinas} />
+      <div className="space-y-1">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/60 px-1">Busca Rápida</h2>
+        <DisciplineSearch cursoAtual={cursoAtual} onSelect={handleDisciplineSelect} />
+      </div>
 
-      <DisciplineSearch cursoAtual={cursoAtual} onSelect={handleDisciplineSelect} />
+      <Summary disciplinas={disciplinas} certificados={certificados} cursoAtual={cursoAtual} />
+
+      <AcademicHistory
+        disciplinas={disciplinas}
+        cursoAtual={cursoAtual}
+        onRemove={handleRemoveDisciplina}
+        onEdit={handleEditDisciplina}
+      />
 
       <DisciplineForm
         ref={formRef}
@@ -425,21 +435,8 @@ export function HomePage() {
         disciplinas={disciplinas}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-        <div className="lg:col-span-2">
-          <AcademicHistory
-            disciplinas={disciplinas}
-            cursoAtual={cursoAtual}
-            onRemove={handleRemoveDisciplina}
-            onEdit={handleEditDisciplina}
-          />
-        </div>
-        <div className="lg:col-span-1">
-          <Summary disciplinas={disciplinas} certificados={certificados} cursoAtual={cursoAtual} />
-        </div>
-      </div>
-
       <Simulation disciplinas={disciplinas} cursoAtual={cursoAtual} />
-    </>
+    </div>
   )
 }
+

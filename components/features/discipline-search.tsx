@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { logger } from '@/lib/logger'
 import type { Curso, Natureza } from '@/types'
 
+import { cn } from '@/lib/utils'
+
 interface DisciplinaData {
   codigo: string
   nome: string
@@ -152,85 +154,85 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
   }
 
   return (
-    <Card className="mb-8">
-      <CardHeader>
-        <CardTitle as="h2" className="flex items-center gap-2">
-          <Search className="h-5 w-5" />
-          Buscar Disciplina
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div ref={searchRef} className="relative">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              ref={inputRef}
-              type="text"
-              placeholder="Digite o código ou nome da disciplina..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={() => {
-                if (results.length > 0) {
-                  setShowResults(true)
-                }
-              }}
-              className="pl-10 pr-10"
-              disabled={isLoading}
-            />
-            {searchTerm && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchTerm('')
-                  setResults([])
-                  setShowResults(false)
-                }}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                aria-label="Limpar busca"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
+    <div ref={searchRef} className="relative w-full">
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
+        <Input
+          ref={inputRef}
+          type="text"
+          placeholder="Buscar disciplina por nome ou código (ex: Cálculo, CTIA01)..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={() => {
+            if (results.length > 0) {
+              setShowResults(true)
+            }
+          }}
+          className="pl-11 pr-10 h-12 rounded-xl border-none bg-card shadow-sm text-base font-medium placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-primary/20"
+          disabled={isLoading}
+        />
+        {searchTerm && (
+          <button
+            type="button"
+            onClick={() => {
+              setSearchTerm('')
+              setResults([])
+              setShowResults(false)
+            }}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted transition-colors"
+            aria-label="Limpar busca"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
 
-          {showResults && results.length > 0 && (
-            <div className="absolute z-50 w-full mt-2 bg-background border rounded-md shadow-lg max-h-64 overflow-y-auto">
-              {results.map((disciplina, index) => (
-                <button
-                  key={`${disciplina.codigo}-${index}`}
-                  type="button"
-                  onClick={() => handleSelect(disciplina)}
-                  className={`w-full text-left px-4 py-3 hover:bg-accent transition-colors ${index === selectedIndex ? 'bg-accent' : ''
-                    } ${index !== results.length - 1 ? 'border-b' : ''}`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="font-mono text-sm font-semibold text-primary">
-                        {highlightMatch(disciplina.codigo, searchTerm)}
-                      </div>
-                      <div className="text-sm text-muted-foreground truncate">
-                        {highlightMatch(disciplina.nome, searchTerm)}
-                      </div>
-                    </div>
-                    <div className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded">
-                      {disciplina.natureza}
-                    </div>
+      {showResults && results.length > 0 && (
+        <div className="absolute z-50 w-full mt-2 bg-background border rounded-xl shadow-xl max-h-[400px] overflow-y-auto overflow-x-hidden animate-in fade-in zoom-in-95 duration-200">
+          {results.map((disciplina, index) => (
+            <button
+              key={`${disciplina.codigo}-${index}`}
+              type="button"
+              onClick={() => handleSelect(disciplina)}
+              className={cn(
+                "w-full text-left px-4 py-3 hover:bg-accent transition-colors border-b border-border/50 last:border-0",
+                index === selectedIndex && "bg-accent"
+              )}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="font-mono text-[10px] font-bold text-primary uppercase tracking-wider mb-0.5">
+                    {highlightMatch(disciplina.codigo, searchTerm)}
                   </div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {showResults && searchTerm.length >= 2 && results.length === 0 && (
-            <div className="absolute z-50 w-full mt-2 bg-background border rounded-md shadow-lg p-4 text-center text-sm text-muted-foreground">
-              <Search className="h-5 w-5 mx-auto mb-2 opacity-50" />
-              <p>Nenhuma disciplina encontrada para &quot;{searchTerm}&quot;</p>
-            </div>
-          )}
+                  <div className="text-sm font-semibold text-foreground truncate pr-4">
+                    {highlightMatch(disciplina.nome, searchTerm)}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[10px] font-bold bg-muted px-2 py-1 rounded uppercase text-muted-foreground">
+                    {disciplina.natureza}
+                  </span>
+                  {disciplina.ch && (
+                    <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-1 rounded">
+                      {disciplina.ch}h
+                    </span>
+                  )}
+                </div>
+              </div>
+            </button>
+          ))}
         </div>
-      </CardContent>
-    </Card>
+      )}
+
+      {showResults && searchTerm.length >= 2 && results.length === 0 && (
+        <div className="absolute z-50 w-full mt-2 bg-background border rounded-xl shadow-xl p-6 text-center animate-in fade-in zoom-in-95 duration-200">
+          <Search className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
+          <p className="text-sm font-medium text-muted-foreground">Nenhuma disciplina encontrada para &quot;{searchTerm}&quot;</p>
+        </div>
+      )}
+    </div>
   )
 }
+
 

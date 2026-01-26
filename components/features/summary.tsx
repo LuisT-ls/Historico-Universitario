@@ -12,6 +12,7 @@ import {
   getStatusCR,
   calcularTendenciaNotas,
   calcularPrevisaoFormaturaCompleta,
+  cn,
 } from '@/lib/utils'
 import {
   Calculator,
@@ -281,124 +282,148 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
 
   return (
     <div className="space-y-6">
+      {/* Métricas Gerais - Cards Horizontais Compactos */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+        <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
+          <CardContent className="p-3 flex flex-col items-center justify-center text-center">
+            <Book className="h-4 w-4 text-primary mb-1" />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Disciplinas</p>
+            <p className="text-lg font-bold">{estatisticas.totalDisciplinasCadastradas}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
+          <CardContent className="p-3 flex flex-col items-center justify-center text-center">
+            <Calculator className="h-4 w-4 text-primary mb-1" />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Média</p>
+            <p className="text-lg font-bold">{estatisticas.mediaGeral.toFixed(2)}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
+          <CardContent className="p-3 flex flex-col items-center justify-center text-center">
+            <TrendingUp className="h-4 w-4 text-primary mb-1" />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">CR</p>
+            <p className="text-lg font-bold">{estatisticas.cr.toFixed(2)}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
+          <CardContent className="p-3 flex flex-col items-center justify-center text-center">
+            <Clock className="h-4 w-4 text-primary mb-1" />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Horas</p>
+            <p className="text-lg font-bold">{estatisticas.totalCHComEmCurso}h</p>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
+          <CardContent className="p-3 flex flex-col items-center justify-center text-center">
+            <Star className="h-4 w-4 text-primary mb-1" />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Créditos</p>
+            <p className="text-lg font-bold">{estatisticas.creditos.toFixed(1)}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
+          <CardContent className="p-3 flex flex-col items-center justify-center text-center">
+            <BarChart3 className="h-4 w-4 text-primary mb-1" />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">PCH</p>
+            <p className="text-lg font-bold">{estatisticas.pch.toFixed(1)}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
+          <CardContent className="p-3 flex flex-col items-center justify-center text-center">
+            <CheckCircle className="h-4 w-4 text-green-500 mb-1" />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Aprov.</p>
+            <p className="text-lg font-bold">{estatisticas.totalAprovacoes}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
+          <CardContent className="p-3 flex flex-col items-center justify-center text-center">
+            <XCircle className="h-4 w-4 text-red-500 mb-1" />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Reprov.</p>
+            <p className="text-lg font-bold">{estatisticas.totalReprovacoes}</p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Indicadores de Progresso */}
-      <Card>
+      <Card className="rounded-2xl shadow-sm border-none bg-card">
         <CardHeader>
-          <CardTitle as="h2" className="flex items-center gap-2">
-            <GraduationCap className="h-5 w-5" />
+          <CardTitle as="h2" className="flex items-center gap-2 text-xl font-bold">
+            <GraduationCap className="h-5 w-5 text-primary" />
             Progresso para Formatura
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-muted-foreground">Progresso</span>
-              <span className="text-sm font-semibold">{estatisticas.progressoFormatura.toFixed(1)}%</span>
+            <div className="flex justify-between items-end mb-2">
+              <div>
+                <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Status Geral</span>
+                <p className="text-2xl font-black">{estatisticas.progressoFormatura.toFixed(1)}%</p>
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">
+                {estatisticas.totalCHComEmCurso}h de {cursoConfig.totalHoras}h
+              </span>
             </div>
-            <div className="w-full bg-secondary rounded-full h-3">
+            <div className="w-full bg-secondary/50 rounded-full h-4 overflow-hidden">
               <div
-                className="bg-primary h-3 rounded-full transition-all duration-500"
+                className="bg-primary h-full rounded-full transition-all duration-1000 ease-out"
                 style={{ width: `${estatisticas.progressoFormatura}%` }}
               />
             </div>
-            <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              <span>
-                {estatisticas.totalCHComEmCurso}h de {cursoConfig.totalHoras}h
-                {estatisticas.chEmCurso > 0 && ` (${estatisticas.chEmCurso}h em curso)`}
-              </span>
-              <span>{Math.max(0, cursoConfig.totalHoras - estatisticas.totalCHComEmCurso)}h restantes</span>
-            </div>
           </div>
 
-          {/* Previsão de Formatura */}
-          <div className={`p-4 rounded-lg border ${
-            estatisticas.previsaoFormatura.podeFormarEsteSemestre
-              ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800'
-              : estatisticas.previsaoFormatura.semestresRestantes <= 2
-              ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-800'
-              : 'bg-muted/50 border-border'
-          }`}>
-            <div className="flex items-start gap-3">
-              <Clock className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
-                estatisticas.previsaoFormatura.podeFormarEsteSemestre
-                  ? 'text-green-700 dark:text-green-400'
-                  : estatisticas.previsaoFormatura.semestresRestantes <= 2
-                  ? 'text-blue-700 dark:text-blue-400'
-                  : 'text-primary'
-              }`} />
-              <div className="flex-1">
-                <h3 className={`text-sm font-semibold mb-1 ${
-                  estatisticas.previsaoFormatura.podeFormarEsteSemestre
-                    ? 'text-green-900 dark:text-green-100'
-                    : estatisticas.previsaoFormatura.semestresRestantes <= 2
-                    ? 'text-blue-900 dark:text-blue-100'
-                    : 'text-foreground'
-                }`}>
-                  Previsão de Formatura
-                </h3>
-                <p className={`text-sm ${
-                  estatisticas.previsaoFormatura.podeFormarEsteSemestre
-                    ? 'text-green-800 dark:text-green-200'
-                    : estatisticas.previsaoFormatura.semestresRestantes <= 2
-                    ? 'text-blue-800 dark:text-blue-200'
-                    : 'text-foreground/90'
-                }`}>
-                  {estatisticas.previsaoFormatura.texto}
-                </p>
-                {estatisticas.previsaoFormatura.disciplinasNecessarias && (
-                  <p className={`text-xs mt-2 italic ${
-                    estatisticas.previsaoFormatura.podeFormarEsteSemestre
-                      ? 'text-green-700/80 dark:text-green-300/80'
-                      : 'text-muted-foreground'
-                  }`}>
-                    Baseado em 6 disciplinas por semestre
-                  </p>
-                )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Previsão de Formatura */}
+            <div className={cn(
+              "p-4 rounded-2xl border transition-all",
+              estatisticas.previsaoFormatura.podeFormarEsteSemestre
+                ? 'bg-green-500/5 border-green-500/20'
+                : estatisticas.previsaoFormatura.semestresRestantes <= 2
+                  ? 'bg-blue-500/5 border-blue-500/20'
+                  : 'bg-muted/30 border-transparent'
+            )}>
+              <div className="flex items-start gap-3">
+                <div className={cn(
+                  "p-2 rounded-xl",
+                  estatisticas.previsaoFormatura.podeFormarEsteSemestre ? "bg-green-500/10 text-green-500" :
+                    estatisticas.previsaoFormatura.semestresRestantes <= 2 ? "bg-blue-500/10 text-blue-500" : "bg-primary/10 text-primary"
+                )}>
+                  <Clock className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Previsão</h3>
+                  <p className="text-sm font-semibold leading-snug">{estatisticas.previsaoFormatura.texto}</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className={`p-4 rounded-lg border-2 ${
-            estatisticas.statusCR.class === 'excellent'
-              ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800'
-              : estatisticas.statusCR.class === 'good'
-              ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-800'
-              : estatisticas.statusCR.class === 'regular'
-              ? 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-800'
-              : 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800'
-          }`}>
-            <div className="flex items-start gap-3">
-              <Star className={`h-5 w-5 mt-0.5 ${
-                estatisticas.statusCR.class === 'excellent' ? 'text-green-700 dark:text-green-400' :
-                estatisticas.statusCR.class === 'good' ? 'text-blue-700 dark:text-blue-400' :
-                estatisticas.statusCR.class === 'regular' ? 'text-yellow-700 dark:text-yellow-400' :
-                'text-red-700 dark:text-red-400'
-              }`} />
-              <div className="flex-1">
-                <h3 className={`font-semibold mb-1 ${
-                  estatisticas.statusCR.class === 'excellent' ? 'text-green-900 dark:text-green-100' :
-                  estatisticas.statusCR.class === 'good' ? 'text-blue-900 dark:text-blue-100' :
-                  estatisticas.statusCR.class === 'regular' ? 'text-yellow-900 dark:text-yellow-100' :
-                  'text-red-900 dark:text-red-100'
-                }`}>
-                  Status Acadêmico
-                </h3>
-                <p className={`text-sm mb-1 ${
-                  estatisticas.statusCR.class === 'excellent' ? 'text-green-800 dark:text-green-200' :
-                  estatisticas.statusCR.class === 'good' ? 'text-blue-800 dark:text-blue-200' :
-                  estatisticas.statusCR.class === 'regular' ? 'text-yellow-800 dark:text-yellow-200' :
-                  'text-red-800 dark:text-red-200'
-                }`}>
-                  {estatisticas.statusCR.text}
-                </p>
-                <p className={`text-lg font-bold ${
-                  estatisticas.statusCR.class === 'excellent' ? 'text-green-900 dark:text-green-50' :
-                  estatisticas.statusCR.class === 'good' ? 'text-blue-900 dark:text-blue-50' :
-                  estatisticas.statusCR.class === 'regular' ? 'text-yellow-900 dark:text-yellow-50' :
-                  'text-red-900 dark:text-red-50'
-                }`}>
-                  CR: {estatisticas.cr.toFixed(2)}
-                </p>
+            {/* Status CR */}
+            <div className={cn(
+              "p-4 rounded-2xl border transition-all",
+              estatisticas.statusCR.class === 'excellent' ? 'bg-green-500/5 border-green-500/20' :
+                estatisticas.statusCR.class === 'good' ? 'bg-blue-500/5 border-blue-500/20' :
+                  estatisticas.statusCR.class === 'regular' ? 'bg-yellow-500/5 border-yellow-500/20' :
+                    'bg-red-500/5 border-red-500/20'
+            )}>
+              <div className="flex items-start gap-3">
+                <div className={cn(
+                  "p-2 rounded-xl",
+                  estatisticas.statusCR.class === 'excellent' ? "bg-green-500/10 text-green-500" :
+                    estatisticas.statusCR.class === 'good' ? "bg-blue-500/10 text-blue-500" :
+                      estatisticas.statusCR.class === 'regular' ? "bg-yellow-500/10 text-yellow-500" :
+                        "bg-red-500/10 text-red-500"
+                )}>
+                  <Star className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Status Acadêmico</h3>
+                  <p className="text-sm font-semibold leading-snug">{estatisticas.statusCR.text}</p>
+                  <p className="text-lg font-black mt-1">CR {estatisticas.cr.toFixed(2)}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -420,188 +445,93 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
         </CardContent>
       </Card>
 
-      {/* Métricas Gerais */}
-      <Card>
-        <CardHeader>
-          <CardTitle as="h2" className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5" />
-            Métricas Gerais
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Book className="h-4 w-4" />
-                <span>Total Disciplinas</span>
-              </div>
-              <p className="text-2xl font-bold">{estatisticas.totalDisciplinasCadastradas}</p>
-            </div>
+      {/* Gráficos em Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {estatisticas.dadosGraficoPizza.length > 0 && (
+          <Card className="rounded-2xl shadow-sm border-none bg-card">
+            <CardHeader>
+              <CardTitle as="h2" className="flex items-center gap-2 text-lg font-bold">
+                <PieChartIcon className="h-5 w-5 text-primary" />
+                Horas por Natureza
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PieChartSummary
+                data={estatisticas.dadosGraficoPizza}
+                colors={estatisticas.coresGrafico}
+              />
+            </CardContent>
+          </Card>
+        )}
 
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calculator className="h-4 w-4" />
-                <span>Média Geral</span>
-              </div>
-              <p className="text-2xl font-bold">{estatisticas.mediaGeral.toFixed(2)}</p>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <TrendingUp className="h-4 w-4" />
-                <span>CR</span>
-              </div>
-              <p className="text-2xl font-bold">{estatisticas.cr.toFixed(2)}</p>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                <span>Total Horas</span>
-              </div>
-              <p className="text-2xl font-bold">{estatisticas.totalCHComEmCurso}h</p>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Star className="h-4 w-4" />
-                <span>Créditos</span>
-              </div>
-              <p className="text-2xl font-bold">{estatisticas.creditos.toFixed(1)}</p>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <BarChart3 className="h-4 w-4" />
-                <span>PCH</span>
-              </div>
-              <p className="text-2xl font-bold">{estatisticas.pch.toFixed(1)}</p>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <span>Aprovações</span>
-              </div>
-              <p className="text-2xl font-bold">
-                {estatisticas.totalAprovacoes}
-                <span className="text-sm text-muted-foreground ml-1">
-                  ({estatisticas.percentualAprovacao.toFixed(1)}%)
-                </span>
-              </p>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <XCircle className="h-4 w-4 text-red-600" />
-                <span>Reprovações</span>
-              </div>
-              <p className="text-2xl font-bold">{estatisticas.totalReprovacoes}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Horas por Natureza - Gráfico */}
-      {estatisticas.dadosGraficoPizza.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle as="h2" className="flex items-center gap-2">
-              <PieChartIcon className="h-5 w-5" />
-              Horas por Natureza
-            </CardTitle>
-            <CardDescription>Distribuição de horas cursadas por tipo de disciplina</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PieChartSummary 
-              data={estatisticas.dadosGraficoPizza} 
-              colors={estatisticas.coresGrafico} 
-            />
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Progresso por Semestre - Gráfico */}
-      {estatisticas.dadosGraficoBarras.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle as="h2" className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Progresso por Semestre
-            </CardTitle>
-            <CardDescription>Disciplinas aprovadas e total por período</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <BarChartSummary data={estatisticas.dadosGraficoBarras} />
-          </CardContent>
-        </Card>
-      )}
+        {estatisticas.dadosGraficoBarras.length > 0 && (
+          <Card className="rounded-2xl shadow-sm border-none bg-card">
+            <CardHeader>
+              <CardTitle as="h2" className="flex items-center gap-2 text-lg font-bold">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                Evolução por Semestre
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BarChartSummary data={estatisticas.dadosGraficoBarras} />
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* Requisitos para Formatura */}
-      <Card>
-        <CardHeader>
-          <CardTitle as="h2" className="flex items-center gap-2">
-            <GraduationCap className="h-5 w-5" />
-            Requisitos para Formatura
+      <Card className="rounded-2xl shadow-sm border-none bg-card overflow-hidden">
+        <CardHeader className="pb-2">
+          <CardTitle as="h2" className="flex items-center gap-2 text-xl font-bold">
+            <GraduationCap className="h-5 w-5 text-primary" />
+            Detalhamento de Requisitos
           </CardTitle>
-          <CardDescription>
-            Acompanhe seu progresso em relação aos requisitos mínimos de carga horária
-          </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
+            <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b">
-                  <th className="text-left p-2 font-medium">Natureza</th>
-                  <th className="text-right p-2 font-medium">Meta (h)</th>
-                  <th className="text-right p-2 font-medium">Cursado (h)</th>
-                  <th className="text-right p-2 font-medium">Falta (h)</th>
+                <tr className="bg-muted/30">
+                  <th className="text-left p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Natureza</th>
+                  <th className="text-right p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Meta</th>
+                  <th className="text-right p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Cursado</th>
+                  <th className="text-right p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Progresso</th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(requisitos).map(([natureza, meta]) => {
                   const cursado = estatisticas.horasPorNatureza[natureza as Natureza] || 0
-                  const falta = Math.max(0, meta - cursado)
-                  const progresso = meta > 0 ? (cursado / meta) * 100 : 0
+                  const progresso = meta > 0 ? Math.min((cursado / meta) * 100, 100) : 0
 
                   return (
-                    <tr key={natureza} className="border-b">
-                      <td className="p-2">{NATUREZA_LABELS[natureza] || natureza}</td>
-                      <td className="p-2 text-right">{meta}</td>
-                      <td className="p-2 text-right">
-                        <span
-                          className={
-                            cursado >= meta
-                              ? 'text-green-600 dark:text-green-400 font-semibold'
-                              : ''
-                          }
-                        >
-                          {cursado}
-                        </span>
+                    <tr key={natureza} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                      <td className="p-4">
+                        <p className="font-semibold text-sm">{NATUREZA_LABELS[natureza] || natureza}</p>
                       </td>
-                      <td className="p-2 text-right">
-                        <span
-                          className={
-                            falta === 0
-                              ? 'text-green-600 dark:text-green-400 font-semibold'
-                              : ''
-                          }
-                        >
-                          {falta}
-                        </span>
+                      <td className="p-4 text-right font-mono text-sm">{meta}h</td>
+                      <td className="p-4 text-right font-mono text-sm font-bold">{cursado}h</td>
+                      <td className="p-4 text-right w-32">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
+                            <div
+                              className={cn(
+                                "h-full rounded-full transition-all duration-500",
+                                progresso >= 100 ? "bg-green-500" : "bg-primary"
+                              )}
+                              style={{ width: `${progresso}%` }}
+                            />
+                          </div>
+                          <span className={cn(
+                            "text-[10px] font-bold w-8",
+                            progresso >= 100 ? "text-green-500" : "text-muted-foreground"
+                          )}>
+                            {progresso.toFixed(0)}%
+                          </span>
+                        </div>
                       </td>
                     </tr>
                   )
                 })}
-                <tr className="border-t-2 font-bold">
-                  <td className="p-2">TOTAL</td>
-                  <td className="p-2 text-right">{cursoConfig.totalHoras}</td>
-                  <td className="p-2 text-right">{estatisticas.totalCH}</td>
-                  <td className="p-2 text-right">
-                    {Math.max(0, cursoConfig.totalHoras - estatisticas.totalCH)}
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
