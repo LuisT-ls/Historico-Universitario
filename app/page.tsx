@@ -17,13 +17,13 @@ export default function Home() {
       <Toaster position="bottom-right" richColors />
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
-        <header className="mb-6">
+        <header className="mb-10">
           <div className="mb-4 text-center">
-            <h1 className="text-3xl sm:text-4xl font-black text-foreground mb-2 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl font-black text-slate-100 mb-3 tracking-tight">
               Histórico Acadêmico
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto font-medium">
-              Gerencie seu progresso, monitore requisitos e planeje sua formatura nos cursos de <strong className="text-foreground font-bold">BICTI</strong> e <strong className="text-foreground font-bold">Engenharias</strong>.
+            <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl mx-auto font-medium">
+              Gerencie seu progresso, monitore requisitos e planeje sua formatura nos cursos de <strong className="text-blue-400 font-bold">BICTI</strong> e <strong className="text-blue-400 font-bold">Engenharias</strong>.
             </p>
           </div>
         </header>
