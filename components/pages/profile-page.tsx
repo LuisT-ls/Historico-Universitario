@@ -170,6 +170,7 @@ export function ProfilePage() {
         updatedAt: new Date(),
       }, { merge: true })
       setProfile(prev => prev ? ({ ...prev, settings: { ...prev.settings, [key]: value } }) : null)
+      if (key === 'notifications') setNotificationsEnabled(value)
       setSettingsSuccess(prev => ({ ...prev, [key]: true }))
       setTimeout(() => setSettingsSuccess(prev => ({ ...prev, [key]: false })), 2000)
     } catch (error) {
@@ -188,37 +189,70 @@ export function ProfilePage() {
       toast.success('Senha alterada!')
       setChangePasswordOpen(false)
     } catch (error) {
-      toast.error('Erro ao alterar senha')
+      toast.error('Erro ao alterar senha', { description: getFirebaseErrorMessage(error) })
+    }
+  }
+
+  const handleExportData = async () => {
+    if (!user || !db) return
+    try {
+      const q = query(collection(db, 'disciplines'), where('userId', '==', user.uid))
+      const snap = await getDocs(q)
+      const disciplines: any[] = []
+      snap.forEach(doc => disciplines.push({ id: doc.id, ...doc.data() }))
+      
+      const backup = { exportedAt: new Date().toISOString(), disciplines }
+      
+      if (exportFormat === 'json') exportAsJSON(backup)
+      else if (exportFormat === 'xlsx') await exportAsXLSX(backup, disciplines, statistics)
+      else await exportAsPDF(backup, disciplines, statistics)
+      
+      toast.success('Dados exportados!')
+    } catch (error) {
+      toast.error('Erro ao exportar dados')
     }
   }
 
   const handleDeleteAccount = async () => {
     if (!user || deleteConfirm !== 'EXCLUIR') return
     try {
-      const cred = EmailAuthProvider.credential(user.email!, deletePassword)
-      await reauthenticateWithCredential(user, cred)
+      const isGoogleUser = user.providerData?.some(p => p.providerId === 'google.com')
+      if (isGoogleUser) {
+        if (!googleProvider) throw new Error('Provider not found')
+        await reauthenticateWithPopup(user, googleProvider)
+      } else {
+        const cred = EmailAuthProvider.credential(user.email!, deletePassword)
+        await reauthenticateWithCredential(user, cred)
+      }
       await deleteUser(user)
+      localStorage.clear()
       router.push('/')
+      toast.success('Conta excluída')
     } catch (error) {
       toast.error('Erro ao excluir conta')
     }
   }
 
-  const maskSensitive = (val: string, show: boolean) => {
+  const maskSensitive = (val: string | null | undefined, type: 'email' | 'enrollment') => {
     if (!val) return ''
-    if (show) return val
-    return val.slice(0, 2) + '••••' + val.slice(-2)
+    if (showSensitive[type]) return val
+    if (type === 'email') {
+      const parts = val.split('@')
+      return parts[0][0] + '••••@' + parts[1][0] + '••••'
+    }
+    return val.slice(0, 3) + '••••' + val.slice(-2)
   }
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8" /></div>
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+      <Toaster position="bottom-right" richColors />
       <Header />
       <main className="flex-1 container mx-auto px-4 py-12">
         <div className="mb-12">
           <h1 className="text-4xl font-black tracking-tight mb-2">Meu Perfil</h1>
-          <p className="text-slate-400">Gerencie suas informações e configurações</p>
+          <p className="text-slate-400">Gerencie suas informações e configurações acadêmicas</p>
         </div>
 
         <div className="space-y-12">
@@ -229,7 +263,7 @@ export function ProfilePage() {
               { label: 'Em Andamento', value: statistics.inProgressDisciplines, color: 'border-t-sky-400', icon: Clock, iconColor: 'text-sky-400' },
               { label: 'Média', value: statistics.averageGrade.toFixed(1), color: 'border-t-yellow-500', icon: Star, iconColor: 'text-yellow-500' },
             ].map((stat, i) => (
-              <Card key={i} className={cn("rounded-xl border-none border-t-4 bg-slate-900/50 backdrop-blur-sm p-6 transition-all hover:translate-y-[-4px]", stat.color)}>
+              <Card key={i} className={cn("rounded-xl border-none border-t-4 bg-slate-900/50 backdrop-blur-sm p-6 transition-all hover:shadow-lg", stat.color)}>
                 <div className="flex items-center gap-4">
                   <div className={cn("p-3 rounded-xl bg-slate-800", stat.iconColor)}><stat.icon className="h-6 w-6" /></div>
                   <div>
@@ -252,7 +286,7 @@ export function ProfilePage() {
                 <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase text-slate-500">E-mail</Label>
                   <div className="relative">
-                    <Input value={maskSensitive(profile?.email || '', showSensitive.email)} disabled className="h-12 rounded-xl bg-slate-800/50 border-slate-700 pr-12" />
+                    <Input value={maskSensitive(profile?.email, 'email')} disabled className="h-12 rounded-xl bg-slate-800/50 border-slate-700 pr-12" />
                     <button type="button" onClick={() => setShowSensitive(p => ({ ...p, email: !p.email }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
                       {showSensitive.email ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
@@ -262,7 +296,7 @@ export function ProfilePage() {
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold uppercase text-slate-500">Matrícula</Label>
                     <div className="relative">
-                      <Input value={maskSensitive(profile?.matricula || '', showSensitive.enrollment)} onChange={e => setProfile(prev => prev ? ({ ...prev, matricula: e.target.value }) : null)} className="h-12 rounded-xl bg-slate-800/50 border-slate-700 pr-12" />
+                      <Input value={maskSensitive(profile?.matricula, 'enrollment')} onChange={e => setProfile(prev => prev ? ({ ...prev, matricula: e.target.value }) : null)} className="h-12 rounded-xl bg-slate-800/50 border-slate-700 pr-12" />
                       <button type="button" onClick={() => setShowSensitive(p => ({ ...p, enrollment: !p.enrollment }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
                         {showSensitive.enrollment ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                       </button>
@@ -276,8 +310,9 @@ export function ProfilePage() {
                   </div>
                 </div>
                 <div className="flex justify-end pt-4">
-                  <Button onClick={handleSave} disabled={isSaving} className={cn("h-12 px-10 rounded-xl font-bold transition-all", saveSuccess ? "bg-green-600" : "bg-blue-600 hover:bg-blue-500")}>
-                    {isSaving ? <Loader2 className="animate-spin h-5 w-5" /> : saveSuccess ? 'Confirmado!' : 'Salvar Alterações'}
+                  <Button onClick={handleSave} disabled={isSaving} className={cn("h-12 px-10 rounded-xl font-bold transition-all", saveSuccess ? "bg-green-600 hover:bg-green-600" : "bg-blue-600 hover:bg-blue-500")}>
+                    {isSaving ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : saveSuccess ? <CheckCircle className="h-5 w-5 mr-2" /> : <Save className="h-5 w-5 mr-2" />}
+                    {isSaving ? 'Salvando...' : saveSuccess ? 'Salvo!' : 'Salvar Alterações'}
                   </Button>
                 </div>
               </div>
@@ -285,29 +320,42 @@ export function ProfilePage() {
 
             <div className="space-y-8">
               <Card className="rounded-2xl border-none bg-slate-900/50 p-8 space-y-6">
-                <div className="flex items-center gap-3"><Settings className="h-6 w-6 text-blue-500" /><h2 className="text-xl font-bold">Preferências</h2></div>
+                <div className="flex items-center gap-3"><Settings className="h-6 w-6 text-blue-500" /><h2 className="text-2xl font-bold">Preferências</h2></div>
                 <div className="space-y-4">
-                  {[
-                    { label: 'Notificações', key: 'notifications', icon: Bell, val: profile?.settings?.notifications },
-                    { label: 'Perfil Público', key: 'privacy', icon: Globe, val: profile?.settings?.privacy === 'public' },
-                  ].map(set => (
-                    <div key={set.key} className="flex items-center justify-between p-4 bg-slate-800/30 rounded-xl border border-slate-700/50">
-                      <div className="flex items-center gap-3"><set.icon className="h-5 w-5 text-slate-400" /><span className="text-sm font-medium">{set.label}</span></div>
-                      <Button variant="ghost" size="sm" onClick={() => handleSettingsChange(set.key as any, set.key === 'privacy' ? (set.val ? 'private' : 'public') : !set.val)} className={cn("rounded-lg h-8 px-4 border border-slate-700", set.val ? "bg-blue-500/10 text-blue-400" : "text-slate-500")}>
-                        {set.val ? 'Ativado' : 'Desativado'}
-                      </Button>
-                    </div>
-                  ))}
+                  <div className="flex items-center justify-between p-4 bg-slate-800/30 rounded-xl border border-slate-700/50">
+                    <div className="flex items-center gap-3"><Bell className="h-5 w-5 text-slate-400" /><span className="text-sm font-medium">Notificações</span></div>
+                    <Button variant="ghost" size="sm" onClick={() => handleSettingsChange('notifications', !profile?.settings?.notifications)} className={cn("rounded-lg h-8 px-4 border border-slate-700", profile?.settings?.notifications ? "bg-blue-500/10 text-blue-400" : "text-slate-500")}>
+                      {profile?.settings?.notifications ? 'Ativado' : 'Desativado'}
+                    </Button>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-slate-800/30 rounded-xl border border-slate-700/50">
+                    <div className="flex items-center gap-3"><Globe className="h-5 w-5 text-slate-400" /><span className="text-sm font-medium">Perfil Público</span></div>
+                    <Button variant="ghost" size="sm" onClick={() => handleSettingsChange('privacy', profile?.settings?.privacy === 'public' ? 'private' : 'public')} className={cn("rounded-lg h-8 px-4 border border-slate-700", profile?.settings?.privacy === 'public' ? "bg-blue-500/10 text-blue-400" : "text-slate-500")}>
+                      {profile?.settings?.privacy === 'public' ? 'Ativado' : 'Desativado'}
+                    </Button>
+                  </div>
                 </div>
               </Card>
 
               <Card className="rounded-2xl border-none bg-slate-900/50 p-8 space-y-6">
-                <div className="flex items-center gap-3"><Shield className="h-6 w-6 text-red-500" /><h2 className="text-xl font-bold">Segurança</h2></div>
+                <div className="flex items-center gap-3"><Shield className="h-6 w-6 text-red-500" /><h2 className="text-2xl font-bold">Segurança</h2></div>
                 <div className="space-y-4">
-                  <Button variant="outline" onClick={() => setChangePasswordOpen(true)} className="w-full h-12 rounded-xl border-slate-700 hover:bg-slate-800">Alterar Senha de Acesso</Button>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button variant="outline" onClick={() => setChangePasswordOpen(true)} className="flex-1 h-12 rounded-xl border-slate-700 hover:bg-slate-800">
+                      <Key className="h-4 w-4 mr-2" /> Alterar Senha
+                    </Button>
+                    <div className="flex-1 flex gap-2">
+                      <select value={exportFormat} onChange={e => setExportFormat(e.target.value as any)} className="bg-slate-800 border border-slate-700 rounded-xl px-3 text-xs focus:outline-none">
+                        <option value="json">JSON</option><option value="xlsx">EXCEL</option><option value="pdf">PDF</option>
+                      </select>
+                      <Button variant="outline" onClick={handleExportData} className="flex-1 h-12 rounded-xl border-slate-700 hover:bg-slate-800">
+                        <Download className="h-4 w-4 mr-2" /> Exportar
+                      </Button>
+                    </div>
+                  </div>
                   <div className="pt-6 border-t border-slate-800">
                     <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-xl flex justify-between items-center group">
-                      <div><h3 className="text-sm font-bold text-red-500">Zona de Perigo</h3><p className="text-[10px] text-slate-500">Exclusão permanente de dados</p></div>
+                      <div><h3 className="text-sm font-bold text-red-500">Zona de Perigo</h3><p className="text-[10px] text-slate-500">Exclusão permanente de todos os seus dados</p></div>
                       <Button variant="outline" onClick={() => setDeleteAccountOpen(true)} className="h-9 border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white transition-all">Excluir Conta</Button>
                     </div>
                   </div>
@@ -321,25 +369,44 @@ export function ProfilePage() {
 
       <Dialog open={changePasswordOpen} onOpenChange={setChangePasswordOpen}>
         <DialogContent className="bg-slate-900 border-slate-800 rounded-2xl max-w-sm">
-          <DialogHeader><DialogTitle>Segurança</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><Key className="h-5 w-5" /> Segurança</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <Input type="password" placeholder="Senha Atual" value={passwordData.current} onChange={e => setPasswordData({...passwordData, current: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
-            <Input type="password" placeholder="Nova Senha" value={passwordData.new} onChange={e => setPasswordData({...passwordData, new: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
-            <Input type="password" placeholder="Confirmar Nova Senha" value={passwordData.confirm} onChange={e => setPasswordData({...passwordData, confirm: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-slate-500">Senha Atual</Label>
+              <Input type="password" value={passwordData.current} onChange={e => setPasswordData({...passwordData, current: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-slate-500">Nova Senha</Label>
+              <Input type="password" value={passwordData.new} onChange={e => setPasswordData({...passwordData, new: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-slate-500">Confirmar Nova Senha</Label>
+              <Input type="password" value={passwordData.confirm} onChange={e => setPasswordData({...passwordData, confirm: e.target.value})} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+            </div>
           </div>
-          <Button onClick={handleChangePassword} className="w-full h-12 rounded-xl bg-blue-600 font-bold">Confirmar Alteração</Button>
+          <Button onClick={handleChangePassword} className="w-full h-12 rounded-xl bg-blue-600 font-bold hover:bg-blue-500">Confirmar Alteração</Button>
         </DialogContent>
       </Dialog>
 
       <Dialog open={deleteAccountOpen} onOpenChange={setDeleteAccountOpen}>
         <DialogContent className="bg-slate-900 border-slate-800 rounded-2xl max-w-sm">
-          <DialogHeader><DialogTitle className="text-red-500">Excluir Conta</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-red-500 flex items-center gap-2"><Trash2 className="h-5 w-5" /> Excluir Conta</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4 text-center">
-            <p className="text-sm text-slate-400">Esta ação é irreversível. Digite <strong>EXCLUIR</strong> para confirmar:</p>
-            <Input value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} className="h-12 text-center rounded-xl bg-slate-800 border-red-500/50 uppercase" />
-            <Input type="password" placeholder="Sua Senha" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+            <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 text-red-500">
+              <AlertDescription className="text-xs">Esta ação é irreversível. Todos os seus dados serão permanentemente excluídos.</AlertDescription>
+            </Alert>
+            <div className="space-y-2 text-left">
+              <Label className="text-xs font-bold text-slate-500">Digite EXCLUIR para confirmar</Label>
+              <Input value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} className="h-12 text-center rounded-xl bg-slate-800 border-red-500/50 uppercase" />
+            </div>
+            {!user?.providerData?.some(p => p.providerId === 'google.com') && (
+              <div className="space-y-2 text-left">
+                <Label className="text-xs font-bold text-slate-500">Sua Senha</Label>
+                <Input type="password" placeholder="Sua Senha" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} className="h-12 rounded-xl bg-slate-800 border-slate-700" />
+              </div>
+            )}
           </div>
-          <Button variant="destructive" onClick={handleDeleteAccount} className="w-full h-12 rounded-xl font-bold">Excluir Permanentemente</Button>
+          <Button variant="destructive" onClick={handleDeleteAccount} className="w-full h-12 rounded-xl font-bold" disabled={deleteConfirm !== 'EXCLUIR'}>Excluir Permanentemente</Button>
         </DialogContent>
       </Dialog>
     </div>
