@@ -286,8 +286,8 @@ export function SimuladorPageClient() {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-black tracking-tight mb-2">Simulador "E Se?"</h1>
-          <p className="text-sm text-slate-400 font-medium">
+          <h1 className="text-4xl font-black tracking-tight mb-2 text-foreground">Simulador "E Se?"</h1>
+          <p className="text-sm text-muted-foreground dark:text-slate-400 font-medium">
             Planeje seu próximo semestre e veja o impacto no seu CR e previsão de formatura.
           </p>
         </div>
@@ -307,37 +307,37 @@ export function SimuladorPageClient() {
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Semestre</Label>
-                      <Input {...register('periodo')} placeholder="Ex: 2026.1" className="rounded-xl bg-slate-800/50 border-slate-700" />
+                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">Semestre</Label>
+                      <Input {...register('periodo')} placeholder="Ex: 2026.1" className="rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Código</Label>
-                      <Input {...register('codigo')} placeholder="Ex: CTIA01" className="rounded-xl bg-slate-800/50 border-slate-700" />
+                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">Código</Label>
+                      <Input {...register('codigo')} placeholder="Ex: CTIA01" className="rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700" />
                     </div>
                   </div>
 
                   <div className="space-y-2 relative" ref={searchRef}>
-                    <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Nome da Disciplina</Label>
+                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">Nome da Disciplina</Label>
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground dark:text-slate-500" />
                       <Input 
                         {...register('nome')} 
                         placeholder="Busque por nome ou código..." 
-                        className="pl-10 rounded-xl bg-slate-800/50 border-slate-700"
+                        className="pl-10 rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700"
                         onFocus={() => setShowResults(true)}
                       />
                     </div>
                     {showResults && searchResults.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-slate-900 border border-slate-800 rounded-xl shadow-xl overflow-hidden">
+                      <div className="absolute z-50 w-full mt-1 bg-background dark:bg-slate-900 border border-border dark:border-slate-800 rounded-xl shadow-xl overflow-hidden">
                         {searchResults.map((d, i) => (
                           <button
                             key={i}
                             type="button"
-                            className="w-full text-left px-4 py-2 hover:bg-slate-800 transition-colors text-sm border-b border-slate-800 last:border-0"
+                            className="w-full text-left px-4 py-2 hover:bg-accent dark:hover:bg-slate-800 transition-colors text-sm border-b border-border dark:border-slate-800 last:border-0 text-foreground dark:text-slate-200"
                             onClick={() => handleSelectDisciplina(d)}
                           >
-                            <span className="font-bold text-blue-400 mr-2">{d.codigo}</span>
-                            <span className="text-slate-200">{d.nome}</span>
+                            <span className="font-bold text-primary dark:text-blue-400 mr-2">{d.codigo}</span>
+                            <span>{d.nome}</span>
                           </button>
                         ))}
                       </div>
@@ -346,22 +346,22 @@ export function SimuladorPageClient() {
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Natureza</Label>
+                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">Natureza</Label>
                       <select 
                         {...register('natureza')} 
-                        className="flex h-10 w-full rounded-xl border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
+                        className="flex h-10 w-full rounded-xl border border-border dark:border-slate-700 bg-background dark:bg-slate-800/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
                       >
                         <option value="">Selecione...</option>
                         {naturezasDisponiveis.map(n => <option key={n} value={n}>{NATUREZA_LABELS[n] || n}</option>)}
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">CH</Label>
-                      <Input type="number" {...register('ch')} placeholder="Ex: 60" className="rounded-xl bg-slate-800/50 border-slate-700" />
+                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">CH</Label>
+                      <Input type="number" {...register('ch')} placeholder="Ex: 60" className="rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Nota Esperada</Label>
-                      <Input type="number" step="0.1" {...register('nota')} placeholder="0.0 a 10.0" className="rounded-xl bg-slate-800/50 border-slate-700" />
+                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">Nota Esperada</Label>
+                      <Input type="number" step="0.1" {...register('nota')} placeholder="0.0 a 10.0" className="rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700" />
                     </div>
                   </div>
 
@@ -381,40 +381,40 @@ export function SimuladorPageClient() {
                   <CardDescription>{disciplinasSimuladas.length} matérias no plano</CardDescription>
                 </div>
                 {disciplinasSimuladas.length > 0 && (
-                  <Button variant="ghost" size="sm" onClick={() => setDisciplinasSimuladas([])} className="text-slate-400 hover:text-red-400">
+                  <Button variant="ghost" size="sm" onClick={() => setDisciplinasSimuladas([])} className="text-muted-foreground dark:text-slate-400 hover:text-destructive dark:hover:text-red-400">
                     Limpar Tudo
                   </Button>
                 )}
               </CardHeader>
               <CardContent className="p-0">
                 {disciplinasSimuladas.length === 0 ? (
-                  <div className="py-12 text-center text-slate-500">
+                  <div className="py-12 text-center text-muted-foreground dark:text-slate-500">
                     <Calculator className="h-12 w-12 mx-auto mb-3 opacity-20" />
                     <p>Nenhuma disciplina adicionada para simulação.</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-slate-800/50 border-b border-slate-700">
+                      <thead className="bg-muted dark:bg-slate-800/50 border-b border-border dark:border-slate-700">
                         <tr>
-                          <th className="px-4 py-3 text-left font-bold text-slate-400 uppercase text-[10px]">Semestre</th>
-                          <th className="px-4 py-3 text-left font-bold text-slate-400 uppercase text-[10px]">Código</th>
-                          <th className="px-4 py-3 text-left font-bold text-slate-400 uppercase text-[10px]">Nome</th>
-                          <th className="px-4 py-3 text-center font-bold text-slate-400 uppercase text-[10px]">CH</th>
-                          <th className="px-4 py-3 text-center font-bold text-slate-400 uppercase text-[10px]">Nota</th>
-                          <th className="px-4 py-3 text-right font-bold text-slate-400 uppercase text-[10px]">Ação</th>
+                          <th className="px-4 py-3 text-left font-bold text-muted-foreground dark:text-slate-400 uppercase text-[10px]">Semestre</th>
+                          <th className="px-4 py-3 text-left font-bold text-muted-foreground dark:text-slate-400 uppercase text-[10px]">Código</th>
+                          <th className="px-4 py-3 text-left font-bold text-muted-foreground dark:text-slate-400 uppercase text-[10px]">Nome</th>
+                          <th className="px-4 py-3 text-center font-bold text-muted-foreground dark:text-slate-400 uppercase text-[10px]">CH</th>
+                          <th className="px-4 py-3 text-center font-bold text-muted-foreground dark:text-slate-400 uppercase text-[10px]">Nota</th>
+                          <th className="px-4 py-3 text-right font-bold text-muted-foreground dark:text-slate-400 uppercase text-[10px]">Ação</th>
                         </tr>
                       </thead>
                       <tbody>
                         {disciplinasSimuladas.map((d, i) => (
-                          <tr key={i} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
-                            <td className="px-4 py-3 font-medium">{d.periodo}</td>
-                            <td className="px-4 py-3 font-mono text-blue-400">{d.codigo}</td>
-                            <td className="px-4 py-3 truncate max-w-[200px]">{d.nome}</td>
-                            <td className="px-4 py-3 text-center font-bold">{d.ch}h</td>
-                            <td className="px-4 py-3 text-center font-black text-green-400">{d.nota.toFixed(1)}</td>
+                          <tr key={i} className="border-b border-border dark:border-slate-800/50 hover:bg-accent dark:hover:bg-slate-800/30 transition-colors">
+                            <td className="px-4 py-3 font-medium text-foreground">{d.periodo}</td>
+                            <td className="px-4 py-3 font-mono text-primary dark:text-blue-400">{d.codigo}</td>
+                            <td className="px-4 py-3 truncate max-w-[200px] text-foreground">{d.nome}</td>
+                            <td className="px-4 py-3 text-center font-bold text-foreground">{d.ch}h</td>
+                            <td className="px-4 py-3 text-center font-black text-green-600 dark:text-green-400">{d.nota.toFixed(1)}</td>
                             <td className="px-4 py-3 text-right">
-                              <Button variant="ghost" size="icon" onClick={() => setDisciplinasSimuladas(prev => prev.filter((_, idx) => idx !== i))} className="h-8 w-8 text-slate-500 hover:text-red-400">
+                              <Button variant="ghost" size="icon" onClick={() => setDisciplinasSimuladas(prev => prev.filter((_, idx) => idx !== i))} className="h-8 w-8 text-muted-foreground dark:text-slate-500 hover:text-destructive dark:hover:text-red-400">
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </td>
@@ -430,24 +430,24 @@ export function SimuladorPageClient() {
 
           {/* Coluna da Direita: Impacto e Métricas */}
           <div className="space-y-6">
-            <Card className="rounded-2xl border-none shadow-xl bg-slate-900 border-t-4 border-t-primary overflow-hidden">
+            <Card className="rounded-2xl border-none shadow-xl bg-card dark:bg-slate-900 border-t-4 border-t-primary overflow-hidden">
               <CardHeader>
-                <CardTitle className="text-lg font-bold flex items-center gap-2">
+                <CardTitle className="text-lg font-bold flex items-center gap-2 text-foreground">
                   <TrendingUp className="h-5 w-5 text-primary" />
                   Impacto no CR
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-2xl border border-slate-700/50">
+                <div className="flex items-center justify-between p-4 bg-muted dark:bg-slate-800/50 rounded-2xl border border-border dark:border-slate-700/50">
                   <div>
-                    <p className="text-[10px] font-bold uppercase text-slate-500 mb-1">CR Atual</p>
-                    <p className="text-2xl font-black">{impacto.cr.atual.toFixed(2)}</p>
+                    <p className="text-[10px] font-bold uppercase text-muted-foreground dark:text-slate-500 mb-1">CR Atual</p>
+                    <p className="text-2xl font-black text-foreground">{impacto.cr.atual.toFixed(2)}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[10px] font-bold uppercase text-slate-500 mb-1">CR Simulado</p>
+                    <p className="text-[10px] font-bold uppercase text-muted-foreground dark:text-slate-500 mb-1">CR Simulado</p>
                     <p className={cn(
                       "text-2xl font-black",
-                      impacto.cr.diferenca > 0 ? "text-green-400" : impacto.cr.diferenca < 0 ? "text-red-400" : ""
+                      impacto.cr.diferenca > 0 ? "text-green-600 dark:text-green-400" : impacto.cr.diferenca < 0 ? "text-red-600 dark:text-red-400" : "text-foreground"
                     )}>
                       {impacto.cr.simulado.toFixed(2)}
                     </p>
@@ -468,22 +468,22 @@ export function SimuladorPageClient() {
 
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                    <div className="p-2 rounded-lg bg-primary/10 text-primary dark:text-blue-400">
                       <Clock className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-[10px] font-bold uppercase text-slate-500">Carga Horária</p>
-                      <p className="text-sm font-bold">+{impacto.ch.diferenca}h concluídas</p>
+                      <p className="text-[10px] font-bold uppercase text-muted-foreground dark:text-slate-500">Carga Horária</p>
+                      <p className="text-sm font-bold text-foreground">+{impacto.ch.diferenca}h concluídas</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-yellow-500/10 text-yellow-400">
+                    <div className="p-2 rounded-lg bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
                       <GraduationCap className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-[10px] font-bold uppercase text-slate-500">Previsão</p>
-                      <p className="text-sm font-bold">{metricasSimuladas.previsao.texto}</p>
+                      <p className="text-[10px] font-bold uppercase text-muted-foreground dark:text-slate-500">Previsão</p>
+                      <p className="text-sm font-bold text-foreground">{metricasSimuladas.previsao.texto}</p>
                     </div>
                   </div>
                 </div>
@@ -501,17 +501,17 @@ export function SimuladorPageClient() {
               <CardContent className="space-y-4">
                 <div>
                   <div className="flex justify-between text-xs font-bold mb-2">
-                    <span className="text-slate-400 uppercase">Status Geral</span>
+                    <span className="text-muted-foreground dark:text-slate-400 uppercase">Status Geral</span>
                     <span className="text-primary">{((metricasSimuladas.ch / (cursoConfig?.totalHoras || 2400)) * 100).toFixed(1)}%</span>
                   </div>
-                  <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-2 bg-muted dark:bg-slate-800 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-primary transition-all duration-1000" 
                       style={{ width: `${(metricasSimuladas.ch / (cursoConfig?.totalHoras || 2400)) * 100}%` }}
                     />
                   </div>
                 </div>
-                <p className="text-[11px] text-slate-500 text-center italic">
+                <p className="text-[11px] text-muted-foreground dark:text-slate-500 text-center italic">
                   Faltam {metricasSimuladas.faltantes}h para a formatura com este plano.
                 </p>
               </CardContent>
