@@ -185,6 +185,93 @@ export function HomePage() {
     }
   }
 
+  const handleImportDisciplinas = async (disciplinasImportadas: Disciplina[]) => {
+    setIsLoading(true)
+    try {
+      logger.info(`Iniciando importação de ${disciplinasImportadas.length} disciplinas`)
+      
+      // Adicionar curso atual às disciplinas importadas se não tiver
+      const disciplinasComCurso = disciplinasImportadas.map((d, index) => ({
+        ...d,
+        curso: d.curso || cursoAtual,
+        // Gerar ID temporário se não tiver (para uso local)
+        id: d.id || `temp-${Date.now()}-${index}`,
+      }))
+
+      let disciplinasSalvas: Disciplina[] = []
+
+      if (user && db) {
+        // Usuário logado: salvar no Firebase
+        logger.info('Usuário autenticado - salvando no Firebase')
+        
+        for (const disciplina of disciplinasComCurso) {
+          try {
+            const disciplineData = {
+              ...disciplina,
+              userId: user.uid,
+              curso: disciplina.curso || cursoAtual,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            }
+            delete (disciplineData as any).id
+
+            const docRef = await addDoc(collection(db, 'disciplines'), disciplineData)
+            disciplinasSalvas.push({
+              ...disciplina,
+              id: createDisciplinaId(docRef.id),
+              curso: disciplina.curso || cursoAtual,
+            })
+          } catch (error) {
+            logger.error(`Erro ao salvar disciplina ${disciplina.codigo}:`, error)
+            // Continua com as outras disciplinas mesmo se uma falhar
+          }
+        }
+
+        logger.info(`${disciplinasSalvas.length} disciplinas salvas no Firebase`)
+
+        // Recarregar disciplinas do Firebase para garantir sincronização
+        await loadDisciplinas()
+      } else {
+        // Usuário não logado: salvar apenas no localStorage e estado local
+        logger.info('Usuário não autenticado - salvando apenas localmente')
+        
+        disciplinasSalvas = disciplinasComCurso.map((d, index) => ({
+          ...d,
+          id: d.id || `local-${Date.now()}-${index}`,
+          curso: d.curso || cursoAtual,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }))
+
+        // Filtrar apenas disciplinas do curso atual
+        const disciplinasDoCurso = disciplinasSalvas.filter((d) => d.curso === cursoAtual)
+        
+        // Ordenar por período
+        disciplinasDoCurso.sort((a, b) => {
+          const [anoA, semA] = a.periodo.split('.').map(Number)
+          const [anoB, semB] = b.periodo.split('.').map(Number)
+          if (anoA !== anoB) return anoB - anoA
+          return semB - semA
+        })
+
+        // Atualizar estado local
+        setDisciplinas(disciplinasDoCurso)
+        
+        // Salvar no localStorage
+        localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasDoCurso))
+        
+        logger.info(`${disciplinasDoCurso.length} disciplinas salvas localmente`)
+      }
+
+      toast.success(`${disciplinasSalvas.length} disciplinas importadas com sucesso!`)
+    } catch (error) {
+      logger.error('Erro ao importar disciplinas:', error)
+      toast.error('Erro ao importar disciplinas. Tente novamente.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="space-y-8">
       {isLoading && (
@@ -193,7 +280,7 @@ export function HomePage() {
         </div>
       )}
 
-      <ActionBar cursoAtual={cursoAtual} onCursoChange={handleCursoChange} onImport={loadDisciplinas} />
+      <ActionBar cursoAtual={cursoAtual} onCursoChange={handleCursoChange} onImport={handleImportDisciplinas} />
 
       <div className="space-y-1">
         <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground/60 px-1">Busca Rápida</h2>

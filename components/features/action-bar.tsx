@@ -11,7 +11,7 @@ import { Disciplina, Curso } from '@/types'
 interface ActionBarProps {
   cursoAtual: Curso
   onCursoChange: (curso: Curso) => void
-  onImport: (disciplinas: Disciplina[]) => void
+  onImport: (disciplinas: Disciplina[]) => Promise<void>
 }
 
 export function ActionBar({ cursoAtual, onCursoChange, onImport }: ActionBarProps) {
@@ -28,13 +28,16 @@ export function ActionBar({ cursoAtual, onCursoChange, onImport }: ActionBarProp
 
     setIsParsing(true)
     try {
+      logger.info('Iniciando processamento do PDF...')
       const result: ParsedHistory = await parseSigaaHistory(file)
       
+      logger.info(`PDF processado: ${result.disciplinas.length} disciplinas encontradas`)
+      
       if (result.disciplinas.length === 0) {
+        logger.warn('Nenhuma disciplina encontrada no PDF')
         toast.error('Não foi possível encontrar disciplinas no arquivo. Verifique se o PDF é um histórico oficial do SIGAA.')
       } else {
-        onImport(result.disciplinas)
-        
+        // Mostrar avisos antes de importar
         if (result.avisos && result.avisos.length > 0) {
           result.avisos.forEach(aviso => {
             toast.info('Aviso de Importação', {
@@ -44,7 +47,10 @@ export function ActionBar({ cursoAtual, onCursoChange, onImport }: ActionBarProp
           })
         }
 
-        toast.success(`${result.disciplinas.length} disciplinas importadas com sucesso!`)
+        // Importar disciplinas (salvar no Firebase)
+        logger.info('Iniciando salvamento das disciplinas no Firebase...')
+        await onImport(result.disciplinas)
+        logger.info('Disciplinas salvas com sucesso')
         
         if (result.nomeAluno) {
           logger.info(`Histórico de ${result.nomeAluno} importado.`)
