@@ -195,7 +195,7 @@ export function HomePage() {
         ...d,
         curso: d.curso || cursoAtual,
         // Gerar ID temporário se não tiver (para uso local)
-        id: d.id || `temp-${Date.now()}-${index}`,
+        id: d.id || createDisciplinaId(`temp-${Date.now()}-${index}`),
       }))
 
       let disciplinasSalvas: Disciplina[] = []
@@ -237,7 +237,7 @@ export function HomePage() {
         
         disciplinasSalvas = disciplinasComCurso.map((d, index) => ({
           ...d,
-          id: d.id || `local-${Date.now()}-${index}`,
+          id: d.id || createDisciplinaId(`local-${Date.now()}-${index}`),
           curso: d.curso || cursoAtual,
           createdAt: new Date(),
           updatedAt: new Date(),
