@@ -38,10 +38,10 @@ export function PrivacyPage() {
                 </p>
                 <div className="bg-primary/10 p-4 rounded-lg border-l-4 border-primary">
                   <p className="text-sm">
-                    <strong>Última atualização:</strong> 15/07/2025
+                    <strong>Última atualização:</strong> 26/01/2026
                   </p>
                   <p className="text-sm">
-                    <strong>Versão:</strong> 2.0
+                    <strong>Versão:</strong> 2.1
                   </p>
                 </div>
               </section>
@@ -72,7 +72,33 @@ export function PrivacyPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-foreground">2.3 Dados de Uso</h3>
+                  <h3 className="text-xl font-semibold text-foreground">2.3 Importação de Histórico Acadêmico (PDF)</h3>
+                  <div className="bg-primary/10 p-4 rounded-lg border-l-4 border-primary">
+                    <p className="text-muted-foreground mb-3">
+                      <strong>Importante:</strong> O processamento do PDF do histórico acadêmico é realizado <strong>localmente no seu navegador</strong>. O arquivo PDF nunca é enviado para nossos servidores.
+                    </p>
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Ao importar um histórico acadêmico em formato PDF do SIGAA, extraímos apenas as seguintes informações acadêmicas:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+                    <li><strong>Dados das disciplinas:</strong> Período, código, nome, carga horária, nota e situação (aprovado/reprovado/trancado)</li>
+                    <li><strong>Natureza das disciplinas:</strong> Obrigatória (OB), Optativa (OP), Atividade Complementar (AC), etc.</li>
+                  </ul>
+                  <p className="text-muted-foreground leading-relaxed mt-3">
+                    <strong>Dados que NÃO são extraídos ou armazenados do PDF:</strong>
+                  </p>
+                  <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+                    <li><strong>Nome completo do estudante:</strong> Não é extraído nem armazenado</li>
+                    <li><strong>Matrícula:</strong> Não é extraída do PDF (apenas se você inserir manualmente no perfil)</li>
+                    <li><strong>CPF, RG ou documentos pessoais:</strong> Não são coletados</li>
+                    <li><strong>Endereço ou dados de contato:</strong> Não são coletados</li>
+                    <li><strong>Informações de curso do PDF:</strong> Não são extraídas automaticamente</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-xl font-semibold text-foreground">2.4 Dados de Uso</h3>
                   <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                     <li><strong>Logs de acesso:</strong> Data e hora de login</li>
                     <li><strong>Preferências:</strong> Configurações do usuário</li>
@@ -134,6 +160,11 @@ export function PrivacyPage() {
                     <li><strong>Firebase (Google):</strong> Autenticação e armazenamento seguro</li>
                     <li><strong>Vercel:</strong> Hospedagem e distribuição do aplicativo</li>
                   </ul>
+                  <div className="bg-primary/10 p-4 rounded-lg border-l-4 border-primary mt-3">
+                    <p className="text-muted-foreground text-sm">
+                      <strong>Armazenamento no Firebase:</strong> Apenas dados acadêmicos (disciplinas, notas, períodos) são armazenados no Firebase Firestore. Cada usuário só pode acessar seus próprios dados através de regras de segurança rigorosas. Informações pessoais como nome completo e matrícula só são armazenadas se você inserir manualmente no seu perfil.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
@@ -159,6 +190,8 @@ export function PrivacyPage() {
                     <li><strong>Autenticação segura:</strong> Login com Google e e-mail/senha</li>
                     <li><strong>Controle de acesso:</strong> Apenas você acessa seus dados</li>
                     <li><strong>Backup seguro:</strong> Dados protegidos em servidores confiáveis</li>
+                    <li><strong>Processamento local:</strong> PDFs são processados no seu navegador, nunca enviados para servidores</li>
+                    <li><strong>Regras de segurança:</strong> Firestore configurado para permitir acesso apenas aos próprios dados</li>
                   </ul>
                 </div>
 
@@ -318,8 +351,8 @@ export function PrivacyPage() {
 
               {/* Última atualização */}
               <div className="text-center pt-6 border-t text-sm text-muted-foreground">
-                <p><strong>Última atualização:</strong> Julho de 2025</p>
-                <p><strong>Versão da política:</strong> 2.0</p>
+                <p><strong>Última atualização:</strong> Janeiro de 2026</p>
+                <p><strong>Versão da política:</strong> 2.1</p>
               </div>
             </div>
           </CardContent>

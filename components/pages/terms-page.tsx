@@ -37,10 +37,10 @@ export function TermsPage() {
                 </p>
                 <div className="bg-primary/10 p-4 rounded-lg border-l-4 border-primary">
                   <p className="text-sm">
-                    <strong>Última atualização:</strong> 15/07/2025
+                    <strong>Última atualização:</strong> 26/01/2026
                   </p>
                   <p className="text-sm">
-                    <strong>Versão:</strong> 2.0
+                    <strong>Versão:</strong> 2.1
                   </p>
                   <p className="text-sm">
                     <strong>Vigência:</strong> Imediata após publicação
@@ -61,6 +61,7 @@ export function TermsPage() {
                   </p>
                   <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                     <li><strong>Gerenciar disciplinas:</strong> Adicionar, editar e remover disciplinas cursadas</li>
+                    <li><strong>Importar histórico:</strong> Importar disciplinas de PDFs do SIGAA (processamento local)</li>
                     <li><strong>Calcular estatísticas:</strong> Média geral, CR, PCH, PCR e outros indicadores</li>
                     <li><strong>Visualizar progresso:</strong> Gráficos e relatórios do desempenho acadêmico</li>
                     <li><strong>Sincronizar dados:</strong> Acessar informações de qualquer dispositivo</li>
@@ -189,6 +190,25 @@ export function TermsPage() {
                     <li><strong>Dados acadêmicos:</strong> Disciplinas e notas inseridas</li>
                     <li><strong>Dados de uso:</strong> Logs de acesso e preferências</li>
                   </ul>
+                  
+                  <div className="bg-primary/10 p-4 rounded-lg border-l-4 border-primary mt-4">
+                    <h4 className="font-semibold text-foreground mb-2">Importação de PDF do Histórico Acadêmico</h4>
+                    <p className="text-muted-foreground text-sm mb-2">
+                      <strong>Processamento Local:</strong> Quando você importa um PDF do histórico acadêmico do SIGAA, o processamento ocorre <strong>completamente no seu navegador</strong>. O arquivo PDF nunca é enviado para nossos servidores ou terceiros.
+                    </p>
+                    <p className="text-muted-foreground text-sm mb-2">
+                      <strong>Dados Extraídos:</strong> Apenas informações acadêmicas são extraídas do PDF:
+                    </p>
+                    <ul className="list-disc pl-6 space-y-1 text-muted-foreground text-sm">
+                      <li>Período, código e nome das disciplinas</li>
+                      <li>Carga horária e notas</li>
+                      <li>Situação acadêmica (aprovado/reprovado/trancado)</li>
+                      <li>Natureza das disciplinas (obrigatória, optativa, etc.)</li>
+                    </ul>
+                    <p className="text-muted-foreground text-sm mt-2">
+                      <strong>Dados NÃO Extraídos:</strong> Nome completo, matrícula, CPF, RG ou qualquer outra informação pessoal do PDF não são extraídos nem armazenados.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
@@ -198,6 +218,8 @@ export function TermsPage() {
                     <li><strong>Controle de acesso:</strong> Apenas você acessa seus dados</li>
                     <li><strong>Backup seguro:</strong> Dados protegidos em servidores confiáveis</li>
                     <li><strong>Conformidade:</strong> Seguimos as melhores práticas de segurança</li>
+                    <li><strong>Armazenamento no Firebase:</strong> Apenas dados acadêmicos são armazenados. Regras de segurança garantem que cada usuário só acesse seus próprios dados</li>
+                    <li><strong>Sem envio de PDFs:</strong> Arquivos PDF nunca são enviados para servidores, processamento 100% local</li>
                   </ul>
                 </div>
 
@@ -387,8 +409,8 @@ export function TermsPage() {
 
               {/* Última atualização */}
               <div className="text-center pt-6 border-t text-sm text-muted-foreground">
-                <p><strong>Última atualização:</strong> Julho de 2025</p>
-                <p><strong>Versão dos termos:</strong> 2.0</p>
+                <p><strong>Última atualização:</strong> Janeiro de 2026</p>
+                <p><strong>Versão dos termos:</strong> 2.1</p>
               </div>
             </div>
           </CardContent>
