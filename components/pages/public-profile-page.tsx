@@ -68,6 +68,8 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                 setProfile({
                     uid: userId as any,
                     nome: userData.name || 'Estudante',
+                    email: userData.email,
+                    photoURL: userData.photoURL || '',
                     curso: userData.profile?.course || 'BICTI',
                     institution: userData.profile?.institution || '',
                     startYear: userData.profile?.startYear,
@@ -165,8 +167,12 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
             <div className="bg-muted/30 border-b border-border">
                 <div className="container mx-auto px-4 py-12">
                     <div className="flex flex-col md:flex-row items-center md:items-start gap-6 max-w-5xl mx-auto">
-                        <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background shadow-xl">
-                            <UserIcon className="h-10 w-10 text-primary" />
+                        <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background shadow-xl overflow-hidden relative">
+                            {profile?.photoURL ? (
+                                <img src={profile.photoURL} alt={profile.nome} className="h-full w-full object-cover" />
+                            ) : (
+                                <UserIcon className="h-10 w-10 text-primary" />
+                            )}
                         </div>
                         <div className="text-center md:text-left space-y-2 flex-1">
                             <div className="flex flex-col md:flex-row items-center gap-3">

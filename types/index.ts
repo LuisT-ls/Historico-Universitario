@@ -74,6 +74,7 @@ export interface Profile {
   uid: UserId
   nome?: string
   email?: string
+  photoURL?: string
   curso?: Curso
   matricula?: string
   institution?: string

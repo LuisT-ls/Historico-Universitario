@@ -28,7 +28,10 @@ import {
   Globe,
   Eye,
   EyeOff,
+  Camera,
+  Upload,
 } from 'lucide-react'
+import { uploadFile } from '@/services/storage.service'
 import { doc, getDoc, setDoc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore'
 import {
   updatePassword,
@@ -90,6 +93,43 @@ export function ProfilePage() {
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deletePassword, setDeletePassword] = useState('')
   const [exportFormat, setExportFormat] = useState<'json' | 'xlsx' | 'pdf'>('json')
+  const [uploading, setUploading] = useState(false)
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user || !db) return
+
+    // Validate type and size (max 5MB)
+    if (!file.type.startsWith('image/')) {
+      toast.error('Formato inválido. Use JPG, PNG ou WebP.')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Arquivo muito grande. Máximo 5MB.')
+      return
+    }
+
+    try {
+      setUploading(true)
+      const path = `profile-pictures/${user.uid}/${Date.now()}_${file.name}`
+      const url = await uploadFile(file, path)
+
+      // Update Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        photoURL: url,
+        updatedAt: new Date(),
+      }, { merge: true })
+
+      // Update local state
+      setProfile(prev => prev ? ({ ...prev, photoURL: url }) : null)
+      toast.success('Foto de perfil atualizada!')
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      toast.error('Erro ao enviar imagem')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/login')
@@ -113,6 +153,7 @@ export function ProfilePage() {
           uid: createUserId(user.uid),
           nome: data.name || user.displayName || '',
           email: data.email || user.email || '',
+          photoURL: data.photoURL || user.photoURL || '',
           curso: data.profile?.course || 'BICTI',
           matricula: data.profile?.enrollment || '',
           institution: data.profile?.institution || '',
@@ -323,6 +364,43 @@ export function ProfilePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <Card className="rounded-2xl border-none bg-card dark:bg-slate-900/50 p-8 space-y-8">
               <div className="flex items-center gap-3"><User className="h-6 w-6 text-primary dark:text-blue-500" /><h2 className="text-2xl font-bold text-foreground">Dados Pessoais</h2></div>
+
+              {/* Profile Picture Upload */}
+              <div className="flex flex-col items-center sm:flex-row gap-6 pb-6 border-b border-border dark:border-slate-800">
+                <div className="relative group">
+                  <div className={cn(
+                    "h-24 w-24 rounded-full overflow-hidden border-4 border-background shadow-xl flex items-center justify-center bg-muted",
+                    uploading && "opacity-50"
+                  )}>
+                    {profile?.photoURL ? (
+                      <img src={profile.photoURL} alt="Profile" className="h-full w-full object-cover" />
+                    ) : (
+                      <User className="h-10 w-10 text-muted-foreground" />
+                    )}
+                  </div>
+                  <label
+                    htmlFor="avatar-upload"
+                    className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer shadow-md hover:bg-primary/90 transition-colors"
+                  >
+                    {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+                  </label>
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                  />
+                </div>
+                <div className="space-y-1 text-center sm:text-left">
+                  <h3 className="font-bold text-lg">Foto de Perfil</h3>
+                  <p className="text-sm text-muted-foreground max-w-[250px]">
+                    Carregue uma foto para personalizar seu perfil público.
+                  </p>
+                </div>
+              </div>
+
               <div className="space-y-6">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-bold uppercase text-muted-foreground dark:text-slate-500">Nome Completo</Label>
