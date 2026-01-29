@@ -70,7 +70,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
 
     // Disciplinas aprovadas (não inclui AC, pois AC não tem resultado)
     const disciplinasAprovadas = disciplinas.filter((d) => d.resultado === 'AP')
-    
+
     // Disciplinas AC (para contabilizar horas, mas não como aprovadas)
     const disciplinasAC = disciplinas.filter((d) => d.natureza === 'AC')
 
@@ -106,7 +106,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
       .reduce((sum, c) => sum + c.cargaHoraria, 0)
 
     const chEmCurso = disciplinasEmCurso.reduce((sum, d) => sum + d.ch, 0)
-    
+
     // Horas por natureza - cálculo correto considerando LV
     const horasPorNatureza: Record<Natureza, number> = {
       AC: 0,
@@ -127,7 +127,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
         horasPorNatureza[natureza as Natureza] += d.ch
       }
     })
-    
+
     // Adicionar horas de AC (AC não tem resultado, apenas horas)
     disciplinasAC.forEach((d) => {
       if (horasPorNatureza.AC !== undefined) {
@@ -145,17 +145,17 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
     naturezasParaLimitar.forEach((nat) => {
       const natureza = nat as Natureza
       const requisito = cursoConfig.requisitos[natureza]
-      
+
       if (horasPorNatureza[natureza] && requisito && requisito > 0) {
         if (horasPorNatureza[natureza] > requisito) {
           const excesso = horasPorNatureza[natureza] - requisito
-          
+
           // Apenas naturezas optativas específicas redistribuem excesso para LV
           const naturezasRedistribuemParaLV = ['OX', 'OG', 'OH', 'OZ']
           if (naturezasRedistribuemParaLV.includes(natureza)) {
             totalExcessoLV += excesso
           }
-          
+
           horasPorNatureza[natureza] = requisito // Limitar ao requisito para o cálculo do total
         }
       }
@@ -169,7 +169,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
 
     // Total CH recalculado com as horas limitadas
     const totalCHLimitado = Object.values(horasPorNatureza).reduce((sum, h) => sum + h, 0)
-    
+
     // Para o progresso e métricas, usamos o total limitado
     const totalCHParaProgresso = totalCHLimitado
     const totalCHComEmCursoParaProgresso = totalCHParaProgresso + chEmCurso
@@ -194,7 +194,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
 
     const statusCR = getStatusCR(cr)
     const tendenciaNotas = calcularTendenciaNotas(disciplinas)
-    
+
     // Calcular previsão de formatura
     const previsaoFormatura = calcularPrevisaoFormaturaCompleta(
       disciplinas,
@@ -495,12 +495,14 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
                   <th className="text-left p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Natureza</th>
                   <th className="text-right p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Meta</th>
                   <th className="text-right p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Cursado</th>
+                  <th className="text-right p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Falta</th>
                   <th className="text-right p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Progresso</th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(requisitos).map(([natureza, meta]) => {
                   const cursado = estatisticas.horasPorNatureza[natureza as Natureza] || 0
+                  const falta = Math.max(0, meta - cursado)
                   const progresso = meta > 0 ? Math.min((cursado / meta) * 100, 100) : 0
 
                   return (
@@ -510,6 +512,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
                       </td>
                       <td className="p-4 text-right font-mono text-sm">{meta}h</td>
                       <td className="p-4 text-right font-mono text-sm font-bold">{cursado}h</td>
+                      <td className="p-4 text-right font-mono text-sm font-bold text-muted-foreground">{falta}h</td>
                       <td className="p-4 text-right w-32">
                         <div className="flex items-center gap-2">
                           <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
