@@ -189,63 +189,94 @@ export function HomePage() {
     setIsLoading(true)
     try {
       logger.info(`Iniciando importação de ${disciplinasImportadas.length} disciplinas`)
-      
+
       // Adicionar curso atual às disciplinas importadas se não tiver
-      const disciplinasComCurso = disciplinasImportadas.map((d, index) => ({
+      const disciplinasProcessadas = disciplinasImportadas.map((d, index) => ({
         ...d,
         curso: d.curso || cursoAtual,
-        // Gerar ID temporário se não tiver (para uso local)
-        id: d.id || createDisciplinaId(`temp-${Date.now()}-${index}`),
       }))
 
-      let disciplinasSalvas: Disciplina[] = []
+      let novas = 0
+      let atualizadas = 0
 
       if (user && db) {
         // Usuário logado: salvar no Firebase
-        logger.info('Usuário autenticado - salvando no Firebase')
-        
-        for (const disciplina of disciplinasComCurso) {
-          try {
-            const disciplineData = {
-              ...disciplina,
-              userId: user.uid,
-              curso: disciplina.curso || cursoAtual,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            }
-            delete (disciplineData as any).id
+        logger.info('Usuário autenticado - processando no Firebase')
 
-            const docRef = await addDoc(collection(db, 'disciplines'), disciplineData)
-            disciplinasSalvas.push({
-              ...disciplina,
-              id: createDisciplinaId(docRef.id),
-              curso: disciplina.curso || cursoAtual,
-            })
+        for (const disciplina of disciplinasProcessadas) {
+          try {
+            // Verificar se disciplina já existe (Código e Período)
+            const disciplinaExistente = disciplinas.find(
+              (d) => d.codigo === disciplina.codigo && d.periodo === disciplina.periodo
+            )
+
+            if (disciplinaExistente && disciplinaExistente.id) {
+              // Atualizar existente
+              const disciplineRef = doc(db, 'disciplines', disciplinaExistente.id)
+              const data = {
+                ...disciplina,
+                userId: user.uid,
+                updatedAt: new Date(),
+              }
+              delete (data as any).id // Garantir que não sobrescreva ID
+              await updateDoc(disciplineRef, data)
+              atualizadas++
+            } else {
+              // Criar nova
+              const disciplineData = {
+                ...disciplina,
+                userId: user.uid,
+                curso: disciplina.curso || cursoAtual,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              }
+              delete (disciplineData as any).id
+
+              await addDoc(collection(db, 'disciplines'), disciplineData)
+              novas++
+            }
           } catch (error) {
             logger.error(`Erro ao salvar disciplina ${disciplina.codigo}:`, error)
             // Continua com as outras disciplinas mesmo se uma falhar
           }
         }
 
-        logger.info(`${disciplinasSalvas.length} disciplinas salvas no Firebase`)
-
         // Recarregar disciplinas do Firebase para garantir sincronização
         await loadDisciplinas()
       } else {
         // Usuário não logado: salvar apenas no localStorage e estado local
         logger.info('Usuário não autenticado - salvando apenas localmente')
-        
-        disciplinasSalvas = disciplinasComCurso.map((d, index) => ({
-          ...d,
-          id: d.id || createDisciplinaId(`local-${Date.now()}-${index}`),
-          curso: d.curso || cursoAtual,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }))
+
+        const listaAtualizada = [...disciplinas]
+
+        disciplinasProcessadas.forEach((disciplina, index) => {
+          const indexExistente = listaAtualizada.findIndex(
+            (d) => d.codigo === disciplina.codigo && d.periodo === disciplina.periodo
+          )
+
+          if (indexExistente >= 0) {
+            // Atualizar existente
+            listaAtualizada[indexExistente] = {
+              ...listaAtualizada[indexExistente],
+              ...disciplina,
+              updatedAt: new Date(),
+            }
+            atualizadas++
+          } else {
+            // Criar nova
+            listaAtualizada.push({
+              ...disciplina,
+              id: disciplina.id || createDisciplinaId(`local-${Date.now()}-${index}`),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            })
+            novas++
+          }
+        })
 
         // Filtrar apenas disciplinas do curso atual
-        const disciplinasDoCurso = disciplinasSalvas.filter((d) => d.curso === cursoAtual)
-        
+        const disciplinasDoCurso = listaAtualizada.filter((d) => d.curso === cursoAtual)
+
         // Ordenar por período
         disciplinasDoCurso.sort((a, b) => {
           const [anoA, semA] = a.periodo.split('.').map(Number)
@@ -256,14 +287,12 @@ export function HomePage() {
 
         // Atualizar estado local
         setDisciplinas(disciplinasDoCurso)
-        
+
         // Salvar no localStorage
         localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasDoCurso))
-        
-        logger.info(`${disciplinasDoCurso.length} disciplinas salvas localmente`)
       }
 
-      toast.success(`${disciplinasSalvas.length} disciplinas importadas com sucesso!`)
+      toast.success(`Importação concluída: ${novas} novas, ${atualizadas} atualizadas.`)
     } catch (error) {
       logger.error('Erro ao importar disciplinas:', error)
       toast.error('Erro ao importar disciplinas. Tente novamente.')
