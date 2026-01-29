@@ -625,7 +625,7 @@ export function CertificadosPage() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-primary"
-                          onClick={() => document.getElementById('picker-dataInicio')?.showPicker()}
+                          onClick={() => (document.getElementById('picker-dataInicio') as HTMLInputElement)?.showPicker()}
                         >
                           <CalendarIcon className="h-4 w-4" />
                         </Button>
@@ -657,7 +657,7 @@ export function CertificadosPage() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-primary"
-                          onClick={() => document.getElementById('picker-dataFim')?.showPicker()}
+                          onClick={() => (document.getElementById('picker-dataFim') as HTMLInputElement)?.showPicker()}
                         >
                           <CalendarIcon className="h-4 w-4" />
                         </Button>
