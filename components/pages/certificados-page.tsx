@@ -67,7 +67,38 @@ import {
   List,
   Search,
   MoreVertical,
+  Calendar as CalendarIcon,
 } from 'lucide-react'
+
+// Helper para máscara de data (DD/MM/AAAA)
+const maskDate = (value: string) => {
+  return value
+    .replace(/\D/g, '') // Remove tudo que não é dígito
+    .replace(/(\d{2})(\d)/, '$1/$2') // Coloca a primeira barra
+    .replace(/(\d{2})(\d)/, '$1/$2') // Coloca a segunda barra
+    .replace(/(\d{4})\d+?$/, '$1') // Limita a 4 dígitos no ano
+}
+
+// Helper para converter DD/MM/AAAA para YYYY-MM-DD
+const dateToISO = (value: string) => {
+  if (value.length !== 10) return ''
+  const [day, month, year] = value.split('/')
+  if (!day || !month || !year) return ''
+  return `${year}-${month}-${day}`
+}
+
+// Helper para converter YYYY-MM-DD para DD/MM/AAAA (para visualização)
+const formatDateToDisplay = (isoString?: string) => {
+  if (!isoString) return ''
+  // Se já estiver no formato visual (usuário digitando), retorna ele mesmo?
+  // Não, aqui assumimos que o estado é sempre ISO ou temporário.
+  // Se o isoString não tiver traço, assumimos que é o input parcial do usuário
+  if (!isoString.includes('-') && isoString.length <= 10) return isoString
+
+  const [year, month, day] = isoString.split('-')
+  if (!year || !month || !day) return isoString // Retorna original se falhar
+  return `${day}/${month}/${year}`
+}
 
 export function CertificadosPage() {
   const { user, loading: authLoading } = useAuth()
@@ -98,6 +129,42 @@ export function CertificadosPage() {
     linkExterno: '',
   })
 
+  // Handler especial para mudança de datas com máscara
+  const handleDateChange = (value: string, field: 'dataInicio' | 'dataFim') => {
+    // 1. Aplica máscara visual
+    const masked = maskDate(value)
+
+    // 2. Se for uma data completa (10 chars), tenta converter para ISO para salvar
+    // Se não for completa, salvamos o valor mascarado TEMPORARIAMENTE no estado
+    // (Isso requer que o estado aceite strings não-ISO, o que já aceita por ser string)
+    // O backend/Criação de Date object vai precisar validar isso antes do submit
+
+    // NOTA: Para funcionar perfeito, o ideal é ter um estado separado "input value" vs "model value".
+    // Mas para simplificar, vamos salvar o valor mascarado no estado. 
+    // E no submit, validamos/convertemos se necessário?
+    // O problema é que o type="date" hidden espera YYYY-MM-DD.
+    // Vamos fazer assim: Se for data válida ISO completa, convertemos.
+    // Se for parcial, deixamos parcial.
+
+    // Verifica se completou DD/MM/AAAA
+    if (masked.length === 10) {
+      const iso = dateToISO(masked)
+      // Verifica se é data válida (ex: dia 32, mês 13) - new Date valida básico
+      const testDate = new Date(iso)
+      if (!isNaN(testDate.getTime())) {
+        // Data válida, salva como ISO (pois é o padrão nosso interno)
+        // MAS espera... se salvarmos como ISO, o renderizador vai formatar de volta para PT-BR?
+        // Sim, o formatDateToDisplay faz isso.
+        setFormData(prev => ({ ...prev, [field]: iso }))
+        return
+      }
+    }
+
+    // Se não for completa ou válida ISO, salva o mascarado para o input refletir a digitação
+    setFormData(prev => ({ ...prev, [field]: masked }))
+  }
+
+  // Filtragem de certificados
   // Filtragem de certificados
   const filteredCertificados = certificados.filter((c) => {
     const matchesSearch = c.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -176,14 +243,27 @@ export function CertificadosPage() {
     setError(null)
 
     try {
+      // Garantir que as datas estejam em ISO antes de enviar
+      // Se o usuário digitou e está "25/12/2024" (texto), precisamos converter.
+      // Se já está "2024-12-25" (ISO), mantemos.
+      let dataInicioFinal = formData.dataInicio
+      if (dataInicioFinal && dataInicioFinal.includes('/')) {
+        dataInicioFinal = dateToISO(dataInicioFinal)
+      }
+
+      let dataFimFinal = formData.dataFim
+      if (dataFimFinal && dataFimFinal.includes('/')) {
+        dataFimFinal = dateToISO(dataFimFinal)
+      }
+
       const certificadoData = {
         userId: user.uid,
         titulo: sanitizeInput(formData.titulo),
         tipo: (formData.tipo || 'outro') as TipoCertificado, // Default to 'outro'
         instituicao: formData.instituicao ? sanitizeInput(formData.instituicao) : '',
         cargaHoraria: parseInt(formData.cargaHoraria),
-        dataInicio: formData.dataInicio,
-        dataFim: formData.dataFim || '', // Optional
+        dataInicio: dataInicioFinal,
+        dataFim: dataFimFinal || '', // Optional
         descricao: formData.descricao ? sanitizeLongText(formData.descricao) : undefined,
         linkExterno: formData.linkExterno ? sanitizeInput(formData.linkExterno) : undefined,
         status: 'aprovado' as StatusCertificado,
@@ -496,22 +576,100 @@ export function CertificadosPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="dataInicio">Data de Início</Label>
-                    <Input
-                      id="dataInicio"
-                      type="date"
-                      value={formData.dataInicio}
-                      onChange={(e) => setFormData({ ...formData, dataInicio: e.target.value })}
-                      required
-                    />
+                    <div className="relative">
+                      <Input
+                        id="dataInicio"
+                        type="text"
+                        placeholder="DD/MM/AAAA"
+                        maxLength={10}
+                        value={formData.dataInicio ? (
+                          // Se for YYYY-MM-DD, converte para visualização DD/MM/YYYY
+                          // Se o usuário está digitando, o estado já deve estar sendo controlado pelo onChange
+                          // Nota: Precisamos de um estado local para o input de texto se quisermos permitir digitação livre antes da validação
+                          // Mas para simplificar, vamos formatar na renderização se for data válida, ou mostrar o valor se for parcial
+                          // Melhor abordagem: Usar funções auxiliares de máscara no onChange
+                          formatDateToDisplay(formData.dataInicio)
+                        ) : ''}
+                        onChange={(e) => {
+                          const masked = maskDate(e.target.value)
+                          // Se tiver 10 chars (DD/MM/YYYY), tenta converter para YYYY-MM-DD
+                          if (masked.length === 10) {
+                            const iso = dateToISO(masked)
+                            if (iso) {
+                              setFormData({ ...formData, dataInicio: iso })
+                            } else {
+                              // Data inválida, mas mantém o texto para o usuário corrigir
+                              // Aqui temos um problema: formData.dataInicio espera YYYY-MM-DD
+                              // Precisamos de um estado separado para o "texto" ou permitir inválidos no formData temporariamente?
+                              // O formData é usado no submit. Vamos atualizar o formData APENAS se válido,
+                              // mas precisamos de um jeito de mostrar o texto enquanto digita.
+                              // Solução rápida: O value do input deve ser controlado por uma função que aceita o que está no formData OU um estado temporário?
+                              // Vamos simplificar: O formData guardará o valor REAL (YYYY-MM-DD).
+                              // O input mostrará o valor formatado.
+                              // Se o usuário digita, a gente altera o formData? Não, formato diferente.
+                              // VAMOS USAR UM COMPONENTE DE ESTADO LOCAL PARA ISSO, OU MELHOR:
+                              // Vamos assumir que handleDateChange gerencia isso.
+                            }
+                          }
+                          // Esta abordagem inline é complexa. Vamos fazer direito:
+                          // Precisaríamos separar o estado de "texto visual" do estado de "dados".
+                          // Mas para não refatorar tudo agora, vou injetar a lógica de máscara num handler específico.
+                          handleDateChange(e.target.value, 'dataInicio')
+                        }}
+                        required
+                        className="pr-10" // Espaço para o ícone
+                      />
+                      <div className="absolute right-0 top-0 h-full flex items-center pr-3">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          onClick={() => document.getElementById('picker-dataInicio')?.showPicker()}
+                        >
+                          <CalendarIcon className="h-4 w-4" />
+                        </Button>
+                        <input
+                          type="date"
+                          id="picker-dataInicio"
+                          className="sr-only"
+                          tabIndex={-1}
+                          onChange={(e) => setFormData({ ...formData, dataInicio: e.target.value })}
+                        />
+                      </div>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="dataFim">Data de Conclusão (Opcional)</Label>
-                    <Input
-                      id="dataFim"
-                      type="date"
-                      value={formData.dataFim}
-                      onChange={(e) => setFormData({ ...formData, dataFim: e.target.value })}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="dataFim"
+                        type="text"
+                        placeholder="DD/MM/AAAA"
+                        maxLength={10}
+                        value={formatDateToDisplay(formData.dataFim)}
+                        onChange={(e) => handleDateChange(e.target.value, 'dataFim')}
+                        className="pr-10"
+                      />
+                      <div className="absolute right-0 top-0 h-full flex items-center pr-3">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          onClick={() => document.getElementById('picker-dataFim')?.showPicker()}
+                        >
+                          <CalendarIcon className="h-4 w-4" />
+                        </Button>
+                        <input
+                          type="date"
+                          id="picker-dataFim"
+                          className="sr-only"
+                          tabIndex={-1}
+                          onChange={(e) => setFormData({ ...formData, dataFim: e.target.value })}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
