@@ -72,8 +72,8 @@ export function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
-  const [showSensitive, setShowSensitive] = useState({ 
-    email: false, 
+  const [showSensitive, setShowSensitive] = useState({
+    email: false,
     enrollment: false,
     currentPass: false,
     newPass: false,
@@ -120,6 +120,22 @@ export function ProfilePage() {
           settings: {
             notifications: data.settings?.notifications !== false,
             privacy: data.settings?.privacy || 'private',
+          },
+        })
+      } else {
+        // Initialize with default data if profile doesn't exist
+        setProfile({
+          uid: createUserId(user.uid),
+          nome: user.displayName || '',
+          email: user.email || '',
+          curso: 'BICTI',
+          matricula: '',
+          institution: '',
+          startYear: new Date().getFullYear(),
+          startSemester: '1',
+          settings: {
+            notifications: true,
+            privacy: 'private',
           },
         })
       }
@@ -207,13 +223,13 @@ export function ProfilePage() {
       const snap = await getDocs(q)
       const disciplines: any[] = []
       snap.forEach(doc => disciplines.push({ id: doc.id, ...doc.data() }))
-      
+
       const backup = { exportedAt: new Date().toISOString(), disciplines }
-      
+
       if (exportFormat === 'json') exportAsJSON(backup)
       else if (exportFormat === 'xlsx') await exportAsXLSX(backup, disciplines, statistics)
       else await exportAsPDF(backup, disciplines, statistics)
-      
+
       toast.success('Dados exportados!')
     } catch (error) {
       toast.error('Erro ao exportar dados')
@@ -244,9 +260,16 @@ export function ProfilePage() {
     if (!val) return ''
     if (showSensitive[type]) return val
     if (type === 'email') {
+      if (!val.includes('@')) return val // Return as is if not a valid email format
       const parts = val.split('@')
-      return parts[0][0] + '••••@' + parts[1][0] + '••••'
+      const namePart = parts[0]
+      const domainPart = parts[1]
+
+      // Mask logic: first char + dots + @ + first char + dots
+      return (namePart[0] || '') + '••••@' + (domainPart[0] || '') + '••••'
     }
+    // For enrollment/others: first 3 + dots + last 2
+    if (val.length <= 5) return '••••' // Too short to mask partially
     return val.slice(0, 3) + '••••' + val.slice(-2)
   }
 
@@ -303,7 +326,15 @@ export function ProfilePage() {
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold uppercase text-muted-foreground dark:text-slate-500">Matrícula</Label>
                     <div className="relative">
-                      <Input value={maskSensitive(profile?.matricula, 'enrollment')} onChange={e => setProfile(prev => prev ? ({ ...prev, matricula: e.target.value }) : null)} className="h-12 rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700 pr-12" />
+                      <Input
+                        value={maskSensitive(profile?.matricula, 'enrollment')}
+                        onChange={e => !showSensitive.enrollment && setProfile(prev => prev ? ({ ...prev, matricula: e.target.value }) : null)}
+                        readOnly={!showSensitive.enrollment}
+                        className={cn(
+                          "h-12 rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700 pr-12",
+                          !showSensitive.enrollment && "opacity-70 cursor-not-allowed select-none"
+                        )}
+                      />
                       <button type="button" onClick={() => setShowSensitive(p => ({ ...p, enrollment: !p.enrollment }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground dark:text-slate-500 hover:text-foreground dark:hover:text-slate-300 bg-transparent border-none p-0 m-0 focus:outline-none focus:ring-0 focus:ring-offset-0 active:outline-none active:ring-0 shadow-none outline-none ring-0">
                         {showSensitive.enrollment ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                       </button>
@@ -381,7 +412,7 @@ export function ProfilePage() {
             <div className="space-y-2">
               <Label className="text-xs font-bold text-muted-foreground dark:text-slate-500">Senha Atual</Label>
               <div className="relative">
-                <Input type={showSensitive.currentPass ? "text" : "password"} value={passwordData.current} onChange={e => setPasswordData({...passwordData, current: e.target.value})} className="h-12 rounded-xl bg-background dark:bg-slate-800 border-border dark:border-slate-700 pr-12" />
+                <Input type={showSensitive.currentPass ? "text" : "password"} value={passwordData.current} onChange={e => setPasswordData({ ...passwordData, current: e.target.value })} className="h-12 rounded-xl bg-background dark:bg-slate-800 border-border dark:border-slate-700 pr-12" />
                 <button type="button" onClick={() => setShowSensitive(p => ({ ...p, currentPass: !p.currentPass }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground dark:text-slate-500 hover:text-foreground dark:hover:text-slate-300 bg-transparent border-none p-0 m-0 focus:outline-none focus:ring-0 focus:ring-offset-0 active:outline-none active:ring-0 shadow-none outline-none ring-0">
                   {showSensitive.currentPass ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -390,7 +421,7 @@ export function ProfilePage() {
             <div className="space-y-2">
               <Label className="text-xs font-bold text-muted-foreground dark:text-slate-500">Nova Senha</Label>
               <div className="relative">
-                <Input type={showSensitive.newPass ? "text" : "password"} value={passwordData.new} onChange={e => setPasswordData({...passwordData, new: e.target.value})} className="h-12 rounded-xl bg-background dark:bg-slate-800 border-border dark:border-slate-700 pr-12" />
+                <Input type={showSensitive.newPass ? "text" : "password"} value={passwordData.new} onChange={e => setPasswordData({ ...passwordData, new: e.target.value })} className="h-12 rounded-xl bg-background dark:bg-slate-800 border-border dark:border-slate-700 pr-12" />
                 <button type="button" onClick={() => setShowSensitive(p => ({ ...p, newPass: !p.newPass }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground dark:text-slate-500 hover:text-foreground dark:hover:text-slate-300 bg-transparent border-none p-0 m-0 focus:outline-none focus:ring-0 focus:ring-offset-0 active:outline-none active:ring-0 shadow-none outline-none ring-0">
                   {showSensitive.newPass ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -399,7 +430,7 @@ export function ProfilePage() {
             <div className="space-y-2">
               <Label className="text-xs font-bold text-muted-foreground dark:text-slate-500">Confirmar Nova Senha</Label>
               <div className="relative">
-                <Input type={showSensitive.confirmPass ? "text" : "password"} value={passwordData.confirm} onChange={e => setPasswordData({...passwordData, confirm: e.target.value})} className="h-12 rounded-xl bg-background dark:bg-slate-800 border-border dark:border-slate-700 pr-12" />
+                <Input type={showSensitive.confirmPass ? "text" : "password"} value={passwordData.confirm} onChange={e => setPasswordData({ ...passwordData, confirm: e.target.value })} className="h-12 rounded-xl bg-background dark:bg-slate-800 border-border dark:border-slate-700 pr-12" />
                 <button type="button" onClick={() => setShowSensitive(p => ({ ...p, confirmPass: !p.confirmPass }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground dark:text-slate-500 hover:text-foreground dark:hover:text-slate-300 bg-transparent border-none p-0 m-0 focus:outline-none focus:ring-0 focus:ring-offset-0 active:outline-none active:ring-0 shadow-none outline-none ring-0">
                   {showSensitive.confirmPass ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
