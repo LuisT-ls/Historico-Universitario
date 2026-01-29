@@ -224,7 +224,16 @@ export function ProfilePage() {
       const disciplines: any[] = []
       snap.forEach(doc => disciplines.push({ id: doc.id, ...doc.data() }))
 
-      const backup = { exportedAt: new Date().toISOString(), disciplines }
+      const backup = {
+        exportedAt: new Date().toISOString(),
+        disciplines,
+        profile,
+        user: {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName
+        }
+      }
 
       if (exportFormat === 'json') exportAsJSON(backup)
       else if (exportFormat === 'xlsx') await exportAsXLSX(backup, disciplines, statistics)

@@ -1,16 +1,25 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper function to check if a user profile is public
+    function isPublic(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.settings.privacy == 'public';
+    }
+
     // Regras para a coleção 'users'
     match /users/{userId} {
-      // Permitir leitura e escrita apenas se o usuário estiver autenticado e for o proprietário dos dados
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Permitir leitura se publico ou dono, escrita apenas se dono
+      allow read: if (request.auth != null && request.auth.uid == userId) || 
+                     (resource.data.settings.privacy == 'public');
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
     
     // Regras para a coleção 'disciplines' (disciplinas do usuário)
     match /disciplines/{disciplineId} {
-      // Permitir leitura e escrita apenas se o usuário estiver autenticado e for o proprietário dos dados
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Permitir leitura se publico ou dono, escrita apenas se dono
+      allow read: if (request.auth != null && request.auth.uid == resource.data.userId) || 
+                     isPublic(resource.data.userId);
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
     
@@ -30,8 +39,10 @@ service cloud.firestore {
     
     // Regras para a coleção 'certificados' (certificados do usuário)
     match /certificados/{certificadoId} {
-      // Permitir leitura e escrita apenas se o usuário estiver autenticado e for o proprietário dos dados
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Permitir leitura se publico ou dono, escrita apenas se dono
+      allow read: if (request.auth != null && request.auth.uid == resource.data.userId) || 
+                     isPublic(resource.data.userId);
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
     
