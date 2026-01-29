@@ -31,7 +31,6 @@ import {
   Camera,
   Upload,
 } from 'lucide-react'
-import { uploadFile } from '@/services/storage.service'
 import { doc, getDoc, setDoc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore'
 import {
   updatePassword,
@@ -95,37 +94,66 @@ export function ProfilePage() {
   const [exportFormat, setExportFormat] = useState<'json' | 'xlsx' | 'pdf'>('json')
   const [uploading, setUploading] = useState(false)
 
+  // Helper to compress image
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = (event) => {
+        const img = new Image()
+        img.src = event.target?.result as string
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const MAX_WIDTH = 300 // Resize to 300px width
+          const scaleSize = MAX_WIDTH / img.width
+          canvas.width = MAX_WIDTH
+          canvas.height = img.height * scaleSize
+
+          const ctx = canvas.getContext('2d')
+          ctx?.drawImage(img, 0, 0, canvas.width, canvas.height)
+
+          // Compress to JPEG with 0.7 quality
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7)
+          resolve(dataUrl)
+        }
+        img.onerror = (error) => reject(error)
+      }
+      reader.onerror = (error) => reject(error)
+    })
+  }
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !user || !db) return
 
-    // Validate type and size (max 5MB)
     if (!file.type.startsWith('image/')) {
       toast.error('Formato inválido. Use JPG, PNG ou WebP.')
       return
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Arquivo muito grande. Máximo 5MB.')
+
+    // Client-side limit before compression check
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Arquivo muito grande. Máximo 10MB.')
       return
     }
 
     try {
       setUploading(true)
-      const path = `profile-pictures/${user.uid}/${Date.now()}_${file.name}`
-      const url = await uploadFile(file, path)
 
-      // Update Firestore
+      const base64Image = await compressImage(file)
+
+      // Update Firestore directly
       await setDoc(doc(db, 'users', user.uid), {
-        photoURL: url,
+        photoURL: base64Image,
         updatedAt: new Date(),
       }, { merge: true })
 
       // Update local state
-      setProfile(prev => prev ? ({ ...prev, photoURL: url }) : null)
+      setProfile(prev => prev ? ({ ...prev, photoURL: base64Image }) : null)
       toast.success('Foto de perfil atualizada!')
     } catch (error) {
-      console.error('Error uploading image:', error)
-      toast.error('Erro ao enviar imagem')
+      console.error('Error processing image:', error)
+      toast.error('Erro ao processar imagem')
     } finally {
       setUploading(false)
     }
