@@ -20,7 +20,7 @@ import {
     ShieldAlert,
     ArrowUpRight
 } from 'lucide-react'
-import { CURSOS } from '@/lib/constants'
+import { CURSOS, NATUREZA_LABELS } from '@/lib/constants'
 import { calcularEstatisticas } from '@/lib/utils'
 import type { Profile, Disciplina, Certificado, UserStatistics, Natureza } from '@/types'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
@@ -259,20 +259,11 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                                                 const cursado = stats.horasPorNatureza?.[natureza as Natureza] || 0
                                                 const falta = Math.max(0, meta - cursado)
                                                 const progresso = meta > 0 ? Math.min((cursado / meta) * 100, 100) : 0
-                                                // Helper for labels since NATUREZA_LABELS is not imported
-                                                const labels: Record<string, string> = {
-                                                    OB: 'Obrigatória',
-                                                    OP: 'Optativa',
-                                                    AC: 'Atividade Complementar',
-                                                    OG: 'Optativa Geral',
-                                                    OH: 'Optativa Humanística',
-                                                    LV: 'Livre',
-                                                }
 
                                                 return (
                                                     <tr key={natureza} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                                                         <td className="p-4">
-                                                            <p className="font-semibold text-sm">{labels[natureza] || natureza}</p>
+                                                            <p className="font-semibold text-sm">{NATUREZA_LABELS[natureza] || natureza}</p>
                                                         </td>
                                                         <td className="p-4 text-right font-mono text-sm">{meta}h</td>
                                                         <td className="p-4 text-right font-mono text-sm font-bold">{cursado}h</td>
