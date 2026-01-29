@@ -363,11 +363,48 @@ export function ProfilePage() {
                       {profile?.settings?.notifications ? 'Ativado' : 'Desativado'}
                     </Button>
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-muted dark:bg-slate-800/30 rounded-xl border border-border dark:border-slate-700/50">
-                    <div className="flex items-center gap-3"><Globe className="h-5 w-5 text-muted-foreground dark:text-slate-400" /><span className="text-sm font-medium text-foreground">Perfil Público</span></div>
-                    <Button variant="ghost" size="sm" onClick={() => handleSettingsChange('privacy', profile?.settings?.privacy === 'public' ? 'private' : 'public')} className={cn("rounded-lg h-8 px-4 border border-border dark:border-slate-700", profile?.settings?.privacy === 'public' ? "bg-primary/10 dark:bg-blue-500/10 text-primary dark:text-blue-400" : "text-muted-foreground dark:text-slate-500")}>
-                      {profile?.settings?.privacy === 'public' ? 'Ativado' : 'Desativado'}
-                    </Button>
+                  <div className="flex flex-col gap-4 p-4 bg-muted dark:bg-slate-800/30 rounded-xl border border-border dark:border-slate-700/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3"><Globe className="h-5 w-5 text-muted-foreground dark:text-slate-400" /><span className="text-sm font-medium text-foreground">Perfil Público</span></div>
+                      <Button variant="ghost" size="sm" onClick={() => handleSettingsChange('privacy', profile?.settings?.privacy === 'public' ? 'private' : 'public')} className={cn("rounded-lg h-8 px-4 border border-border dark:border-slate-700", profile?.settings?.privacy === 'public' ? "bg-primary/10 dark:bg-blue-500/10 text-primary dark:text-blue-400" : "text-muted-foreground dark:text-slate-500")}>
+                        {profile?.settings?.privacy === 'public' ? 'Ativado' : 'Desativado'}
+                      </Button>
+                    </div>
+
+                    {profile?.settings?.privacy === 'public' && (
+                      <div className="pl-8 pt-2 animate-in fade-in slide-in-from-top-2">
+                        <div className="flex gap-2">
+                          <Input
+                            readOnly
+                            value={`${typeof window !== 'undefined' ? window.location.origin : ''}/u/${profile.uid}`}
+                            className="h-9 text-xs font-mono bg-background dark:bg-slate-900 border-border dark:border-slate-700"
+                          />
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-9 whitespace-nowrap"
+                            onClick={() => {
+                              const url = `${window.location.origin}/u/${profile.uid}`
+                              navigator.clipboard.writeText(url)
+                              toast.success('Link copiado!')
+                            }}
+                          >
+                            Copiar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-9 w-9 px-0"
+                            onClick={() => window.open(`/u/${profile.uid}`, '_blank')}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-2">
+                          ⚠️ Qualquer pessoa com este link poderá ver seu resumo acadêmico.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
