@@ -152,6 +152,8 @@ export function CertificadosPage() {
   }, [user, authLoading])
 
   // Calcular estatísticas
+  const META_AC_BICTI = 240 // Meta de horas AC para BICTI
+
   const stats = {
     total: certificados.length,
     horasValidadas: certificados
@@ -162,6 +164,8 @@ export function CertificadosPage() {
       .filter((c) => c.status === 'pendente')
       .reduce((sum, c) => sum + c.cargaHoraria, 0),
   }
+
+  const horasFaltantes = Math.max(0, META_AC_BICTI - stats.horasValidadas)
 
   // Salvar ou atualizar certificado
   const handleSubmit = async (e: React.FormEvent) => {
@@ -386,7 +390,7 @@ export function CertificadosPage() {
             { label: 'Total', value: stats.total, sub: 'Cadastrados', icon: FileText, iconColor: 'text-primary', bgColor: 'bg-primary/10' },
             { label: 'Validadas', value: `${stats.horasValidadas}h`, sub: 'Horas aprovadas', icon: CheckCircle, iconColor: 'text-green-600', bgColor: 'bg-green-500/10' },
             { label: 'Aprovadas', value: stats.atividadesAprovadas, sub: 'Atividades', icon: GraduationCap, iconColor: 'text-blue-600', bgColor: 'bg-blue-500/10' },
-            { label: 'Pendentes', value: `${stats.horasPendentes}h`, sub: 'Aguardando', icon: Hourglass, iconColor: 'text-yellow-600', bgColor: 'bg-yellow-500/10' },
+            { label: 'Faltam', value: `${horasFaltantes}h`, sub: 'Para meta de 240h', icon: Hourglass, iconColor: 'text-orange-600', bgColor: 'bg-orange-500/10' },
           ].map((stat, i) => (
             <Card key={i} className="rounded-xl border-none shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
               <CardContent className="p-4">
