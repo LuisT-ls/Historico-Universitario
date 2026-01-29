@@ -8,7 +8,7 @@ import { Loader2 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
-import { calcularResultado } from '@/lib/utils'
+import { calcularResultado, normalizeText } from '@/lib/utils'
 import { handleError } from '@/lib/error-handler'
 import type { Curso, Disciplina, Certificado } from '@/types'
 import { toast } from '@/lib/toast'
@@ -206,8 +206,11 @@ export function HomePage() {
         for (const disciplina of disciplinasProcessadas) {
           try {
             // Verificar se disciplina já existe (Código e Período)
+            // Usar normalização para garantir match mesmo com pequenas diferenças
             const disciplinaExistente = disciplinas.find(
-              (d) => d.codigo === disciplina.codigo && d.periodo === disciplina.periodo
+              (d) =>
+                normalizeText(d.codigo) === normalizeText(disciplina.codigo) &&
+                normalizeText(d.periodo) === normalizeText(disciplina.periodo)
             )
 
             if (disciplinaExistente && disciplinaExistente.id) {
@@ -251,7 +254,9 @@ export function HomePage() {
 
         disciplinasProcessadas.forEach((disciplina, index) => {
           const indexExistente = listaAtualizada.findIndex(
-            (d) => d.codigo === disciplina.codigo && d.periodo === disciplina.periodo
+            (d) =>
+              normalizeText(d.codigo) === normalizeText(disciplina.codigo) &&
+              normalizeText(d.periodo) === normalizeText(disciplina.periodo)
           )
 
           if (indexExistente >= 0) {

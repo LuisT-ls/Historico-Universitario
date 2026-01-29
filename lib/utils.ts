@@ -465,6 +465,19 @@ export function sanitizeInput(input: string): string {
 }
 
 /**
+ * Normaliza texto para comparação (uppercase, trim, sem acentos)
+ */
+export function normalizeText(input: string): string {
+  if (!input) return ''
+  return input
+    .trim()
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+    .replace(/\s+/g, '') // Remove todos os espaços para comparação de código
+}
+
+/**
  * Sanitiza texto longo (descrições, etc.) mantendo quebras de linha
  * @param input - Texto longo a ser sanitizado
  * @returns Texto sanitizado
