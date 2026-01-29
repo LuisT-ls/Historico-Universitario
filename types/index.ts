@@ -77,7 +77,7 @@ export interface Profile {
   curso?: Curso
   matricula?: string
   institution?: string
-  startYear?: number
+  startYear?: string | number
   startSemester?: '1' | '2'
   settings?: {
     notifications?: boolean

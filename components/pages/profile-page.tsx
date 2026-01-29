@@ -361,7 +361,7 @@ export function ProfilePage() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold uppercase text-muted-foreground dark:text-slate-500">Ano de Ingresso</Label>
-                    <Input type="number" value={profile?.startYear || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, startYear: parseInt(e.target.value) || 0 }) : null)} className="h-12 rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700" />
+                    <Input type="text" value={profile?.startYear || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, startYear: e.target.value }) : null)} className="h-12 rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700" />
                   </div>
                 </div>
                 <div className="flex justify-end pt-4">
