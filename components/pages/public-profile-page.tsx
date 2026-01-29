@@ -17,11 +17,12 @@ import {
     School,
     Calendar,
     User as UserIcon,
-    ShieldAlert
+    ShieldAlert,
+    ArrowUpRight
 } from 'lucide-react'
 import { CURSOS } from '@/lib/constants'
 import { calcularEstatisticas } from '@/lib/utils'
-import type { Profile, Disciplina, Certificado, UserStatistics } from '@/types'
+import type { Profile, Disciplina, Certificado, UserStatistics, Natureza } from '@/types'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 
 interface PublicProfilePageProps {
@@ -31,6 +32,7 @@ interface PublicProfilePageProps {
 export function PublicProfilePage({ userId }: PublicProfilePageProps) {
     const [profile, setProfile] = useState<Profile | null>(null)
     const [stats, setStats] = useState<UserStatistics | null>(null)
+    const [disciplines, setDisciplines] = useState<Disciplina[]>([])
     const [certificates, setCertificates] = useState<Certificado[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -78,6 +80,15 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                 const disciplines: Disciplina[] = []
                 disciplinesSnap.forEach(d => disciplines.push({ ...d.data(), id: d.id } as any))
 
+                // Sort disciplines by period (newest first)
+                disciplines.sort((a, b) => {
+                    const [anoA, semA] = (a.periodo || '0.0').split('.').map(Number)
+                    const [anoB, semB] = (b.periodo || '0.0').split('.').map(Number)
+                    if (anoA !== anoB) return anoB - anoA
+                    return semB - semA
+                })
+
+                setDisciplines(disciplines)
                 setStats(calcularEstatisticas(disciplines))
 
                 // 4. Fetch Approved Certificates
@@ -178,6 +189,13 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                                         Início: {profile.startYear}
                                     </span>
                                 )}
+                                {/* Enrollment Number in Header */}
+                                {profile?.matricula && (
+                                    <span className="flex items-center gap-1.5">
+                                        <ShieldAlert className="h-4 w-4" />
+                                        Matrícula: {profile.matricula}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -213,6 +231,124 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                     </div>
                 </section>
 
+                {/* Requirements Detail Section */}
+                {stats && profile && profile.curso && CURSOS[profile.curso] && (
+                    <section>
+                        <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                            <GraduationCap className="h-5 w-5 text-primary" />
+                            Detalhamento de Requisitos
+                        </h2>
+                        <Card className="rounded-2xl shadow-sm border-none bg-card overflow-hidden">
+                            <CardContent className="p-0">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full border-collapse">
+                                        <thead>
+                                            <tr className="bg-muted/30">
+                                                <th className="text-left p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Natureza</th>
+                                                <th className="text-right p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Meta</th>
+                                                <th className="text-right p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Cursado</th>
+                                                <th className="text-right p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Falta</th>
+                                                <th className="text-right p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Progresso</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {Object.entries(CURSOS[profile.curso].requisitos).map(([natureza, meta]) => {
+                                                const cursado = stats.horasPorNatureza?.[natureza as Natureza] || 0
+                                                const falta = Math.max(0, meta - cursado)
+                                                const progresso = meta > 0 ? Math.min((cursado / meta) * 100, 100) : 0
+                                                // Helper for labels since NATUREZA_LABELS is not imported
+                                                const labels: Record<string, string> = {
+                                                    OB: 'Obrigatória',
+                                                    OP: 'Optativa',
+                                                    AC: 'Atividade Complementar',
+                                                    OG: 'Optativa Geral',
+                                                    OH: 'Optativa Humanística',
+                                                    LV: 'Livre',
+                                                }
+
+                                                return (
+                                                    <tr key={natureza} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                                                        <td className="p-4">
+                                                            <p className="font-semibold text-sm">{labels[natureza] || natureza}</p>
+                                                        </td>
+                                                        <td className="p-4 text-right font-mono text-sm">{meta}h</td>
+                                                        <td className="p-4 text-right font-mono text-sm font-bold">{cursado}h</td>
+                                                        <td className="p-4 text-right font-mono text-sm font-bold text-muted-foreground">{falta}h</td>
+                                                        <td className="p-4 text-right w-32">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
+                                                                    <div
+                                                                        className={`h-full rounded-full transition-all duration-500 ${progresso >= 100 ? "bg-green-500" : "bg-primary"}`}
+                                                                        style={{ width: `${progresso}%` }}
+                                                                    />
+                                                                </div>
+                                                                <span className={`text-[10px] font-bold w-8 ${progresso >= 100 ? "text-green-500" : "text-muted-foreground"}`}>
+                                                                    {progresso.toFixed(0)}%
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </section>
+                )}
+
+                {/* Approved Disciplines List */}
+                {stats && (
+                    <section>
+                        <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5 text-primary" />
+                            Disciplinas Concluídas
+                        </h2>
+                        <Card className="rounded-2xl shadow-sm border-none bg-card overflow-hidden">
+                            <CardContent className="p-0">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full border-collapse">
+                                        <thead>
+                                            <tr className="bg-muted/30">
+                                                <th className="text-left p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Período</th>
+                                                <th className="text-left p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Código</th>
+                                                <th className="text-left p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Disciplina</th>
+                                                <th className="text-center p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">CH</th>
+                                                <th className="text-center p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Nota</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {disciplines
+                                                .filter(d => (d.resultado === 'AP' || d.nota >= 5) && d.natureza !== 'AC')
+                                                .map((d) => (
+                                                    <tr key={d.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                                                        <td className="p-4 font-mono text-sm">{d.periodo}</td>
+                                                        <td className="p-4 font-mono text-xs text-muted-foreground">{d.codigo}</td>
+                                                        <td className="p-4 font-medium text-sm">{d.nome}</td>
+                                                        <td className="p-4 text-center font-mono text-sm text-muted-foreground">{d.ch}h</td>
+                                                        <td className="p-4 text-center">
+                                                            <Badge variant={d.nota >= 7 ? "default" : "secondary"} className={d.nota >= 7 ? "bg-green-500 hover:bg-green-600" : ""}>
+                                                                {d.nota.toFixed(1)}
+                                                            </Badge>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            {disciplines.length === 0 && (
+                                                <tr>
+                                                    <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                                                        Nenhuma disciplina concluída encontrada.
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </section>
+                )}
+
                 {/* Certificates Section */}
                 <section>
                     <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
@@ -228,11 +364,18 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {certificates.map((cert) => (
-                                <Card key={cert.id} className="border-border/50 bg-card hover:shadow-md transition-all">
+                                <Card key={cert.id} className="border-border/50 bg-card hover:shadow-md transition-all group relative">
                                     <CardHeader className="pb-2">
                                         <div className="flex justify-between items-start gap-4">
                                             <div className="space-y-1">
-                                                <CardTitle className="text-base font-bold leading-tight">{cert.titulo}</CardTitle>
+                                                <CardTitle className="text-base font-bold leading-tight flex items-center gap-2">
+                                                    {cert.titulo}
+                                                    {cert.linkExterno && (
+                                                        <a href={cert.linkExterno} target="_blank" rel="noopener noreferrer" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <ArrowUpRight className="h-4 w-4 text-primary" />
+                                                        </a>
+                                                    )}
+                                                </CardTitle>
                                                 <CardDescription className="text-xs font-medium">{cert.instituicao}</CardDescription>
                                             </div>
                                             <Badge variant="outline" className="bg-green-500/5 text-green-600 border-green-500/20 text-[10px] uppercase">
@@ -252,6 +395,16 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                                                 </>
                                             )}
                                         </div>
+                                        {(cert.arquivoURL || cert.linkExterno) && (
+                                            <a
+                                                href={cert.arquivoURL || cert.linkExterno}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="absolute inset-0 ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-xl"
+                                            >
+                                                <span className="sr-only">Ver certificado</span>
+                                            </a>
+                                        )}
                                     </CardContent>
                                 </Card>
                             ))}

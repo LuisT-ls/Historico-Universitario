@@ -92,6 +92,7 @@ export interface UserStatistics {
   completedDisciplines: number
   inProgressDisciplines: number
   averageGrade: number
+  horasPorNatureza?: Record<Natureza, number>
 }
 
 export type TipoCertificado =
