@@ -81,7 +81,7 @@ export function CertificadosPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [error, setError] = useState<AppError | null>(null)
-  
+
   // Novos estados para filtros e visualização
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string>('todos')
@@ -100,8 +100,8 @@ export function CertificadosPage() {
 
   // Filtragem de certificados
   const filteredCertificados = certificados.filter((c) => {
-    const matchesSearch = c.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         c.instituicao.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = c.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.instituicao.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesType = filterType === 'todos' || c.tipo === filterType
     return matchesSearch && matchesType
   })
@@ -175,11 +175,11 @@ export function CertificadosPage() {
       const certificadoData = {
         userId: user.uid,
         titulo: sanitizeInput(formData.titulo),
-        tipo: formData.tipo as TipoCertificado,
-        instituicao: sanitizeInput(formData.instituicao),
+        tipo: (formData.tipo || 'outro') as TipoCertificado, // Default to 'outro'
+        instituicao: formData.instituicao ? sanitizeInput(formData.instituicao) : '',
         cargaHoraria: parseInt(formData.cargaHoraria),
         dataInicio: formData.dataInicio,
-        dataFim: formData.dataFim,
+        dataFim: formData.dataFim || '', // Optional
         descricao: formData.descricao ? sanitizeLongText(formData.descricao) : undefined,
         linkExterno: formData.linkExterno ? sanitizeInput(formData.linkExterno) : undefined,
         status: 'aprovado' as StatusCertificado,
@@ -448,15 +448,14 @@ export function CertificadosPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="tipo">Tipo de Atividade</Label>
+                    <Label htmlFor="tipo">Tipo de Atividade (Opcional)</Label>
                     <select
                       id="tipo"
                       value={formData.tipo}
                       onChange={(e) => setFormData({ ...formData, tipo: e.target.value as TipoCertificado })}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      required
                     >
-                      <option value="">Selecione o tipo</option>
+                      <option value="">Selecione o tipo (Auto: Outro)</option>
                       {TIPOS_CERTIFICADO.map((tipo) => (
                         <option key={tipo.value} value={tipo.value}>
                           {tipo.label}
@@ -468,13 +467,12 @@ export function CertificadosPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="instituicao">Instituição</Label>
+                    <Label htmlFor="instituicao">Instituição (Opcional)</Label>
                     <Input
                       id="instituicao"
                       value={formData.instituicao}
                       onChange={(e) => setFormData({ ...formData, instituicao: e.target.value })}
                       placeholder="Ex: Universidade Federal da Bahia"
-                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -503,13 +501,12 @@ export function CertificadosPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="dataFim">Data de Conclusão</Label>
+                    <Label htmlFor="dataFim">Data de Conclusão (Opcional)</Label>
                     <Input
                       id="dataFim"
                       type="date"
                       value={formData.dataFim}
                       onChange={(e) => setFormData({ ...formData, dataFim: e.target.value })}
-                      required
                     />
                   </div>
                 </div>
@@ -669,14 +666,14 @@ export function CertificadosPage() {
               <div className="text-center py-16 bg-muted/10 rounded-2xl border border-dashed border-border/50">
                 <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
                 <p className="text-muted-foreground font-medium">
-                  {searchTerm || filterType !== 'todos' 
-                    ? 'Nenhum certificado encontrado com esses filtros' 
+                  {searchTerm || filterType !== 'todos'
+                    ? 'Nenhum certificado encontrado com esses filtros'
                     : 'Comece adicionando seu primeiro certificado ou atividade complementar'}
                 </p>
                 {(searchTerm || filterType !== 'todos') && (
-                  <Button 
-                    variant="link" 
-                    onClick={() => {setSearchTerm(''); setFilterType('todos')}}
+                  <Button
+                    variant="link"
+                    onClick={() => { setSearchTerm(''); setFilterType('todos') }}
                     className="mt-2 text-primary"
                   >
                     Limpar filtros
@@ -691,7 +688,7 @@ export function CertificadosPage() {
                     <div className={cn(
                       "absolute top-3 right-3 h-2 w-2 rounded-full shadow-sm z-10",
                       certificado.status === 'aprovado' ? 'bg-green-500 shadow-green-500/50' :
-                      certificado.status === 'pendente' ? 'bg-yellow-500 shadow-yellow-500/50' : 'bg-red-500 shadow-red-500/50'
+                        certificado.status === 'pendente' ? 'bg-yellow-500 shadow-yellow-500/50' : 'bg-red-500 shadow-red-500/50'
                     )} title={getStatusLabel(certificado.status)} />
 
                     <CardContent className="p-4 pt-5">
@@ -726,7 +723,7 @@ export function CertificadosPage() {
                             <Eye className="h-3.5 w-3.5 mr-1.5" />
                             Detalhes
                           </Button>
-                          
+
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-muted">
@@ -744,11 +741,11 @@ export function CertificadosPage() {
                                   <span>Download</span>
                                 </DropdownMenuItem>
                               )}
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 onClick={() => {
                                   setDeleteId(certificado.id || null)
                                   setShowDeleteModal(true)
-                                }} 
+                                }}
                                 className="gap-2 text-destructive focus:text-destructive cursor-pointer"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -783,7 +780,7 @@ export function CertificadosPage() {
                           <div className={cn(
                             "h-2 w-2 rounded-full",
                             certificado.status === 'aprovado' ? 'bg-green-500' :
-                            certificado.status === 'pendente' ? 'bg-yellow-500' : 'bg-red-500'
+                              certificado.status === 'pendente' ? 'bg-yellow-500' : 'bg-red-500'
                           )} title={getStatusLabel(certificado.status)} />
                         </td>
                         <td className="p-3 font-semibold text-xs max-w-[200px] truncate">{certificado.titulo}</td>
@@ -802,9 +799,9 @@ export function CertificadosPage() {
                             <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md" onClick={() => handleEdit(certificado)}>
                               <Pencil className="h-3.5 w-3.5" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               className="h-7 w-7 rounded-md text-destructive hover:text-destructive hover:bg-destructive/10"
                               onClick={() => {
                                 setDeleteId(certificado.id || null)
