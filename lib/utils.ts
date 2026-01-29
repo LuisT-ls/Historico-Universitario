@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import type { Disciplina, UserStatistics, Natureza, Certificado } from '@/types'
+import { CURSOS } from '@/lib/constants'
+import type { Disciplina, UserStatistics, Natureza, Certificado, Curso } from '@/types'
 import { logger } from '@/lib/logger'
 
 /**
@@ -502,7 +503,14 @@ export function sanitizeLongText(input: string): string {
  * @param disciplinas - Lista total de disciplinas
  * @returns Objeto com totais, contagens e média arredondada
  */
-export function calcularEstatisticas(disciplinas: Disciplina[], certificados: Certificado[] = []): UserStatistics {
+export function calcularEstatisticas(
+  disciplinas: Disciplina[],
+  certificados: Certificado[] = [],
+  curso: Curso = 'BICTI'
+): UserStatistics {
+  // Configuração do curso para limites e redistribuição
+  const cursoConfig = CURSOS[curso]
+
   // Total de disciplinas cadastradas
   const totalDisciplines = disciplinas.length
 
@@ -532,24 +540,75 @@ export function calcularEstatisticas(disciplinas: Disciplina[], certificados: Ce
       ? disciplinasParaMedia.reduce((sum, d) => sum + d.nota, 0) / disciplinasParaMedia.length
       : 0
 
-  // Calculation of hours by nature
-  const horasPorNatureza = disciplinas.reduce((acc, d) => {
-    // Consider only disciplines with approval (AP/RR), dispensation, or valid grade >= 5 (for LV/old records)
+  // Calculation of hours by nature with logic ported from Summary component
+  // Initialize with zeros
+  const horasPorNatureza: Record<Natureza, number> = {
+    AC: 0,
+    LV: 0,
+    OB: 0,
+    OG: 0,
+    OH: 0,
+    OP: 0,
+    OX: 0,
+    OZ: 0,
+  }
+
+  // 1. Calculate base hours from disciplines
+  disciplinas.forEach((d) => {
+    // Consider only disciplines with approval (AP/RR), dispensation, or valid grade >= 5
     const isCompleted = d.resultado === 'AP' || d.resultado === 'RR' || d.dispensada || (d.nota !== undefined && d.nota >= 5)
 
-    if (isCompleted && d.natureza && d.ch) {
-      acc[d.natureza] = (acc[d.natureza] || 0) + d.ch
-    }
-    return acc
-  }, {} as Record<Natureza, number>)
+    if (isCompleted && d.ch) {
+      // Disciplinas dispensadas contam como LV
+      const natureza = d.dispensada ? 'LV' : d.natureza
 
-  // Add Approved Certificates to 'AC' hours
+      if (natureza && natureza !== 'AC') {
+        // AC is handled separately or via certificates usually, but if present in disciplines list as completed:
+        if (horasPorNatureza[natureza as Natureza] !== undefined) {
+          horasPorNatureza[natureza as Natureza] += d.ch
+        }
+      } else if (natureza === 'AC') {
+        horasPorNatureza.AC += d.ch
+      }
+    }
+  })
+
+  // 2. Add Approved Certificates to 'AC' hours
   const acHoursFromCerts = certificados
     .filter(c => c.status === 'aprovado')
     .reduce((sum, c) => sum + (c.cargaHoraria || 0), 0)
 
-  if (acHoursFromCerts > 0) {
-    horasPorNatureza['AC'] = (horasPorNatureza['AC'] || 0) + acHoursFromCerts
+  horasPorNatureza.AC += acHoursFromCerts
+
+  // 3. Redistribute excess hours to LV
+  const naturezasParaLimitar = ['AC', 'OX', 'OG', 'OH', 'OZ', 'OB', 'OP']
+  let totalExcessoLV = 0
+
+  naturezasParaLimitar.forEach((nat) => {
+    const natureza = nat as Natureza
+    const requisito = cursoConfig?.requisitos?.[natureza]
+
+    if (horasPorNatureza[natureza] && requisito && requisito > 0) {
+      if (horasPorNatureza[natureza] > requisito) {
+        const excesso = horasPorNatureza[natureza] - requisito
+
+        // Apenas naturezas optativas específicas redistribuem excesso para LV
+        const naturezasRedistribuemParaLV = ['OX', 'OG', 'OH', 'OZ']
+        if (naturezasRedistribuemParaLV.includes(natureza)) {
+          totalExcessoLV += excesso
+        }
+
+        horasPorNatureza[natureza] = requisito // Limitar ao requisito
+      }
+    }
+  })
+
+  // Add excess to LV
+  horasPorNatureza.LV += totalExcessoLV
+
+  // Limit LV if needed (though usually LV is the overflow bucket, it might have a cap too)
+  if (cursoConfig?.requisitos?.LV && horasPorNatureza.LV > cursoConfig.requisitos.LV) {
+    horasPorNatureza.LV = cursoConfig.requisitos.LV
   }
 
   return {

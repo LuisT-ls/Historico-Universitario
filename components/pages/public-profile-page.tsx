@@ -101,7 +101,10 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                 certsSnap.forEach(c => certs.push({ ...c.data(), id: c.id } as any))
 
                 setCertificates(certs)
-                setStats(calcularEstatisticas(disciplines, certs))
+
+                // Use the course from the fetched user data
+                const userCourse = userData.profile?.course || 'BICTI'
+                setStats(calcularEstatisticas(disciplines, certs, userCourse))
 
             } catch (err) {
                 console.error('Error loading public profile:', err)
