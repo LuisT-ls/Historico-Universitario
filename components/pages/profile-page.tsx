@@ -63,6 +63,7 @@ export function ProfilePage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [initialProfile, setInitialProfile] = useState<Profile | null>(null)
   const [statistics, setStatistics] = useState<UserStatistics>({
     totalDisciplines: 0,
     completedDisciplines: 0,
@@ -108,7 +109,7 @@ export function ProfilePage() {
       const userSnap = await getDoc(userRef)
       if (userSnap.exists()) {
         const data = userSnap.data()
-        setProfile({
+        const profileData: Profile = {
           uid: createUserId(user.uid),
           nome: data.name || user.displayName || '',
           email: data.email || user.email || '',
@@ -121,10 +122,12 @@ export function ProfilePage() {
             notifications: data.settings?.notifications !== false,
             privacy: data.settings?.privacy || 'private',
           },
-        })
+        }
+        setProfile(profileData)
+        setInitialProfile(profileData)
       } else {
         // Initialize with default data if profile doesn't exist
-        setProfile({
+        const defaultData: Profile = {
           uid: createUserId(user.uid),
           nome: user.displayName || '',
           email: user.email || '',
@@ -137,7 +140,9 @@ export function ProfilePage() {
             notifications: true,
             privacy: 'private',
           },
-        })
+        }
+        setProfile(defaultData)
+        setInitialProfile(defaultData)
       }
     } catch (error) {
       logger.error('Erro ao carregar perfil:', error)
@@ -177,6 +182,7 @@ export function ProfilePage() {
       setSaveSuccess(true)
       setTimeout(() => setSaveSuccess(false), 3000)
       toast.success('Perfil atualizado!')
+      setInitialProfile(profile)
     } catch (error) {
       toast.error('Erro ao salvar perfil')
     } finally {
@@ -365,11 +371,15 @@ export function ProfilePage() {
                   </div>
                 </div>
                 <div className="flex justify-end pt-4">
-                  <Button onClick={handleSave} disabled={isSaving} className={cn("h-12 px-10 rounded-xl font-bold transition-all", saveSuccess ? "bg-green-600 hover:bg-green-600" : "bg-primary dark:bg-blue-600 hover:bg-primary/90 dark:hover:bg-blue-500")}>
-                    {isSaving ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : saveSuccess ? <CheckCircle className="h-5 w-5 mr-2" /> : <Save className="h-5 w-5 mr-2" />}
-                    {isSaving ? 'Salvando...' : saveSuccess ? 'Salvo!' : 'Salvar Alterações'}
-                  </Button>
                 </div>
+                {JSON.stringify(profile) !== JSON.stringify(initialProfile) && (
+                  <div className="flex justify-end pt-4">
+                    <Button onClick={handleSave} disabled={isSaving} className={cn("h-12 px-10 rounded-xl font-bold transition-all", saveSuccess ? "bg-green-600 hover:bg-green-600" : "bg-primary dark:bg-blue-600 hover:bg-primary/90 dark:hover:bg-blue-500")}>
+                      {isSaving ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : saveSuccess ? <CheckCircle className="h-5 w-5 mr-2" /> : <Save className="h-5 w-5 mr-2" />}
+                      {isSaving ? 'Salvando...' : saveSuccess ? 'Salvo!' : 'Salvar Alterações'}
+                    </Button>
+                  </div>
+                )}
               </div>
             </Card>
 
