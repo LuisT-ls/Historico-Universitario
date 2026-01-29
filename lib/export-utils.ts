@@ -1,4 +1,5 @@
 import type { UserStatistics } from '@/types'
+import { calcularCR } from './utils'
 
 /**
  * Gera e inicia o download de um arquivo JSON contendo o backup dos dados.
@@ -33,6 +34,9 @@ export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: 
 
     const wb = XLSX.utils.book_new()
 
+    // Calcular CR corretamente
+    const cr = calcularCR(disciplinas)
+
     // Aba 1: Resumo
     const resumoData = [
         ['Histórico Acadêmico'],
@@ -50,11 +54,12 @@ export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: 
         ['Disciplinas Concluídas', statistics.completedDisciplines],
         ['Em Andamento', statistics.inProgressDisciplines],
         ['Média Geral', statistics.averageGrade.toFixed(2)],
+        ['CR (Coeficiente de Rendimento)', cr.toFixed(2)],
     ]
     const wsResumo = XLSX.utils.aoa_to_sheet(resumoData)
 
     // Ajustar largura das colunas do resumo
-    wsResumo['!cols'] = [{ wch: 20 }, { wch: 40 }]
+    wsResumo['!cols'] = [{ wch: 25 }, { wch: 40 }]
     XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo')
 
     // Agrupar disciplinas por período
@@ -187,6 +192,9 @@ export async function exportAsPDF(backup: any, disciplinas: any[], statistics: U
     doc.setFont('helvetica', 'bold')
     doc.text('Estatísticas', 14, yPos)
 
+    // Calcular CR corretamente
+    const cr = calcularCR(disciplinas)
+
     yPos += 8
     doc.setFontSize(10)
     doc.setFont('helvetica', 'normal')
@@ -195,6 +203,7 @@ export async function exportAsPDF(backup: any, disciplinas: any[], statistics: U
         `Disciplinas Concluídas: ${statistics.completedDisciplines}`,
         `Em Andamento: ${statistics.inProgressDisciplines}`,
         `Média Geral: ${statistics.averageGrade.toFixed(2)}`,
+        `CR (Coeficiente de Rendimento): ${cr.toFixed(2)}`,
     ]
     statsInfo.forEach((info) => {
         doc.text(info, 14, yPos)

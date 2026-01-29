@@ -122,10 +122,21 @@ export function calcularMediaGeral(disciplinas: Array<{ nota: number; ch: number
  * @returns Valor do CR (0 a 10)
  */
 export function calcularCR(
-  disciplinas: Array<{ nota: number; ch: number; dispensada?: boolean; natureza?: string }>
+  disciplinas: Array<{
+    nota: number
+    ch: number
+    dispensada?: boolean
+    natureza?: string
+    trancamento?: boolean
+  }>
 ): number {
   const disciplinasValidas = disciplinas.filter(
-    (d) => !d.dispensada && d.natureza !== 'AC' && d.nota !== null && d.nota !== undefined
+    (d) =>
+      !d.dispensada &&
+      d.natureza !== 'AC' &&
+      d.nota !== null &&
+      d.nota !== undefined &&
+      !d.trancamento
   )
 
   if (disciplinasValidas.length === 0) return 0
