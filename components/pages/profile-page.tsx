@@ -327,13 +327,10 @@ export function ProfilePage() {
                     <Label className="text-[10px] font-bold uppercase text-muted-foreground dark:text-slate-500">Matrícula</Label>
                     <div className="relative">
                       <Input
-                        value={maskSensitive(profile?.matricula, 'enrollment')}
-                        onChange={e => !showSensitive.enrollment && setProfile(prev => prev ? ({ ...prev, matricula: e.target.value }) : null)}
-                        readOnly={!showSensitive.enrollment}
-                        className={cn(
-                          "h-12 rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700 pr-12",
-                          !showSensitive.enrollment && "opacity-70 cursor-not-allowed select-none"
-                        )}
+                        type={showSensitive.enrollment ? "text" : "password"}
+                        value={profile?.matricula || ''}
+                        onChange={e => setProfile(prev => prev ? ({ ...prev, matricula: e.target.value }) : null)}
+                        className="h-12 rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700 pr-12"
                       />
                       <button type="button" onClick={() => setShowSensitive(p => ({ ...p, enrollment: !p.enrollment }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground dark:text-slate-500 hover:text-foreground dark:hover:text-slate-300 bg-transparent border-none p-0 m-0 focus:outline-none focus:ring-0 focus:ring-offset-0 active:outline-none active:ring-0 shadow-none outline-none ring-0">
                         {showSensitive.enrollment ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
