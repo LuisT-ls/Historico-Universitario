@@ -353,6 +353,17 @@ export function ProfilePage() {
                     </select>
                   </div>
                 </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground dark:text-slate-500">Instituição</Label>
+                    <Input value={profile?.institution || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, institution: e.target.value }) : null)} className="h-12 rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground dark:text-slate-500">Ano de Ingresso</Label>
+                    <Input type="number" value={profile?.startYear || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, startYear: parseInt(e.target.value) || 0 }) : null)} className="h-12 rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700" />
+                  </div>
+                </div>
                 <div className="flex justify-end pt-4">
                   <Button onClick={handleSave} disabled={isSaving} className={cn("h-12 px-10 rounded-xl font-bold transition-all", saveSuccess ? "bg-green-600 hover:bg-green-600" : "bg-primary dark:bg-blue-600 hover:bg-primary/90 dark:hover:bg-blue-500")}>
                     {isSaving ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : saveSuccess ? <CheckCircle className="h-5 w-5 mr-2" /> : <Save className="h-5 w-5 mr-2" />}
