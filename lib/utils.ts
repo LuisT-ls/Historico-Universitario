@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import type { Disciplina, UserStatistics, Natureza } from '@/types'
+import type { Disciplina, UserStatistics, Natureza, Certificado } from '@/types'
 import { logger } from '@/lib/logger'
 
 /**
@@ -502,7 +502,7 @@ export function sanitizeLongText(input: string): string {
  * @param disciplinas - Lista total de disciplinas
  * @returns Objeto com totais, contagens e média arredondada
  */
-export function calcularEstatisticas(disciplinas: Disciplina[]): UserStatistics {
+export function calcularEstatisticas(disciplinas: Disciplina[], certificados: Certificado[] = []): UserStatistics {
   // Total de disciplinas cadastradas
   const totalDisciplines = disciplinas.length
 
@@ -534,14 +534,23 @@ export function calcularEstatisticas(disciplinas: Disciplina[]): UserStatistics 
 
   // Calculation of hours by nature
   const horasPorNatureza = disciplinas.reduce((acc, d) => {
-    // Consider only disciplines with approval (AP/RR) or dispensation for completed hours
-    const isCompleted = d.resultado === 'AP' || d.resultado === 'RR' || d.dispensada
+    // Consider only disciplines with approval (AP/RR), dispensation, or valid grade >= 5 (for LV/old records)
+    const isCompleted = d.resultado === 'AP' || d.resultado === 'RR' || d.dispensada || (d.nota !== undefined && d.nota >= 5)
 
     if (isCompleted && d.natureza && d.ch) {
       acc[d.natureza] = (acc[d.natureza] || 0) + d.ch
     }
     return acc
-  }, {} as any) // Using any to avoid initial partial type issues, strictly typed in return
+  }, {} as Record<Natureza, number>)
+
+  // Add Approved Certificates to 'AC' hours
+  const acHoursFromCerts = certificados
+    .filter(c => c.status === 'aprovado')
+    .reduce((sum, c) => sum + (c.cargaHoraria || 0), 0)
+
+  if (acHoursFromCerts > 0) {
+    horasPorNatureza['AC'] = (horasPorNatureza['AC'] || 0) + acHoursFromCerts
+  }
 
   return {
     totalDisciplines,

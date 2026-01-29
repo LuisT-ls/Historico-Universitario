@@ -89,7 +89,6 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                 })
 
                 setDisciplines(disciplines)
-                setStats(calcularEstatisticas(disciplines))
 
                 // 4. Fetch Approved Certificates
                 const certsQ = query(
@@ -102,6 +101,7 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                 certsSnap.forEach(c => certs.push({ ...c.data(), id: c.id } as any))
 
                 setCertificates(certs)
+                setStats(calcularEstatisticas(disciplines, certs))
 
             } catch (err) {
                 console.error('Error loading public profile:', err)
@@ -328,7 +328,7 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                                                         <td className="p-4 font-medium text-sm">{d.nome}</td>
                                                         <td className="p-4 text-center font-mono text-sm text-muted-foreground">{d.ch}h</td>
                                                         <td className="p-4 text-center">
-                                                            <Badge variant={d.nota >= 7 ? "default" : "secondary"} className={d.nota >= 7 ? "bg-green-500 hover:bg-green-600" : ""}>
+                                                            <Badge variant={d.nota >= 5 ? "default" : "secondary"} className={d.nota >= 5 ? "bg-green-500 hover:bg-green-600" : ""}>
                                                                 {d.nota.toFixed(1)}
                                                             </Badge>
                                                         </td>
