@@ -165,7 +165,7 @@ export function SimuladorPageClient() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const response = await fetch('/assets/data/disciplinas.json')
+        const response = await fetch(`/assets/data/disciplinas.json?v=${new Date().getTime()}`)
         const data = await response.json()
         setDisciplinasData(data)
       } catch (error) {

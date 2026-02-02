@@ -102,12 +102,55 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
       },
     })
 
+    const codigo = watch('codigo')
     const trancamento = watch('trancamento')
     const dispensada = watch('dispensada')
     const emcurso = watch('emcurso')
     const natureza = watch('natureza')
     const isAC = natureza === 'AC'
     const naturezasDisponiveis = Object.keys(CURSOS[cursoAtual]?.requisitos || {}) as Natureza[]
+
+    const [disciplinasData, setDisciplinasData] = useState<any>(null)
+
+    // Carregar dados para auto-fill
+    useEffect(() => {
+      const loadData = async () => {
+        try {
+          const response = await fetch(`/assets/data/disciplinas.json?v=${new Date().getTime()}`)
+          const data = await response.json()
+          setDisciplinasData(data)
+        } catch (error) {
+          logger.error('Erro ao carregar dados de disciplinas:', error)
+        }
+      }
+      loadData()
+    }, [])
+
+    // Auto-fill logic
+    useEffect(() => {
+      if (!codigo || codigo.length < 5 || !disciplinasData || !disciplinasData.catalogo) return
+
+      // Evitar sobrescrever se o usuário estiver editando um registro existente intencionalmente
+      // Mas como é um form de adição/edição, se ele mudar o código, presume-se que quer os dados daquele código
+
+      const codigoUpper = codigo.toUpperCase()
+      const disciplina = disciplinasData.catalogo[codigoUpper]
+
+      if (disciplina) {
+        // Tentar encontrar natureza específica para o curso
+        let novaNatureza: Natureza = 'OP'
+        const cursoDisciplinas = disciplinasData.cursos?.[cursoAtual] || []
+        const courseDiscipline = cursoDisciplinas.find((d: any) => d.codigo === codigoUpper)
+
+        if (courseDiscipline) {
+          novaNatureza = courseDiscipline.natureza
+        }
+
+        setValue('nome', disciplina.nome)
+        setValue('natureza', novaNatureza)
+        if (disciplina.ch) setValue('ch', disciplina.ch)
+      }
+    }, [codigo, disciplinasData, cursoAtual, setValue])
 
     const [isSheetOpen, setIsSheetOpen] = useState(false)
 
