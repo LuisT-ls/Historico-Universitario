@@ -175,7 +175,38 @@ export function SimuladorPageClient() {
     loadData()
   }, [])
 
-  // Lógica de busca (mesma do componente original)
+  const codigo = watch('codigo')
+  const normalizeText = (text: string) => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+
+  // Auto-fill logic when code changes
+  useEffect(() => {
+    if (!codigo || codigo.length < 5 || !disciplinasData) return
+
+    const normalizedData = disciplinasData as any
+    if (!normalizedData.catalogo) return
+
+    const codigoUpper = codigo.toUpperCase()
+
+    // Check if code exists in catalog
+    const disciplina = normalizedData.catalogo[codigoUpper]
+
+    if (disciplina) {
+      // Find nature for current course if possible
+      let natureza: Natureza = 'OP' // Default
+      const cursoDisciplinas = normalizedData.cursos?.[cursoAtual] || []
+      const courseDiscipline = cursoDisciplinas.find((d: any) => d.codigo === codigoUpper)
+
+      if (courseDiscipline) {
+        natureza = courseDiscipline.natureza
+      }
+
+      setValue('nome', disciplina.nome)
+      setValue('natureza', natureza)
+      if (disciplina.ch) setValue('ch', disciplina.ch)
+    }
+  }, [codigo, disciplinasData, cursoAtual, setValue])
+
+  // Lógica de busca (com fuzzy search)
   useEffect(() => {
     if (!disciplinasData || !nome || nome.trim().length < 2) {
       setSearchResults([])
@@ -183,7 +214,7 @@ export function SimuladorPageClient() {
       return
     }
 
-    const term = nome.toLowerCase().trim()
+    const termNormalized = normalizeText(nome.trim())
     const normalizedData = disciplinasData as any
     const cursoDisciplinas = normalizedData.cursos?.[cursoAtual] || []
 
@@ -194,7 +225,11 @@ export function SimuladorPageClient() {
     })) as DisciplinaData[]
 
     const matches = disciplinasCompletas
-      .filter(d => d.nome.toLowerCase().includes(term) || d.codigo.toLowerCase().includes(term))
+      .filter(d => {
+        const nomeNormalized = normalizeText(d.nome || '');
+        const codigoNormalized = normalizeText(d.codigo || '');
+        return nomeNormalized.includes(termNormalized) || codigoNormalized.includes(termNormalized);
+      })
       .slice(0, 8)
 
     setSearchResults(matches)

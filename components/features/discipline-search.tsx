@@ -69,10 +69,19 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
     setSelectedIndex(-1)
   }, [cursoAtual])
 
+  // Helper para remover acentos
+  const normalizeText = (text: string) => {
+    return text
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+  }
+
   // Buscar disciplinas
   useEffect(() => {
-    // Verificar se os dados já foram carregados primeiro
-    if (!disciplinasData || Object.keys(disciplinasData).length === 0) {
+    // Verificar se os dados já foram carregados
+    const normalizedData = disciplinasData as any
+    if (!normalizedData || !normalizedData.catalogo || !normalizedData.cursos) {
       setResults([])
       setShowResults(false)
       return
@@ -85,22 +94,27 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
       return
     }
 
-    const normalizedData = disciplinasData as any
     const cursoDisciplinas = normalizedData.cursos?.[cursoAtual] || []
 
     // Mapear combinando com o catálogo
-    const disciplinasCompletas = cursoDisciplinas.map((d: any) => ({
-      ...d,
-      ...normalizedData.catalogo?.[d.codigo]
-    })) as DisciplinaData[]
+    const disciplinasCompletas = cursoDisciplinas.map((d: any) => {
+      const catalogoInfo = normalizedData.catalogo?.[d.codigo] || {}
+      return {
+        ...d,
+        ...catalogoInfo
+      }
+    }) as DisciplinaData[]
 
-    const term = searchTerm.toLowerCase().trim()
+    const termNormalized = normalizeText(searchTerm.trim())
 
     const matches = disciplinasCompletas
       .filter(
-        (disciplina) =>
-          disciplina.nome.toLowerCase().includes(term) ||
-          disciplina.codigo.toLowerCase().includes(term)
+        (disciplina) => {
+          const nomeNormalized = normalizeText(disciplina.nome || '');
+          const codigoNormalized = normalizeText(disciplina.codigo || '');
+
+          return nomeNormalized.includes(termNormalized) || codigoNormalized.includes(termNormalized)
+        }
       )
       .slice(0, 8) // Limita a 8 resultados
 
@@ -141,18 +155,35 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
   }
 
   const highlightMatch = (text: string, term: string) => {
-    if (!term) return text
-    const regex = new RegExp(`(${term})`, 'gi')
-    const parts = text.split(regex)
-    return parts.map((part, i) =>
-      regex.test(part) ? (
-        <mark key={i} className="bg-yellow-200 dark:bg-yellow-800">
-          {part}
-        </mark>
-      ) : (
-        part
+    if (!term || !text) return text
+    const normalizedText = normalizeText(text)
+    const normalizedTerm = normalizeText(term)
+
+    if (!normalizedText.includes(normalizedTerm)) return text
+
+    // Tentar encontrar a posição original do match aproximado
+    // Como simplificação, se houver match exato de caracteres (ignorando case), usamos regex simples
+    // Para acentos, manteremos o texto original se não bater regex simples
+
+    try {
+      const regex = new RegExp(`(${term})`, 'gi')
+      // Se a regex simples não der match por causa de acentos, retornamos o texto original por enquanto
+      // para evitar complexidade excessiva de UI num highlight
+      if (!regex.test(text)) return text
+
+      const parts = text.split(regex)
+      return parts.map((part, i) =>
+        regex.test(part) ? (
+          <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 rounded-sm px-0.5 text-foreground">
+            {part}
+          </mark>
+        ) : (
+          part
+        )
       )
-    )
+    } catch (e) {
+      return text
+    }
   }
 
   return (
