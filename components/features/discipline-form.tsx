@@ -240,14 +240,14 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
             <Label htmlFor="periodo">Semestre</Label>
             <Input
               id="periodo"
-              placeholder="Ex: 2025.1"
+              placeholder="Ex: 2026.1"
               {...register('periodo')}
               aria-invalid={errors.periodo ? 'true' : 'false'}
             />
             {errors.periodo && (
               <p className="text-sm text-destructive">{errors.periodo.message}</p>
             )}
-            <p className="text-xs text-muted-foreground">Formato: AAAA.S (ex: 2025.1)</p>
+            <p className="text-xs text-muted-foreground">Formato: AAAA.S (ex: 2026.1)</p>
           </div>
 
           <div className="space-y-2">
