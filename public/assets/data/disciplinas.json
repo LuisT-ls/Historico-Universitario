@@ -1,1169 +1,1513 @@
 {
-  "BICTI": [
-    {
+  "catalogo": {
+    "CTIA01": {
       "codigo": "CTIA01",
-      "nome": "INTRODUÇÃO À COMPUTAÇÃO",
-      "natureza": "OB"
+      "nome": "INTRODUÇÃO À COMPUTAÇÃO"
     },
-    {
+    "CTIA02": {
       "codigo": "CTIA02",
       "nome": "BASES EPISTEMOLÓGICAS DA CIÊNCIA",
-      "natureza": "OB",
       "ch": 30
     },
-    {
+    "CTIA03": {
       "codigo": "CTIA03",
-      "nome": "BASES MATEMÁTICAS PARA CIÊNCIA, TECNOLOGIA E INOVAÇÃO",
-      "natureza": "OB"
+      "nome": "BASES MATEMÁTICAS PARA CIÊNCIA, TECNOLOGIA E INOVAÇÃO"
     },
-    {
+    "CTIA04": {
       "codigo": "CTIA04",
       "nome": "ELEMENTOS ACADÊMICOS E PROFISSIONAIS EM C, T E I",
-      "natureza": "OB",
       "ch": 30
     },
-    {
+    "CTIA05": {
       "codigo": "CTIA05",
-      "nome": "LÍNGUA PORTUGUESA, PODER E DIVERSIDADE CULTURAL",
-      "natureza": "OB"
+      "nome": "LÍNGUA PORTUGUESA, PODER E DIVERSIDADE CULTURAL"
     },
-    {
+    "CTIA67": {
       "codigo": "CTIA67",
-      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE I",
-      "natureza": "OB"
+      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE I"
     },
-    {
+    "CTIA07": {
       "codigo": "CTIA07",
-      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO E SOCIEDADE",
-      "natureza": "OB"
+      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO E SOCIEDADE"
     },
-    {
+    "CTIA08": {
       "codigo": "CTIA08",
       "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO I",
-      "natureza": "OB",
       "ch": 30
     },
-    {
+    "CTIA09": {
       "codigo": "CTIA09",
-      "nome": "LEITURA E PRODUÇÃO DE TEXTOS EM LÍNGUA PORTUGUESA",
-      "natureza": "OB"
+      "nome": "LEITURA E PRODUÇÃO DE TEXTOS EM LÍNGUA PORTUGUESA"
     },
-    {
+    "CTIA10": {
       "codigo": "CTIA10",
-      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE II",
-      "natureza": "OB"
+      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE II"
     },
-    {
+    "CTIA11": {
       "codigo": "CTIA11",
-      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO, SOCIEDADE E AMBIENTE",
-      "natureza": "OB"
+      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO, SOCIEDADE E AMBIENTE"
     },
-    {
+    "CTIA60": {
       "codigo": "CTIA60",
       "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO II",
-      "natureza": "OB",
       "ch": 30
     },
-    {
+    "CTIA71": {
       "codigo": "CTIA71",
-      "nome": "ACCS: A MATEMÁTICA FINANCEIRA E A ESTATÍSTICA NO COTIDIANO",
-      "natureza": "OX"
+      "nome": "ACCS: A MATEMÁTICA FINANCEIRA E A ESTATÍSTICA NO COTIDIANO"
     },
-    {
+    "CTIB24": {
       "codigo": "CTIB24",
-      "nome": "ACCS: ANÁLISE ERGONÔMICA DO TRABALHO",
-      "natureza": "OX"
+      "nome": "ACCS: ANÁLISE ERGONÔMICA DO TRABALHO"
     },
-    {
+    "CTIA62": {
       "codigo": "CTIA62",
-      "nome": "ACCS: OFICINA DE MODELAGEM DE NEGÓCIOS E INSERÇÃO DIGITAL",
-      "natureza": "OX"
+      "nome": "ACCS: OFICINA DE MODELAGEM DE NEGÓCIOS E INSERÇÃO DIGITAL"
     },
-    {
+    "CTIA64": {
       "codigo": "CTIA64",
-      "nome": "ACCS: OFICINAS DE INFORMÁTICA NO ENSINO DA MATEMÁTICA",
-      "natureza": "OX"
+      "nome": "ACCS: OFICINAS DE INFORMÁTICA NO ENSINO DA MATEMÁTICA"
     },
-    {
+    "CTIB27": {
       "codigo": "CTIB27",
-      "nome": "ACCS: OFICINAS DE MATEMÁTICA NO ENSINO BÁSICO",
-      "natureza": "OX"
+      "nome": "ACCS: OFICINAS DE MATEMÁTICA NO ENSINO BÁSICO"
     },
-    {
+    "CTIA81": {
       "codigo": "CTIA81",
-      "nome": "ACCS: RECICLAGEM DE PLÁSTICOS",
-      "natureza": "OX"
+      "nome": "ACCS: RECICLAGEM DE PLÁSTICOS"
     },
-    {
+    "CTIA63": {
       "codigo": "CTIA63",
-      "nome": "ACCS: STEM – CIÊNCIA, TECNOLOGIA E INOVAÇÃO NAS ESCOLAS",
-      "natureza": "OX"
+      "nome": "ACCS: STEM – CIÊNCIA, TECNOLOGIA E INOVAÇÃO NAS ESCOLAS"
     },
-    {
+    "CTIA28": {
       "codigo": "CTIA28",
-      "nome": "ÁLGEBRA LINEAR",
-      "natureza": "OG"
+      "nome": "ÁLGEBRA LINEAR"
     },
-    {
+    "CTIA74": {
       "codigo": "CTIA74",
-      "nome": "ANÁLISE DE CIRCUITOS I",
-      "natureza": "OG"
+      "nome": "ANÁLISE DE CIRCUITOS I"
     },
-    {
+    "CTIA20": {
       "codigo": "CTIA20",
-      "nome": "ARTE E ESTÉTICA",
-      "natureza": "OZ"
+      "nome": "ARTE E ESTÉTICA"
     },
-    {
+    "CTIA29": {
       "codigo": "CTIA29",
-      "nome": "BANCO DE DADOS",
-      "natureza": "OG"
+      "nome": "BANCO DE DADOS"
     },
-    {
+    "CTIA30": {
       "codigo": "CTIA30",
-      "nome": "BIOTECNOLOGIA",
-      "natureza": "OG"
+      "nome": "BIOTECNOLOGIA"
     },
-    {
+    "CTIA31": {
       "codigo": "CTIA31",
       "nome": "CÁLCULO A",
-      "natureza": "OG",
       "ch": 75
     },
-    {
+    "CTIA66": {
       "codigo": "CTIA66",
       "nome": "CÁLCULO B",
-      "natureza": "OG",
       "ch": 75
     },
-    {
+    "CTIA33": {
       "codigo": "CTIA33",
       "nome": "CÁLCULO C",
-      "natureza": "OG",
       "ch": 75
     },
-    {
+    "CTIB26": {
       "codigo": "CTIB26",
       "nome": "CÁLCULO D",
-      "natureza": "OG",
       "ch": 75
     },
-    {
+    "CTIA34": {
       "codigo": "CTIA34",
-      "nome": "CÁLCULO NUMÉRICO",
-      "natureza": "OG"
+      "nome": "CÁLCULO NUMÉRICO"
     },
-    {
+    "CTIA36": {
       "codigo": "CTIA36",
-      "nome": "CIÊNCIA DOS MATERIAIS",
-      "natureza": "OG"
+      "nome": "CIÊNCIA DOS MATERIAIS"
     },
-    {
+    "CTIA35": {
       "codigo": "CTIA35",
-      "nome": "CIÊNCIAS DO AMBIENTE",
-      "natureza": "OG"
+      "nome": "CIÊNCIAS DO AMBIENTE"
     },
-    {
+    "CTIA37": {
       "codigo": "CTIA37",
-      "nome": "COMPUTADOR, ÉTICA E SOCIEDADE",
-      "natureza": "OG"
+      "nome": "COMPUTADOR, ÉTICA E SOCIEDADE"
     },
-    {
+    "CTIA79": {
       "codigo": "CTIA79",
-      "nome": "DESENHO TÉCNICO I",
-      "natureza": "OG"
+      "nome": "DESENHO TÉCNICO I"
     },
-    {
+    "CTIA38": {
       "codigo": "CTIA38",
-      "nome": "EDUCAÇÃO AMBIENTAL",
-      "natureza": "OG"
+      "nome": "EDUCAÇÃO AMBIENTAL"
     },
-    {
+    "CTIA12": {
       "codigo": "CTIA12",
-      "nome": "EDUCAÇÃO DAS RELAÇÕES ÉTNICO RACIAIS",
-      "natureza": "OH"
+      "nome": "EDUCAÇÃO DAS RELAÇÕES ÉTNICO RACIAIS"
     },
-    {
+    "CTIA13": {
       "codigo": "CTIA13",
-      "nome": "EDUCAÇÃO EM DIREITOS HUMANOS",
-      "natureza": "OH"
+      "nome": "EDUCAÇÃO EM DIREITOS HUMANOS"
     },
-    {
+    "CTIA73": {
       "codigo": "CTIA73",
-      "nome": "ELETRICIDADE",
-      "natureza": "OG"
+      "nome": "ELETRICIDADE"
     },
-    {
+    "CTIA80": {
       "codigo": "CTIA80",
-      "nome": "EMPREENDEDORISMO",
-      "natureza": "OH"
+      "nome": "EMPREENDEDORISMO"
     },
-    {
+    "CTIA39": {
       "codigo": "CTIA39",
-      "nome": "ENERGIA E MEIO AMBIENTE",
-      "natureza": "OG"
+      "nome": "ENERGIA E MEIO AMBIENTE"
     },
-    {
+    "CTIB20": {
       "codigo": "CTIB20",
-      "nome": "ERGONOMIA COGNITIVA E EXPERIÊNCIA DO USUÁRIO",
-      "natureza": "OG"
+      "nome": "ERGONOMIA COGNITIVA E EXPERIÊNCIA DO USUÁRIO"
     },
-    {
+    "CTIB21": {
       "codigo": "CTIB21",
-      "nome": "ERGONOMIA FÍSICA E ORGANIZACIONAL",
-      "natureza": "OG"
+      "nome": "ERGONOMIA FÍSICA E ORGANIZACIONAL"
     },
-    {
+    "CTIA40": {
       "codigo": "CTIA40",
-      "nome": "ESTATÍSTICA APLICADA A CIÊNCIA, TECNOLOGIA E INOVAÇÃO",
-      "natureza": "OG"
+      "nome": "ESTATÍSTICA APLICADA A CIÊNCIA, TECNOLOGIA E INOVAÇÃO"
     },
-    {
+    "CTIA41": {
       "codigo": "CTIA41",
-      "nome": "ESTRUTURA DE DADOS E ALGORITMOS I",
-      "natureza": "OG"
+      "nome": "ESTRUTURA DE DADOS E ALGORITMOS I"
     },
-    {
+    "CTIA14": {
       "codigo": "CTIA14",
-      "nome": "ESTUDOS DAS CULTURAS",
-      "natureza": "OH"
+      "nome": "ESTUDOS DAS CULTURAS"
     },
-    {
+    "CTIA15": {
       "codigo": "CTIA15",
-      "nome": "ESTUDOS DAS HUMANIDADES",
-      "natureza": "OH"
+      "nome": "ESTUDOS DAS HUMANIDADES"
     },
-    {
+    "CTIA16": {
       "codigo": "CTIA16",
-      "nome": "ESTUDOS DAS SUBJETIVIDADES",
-      "natureza": "OH"
+      "nome": "ESTUDOS DAS SUBJETIVIDADES"
     },
-    {
+    "CTIA42": {
       "codigo": "CTIA42",
-      "nome": "EVOLUÇÃO DA FÍSICA",
-      "natureza": "OG"
+      "nome": "EVOLUÇÃO DA FÍSICA"
     },
-    {
+    "CTIA43": {
       "codigo": "CTIA43",
-      "nome": "FENÔMENOS DE TRANSPORTE I",
-      "natureza": "OG"
+      "nome": "FENÔMENOS DE TRANSPORTE I"
     },
-    {
+    "CTIA65": {
       "codigo": "CTIA65",
-      "nome": "FERRAMENTAS DIGITAIS PARA A PESQUISA ACADÊMICA",
-      "natureza": "OH"
+      "nome": "FERRAMENTAS DIGITAIS PARA A PESQUISA ACADÊMICA"
     },
-    {
+    "CTIA44": {
       "codigo": "CTIA44",
-      "nome": "FÍSICA E SOCIEDADE",
-      "natureza": "OG"
+      "nome": "FÍSICA E SOCIEDADE"
     },
-    {
+    "CTIA45": {
       "codigo": "CTIA45",
       "nome": "FÍSICA I",
-      "natureza": "OG",
       "ch": 90
     },
-    {
+    "CTIA46": {
       "codigo": "CTIA46",
       "nome": "FÍSICA II",
-      "natureza": "OG",
       "ch": 90
     },
-    {
+    "CTIA47": {
       "codigo": "CTIA47",
       "nome": "FÍSICA III",
-      "natureza": "OG",
       "ch": 90
     },
-    {
+    "CTIA84": {
       "codigo": "CTIA84",
       "nome": "FÍSICA IV",
-      "natureza": "OG",
       "ch": 90
     },
-    {
+    "CTIA48": {
       "codigo": "CTIA48",
-      "nome": "FUNDAMENTOS DE BIOLOGIA",
-      "natureza": "OG"
+      "nome": "FUNDAMENTOS DE BIOLOGIA"
     },
-    {
+    "CTIA49": {
       "codigo": "CTIA49",
-      "nome": "GEOMETRIA ANALÍTICA",
-      "natureza": "OG"
+      "nome": "GEOMETRIA ANALÍTICA"
     },
-    {
+    "CTIA50": {
       "codigo": "CTIA50",
-      "nome": "GESTÃO DA PRODUÇÃO",
-      "natureza": "OG"
+      "nome": "GESTÃO DA PRODUÇÃO"
     },
-    {
+    "CTIA51": {
       "codigo": "CTIA51",
-      "nome": "HIGIENE E SEGURANÇA DO TRABALHO",
-      "natureza": "OG"
+      "nome": "HIGIENE E SEGURANÇA DO TRABALHO"
     },
-    {
+    "CTIB25": {
       "codigo": "CTIB25",
-      "nome": "INTRODUÇÃO À ANÁLISE COMBINATÓRIA",
-      "natureza": "OG"
+      "nome": "INTRODUÇÃO À ANÁLISE COMBINATÓRIA"
     },
-    {
+    "CTIA52": {
       "codigo": "CTIA52",
-      "nome": "INTRODUÇÃO À ASTRONOMIA",
-      "natureza": "OG"
+      "nome": "INTRODUÇÃO À ASTRONOMIA"
     },
-    {
+    "CTIA61": {
       "codigo": "CTIA61",
-      "nome": "INTRODUÇÃO À ENGENHARIA",
-      "natureza": "OG"
+      "nome": "INTRODUÇÃO À ENGENHARIA"
     },
-    {
+    "CTIA17": {
       "codigo": "CTIA17",
-      "nome": "INTRODUÇÃO À HISTÓRIA DAS CIÊNCIAS",
-      "natureza": "OH"
+      "nome": "INTRODUÇÃO À HISTÓRIA DAS CIÊNCIAS"
     },
-    {
+    "CTIA53": {
       "codigo": "CTIA53",
-      "nome": "INTRODUÇÃO À LÓGICA DE PROGRAMAÇÃO",
-      "natureza": "OG"
+      "nome": "INTRODUÇÃO À LÓGICA DE PROGRAMAÇÃO"
     },
-    {
+    "CTIA76": {
       "codigo": "CTIA76",
-      "nome": "INTRODUÇÃO AO ESTUDO DA REALIDADE VIRTUAL E AUMENTADA",
-      "natureza": "OH"
+      "nome": "INTRODUÇÃO AO ESTUDO DA REALIDADE VIRTUAL E AUMENTADA"
     },
-    {
+    "CTIA18": {
       "codigo": "CTIA18",
-      "nome": "INTRODUÇÃO AOS ESTUDOS DE GÊNERO",
-      "natureza": "OH"
+      "nome": "INTRODUÇÃO AOS ESTUDOS DE GÊNERO"
     },
-    {
+    "CTIB22": {
       "codigo": "CTIB22",
-      "nome": "LABORATÓRIO DE PROCESSOS CRIATIVOS",
-      "natureza": "OZ"
+      "nome": "LABORATÓRIO DE PROCESSOS CRIATIVOS"
     },
-    {
+    "CTIA21": {
       "codigo": "CTIA21",
-      "nome": "LABORATÓRIOS DE TECNOLOGIAS INTERATIVAS: ARTES E INTERFACES",
-      "natureza": "OZ"
+      "nome": "LABORATÓRIOS DE TECNOLOGIAS INTERATIVAS: ARTES E INTERFACES"
     },
-    {
+    "CTIA22": {
       "codigo": "CTIA22",
-      "nome": "LEITURA DE TEXTOS EM LÍNGUA ESPANHOLA I",
-      "natureza": "OZ"
+      "nome": "LEITURA DE TEXTOS EM LÍNGUA ESPANHOLA I"
     },
-    {
+    "CTIA23": {
       "codigo": "CTIA23",
-      "nome": "LEITURA DE TEXTOS EM LÍNGUA ESPANHOLA II",
-      "natureza": "OZ"
+      "nome": "LEITURA DE TEXTOS EM LÍNGUA ESPANHOLA II"
     },
-    {
+    "CTIA24": {
       "codigo": "CTIA24",
-      "nome": "LEITURA DE TEXTOS EM LÍNGUA INGLESA I",
-      "natureza": "OZ"
+      "nome": "LEITURA DE TEXTOS EM LÍNGUA INGLESA I"
     },
-    {
+    "CTIA25": {
       "codigo": "CTIA25",
-      "nome": "LEITURA DE TEXTOS EM LÍNGUA INGLESA II",
-      "natureza": "OZ"
+      "nome": "LEITURA DE TEXTOS EM LÍNGUA INGLESA II"
     },
-    {
+    "CTIA26": {
       "codigo": "CTIA26",
-      "nome": "LÍNGUA BRASILEIRA DE SINAIS (LIBRAS)",
-      "natureza": "OZ"
+      "nome": "LÍNGUA BRASILEIRA DE SINAIS (LIBRAS)"
     },
-    {
+    "CTIA54": {
       "codigo": "CTIA54",
-      "nome": "LÓGICA PARA A COMPUTAÇÃO",
-      "natureza": "OG"
+      "nome": "LÓGICA PARA A COMPUTAÇÃO"
     },
-    {
+    "CTIA78": {
       "codigo": "CTIA78",
-      "nome": "MECÂNICA DOS FLUIDOS I",
-      "natureza": "OG"
+      "nome": "MECÂNICA DOS FLUIDOS I"
     },
-    {
+    "CTIA55": {
       "codigo": "CTIA55",
-      "nome": "MECÂNICA DOS SÓLIDOS",
-      "natureza": "OG"
+      "nome": "MECÂNICA DOS SÓLIDOS"
     },
-    {
+    "CTIA77": {
       "codigo": "CTIA77",
-      "nome": "MECÂNICA GERAL I",
-      "natureza": "OG"
+      "nome": "MECÂNICA GERAL I"
     },
-    {
+    "CTIA72": {
       "codigo": "CTIA72",
-      "nome": "MÉTODOS ESTATÍSTICOS",
-      "natureza": "OG"
+      "nome": "MÉTODOS ESTATÍSTICOS"
     },
-    {
+    "CTIA56": {
       "codigo": "CTIA56",
-      "nome": "PROGRAMAÇÃO ORIENTADA A OBJETOS",
-      "natureza": "OG"
+      "nome": "PROGRAMAÇÃO ORIENTADA A OBJETOS"
     },
-    {
+    "CTIA57": {
       "codigo": "CTIA57",
-      "nome": "PROJETO DE CIRCUITOS LÓGICOS",
-      "natureza": "OG"
+      "nome": "PROJETO DE CIRCUITOS LÓGICOS"
     },
-    {
+    "CTIA58": {
       "codigo": "CTIA58",
-      "nome": "PROJETO INTEGRADO EM ENGENHARIA I",
-      "natureza": "OG"
+      "nome": "PROJETO INTEGRADO EM ENGENHARIA I"
     },
-    {
+    "CTIB23": {
       "codigo": "CTIB23",
-      "nome": "PROPRIEDADE INTELECTUAL",
-      "natureza": "OG"
+      "nome": "PROPRIEDADE INTELECTUAL"
     },
-    {
+    "CTIA59": {
       "codigo": "CTIA59",
-      "nome": "QUÍMICA",
-      "natureza": "OG"
+      "nome": "QUÍMICA"
     },
-    {
+    "CTIA19": {
       "codigo": "CTIA19",
-      "nome": "TEORIA DA CIDADE E DO URBANO",
-      "natureza": "OH"
+      "nome": "TEORIA DA CIDADE E DO URBANO"
     },
-    {
+    "CTIA75": {
       "codigo": "CTIA75",
-      "nome": "TERMODINÂMICA APLICADA I",
-      "natureza": "OG"
+      "nome": "TERMODINÂMICA APLICADA I"
     },
-    {
+    "CTIA83": {
       "codigo": "CTIA83",
-      "nome": "TÓPICOS DE COMPUTAÇÃO QUÂNTICA E SPINTRÔNICA",
-      "natureza": "OG"
+      "nome": "TÓPICOS DE COMPUTAÇÃO QUÂNTICA E SPINTRÔNICA"
     },
-    {
+    "CTIA27": {
       "codigo": "CTIA27",
-      "nome": "TÓPICOS ESPECIAIS EM ARTES E TECNOLOGIAS CONTEMPORÂNEAS",
-      "natureza": "OZ"
+      "nome": "TÓPICOS ESPECIAIS EM ARTES E TECNOLOGIAS CONTEMPORÂNEAS"
     },
-    {
+    "CTIA82": {
       "codigo": "CTIA82",
-      "nome": "ACCS: PRODUÇÃO E CIRCULAÇÃO DE DIVULGAÇÃO CIENTÍFICA",
-      "natureza": "OX"
+      "nome": "ACCS: PRODUÇÃO E CIRCULAÇÃO DE DIVULGAÇÃO CIENTÍFICA"
     },
-    {
+    "CTIA32": {
       "codigo": "CTIA32",
       "nome": "INTRODUÇÃO À CIÊNCIA DE DADOS",
-      "natureza": "OG",
-      "ch": 30
-    }
-  ],
-  "ENG_PROD": [
-    {
-      "codigo": "CTIA01",
-      "nome": "INTRODUÇÃO À COMPUTAÇÃO",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA02",
-      "nome": "BASES EPISTEMOLÓGICAS DA CIÊNCIA",
-      "natureza": "OB",
       "ch": 30
     },
-    {
-      "codigo": "CTIA03",
-      "nome": "BASES MATEMÁTICAS PARA CIÊNCIA, TECNOLOGIA E INOVAÇÃO",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA04",
-      "nome": "ELEMENTOS ACADÊMICOS E PROFISSIONAIS EM C, T E I",
-      "natureza": "OB",
-      "ch": 30
-    },
-    {
-      "codigo": "CTIA05",
-      "nome": "LÍNGUA PORTUGUESA, PODER E DIVERSIDADE CULTURAL",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA67",
-      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE I",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA07",
-      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO E SOCIEDADE",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA08",
-      "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO I",
-      "natureza": "OB",
-      "ch": 30
-    },
-    {
-      "codigo": "CTIA09",
-      "nome": "LEITURA E PRODUÇÃO DE TEXTOS EM LÍNGUA PORTUGUESA",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA10",
-      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE II",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA31",
-      "nome": "CÁLCULO A",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA49",
-      "nome": "GEOMETRIA ANALÍTICA",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA11",
-      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO, SOCIEDADE E AMBIENTE",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA45",
-      "nome": "FÍSICA I",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA66",
-      "nome": "CÁLCULO B",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA28",
-      "nome": "ÁLGEBRA LINEAR",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA33",
-      "nome": "CÁLCULO C",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA46",
-      "nome": "FÍSICA II",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA60",
-      "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO II",
-      "natureza": "OB",
-      "ch": 30
-    },
-    {
+    "CTIA85": {
       "codigo": "CTIA85",
-      "nome": "ADMINISTRAÇÃO E ECONOMIA",
-      "natureza": "OB"
+      "nome": "ADMINISTRAÇÃO E ECONOMIA"
     },
-    {
-      "codigo": "CTIA47",
-      "nome": "FÍSICA III",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA59",
-      "nome": "QUÍMICA",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA72",
-      "nome": "MÉTODOS ESTATÍSTICOS",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA77",
-      "nome": "MECÂNICA GERAL I",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA80",
-      "nome": "EMPREENDEDORISMO",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA34",
-      "nome": "CÁLCULO NUMÉRICO",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA36",
-      "nome": "CIÊNCIA DOS MATERIAIS",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA73",
-      "nome": "ELETRICIDADE",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA78",
-      "nome": "MECÂNICA DOS FLUIDOS I",
-      "natureza": "OB"
-    },
-    {
+    "CTIA86": {
       "codigo": "CTIA86",
-      "nome": "GESTÃO DE SISTEMAS DE GARANTIA DA QUALIDADE",
-      "natureza": "OB"
+      "nome": "GESTÃO DE SISTEMAS DE GARANTIA DA QUALIDADE"
     },
-    {
+    "CTIA87": {
       "codigo": "CTIA87",
-      "nome": "CONTABILIDADE DE CUSTOS",
-      "natureza": "OB"
+      "nome": "CONTABILIDADE DE CUSTOS"
     },
-    {
+    "CTIA88": {
       "codigo": "CTIA88",
-      "nome": "PESQUISA OPERACIONAL",
-      "natureza": "OB"
+      "nome": "PESQUISA OPERACIONAL"
     },
-    {
+    "CTIA89": {
       "codigo": "CTIA89",
-      "nome": "PRINCÍPIOS DE PROCESSOS CONTÍNUOS E DISCRETOS",
-      "natureza": "OB"
+      "nome": "PRINCÍPIOS DE PROCESSOS CONTÍNUOS E DISCRETOS"
     },
-    {
+    "CTIA90": {
       "codigo": "CTIA90",
-      "nome": "ENGENHARIA DO TRABALHO",
-      "natureza": "OB"
+      "nome": "ENGENHARIA DO TRABALHO"
     },
-    {
+    "CTIA91": {
       "codigo": "CTIA91",
-      "nome": "ENGENHARIA DA QUALIDADE",
-      "natureza": "OB"
+      "nome": "ENGENHARIA DA QUALIDADE"
     },
-    {
+    "CTIA92": {
       "codigo": "CTIA92",
-      "nome": "MODELAGEM PROBABILÍSTICA E SIMULAÇÃO DE SISTEMAS DE PRODUÇÃO",
-      "natureza": "OB"
+      "nome": "MODELAGEM PROBABILÍSTICA E SIMULAÇÃO DE SISTEMAS DE PRODUÇÃO"
     },
-    {
+    "CTIA93": {
       "codigo": "CTIA93",
-      "nome": "ENGENHARIA ECONÔMICA",
-      "natureza": "OB"
+      "nome": "ENGENHARIA ECONÔMICA"
     },
-    {
+    "CTIA94": {
       "codigo": "CTIA94",
-      "nome": "AUTOMAÇÃO DE PROCESSOS",
-      "natureza": "OB"
+      "nome": "AUTOMAÇÃO DE PROCESSOS"
     },
-    {
+    "CTIA95": {
       "codigo": "CTIA95",
-      "nome": "ENGENHARIA E DESENVOLVIMENTO DO PRODUTO",
-      "natureza": "OB"
+      "nome": "ENGENHARIA E DESENVOLVIMENTO DO PRODUTO"
     },
-    {
+    "CTIA96": {
       "codigo": "CTIA96",
-      "nome": "PROJETO DE FÁBRICA E PLANEJAMENTO INDUSTRIAL",
-      "natureza": "OB"
+      "nome": "PROJETO DE FÁBRICA E PLANEJAMENTO INDUSTRIAL"
     },
-    {
+    "CTIA97": {
       "codigo": "CTIA97",
-      "nome": "LOGÍSTICA E CADEIA DE SUPRIMENTOS",
-      "natureza": "OB"
+      "nome": "LOGÍSTICA E CADEIA DE SUPRIMENTOS"
     },
-    {
+    "CTIA98": {
       "codigo": "CTIA98",
-      "nome": "PLANEJAMENTO DO PROJETO DE CONCLUSÃO DE CURSO",
-      "natureza": "OB"
+      "nome": "PLANEJAMENTO DO PROJETO DE CONCLUSÃO DE CURSO"
     },
-    {
+    "CTIA99": {
       "codigo": "CTIA99",
-      "nome": "ESTÁGIO EM ENGENHARIA DE PRODUÇÃO",
-      "natureza": "OB"
+      "nome": "ESTÁGIO EM ENGENHARIA DE PRODUÇÃO"
     },
-    {
-      "codigo": "CTIA79",
-      "nome": "DESENHO TÉCNICO I",
-      "natureza": "OB"
-    },
-    {
+    "CTIB01": {
       "codigo": "CTIB01",
-      "nome": "PROJETO DE CONCLUSÃO DE CURSO",
-      "natureza": "OB"
+      "nome": "PROJETO DE CONCLUSÃO DE CURSO"
     },
-    {
+    "CTIB02": {
       "codigo": "CTIB02",
-      "nome": "PRODUÇÃO ENXUTA",
-      "natureza": "OP"
+      "nome": "PRODUÇÃO ENXUTA"
     },
-    {
+    "CTIB03": {
       "codigo": "CTIB03",
-      "nome": "SISTEMAS DE APOIO À DECISÃO",
-      "natureza": "OP"
+      "nome": "SISTEMAS DE APOIO À DECISÃO"
     },
-    {
+    "CTIB04": {
       "codigo": "CTIB04",
-      "nome": "LOGÍSTICA DE TRANSPORTES",
-      "natureza": "OP"
+      "nome": "LOGÍSTICA DE TRANSPORTES"
     },
-    {
+    "CTIB05": {
       "codigo": "CTIB05",
-      "nome": "ENGENHARIA DA SUSTENTABILIDADE",
-      "natureza": "OP"
+      "nome": "ENGENHARIA DA SUSTENTABILIDADE"
     },
-    {
+    "CTIB06": {
       "codigo": "CTIB06",
-      "nome": "TÓPICOS ESPECIAIS EM ENGENHARIA DE PRODUÇÃO",
-      "natureza": "OP"
+      "nome": "TÓPICOS ESPECIAIS EM ENGENHARIA DE PRODUÇÃO"
     },
-    {
+    "CTIB61": {
       "codigo": "CTIB61",
-      "nome": "GESTÃO DA INFORMAÇÃO",
-      "natureza": "OP"
+      "nome": "GESTÃO DA INFORMAÇÃO"
     },
-    {
-      "codigo": "CTIA50",
-      "nome": "GESTÃO DA PRODUÇÃO",
-      "natureza": "OP"
-    },
-    {
+    "CTIB54": {
       "codigo": "CTIB54",
-      "nome": "PRODUÇÃO LIMPA",
-      "natureza": "OP"
+      "nome": "PRODUÇÃO LIMPA"
     },
-    {
+    "CTIB55": {
       "codigo": "CTIB55",
-      "nome": "GESTÃO DE PROJETOS",
-      "natureza": "OP"
+      "nome": "GESTÃO DE PROJETOS"
     },
-    {
+    "CTIB56": {
       "codigo": "CTIB56",
-      "nome": "GESTÃO DE ESTOQUES",
-      "natureza": "OP"
+      "nome": "GESTÃO DE ESTOQUES"
     },
-    {
+    "CTIB57": {
       "codigo": "CTIB57",
-      "nome": "LOGÍSTICA REVERSA",
-      "natureza": "OP"
+      "nome": "LOGÍSTICA REVERSA"
     },
-    {
+    "CTIB58": {
       "codigo": "CTIB58",
-      "nome": "PLANEJAMENTO, PROGRAMAÇÃO E CONTROLE DA PRODUÇÃO",
-      "natureza": "OP"
+      "nome": "PLANEJAMENTO, PROGRAMAÇÃO E CONTROLE DA PRODUÇÃO"
     },
-    {
+    "CTIB59": {
       "codigo": "CTIB59",
-      "nome": "TECNOLOGIAS HABILITADORAS DA INDÚSTRIA 4.0",
-      "natureza": "OP"
+      "nome": "TECNOLOGIAS HABILITADORAS DA INDÚSTRIA 4.0"
     },
-    {
+    "CTIB60": {
       "codigo": "CTIB60",
-      "nome": "PROCESSOS DE FABRICAÇÃO I",
-      "natureza": "OP"
+      "nome": "PROCESSOS DE FABRICAÇÃO I"
     },
-    {
+    "CTIB62": {
       "codigo": "CTIB62",
-      "nome": "LEAN SIX SIGMA",
-      "natureza": "OP"
+      "nome": "LEAN SIX SIGMA"
     },
-    {
-      "codigo": "CTIA62",
-      "nome": "ACCS: OFICINA DE MODELAGEM DE NEGÓCIOS E INSERÇÃO DIGITAL",
-      "natureza": "OX"
-    },
-    {
-      "codigo": "CTIA71",
-      "nome": "ACCS: A MATEMÁTICA FINANCEIRA E A ESTATÍSTICA NO COTIDIANO",
-      "natureza": "OX"
-    },
-    {
-      "codigo": "CTIB24",
-      "nome": "ACCS: ANÁLISE ERGONÔMICA DO TRABALHO",
-      "natureza": "OX"
-    },
-    {
-      "codigo": "CTIA64",
-      "nome": "ACCS: OFICINAS DE INFORMÁTICA NO ENSINO DA MATEMÁTICA",
-      "natureza": "OX"
-    },
-    {
-      "codigo": "CTIB27",
-      "nome": "ACCS: OFICINAS DE MATEMÁTICA NO ENSINO BÁSICO",
-      "natureza": "OX"
-    },
-    {
-      "codigo": "CTIA81",
-      "nome": "ACCS: RECICLAGEM DE PLÁSTICOS",
-      "natureza": "OX"
-    },
-    {
-      "codigo": "CTIA63",
-      "nome": "ACCS: STEM ? CIÊNCIA, TECNOLOGIA E INOVAÇÃO NAS ESCOLAS",
-      "natureza": "OX"
-    },
-    {
-      "codigo": "CTIA82",
-      "nome": "ACCS: PRODUÇÃO E CIRCULAÇÃO DE DIVULGAÇÃO CIENTÍFICA",
-      "natureza": "OX"
-    },
-    {
-      "codigo": "CTIA26",
-      "nome": "LÍNGUA BRASILEIRA DE SINAIS (LIBRAS)",
-      "natureza": "OZ"
-    }
-  ],
-  "ENG_ELET": [
-    {
-      "codigo": "CTIA01",
-      "nome": "INTRODUÇÃO À COMPUTAÇÃO",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA02",
-      "nome": "BASES EPISTEMOLÓGICAS DA CIÊNCIA",
-      "natureza": "OB",
-      "ch": 30
-    },
-    {
-      "codigo": "CTIA03",
-      "nome": "BASES MATEMÁTICAS PARA CIÊNCIA, TECNOLOGIA E INOVAÇÃO",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA04",
-      "nome": "ELEMENTOS ACADÊMICOS E PROFISSIONAIS EM C, T E I",
-      "natureza": "OB",
-      "ch": 30
-    },
-    {
-      "codigo": "CTIA05",
-      "nome": "LÍNGUA PORTUGUESA, PODER E DIVERSIDADE CULTURAL",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA67",
-      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE I",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA07",
-      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO E SOCIEDADE",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA08",
-      "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO I",
-      "natureza": "OB",
-      "ch": 30
-    },
-    {
-      "codigo": "CTIA10",
-      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE II",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA31",
-      "nome": "CÁLCULO A",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA49",
-      "nome": "GEOMETRIA ANALÍTICA",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA11",
-      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO, SOCIEDADE E AMBIENTE",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA45",
-      "nome": "FÍSICA I",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA66",
-      "nome": "CÁLCULO B",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA80",
-      "nome": "EMPREENDEDORISMO",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA28",
-      "nome": "ÁLGEBRA LINEAR",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA33",
-      "nome": "CÁLCULO C",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA46",
-      "nome": "FÍSICA II",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA60",
-      "nome": "PROJETO INTEGRADO EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO II",
-      "natureza": "OB",
-      "ch": 30
-    },
-    {
-      "codigo": "CTIA85",
-      "nome": "ADMINISTRAÇÃO E ECONOMIA",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA47",
-      "nome": "FÍSICA III",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA53",
-      "nome": "INTRODUÇÃO À LÓGICA DE PROGRAMAÇÃO",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA59",
-      "nome": "QUÍMICA",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA72",
-      "nome": "MÉTODOS ESTATÍSTICOS",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA77",
-      "nome": "MECÂNICA GERAL I",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA34",
-      "nome": "CÁLCULO NUMÉRICO",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA36",
-      "nome": "CIÊNCIA DOS MATERIAIS",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA74",
-      "nome": "ANÁLISE DE CIRCUITOS I",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA78",
-      "nome": "MECÂNICA DOS FLUIDOS I",
-      "natureza": "OB"
-    },
-    {
-      "codigo": "CTIA79",
-      "nome": "DESENHO TÉCNICO I",
-      "natureza": "OB"
-    },
-    {
+    "CTIB65": {
       "codigo": "CTIB65",
-      "nome": "PROJETO DE CIRCUITOS LÓGICOS PARA ENGENHARIAS",
-      "natureza": "OB"
+      "nome": "PROJETO DE CIRCUITOS LÓGICOS PARA ENGENHARIAS"
     },
-    {
+    "CTIB66": {
       "codigo": "CTIB66",
-      "nome": "SINAIS E SISTEMAS",
-      "natureza": "OB"
+      "nome": "SINAIS E SISTEMAS"
     },
-    {
+    "CTIB67": {
       "codigo": "CTIB67",
-      "nome": "MATERIAIS ELÉTRICOS",
-      "natureza": "OB"
+      "nome": "MATERIAIS ELÉTRICOS"
     },
-    {
+    "CTIB68": {
       "codigo": "CTIB68",
-      "nome": "FUNDAMENTOS DE ELETROMAGNETISMO APLICADO",
-      "natureza": "OB"
+      "nome": "FUNDAMENTOS DE ELETROMAGNETISMO APLICADO"
     },
-    {
+    "CTIB69": {
       "codigo": "CTIB69",
-      "nome": "ANÁLISE DE CIRCUITOS II",
-      "natureza": "OB"
+      "nome": "ANÁLISE DE CIRCUITOS II"
     },
-    {
+    "CTIB70": {
       "codigo": "CTIB70",
-      "nome": "MODELAGEM E CONTROLE DE SISTEMAS",
-      "natureza": "OB"
+      "nome": "MODELAGEM E CONTROLE DE SISTEMAS"
     },
-    {
+    "CTIB71": {
       "codigo": "CTIB71",
-      "nome": "CONVERSÃO DE ENERGIA",
-      "natureza": "OB"
+      "nome": "CONVERSÃO DE ENERGIA"
     },
-    {
+    "CTIB72": {
       "codigo": "CTIB72",
-      "nome": "INSTALAÇÕES ELÉTRICAS PREDIAIS",
-      "natureza": "OB"
+      "nome": "INSTALAÇÕES ELÉTRICAS PREDIAIS"
     },
-    {
+    "CTIB73": {
       "codigo": "CTIB73",
-      "nome": "ELETRÔNICA ANALÓGICA",
-      "natureza": "OB"
+      "nome": "ELETRÔNICA ANALÓGICA"
     },
-    {
+    "CTIB74": {
       "codigo": "CTIB74",
-      "nome": "SISTEMAS ELÉTRICOS DE POTÊNCIA I",
-      "natureza": "OB"
+      "nome": "SISTEMAS ELÉTRICOS DE POTÊNCIA I"
     },
-    {
+    "CTIB75": {
       "codigo": "CTIB75",
-      "nome": "PRINCÍPIOS DE COMUNICAÇÕES",
-      "natureza": "OB"
+      "nome": "PRINCÍPIOS DE COMUNICAÇÕES"
     },
-    {
+    "CTIB76": {
       "codigo": "CTIB76",
-      "nome": "MÁQUINAS ELÉTRICAS",
-      "natureza": "OB"
+      "nome": "MÁQUINAS ELÉTRICAS"
     },
-    {
+    "CTIB77": {
       "codigo": "CTIB77",
-      "nome": "INSTRUMENTAÇÃO ELETRÔNICA",
-      "natureza": "OB"
+      "nome": "INSTRUMENTAÇÃO ELETRÔNICA"
     },
-    {
+    "CTIB81": {
       "codigo": "CTIB81",
-      "nome": "PLANEJAMENTO DO PROJETO DE CONCLUSÃO CURSO EM ENG. ELÉTRICA",
-      "natureza": "OB"
+      "nome": "PLANEJAMENTO DO PROJETO DE CONCLUSÃO CURSO EM ENG. ELÉTRICA"
     },
-    {
+    "CTIB78": {
       "codigo": "CTIB78",
-      "nome": "GERAÇÃO, TRANSMISSÃO E DISTRIBUIÇÃO DE ENERGIA",
-      "natureza": "OB"
+      "nome": "GERAÇÃO, TRANSMISSÃO E DISTRIBUIÇÃO DE ENERGIA"
     },
-    {
+    "CTIB82": {
       "codigo": "CTIB82",
-      "nome": "PROJETO DE CONCLUSÃO DE CURSO EM ENGENHARIA ELÉTRICA",
-      "natureza": "OB"
+      "nome": "PROJETO DE CONCLUSÃO DE CURSO EM ENGENHARIA ELÉTRICA"
     },
-    {
+    "CTIB84": {
       "codigo": "CTIB84",
-      "nome": "ESTÁGIO EM ENGENHARIA ELÉTRICA",
-      "natureza": "OB"
+      "nome": "ESTÁGIO EM ENGENHARIA ELÉTRICA"
     },
-    {
-      "codigo": "CTIA71",
-      "nome": "ACCS: A MATEMÁTICA FINANCEIRA E A ESTATÍSTICA NO COTIDIANO",
-      "natureza": "OX"
-    },
-    {
-      "codigo": "CTIA62",
-      "nome": "ACCS: OFICINA DE MODELAGEM DE NEGÓCIOS E INSERÇÃO DIGITAL",
-      "natureza": "OX"
-    },
-    {
-      "codigo": "CTIA81",
-      "nome": "ACCS: RECICLAGEM DE PLÁSTICOS",
-      "natureza": "OX"
-    },
-    {
-      "codigo": "CTIA63",
-      "nome": "ACCS: STEM - CIÊNCIA, TECNOLOGIA E INOVAÇÃO NAS ESCOLAS",
-      "natureza": "OX"
-    },
-    {
-      "codigo": "CTIA82",
-      "nome": "ACCS: PRODUÇÃO E CIRCULAÇÃO DE DIVULGAÇÃO CIENTÍFICA",
-      "natureza": "OX"
-    },
-    {
+    "CTIB89": {
       "codigo": "CTIB89",
-      "nome": "ACIONAMENTOS ELÉTRICOS",
-      "natureza": "OP"
+      "nome": "ACIONAMENTOS ELÉTRICOS"
     },
-    {
-      "codigo": "CTIA94",
-      "nome": "AUTOMAÇÃO DE PROCESSOS",
-      "natureza": "OP"
-    },
-    {
+    "CTIB80": {
       "codigo": "CTIB80",
-      "nome": "COMUNICAÇÃO DE DADOS E REDES DE COMPUTADORES",
-      "natureza": "OP"
+      "nome": "COMUNICAÇÃO DE DADOS E REDES DE COMPUTADORES"
     },
-    {
+    "CTIB83": {
       "codigo": "CTIB83",
-      "nome": "EFICIÊNCIA ENERGÉTICA",
-      "natureza": "OP"
+      "nome": "EFICIÊNCIA ENERGÉTICA"
     },
-    {
+    "CTIB90": {
       "codigo": "CTIB90",
-      "nome": "ELETRÔNICA DE POTÊNCIA",
-      "natureza": "OP"
+      "nome": "ELETRÔNICA DE POTÊNCIA"
     },
-    {
-      "codigo": "CTIA14",
-      "nome": "ESTUDOS DAS CULTURAS",
-      "natureza": "OP"
-    },
-    {
-      "codigo": "CTIA65",
-      "nome": "FERRAMENTAS DIGITAIS PARA A PESQUISA ACADÊMICA",
-      "natureza": "OP"
-    },
-    {
-      "codigo": "CTIA84",
-      "nome": "FÍSICA IV",
-      "natureza": "OP"
-    },
-    {
+    "CTIB87": {
       "codigo": "CTIB87",
-      "nome": "INSTALAÇÕES ELÉTRICAS INDUSTRIAIS",
-      "natureza": "OP"
+      "nome": "INSTALAÇÕES ELÉTRICAS INDUSTRIAIS"
     },
-    {
-      "codigo": "CTIA17",
-      "nome": "INTRODUÇÃO À HISTÓRIA DAS CIÊNCIAS",
-      "natureza": "OP"
-    },
-    {
+    "CTIB86": {
       "codigo": "CTIB86",
-      "nome": "PROTEÇÃO DE SISTEMAS DE ENERGIA",
-      "natureza": "OP"
+      "nome": "PROTEÇÃO DE SISTEMAS DE ENERGIA"
     },
-    {
+    "CTIB85": {
       "codigo": "CTIB85",
-      "nome": "QUALIDADE DE ENERGIA",
-      "natureza": "OP"
+      "nome": "QUALIDADE DE ENERGIA"
     },
-    {
+    "CTIB79": {
       "codigo": "CTIB79",
-      "nome": "REDES MÓVEIS E INTERNET DAS COISAS",
-      "natureza": "OP"
+      "nome": "REDES MÓVEIS E INTERNET DAS COISAS"
     },
-    {
+    "CTIB88": {
       "codigo": "CTIB88",
-      "nome": "SISTEMAS ELÉTRICOS DE POTÊNCIA II",
-      "natureza": "OP"
-    },
-    {
-      "codigo": "CTIA22",
-      "nome": "LEITURA DE TEXTOS EM LÍNGUA ESPANHOLA I",
-      "natureza": "OZ"
-    },
-    {
-      "codigo": "CTIA23",
-      "nome": "LEITURA DE TEXTOS EM LÍNGUA ESPANHOLA II",
-      "natureza": "OZ"
-    },
-    {
-      "codigo": "CTIA24",
-      "nome": "LEITURA DE TEXTOS EM LÍNGUA INGLESA I",
-      "natureza": "OZ"
-    },
-    {
-      "codigo": "CTIA25",
-      "nome": "LEITURA DE TEXTOS EM LÍNGUA INGLESA II",
-      "natureza": "OZ"
-    },
-    {
-      "codigo": "CTIA26",
-      "nome": "LÍNGUA BRASILEIRA DE SINAIS (LIBRAS)",
-      "natureza": "OZ"
+      "nome": "SISTEMAS ELÉTRICOS DE POTÊNCIA II"
     }
-  ]
+  },
+  "cursos": {
+    "BICTI": [
+      {
+        "codigo": "CTIA01",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA02",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA03",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA04",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA05",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA67",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA07",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA08",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA09",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA10",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA11",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA60",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA71",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIB24",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA62",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA64",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIB27",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA81",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA63",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA28",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA74",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA20",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA29",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA30",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA31",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA66",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA33",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB26",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA34",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA36",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA35",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA37",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA79",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA38",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA12",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIA13",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIA73",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA80",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIA39",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB20",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB21",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA40",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA41",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA14",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIA15",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIA16",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIA42",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA43",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA65",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIA44",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA45",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA46",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA47",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA84",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA48",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA49",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA50",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA51",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB25",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA52",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA61",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA17",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIA53",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA76",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIA18",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIB22",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA21",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA22",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA23",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA24",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA25",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA26",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA54",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA78",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA55",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA77",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA72",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA56",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA57",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA58",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB23",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA59",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA19",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIA75",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA83",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA27",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA82",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA32",
+        "natureza": "OG"
+      }
+    ],
+    "ENG_PROD": [
+      {
+        "codigo": "CTIA01",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA02",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA03",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA04",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA05",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA67",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA07",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA08",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA09",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA10",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA31",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA49",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA11",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA45",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA66",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA28",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA33",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA46",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA60",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA85",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA47",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA59",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA72",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA77",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA80",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA34",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA36",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA73",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA78",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA86",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA87",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA88",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA89",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA90",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA91",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA92",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA93",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA94",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA95",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA96",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA97",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA98",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA99",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA79",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB01",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB02",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB03",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB04",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB05",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB06",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB61",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIA50",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB54",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB55",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB56",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB57",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB58",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB59",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB60",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB62",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIA62",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA71",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIB24",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA64",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIB27",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA81",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA63",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA82",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA26",
+        "natureza": "OZ"
+      }
+    ],
+    "ENG_ELET": [
+      {
+        "codigo": "CTIA01",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA02",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA03",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA04",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA05",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA67",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA07",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA08",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA10",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA31",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA49",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA11",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA45",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA66",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA80",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA28",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA33",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA46",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA60",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA85",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA47",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA53",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA59",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA72",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA77",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA34",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA36",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA74",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA78",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA79",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB65",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB66",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB67",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB68",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB69",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB70",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB71",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB72",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB73",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB74",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB75",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB76",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB77",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB81",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB78",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB82",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIB84",
+        "natureza": "OB"
+      },
+      {
+        "codigo": "CTIA71",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA62",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA81",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA63",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIA82",
+        "natureza": "OX"
+      },
+      {
+        "codigo": "CTIB89",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIA94",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB80",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB83",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB90",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIA14",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIA65",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIA84",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB87",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIA17",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB86",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB85",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB79",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIB88",
+        "natureza": "OP"
+      },
+      {
+        "codigo": "CTIA22",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA23",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA24",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA25",
+        "natureza": "OZ"
+      },
+      {
+        "codigo": "CTIA26",
+        "natureza": "OZ"
+      }
+    ]
+  }
 }
