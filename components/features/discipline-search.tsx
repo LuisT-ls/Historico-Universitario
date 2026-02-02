@@ -85,16 +85,18 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
       return
     }
 
-    const disciplinasDoCurso = disciplinasData[cursoAtual] || []
-    if (disciplinasDoCurso.length === 0) {
-      setResults([])
-      setShowResults(false)
-      return
-    }
+    const normalizedData = disciplinasData as any
+    const cursoDisciplinas = normalizedData.cursos?.[cursoAtual] || []
+
+    // Mapear combinando com o catálogo
+    const disciplinasCompletas = cursoDisciplinas.map((d: any) => ({
+      ...d,
+      ...normalizedData.catalogo?.[d.codigo]
+    })) as DisciplinaData[]
 
     const term = searchTerm.toLowerCase().trim()
 
-    const matches = disciplinasDoCurso
+    const matches = disciplinasCompletas
       .filter(
         (disciplina) =>
           disciplina.nome.toLowerCase().includes(term) ||

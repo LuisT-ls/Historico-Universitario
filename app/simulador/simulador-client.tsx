@@ -130,7 +130,7 @@ export function SimuladorPageClient() {
       // Filtrar pelo curso (simplificado para o simulador)
       // Em uma implementação real, poderíamos pegar o curso do perfil
       setDisciplinas(docs)
-      
+
       // Tentar pegar o curso mais comum nas disciplinas
       if (docs.length > 0) {
         const counts: Record<string, number> = {}
@@ -184,7 +184,16 @@ export function SimuladorPageClient() {
     }
 
     const term = nome.toLowerCase().trim()
-    const matches = (disciplinasData[cursoAtual] || [])
+    const normalizedData = disciplinasData as any
+    const cursoDisciplinas = normalizedData.cursos?.[cursoAtual] || []
+
+    // Mapear combinando com o catálogo
+    const disciplinasCompletas = cursoDisciplinas.map((d: any) => ({
+      ...d,
+      ...normalizedData.catalogo?.[d.codigo]
+    })) as DisciplinaData[]
+
+    const matches = disciplinasCompletas
       .filter(d => d.nome.toLowerCase().includes(term) || d.codigo.toLowerCase().includes(term))
       .slice(0, 8)
 
@@ -206,7 +215,7 @@ export function SimuladorPageClient() {
     const aprovadas = disciplinas.filter(d => d.resultado === 'AP')
     const acs = disciplinas.filter(d => d.natureza === 'AC')
     const emCurso = disciplinas.filter(d => d.resultado === 'DP' || d.emcurso)
-    
+
     const totalCH = aprovadas.reduce((sum, d) => sum + d.ch, 0) + acs.reduce((sum, d) => sum + d.ch, 0)
     const totalCHComEmCurso = totalCH + emCurso.reduce((sum, d) => sum + d.ch, 0)
 
@@ -226,7 +235,7 @@ export function SimuladorPageClient() {
     const aprovadas = todas.filter(d => d.resultado === 'AP' || d.resultado === undefined && d.natureza === 'AC')
     const acs = todas.filter(d => d.natureza === 'AC')
     const emCurso = todas.filter(d => d.resultado === 'DP' || d.emcurso)
-    
+
     const totalCH = aprovadas.reduce((sum, d) => sum + d.ch, 0)
     const totalCHComEmCurso = totalCH + emCurso.reduce((sum, d) => sum + d.ch, 0)
 
@@ -320,9 +329,9 @@ export function SimuladorPageClient() {
                     <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">Nome da Disciplina</Label>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground dark:text-slate-500" />
-                      <Input 
-                        {...register('nome')} 
-                        placeholder="Busque por nome ou código..." 
+                      <Input
+                        {...register('nome')}
+                        placeholder="Busque por nome ou código..."
                         className="pl-10 rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700"
                         onFocus={() => setShowResults(true)}
                       />
@@ -347,8 +356,8 @@ export function SimuladorPageClient() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">Natureza</Label>
-                      <select 
-                        {...register('natureza')} 
+                      <select
+                        {...register('natureza')}
                         className="flex h-10 w-full rounded-xl border border-border dark:border-slate-700 bg-background dark:bg-slate-800/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
                       >
                         <option value="">Selecione...</option>
@@ -505,8 +514,8 @@ export function SimuladorPageClient() {
                     <span className="text-primary">{((metricasSimuladas.ch / (cursoConfig?.totalHoras || 2400)) * 100).toFixed(1)}%</span>
                   </div>
                   <div className="h-2 bg-muted dark:bg-slate-800 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-primary transition-all duration-1000" 
+                    <div
+                      className="h-full bg-primary transition-all duration-1000"
                       style={{ width: `${(metricasSimuladas.ch / (cursoConfig?.totalHoras || 2400)) * 100}%` }}
                     />
                   </div>
