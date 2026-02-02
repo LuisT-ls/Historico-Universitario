@@ -36,7 +36,7 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
     const loadDisciplinas = async () => {
       setIsLoading(true)
       try {
-        const response = await fetch(`/assets/data/disciplinas.json?v=${new Date().getTime()}`)
+        const response = await fetch('/assets/data/disciplinas.json')
         const data = await response.json()
         setDisciplinasData(data)
       } catch (error) {
@@ -106,6 +106,7 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
     }) as DisciplinaData[]
 
     const termNormalized = normalizeText(searchTerm.trim())
+    console.log('[Search] Term:', termNormalized, 'in Course:', cursoAtual)
 
     const matches = disciplinasCompletas
       .filter(
@@ -116,8 +117,22 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
           return nomeNormalized.includes(termNormalized) || codigoNormalized.includes(termNormalized)
         }
       )
-      .slice(0, 8) // Limita a 8 resultados
+      .sort((a, b) => {
+        // Sort match starting with term first
+        const aCode = normalizeText(a.codigo || '');
+        const bCode = normalizeText(b.codigo || '');
+        const aStarts = aCode.startsWith(termNormalized);
+        const bStarts = bCode.startsWith(termNormalized);
 
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+
+        // Then alphanumeric sort by code
+        return aCode.localeCompare(bCode, undefined, { numeric: true });
+      })
+      .slice(0, 10) // Limita a 10 resultados
+
+    console.log('[Search] Matches found:', matches.length)
     setResults(matches)
     setShowResults(matches.length > 0)
     setSelectedIndex(-1)
