@@ -11,7 +11,7 @@ export const useCertificadoFilters = (certificados: Certificado[]) => {
         return certificados.filter((c) => {
             const matchesSearch =
                 c.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                c.instituicao.toLowerCase().includes(searchTerm.toLowerCase())
+                c.instituicao?.toLowerCase().includes(searchTerm.toLowerCase())
             const matchesType = filterType === 'todos' || c.tipo === filterType
             return matchesSearch && matchesType
         })
