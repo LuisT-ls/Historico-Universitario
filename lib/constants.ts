@@ -15,7 +15,7 @@ export const CURSOS: Record<string, ConfigCurso> = {
     },
     metadata: {
       codigo: 'G20251X',
-      matrizCurricular: 'CIÊNCIA, TECNOLOGIA E INOVAÇÃO - CAMAÇARI - BACHARELADO - Presencial - MT',
+      matrizCurricular: 'INTERDISCIPLINAR EM CIÊNCIA, TECNOLOGIA E INOVAÇÃO',
       entradaVigor: '2025.2',
       totalMinima: 2401,
       prazos: {
@@ -44,7 +44,7 @@ export const CURSOS: Record<string, ConfigCurso> = {
     },
     metadata: {
       codigo: 'G20251X',
-      matrizCurricular: 'ENGENHARIA DE PRODUÇÃO - CAMAÇARI - BACHARELADO - Presencial - MT',
+      matrizCurricular: 'BACHARELADO EM ENGENHARIA DE PRODUÇÃO',
       entradaVigor: '2025.2',
       totalMinima: 3810,
       prazos: {
@@ -73,7 +73,7 @@ export const CURSOS: Record<string, ConfigCurso> = {
     },
     metadata: {
       codigo: 'G20251X',
-      matrizCurricular: 'ENGENHARIA ELÉTRICA - CAMAÇARI - BACHARELADO - Presencial - MT',
+      matrizCurricular: 'BACHARELADO EM ENGENHARIA ELÉTRICA',
       entradaVigor: '2025.2',
       totalMinima: 4031,
       prazos: {

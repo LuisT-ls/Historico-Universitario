@@ -351,7 +351,7 @@ export function ProfilePage() {
                       <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">E-mail</Label>
                       <div className="relative">
                         <Input disabled value={maskSensitive(profile?.email, 'email')} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 pr-10 w-full" />
-                        <button type="button" onClick={() => setShowSensitive(p => ({ ...p, email: !p.email }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button type="button" onClick={() => setShowSensitive(p => ({ ...p, email: !p.email }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors bg-transparent hover:bg-transparent focus:outline-none focus:ring-0">
                           {showSensitive.email ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                       </div>
@@ -361,7 +361,7 @@ export function ProfilePage() {
                       <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Matrícula</Label>
                       <div className="relative">
                         <Input type={showSensitive.enrollment ? "text" : "password"} value={profile?.matricula || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, matricula: e.target.value }) : null)} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 pr-10 w-full" />
-                        <button type="button" onClick={() => setShowSensitive(p => ({ ...p, enrollment: !p.enrollment }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button type="button" onClick={() => setShowSensitive(p => ({ ...p, enrollment: !p.enrollment }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors bg-transparent hover:bg-transparent focus:outline-none focus:ring-0">
                           {showSensitive.enrollment ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                       </div>
