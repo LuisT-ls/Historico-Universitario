@@ -52,6 +52,24 @@ export interface ConfigCurso {
   nome: string
   requisitos: RequisitosCurso
   totalHoras: number
+  metadata?: {
+    codigo?: string
+    matrizCurricular?: string
+    entradaVigor?: string
+    totalMinima?: number
+    prazos?: {
+      minimo: number
+      medio: number
+      maximo: number
+    }
+    limites?: {
+      chObrigatoriaAula?: number
+      chOptativaMinima?: number
+      chComplementarMinima?: number
+      chEletivaMaxima?: number
+      chPeriodoMaxima?: number
+    }
+  }
 }
 
 export interface Resumo {

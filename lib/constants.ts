@@ -13,6 +13,24 @@ export const CURSOS: Record<string, ConfigCurso> = {
       OX: 180,
       OZ: 120,
     },
+    metadata: {
+      codigo: 'G20251X',
+      matrizCurricular: 'CIÊNCIA, TECNOLOGIA E INOVAÇÃO - CAMAÇARI - BACHARELADO - Presencial - MT',
+      entradaVigor: '2025.2',
+      totalMinima: 2401,
+      prazos: {
+        minimo: 6,
+        medio: 6,
+        maximo: 9
+      },
+      limites: {
+        chObrigatoriaAula: 600,
+        chOptativaMinima: 1560,
+        chComplementarMinima: 240,
+        chEletivaMaxima: 360,
+        chPeriodoMaxima: 540
+      }
+    },
     totalHoras: 2400,
   },
   ENG_PROD: {
@@ -24,6 +42,24 @@ export const CURSOS: Record<string, ConfigCurso> = {
       OX: 240,
       AC: 360,
     },
+    metadata: {
+      codigo: 'G20251X',
+      matrizCurricular: 'ENGENHARIA DE PRODUÇÃO - CAMAÇARI - BACHARELADO - Presencial - MT',
+      entradaVigor: '2025.2',
+      totalMinima: 3810,
+      prazos: {
+        minimo: 10,
+        medio: 10,
+        maximo: 15
+      },
+      limites: {
+        chObrigatoriaAula: 2745,
+        chOptativaMinima: 540,
+        chComplementarMinima: 360,
+        chEletivaMaxima: 0,
+        chPeriodoMaxima: 540
+      }
+    },
     totalHoras: 3750,
   },
   ENG_ELET: {
@@ -34,6 +70,24 @@ export const CURSOS: Record<string, ConfigCurso> = {
       OP: 300,
       OX: 240,
       OZ: 120,
+    },
+    metadata: {
+      codigo: 'G20251X',
+      matrizCurricular: 'ENGENHARIA ELÉTRICA - CAMAÇARI - BACHARELADO - Presencial - MT',
+      entradaVigor: '2025.2',
+      totalMinima: 4031,
+      prazos: {
+        minimo: 10,
+        medio: 10,
+        maximo: 15
+      },
+      limites: {
+        chObrigatoriaAula: 2895,
+        chOptativaMinima: 660,
+        chComplementarMinima: 340,
+        chEletivaMaxima: 0,
+        chPeriodoMaxima: 540
+      }
     },
     totalHoras: 3910,
   },

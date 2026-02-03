@@ -489,6 +489,70 @@ export function ProfilePage() {
               </div>
             </Card>
 
+            {/* Course Information Card */}
+            {profile?.curso && CURSOS[profile.curso]?.metadata && (
+              <Card className="rounded-2xl border-none bg-card dark:bg-slate-900/50 p-8 space-y-6">
+                <div className="flex items-center gap-3">
+                  <Book className="h-6 w-6 text-primary dark:text-blue-500" />
+                  <h2 className="text-2xl font-bold text-foreground">Estrutura Curricular</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Basic Info */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold uppercase text-muted-foreground border-b pb-2">Detalhes do Curso</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-[10px] font-bold text-muted-foreground">Código</p>
+                        <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.codigo}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-muted-foreground">Matriz Curricular</p>
+                        <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.matrizCurricular}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-muted-foreground">Entrada em Vigor</p>
+                        <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.entradaVigor}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-muted-foreground">Carga Horária Mínima Total</p>
+                        <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.totalMinima}h</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Term Limits */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold uppercase text-muted-foreground border-b pb-2">Prazos e Limites</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-bold text-muted-foreground">Integralização (Semestres)</p>
+                        <div className="flex gap-2 text-sm">
+                          <div className="bg-muted px-2 py-1 rounded">Min: {CURSOS[profile.curso].metadata?.prazos?.minimo}</div>
+                          <div className="bg-muted px-2 py-1 rounded">Méd: {CURSOS[profile.curso].metadata?.prazos?.medio}</div>
+                          <div className="bg-muted px-2 py-1 rounded">Máx: {CURSOS[profile.curso].metadata?.prazos?.maximo}</div>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-muted-foreground">Max. por Período</p>
+                        <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.limites?.chPeriodoMaxima}h</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 mt-2">
+                      <p className="text-[10px] font-bold text-muted-foreground mb-1">Distribuição de Carga Horária</p>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="flex justify-between border-b pb-1"><span>Obrigatória Aula:</span> <span className="font-mono">{CURSOS[profile.curso].metadata?.limites?.chObrigatoriaAula}h</span></div>
+                        <div className="flex justify-between border-b pb-1"><span>Optativa Min:</span> <span className="font-mono">{CURSOS[profile.curso].metadata?.limites?.chOptativaMinima}h</span></div>
+                        <div className="flex justify-between border-b pb-1"><span>Complementar Min:</span> <span className="font-mono">{CURSOS[profile.curso].metadata?.limites?.chComplementarMinima}h</span></div>
+                        <div className="flex justify-between border-b pb-1"><span>Eletiva Max:</span> <span className="font-mono">{CURSOS[profile.curso].metadata?.limites?.chEletivaMaxima}h</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
+
             <div className="space-y-8">
               <Card className="rounded-2xl border-none bg-card dark:bg-slate-900/50 p-8 space-y-6">
                 <div className="flex items-center gap-3"><Settings className="h-6 w-6 text-primary dark:text-blue-500" /><h2 className="text-2xl font-bold text-foreground">Preferências</h2></div>
