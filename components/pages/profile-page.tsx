@@ -389,8 +389,8 @@ export function ProfilePage() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <Card className="rounded-2xl border-none bg-card dark:bg-slate-900/50 p-8 space-y-8">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-12">
+            <Card className="rounded-2xl border-none bg-card dark:bg-slate-900/50 p-8 space-y-8 h-full">
               <div className="flex items-center gap-3"><User className="h-6 w-6 text-primary dark:text-blue-500" /><h2 className="text-2xl font-bold text-foreground">Dados Pessoais</h2></div>
 
               {/* Profile Picture Upload */}
@@ -490,150 +490,167 @@ export function ProfilePage() {
             </Card>
 
             {/* Course Information Card */}
-            {profile?.curso && CURSOS[profile.curso]?.metadata && (
-              <Card className="rounded-2xl border-none bg-card dark:bg-slate-900/50 p-8 space-y-6">
-                <div className="flex items-center gap-3">
-                  <Book className="h-6 w-6 text-primary dark:text-blue-500" />
-                  <h2 className="text-2xl font-bold text-foreground">Estrutura Curricular</h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Basic Info */}
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-bold uppercase text-muted-foreground border-b pb-2">Detalhes do Curso</h3>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-[10px] font-bold text-muted-foreground">Código</p>
-                        <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.codigo}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-muted-foreground">Matriz Curricular</p>
-                        <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.matrizCurricular}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-muted-foreground">Entrada em Vigor</p>
-                        <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.entradaVigor}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-muted-foreground">Carga Horária Mínima Total</p>
-                        <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.totalMinima}h</p>
-                      </div>
+            {profile?.curso && (
+              <div className="h-full">
+                {CURSOS[profile.curso]?.metadata ? (
+                  <Card className="rounded-2xl border-none bg-card dark:bg-slate-900/50 p-8 space-y-6 h-full">
+                    <div className="flex items-center gap-3">
+                      <Book className="h-6 w-6 text-primary dark:text-blue-500" />
+                      <h2 className="text-2xl font-bold text-foreground">Estrutura Curricular</h2>
                     </div>
-                  </div>
 
-                  {/* Term Limits */}
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-bold uppercase text-muted-foreground border-b pb-2">Prazos e Limites</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <p className="text-[10px] font-bold text-muted-foreground">Integralização (Semestres)</p>
-                        <div className="flex gap-2 text-sm">
-                          <div className="bg-muted px-2 py-1 rounded">Min: {CURSOS[profile.curso].metadata?.prazos?.minimo}</div>
-                          <div className="bg-muted px-2 py-1 rounded">Méd: {CURSOS[profile.curso].metadata?.prazos?.medio}</div>
-                          <div className="bg-muted px-2 py-1 rounded">Máx: {CURSOS[profile.curso].metadata?.prazos?.maximo}</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {/* Basic Info */}
+                      <div className="space-y-4">
+                        <h3 className="text-sm font-bold uppercase text-muted-foreground border-b pb-2">Detalhes do Curso</h3>
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-[10px] font-bold text-muted-foreground">Código</p>
+                            <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.codigo}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-muted-foreground">Matriz Curricular</p>
+                            <p className="text-sm font-medium leading-tight">{CURSOS[profile.curso].metadata?.matrizCurricular}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-muted-foreground">Entrada em Vigor</p>
+                            <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.entradaVigor}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-muted-foreground">Carga Horária Mínima Total</p>
+                            <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.totalMinima}h</p>
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-muted-foreground">Max. por Período</p>
-                        <p className="text-sm font-medium">{CURSOS[profile.curso].metadata?.limites?.chPeriodoMaxima}h</p>
-                      </div>
-                    </div>
 
-                    <div className="space-y-2 mt-2">
-                      <p className="text-[10px] font-bold text-muted-foreground mb-1">Distribuição de Carga Horária</p>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="flex justify-between border-b pb-1"><span>Obrigatória Aula:</span> <span className="font-mono">{CURSOS[profile.curso].metadata?.limites?.chObrigatoriaAula}h</span></div>
-                        <div className="flex justify-between border-b pb-1"><span>Optativa Min:</span> <span className="font-mono">{CURSOS[profile.curso].metadata?.limites?.chOptativaMinima}h</span></div>
-                        <div className="flex justify-between border-b pb-1"><span>Complementar Min:</span> <span className="font-mono">{CURSOS[profile.curso].metadata?.limites?.chComplementarMinima}h</span></div>
-                        <div className="flex justify-between border-b pb-1"><span>Eletiva Max:</span> <span className="font-mono">{CURSOS[profile.curso].metadata?.limites?.chEletivaMaxima}h</span></div>
+                      {/* Term Limits */}
+                      <div className="space-y-4">
+                        <h3 className="text-sm font-bold uppercase text-muted-foreground border-b pb-2">Prazos e Limites</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <p className="text-[10px] font-bold text-muted-foreground">Integralização (Semestres)</p>
+                            <div className="flex gap-2 text-sm">
+                              <div className="bg-muted px-2 py-1 rounded text-center min-w-[3rem]">
+                                <span className="text-[10px] block text-muted-foreground">Min</span>
+                                {CURSOS[profile.curso].metadata?.prazos?.minimo}
+                              </div>
+                              <div className="bg-muted px-2 py-1 rounded text-center min-w-[3rem]">
+                                <span className="text-[10px] block text-muted-foreground">Méd</span>
+                                {CURSOS[profile.curso].metadata?.prazos?.medio}
+                              </div>
+                              <div className="bg-muted px-2 py-1 rounded text-center min-w-[3rem]">
+                                <span className="text-[10px] block text-muted-foreground">Máx</span>
+                                {CURSOS[profile.curso].metadata?.prazos?.maximo}
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-muted-foreground">Max. por Período</p>
+                            <p className="text-sm font-medium text-foreground">{CURSOS[profile.curso].metadata?.limites?.chPeriodoMaxima}h</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 mt-2">
+                          <p className="text-[10px] font-bold text-muted-foreground mb-1">Distribuição de Carga Horária</p>
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                            <div className="flex flex-col"><span className="text-[10px] text-muted-foreground">Obrigatória Aula</span> <span className="font-mono font-medium">{CURSOS[profile.curso].metadata?.limites?.chObrigatoriaAula}h</span></div>
+                            <div className="flex flex-col"><span className="text-[10px] text-muted-foreground">Optativa Min</span> <span className="font-mono font-medium">{CURSOS[profile.curso].metadata?.limites?.chOptativaMinima}h</span></div>
+                            <div className="flex flex-col"><span className="text-[10px] text-muted-foreground">Complementar Min</span> <span className="font-mono font-medium">{CURSOS[profile.curso].metadata?.limites?.chComplementarMinima}h</span></div>
+                            <div className="flex flex-col"><span className="text-[10px] text-muted-foreground">Eletiva Max</span> <span className="font-mono font-medium">{CURSOS[profile.curso].metadata?.limites?.chEletivaMaxima}h</span></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
+                  </Card>
+                ) : (
+                  <div className="h-full flex items-center justify-center rounded-2xl border-2 border-dashed border-muted p-12 text-center text-muted-foreground">
+                    <p>Informações curriculares não disponíveis para este curso.</p>
                   </div>
-                </div>
-              </Card>
+                )}
+              </div>
             )}
+          </div>
 
-            <div className="space-y-8">
-              <Card className="rounded-2xl border-none bg-card dark:bg-slate-900/50 p-8 space-y-6">
-                <div className="flex items-center gap-3"><Settings className="h-6 w-6 text-primary dark:text-blue-500" /><h2 className="text-2xl font-bold text-foreground">Preferências</h2></div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-muted dark:bg-slate-800/30 rounded-xl border border-border dark:border-slate-700/50">
-                    <div className="flex items-center gap-3"><Bell className="h-5 w-5 text-muted-foreground dark:text-slate-400" /><span className="text-sm font-medium text-foreground">Notificações</span></div>
-                    <Button variant="ghost" size="sm" onClick={() => handleSettingsChange('notifications', !profile?.settings?.notifications)} className={cn("rounded-lg h-8 px-4 border border-border dark:border-slate-700", profile?.settings?.notifications ? "bg-primary/10 dark:bg-blue-500/10 text-primary dark:text-blue-400" : "text-muted-foreground dark:text-slate-500")}>
-                      {profile?.settings?.notifications ? 'Ativado' : 'Desativado'}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="rounded-2xl border-none bg-card dark:bg-slate-900/50 p-8 space-y-6">
+              <div className="flex items-center gap-3"><Settings className="h-6 w-6 text-primary dark:text-blue-500" /><h2 className="text-2xl font-bold text-foreground">Preferências</h2></div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-muted dark:bg-slate-800/30 rounded-xl border border-border dark:border-slate-700/50">
+                  <div className="flex items-center gap-3"><Bell className="h-5 w-5 text-muted-foreground dark:text-slate-400" /><span className="text-sm font-medium text-foreground">Notificações</span></div>
+                  <Button variant="ghost" size="sm" onClick={() => handleSettingsChange('notifications', !profile?.settings?.notifications)} className={cn("rounded-lg h-8 px-4 border border-border dark:border-slate-700", profile?.settings?.notifications ? "bg-primary/10 dark:bg-blue-500/10 text-primary dark:text-blue-400" : "text-muted-foreground dark:text-slate-500")}>
+                    {profile?.settings?.notifications ? 'Ativado' : 'Desativado'}
+                  </Button>
+                </div>
+                <div className="flex flex-col gap-4 p-4 bg-muted dark:bg-slate-800/30 rounded-xl border border-border dark:border-slate-700/50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3"><Globe className="h-5 w-5 text-muted-foreground dark:text-slate-400" /><span className="text-sm font-medium text-foreground">Perfil Público</span></div>
+                    <Button variant="ghost" size="sm" onClick={() => handleSettingsChange('privacy', profile?.settings?.privacy === 'public' ? 'private' : 'public')} className={cn("rounded-lg h-8 px-4 border border-border dark:border-slate-700", profile?.settings?.privacy === 'public' ? "bg-primary/10 dark:bg-blue-500/10 text-primary dark:text-blue-400" : "text-muted-foreground dark:text-slate-500")}>
+                      {profile?.settings?.privacy === 'public' ? 'Ativado' : 'Desativado'}
                     </Button>
                   </div>
-                  <div className="flex flex-col gap-4 p-4 bg-muted dark:bg-slate-800/30 rounded-xl border border-border dark:border-slate-700/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3"><Globe className="h-5 w-5 text-muted-foreground dark:text-slate-400" /><span className="text-sm font-medium text-foreground">Perfil Público</span></div>
-                      <Button variant="ghost" size="sm" onClick={() => handleSettingsChange('privacy', profile?.settings?.privacy === 'public' ? 'private' : 'public')} className={cn("rounded-lg h-8 px-4 border border-border dark:border-slate-700", profile?.settings?.privacy === 'public' ? "bg-primary/10 dark:bg-blue-500/10 text-primary dark:text-blue-400" : "text-muted-foreground dark:text-slate-500")}>
-                        {profile?.settings?.privacy === 'public' ? 'Ativado' : 'Desativado'}
-                      </Button>
-                    </div>
 
-                    {profile?.settings?.privacy === 'public' && (
-                      <div className="pl-8 pt-2 animate-in fade-in slide-in-from-top-2">
-                        <div className="flex gap-2">
-                          <Input
-                            readOnly
-                            value={`${typeof window !== 'undefined' ? window.location.origin : ''}/u/${profile.uid}`}
-                            className="h-9 text-xs font-mono bg-background dark:bg-slate-900 border-border dark:border-slate-700"
-                          />
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-9 whitespace-nowrap"
-                            onClick={() => {
-                              const url = `${window.location.origin}/u/${profile.uid}`
-                              navigator.clipboard.writeText(url)
-                              toast.success('Link copiado!')
-                            }}
-                          >
-                            Copiar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-9 w-9 px-0"
-                            onClick={() => window.open(`/u/${profile.uid}`, '_blank')}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <p className="text-[10px] text-muted-foreground mt-2">
-                          ⚠️ Qualquer pessoa com este link poderá ver seu resumo acadêmico.
-                        </p>
+                  {profile?.settings?.privacy === 'public' && (
+                    <div className="pl-8 pt-2 animate-in fade-in slide-in-from-top-2">
+                      <div className="flex gap-2">
+                        <Input
+                          readOnly
+                          value={`${typeof window !== 'undefined' ? window.location.origin : ''}/u/${profile.uid}`}
+                          className="h-9 text-xs font-mono bg-background dark:bg-slate-900 border-border dark:border-slate-700"
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-9 whitespace-nowrap"
+                          onClick={() => {
+                            const url = `${window.location.origin}/u/${profile.uid}`
+                            navigator.clipboard.writeText(url)
+                            toast.success('Link copiado!')
+                          }}
+                        >
+                          Copiar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-9 w-9 px-0"
+                          onClick={() => window.open(`/u/${profile.uid}`, '_blank')}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </div>
-                    )}
-                  </div>
+                      <p className="text-[10px] text-muted-foreground mt-2">
+                        ⚠️ Qualquer pessoa com este link poderá ver seu resumo acadêmico.
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </Card>
+              </div>
+            </Card>
 
-              <Card className="rounded-2xl border-none bg-card dark:bg-slate-900/50 p-8 space-y-6">
-                <div className="flex items-center gap-3"><Shield className="h-6 w-6 text-destructive dark:text-red-500" /><h2 className="text-2xl font-bold text-foreground">Segurança</h2></div>
-                <div className="space-y-4">
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <Button variant="outline" onClick={() => setChangePasswordOpen(true)} className="flex-1 h-12 rounded-xl border-border dark:border-slate-700 hover:bg-accent dark:hover:bg-slate-800">
-                      <Key className="h-4 w-4 mr-2" /> Alterar Senha
+            <Card className="rounded-2xl border-none bg-card dark:bg-slate-900/50 p-8 space-y-6">
+              <div className="flex items-center gap-3"><Shield className="h-6 w-6 text-destructive dark:text-red-500" /><h2 className="text-2xl font-bold text-foreground">Segurança</h2></div>
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button variant="outline" onClick={() => setChangePasswordOpen(true)} className="flex-1 h-12 rounded-xl border-border dark:border-slate-700 hover:bg-accent dark:hover:bg-slate-800">
+                    <Key className="h-4 w-4 mr-2" /> Alterar Senha
+                  </Button>
+                  <div className="flex-1 flex gap-2">
+                    <select value={exportFormat} onChange={e => setExportFormat(e.target.value as any)} className="bg-background dark:bg-slate-800 border border-border dark:border-slate-700 rounded-xl px-3 text-xs focus:outline-none text-foreground">
+                      <option value="json">JSON</option><option value="xlsx">EXCEL</option><option value="pdf">PDF</option>
+                    </select>
+                    <Button variant="outline" onClick={handleExportData} className="flex-1 h-12 rounded-xl border-border dark:border-slate-700 hover:bg-accent dark:hover:bg-slate-800">
+                      <Download className="h-4 w-4 mr-2" /> Exportar
                     </Button>
-                    <div className="flex-1 flex gap-2">
-                      <select value={exportFormat} onChange={e => setExportFormat(e.target.value as any)} className="bg-background dark:bg-slate-800 border border-border dark:border-slate-700 rounded-xl px-3 text-xs focus:outline-none text-foreground">
-                        <option value="json">JSON</option><option value="xlsx">EXCEL</option><option value="pdf">PDF</option>
-                      </select>
-                      <Button variant="outline" onClick={handleExportData} className="flex-1 h-12 rounded-xl border-border dark:border-slate-700 hover:bg-accent dark:hover:bg-slate-800">
-                        <Download className="h-4 w-4 mr-2" /> Exportar
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="pt-6 border-t border-border dark:border-slate-800">
-                    <div className="p-4 bg-destructive/5 dark:bg-red-500/5 border border-destructive/20 dark:border-red-500/20 rounded-xl flex justify-between items-center group">
-                      <div><h3 className="text-sm font-bold text-destructive dark:text-red-500">Zona de Perigo</h3><p className="text-[10px] text-muted-foreground dark:text-slate-500">Exclusão permanente de todos os seus dados</p></div>
-                      <Button variant="outline" onClick={() => setDeleteAccountOpen(true)} className="h-9 border-destructive/50 dark:border-red-500/50 text-destructive dark:text-red-500 hover:bg-destructive dark:hover:bg-red-500 hover:text-destructive-foreground dark:hover:text-white transition-all">Excluir Conta</Button>
-                    </div>
                   </div>
                 </div>
-              </Card>
-            </div>
+                <div className="pt-6 border-t border-border dark:border-slate-800">
+                  <div className="p-4 bg-destructive/5 dark:bg-red-500/5 border border-destructive/20 dark:border-red-500/20 rounded-xl flex justify-between items-center group">
+                    <div><h3 className="text-sm font-bold text-destructive dark:text-red-500">Zona de Perigo</h3><p className="text-[10px] text-muted-foreground dark:text-slate-500">Exclusão permanente de todos os seus dados</p></div>
+                    <Button variant="outline" onClick={() => setDeleteAccountOpen(true)} className="h-9 border-destructive/50 dark:border-red-500/50 text-destructive dark:text-red-500 hover:bg-destructive dark:hover:bg-red-500 hover:text-destructive-foreground dark:hover:text-white transition-all">Excluir Conta</Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
       </main>
