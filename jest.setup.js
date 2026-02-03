@@ -1,6 +1,12 @@
 // Configuração do ambiente de testes
 import '@testing-library/jest-dom'
 
+// Mock do window.scrollTo (não implementado no jsdom)
+Object.defineProperty(window, 'scrollTo', {
+  writable: true,
+  value: jest.fn(),
+})
+
 // Mock do Next.js router
 jest.mock('next/navigation', () => ({
   useRouter() {

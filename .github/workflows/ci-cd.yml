@@ -100,6 +100,15 @@ jobs:
         run: npm run test:e2e
         env:
           CI: true
+          # Firebase Configuration - usando variáveis do .env para testes
+          # Em produção, adicione esses valores aos GitHub Secrets
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY || 'AIzaSyCP_TfNncuAqCxUTs0FvLJ0XnfXY9lorTU' }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN || 'historico-universitario-abc12.firebaseapp.com' }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'historico-universitario-abc12' }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET || 'historico-universitario-abc12.firebasestorage.app' }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID || '333663970992' }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID || '1:333663970992:web:4532164b749f1e38883d75' }}
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID || 'G-ZBMBGR6J39' }}
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
