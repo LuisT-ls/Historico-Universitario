@@ -307,89 +307,86 @@ export function ProfilePage() {
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
             {/* Personal Data - Refined Layout */}
-            <Card className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-8 shadow-sm h-full">
-              <div className="flex items-center gap-3 mb-8">
+            <Card className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-8 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 bg-primary/10 rounded-xl"><User className="h-6 w-6 text-primary" /></div>
                 <h2 className="text-2xl font-bold tracking-tight text-foreground">Dados Pessoais</h2>
               </div>
 
-              <div className="flex flex-col lg:flex-row gap-10">
+              <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
                 {/* Horizontal Layout for Avatar */}
-                <div className="flex flex-col items-center gap-4 lg:w-1/3">
+                <div className="flex flex-col items-center gap-4 shrink-0">
                   <div className="relative group">
                     <div className={cn(
-                      "h-32 w-32 rounded-full overflow-hidden border-4 border-slate-100 dark:border-slate-900 shadow-2xl flex items-center justify-center bg-muted",
+                      "h-36 w-36 rounded-full overflow-hidden border-4 border-slate-100 dark:border-slate-900 shadow-xl flex items-center justify-center bg-muted transition-all hover:border-primary/20",
                       uploading && "opacity-50"
                     )}>
                       {profile?.photoURL ? (
                         <img src={profile.photoURL} alt="Profile" className="h-full w-full object-cover" />
                       ) : (
-                        <User className="h-12 w-12 text-slate-300" />
+                        <User className="h-14 w-14 text-slate-300" />
                       )}
                     </div>
                     <label
                       htmlFor="avatar-upload"
-                      className="absolute bottom-1 right-1 p-2.5 bg-primary text-white rounded-full cursor-pointer shadow-lg hover:bg-primary/90 transition-transform hover:scale-105"
+                      className="absolute bottom-1 right-2 p-2.5 bg-primary text-white rounded-full cursor-pointer shadow-lg hover:bg-primary/90 transition-transform hover:scale-110"
                     >
                       {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
                     </label>
                     <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
                   </div>
                   <div className="text-center">
-                    <p className="text-xs font-medium text-slate-500">JPG, PNG ou WebP</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Alterar Foto</p>
                   </div>
                 </div>
 
-                <div className="flex-1 space-y-6">
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Nome Completo</Label>
-                        <Input value={profile?.nome || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, nome: e.target.value }) : null)} className="h-11 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">E-mail</Label>
-                        <div className="relative">
-                          <Input disabled value={maskSensitive(profile?.email, 'email')} className="h-11 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 pr-10" />
-                          <button type="button" onClick={() => setShowSensitive(p => ({ ...p, email: !p.email }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                            {showSensitive.email ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </button>
-                        </div>
+                <div className="flex-1 w-full space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-1.5 col-span-1 md:col-span-2">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Nome Completo</Label>
+                      <Input value={profile?.nome || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, nome: e.target.value }) : null)} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full" />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">E-mail</Label>
+                      <div className="relative">
+                        <Input disabled value={maskSensitive(profile?.email, 'email')} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 pr-10 w-full" />
+                        <button type="button" onClick={() => setShowSensitive(p => ({ ...p, email: !p.email }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                          {showSensitive.email ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Matrícula</Label>
-                        <div className="relative">
-                          <Input type={showSensitive.enrollment ? "text" : "password"} value={profile?.matricula || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, matricula: e.target.value }) : null)} className="h-11 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 pr-10" />
-                          <button type="button" onClick={() => setShowSensitive(p => ({ ...p, enrollment: !p.enrollment }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                            {showSensitive.enrollment ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </button>
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Curso</Label>
-                        <select value={profile?.curso || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, curso: e.target.value as Curso }) : null)} className="w-full h-11 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
-                          {Object.entries(CURSOS).map(([k, v]) => <option key={k} value={k}>{v.nome}</option>)}
-                        </select>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Matrícula</Label>
+                      <div className="relative">
+                        <Input type={showSensitive.enrollment ? "text" : "password"} value={profile?.matricula || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, matricula: e.target.value }) : null)} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 pr-10 w-full" />
+                        <button type="button" onClick={() => setShowSensitive(p => ({ ...p, enrollment: !p.enrollment }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                          {showSensitive.enrollment ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Instituição</Label>
-                        <Input value={profile?.institution || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, institution: e.target.value }) : null)} className="h-11 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Ano Ingresso</Label>
-                        <Input value={profile?.startYear || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, startYear: e.target.value }) : null)} className="h-11 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800" />
-                      </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Curso</Label>
+                      <select value={profile?.curso || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, curso: e.target.value as Curso }) : null)} className="w-full h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-w-[200px]">
+                        {Object.entries(CURSOS).map(([k, v]) => <option key={k} value={k}>{v.nome}</option>)}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Ano Ingresso</Label>
+                      <Input value={profile?.startYear || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, startYear: e.target.value }) : null)} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full" />
+                    </div>
+
+                    <div className="space-y-1.5 col-span-1 md:col-span-2">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Instituição</Label>
+                      <Input value={profile?.institution || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, institution: e.target.value }) : null)} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full" />
                     </div>
                   </div>
 
                   {JSON.stringify(profile) !== JSON.stringify(initialProfile) && (
-                    <div className="flex justify-end pt-4 animate-in fade-in slide-in-from-bottom-2">
+                    <div className="flex justify-end pt-2 animate-in fade-in slide-in-from-bottom-2">
                       <Button onClick={handleSave} disabled={isSaving} className={cn("h-11 px-8 rounded-xl font-bold transition-all shadow-xl shadow-primary/20 hover:shadow-primary/30", saveSuccess ? "bg-emerald-600 hover:bg-emerald-700" : "")}>
                         {isSaving ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : saveSuccess ? <CheckCircle className="h-5 w-5 mr-2" /> : <Save className="h-5 w-5 mr-2" />}
                         {isSaving ? 'Salvando...' : saveSuccess ? 'Salvo!' : 'Salvar Alterações'}
