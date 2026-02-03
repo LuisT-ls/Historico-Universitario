@@ -2,7 +2,8 @@
   "catalogo": {
     "CTIA01": {
       "codigo": "CTIA01",
-      "nome": "INTRODUÇÃO À COMPUTAÇÃO"
+      "nome": "INTRODUÇÃO À COMPUTAÇÃO",
+      "ch": 60
     },
     "CTIA02": {
       "codigo": "CTIA02",
@@ -11,7 +12,8 @@
     },
     "CTIA03": {
       "codigo": "CTIA03",
-      "nome": "BASES MATEMÁTICAS PARA CIÊNCIA, TECNOLOGIA E INOVAÇÃO"
+      "nome": "BASES MATEMÁTICAS PARA CIÊNCIA, TECNOLOGIA E INOVAÇÃO",
+      "ch": 60
     },
     "CTIA04": {
       "codigo": "CTIA04",
@@ -20,15 +22,18 @@
     },
     "CTIA05": {
       "codigo": "CTIA05",
-      "nome": "LÍNGUA PORTUGUESA, PODER E DIVERSIDADE CULTURAL"
+      "nome": "LÍNGUA PORTUGUESA, PODER E DIVERSIDADE CULTURAL",
+      "ch": 60
     },
     "CTIA67": {
       "codigo": "CTIA67",
-      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE I"
+      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE I",
+      "ch": 60
     },
     "CTIA07": {
       "codigo": "CTIA07",
-      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO E SOCIEDADE"
+      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO E SOCIEDADE",
+      "ch": 60
     },
     "CTIA08": {
       "codigo": "CTIA08",
@@ -37,15 +42,18 @@
     },
     "CTIA09": {
       "codigo": "CTIA09",
-      "nome": "LEITURA E PRODUÇÃO DE TEXTOS EM LÍNGUA PORTUGUESA"
+      "nome": "LEITURA E PRODUÇÃO DE TEXTOS EM LÍNGUA PORTUGUESA",
+      "ch": 60
     },
     "CTIA10": {
       "codigo": "CTIA10",
-      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE II"
+      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE II",
+      "ch": 60
     },
     "CTIA11": {
       "codigo": "CTIA11",
-      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO, SOCIEDADE E AMBIENTE"
+      "nome": "CIÊNCIA, TECNOLOGIA, INOVAÇÃO, SOCIEDADE E AMBIENTE",
+      "ch": 60
     },
     "CTIA60": {
       "codigo": "CTIA60",
@@ -54,7 +62,8 @@
     },
     "CTIA71": {
       "codigo": "CTIA71",
-      "nome": "ACCS: A MATEMÁTICA FINANCEIRA E A ESTATÍSTICA NO COTIDIANO"
+      "nome": "ACCS: A MATEMÁTICA FINANCEIRA E A ESTATÍSTICA NO COTIDIANO",
+      "ch": 60
     },
     "CTIB24": {
       "codigo": "CTIB24",
@@ -62,35 +71,43 @@
     },
     "CTIA62": {
       "codigo": "CTIA62",
-      "nome": "ACCS: OFICINA DE MODELAGEM DE NEGÓCIOS E INSERÇÃO DIGITAL"
+      "nome": "ACCS: OFICINA DE MODELAGEM DE NEGÓCIOS E INSERÇÃO DIGITAL",
+      "ch": 60
     },
     "CTIA64": {
       "codigo": "CTIA64",
-      "nome": "ACCS: OFICINAS DE INFORMÁTICA NO ENSINO DA MATEMÁTICA"
+      "nome": "ACCS: OFICINAS DE INFORMÁTICA NO ENSINO DA MATEMÁTICA",
+      "ch": 60
     },
     "CTIB27": {
       "codigo": "CTIB27",
-      "nome": "ACCS: OFICINAS DE MATEMÁTICA NO ENSINO BÁSICO"
+      "nome": "ACCS: OFICINAS DE MATEMÁTICA NO ENSINO BÁSICO",
+      "ch": 60
     },
     "CTIA81": {
       "codigo": "CTIA81",
-      "nome": "ACCS: RECICLAGEM DE PLÁSTICOS"
+      "nome": "ACCS: RECICLAGEM DE PLÁSTICOS",
+      "ch": 60
     },
     "CTIA63": {
       "codigo": "CTIA63",
-      "nome": "ACCS: STEM – CIÊNCIA, TECNOLOGIA E INOVAÇÃO NAS ESCOLAS"
+      "nome": "ACCS: STEM",
+      "ch": null
     },
     "CTIA28": {
       "codigo": "CTIA28",
-      "nome": "ÁLGEBRA LINEAR"
+      "nome": "ÁLGEBRA LINEAR",
+      "ch": 60
     },
     "CTIA74": {
       "codigo": "CTIA74",
-      "nome": "ANÁLISE DE CIRCUITOS I"
+      "nome": "ANÁLISE DE CIRCUITOS I",
+      "ch": 60
     },
     "CTIA20": {
       "codigo": "CTIA20",
-      "nome": "ARTE E ESTÉTICA"
+      "nome": "ARTE E ESTÉTICA",
+      "ch": 60
     },
     "CTIA29": {
       "codigo": "CTIA29",
@@ -122,11 +139,13 @@
     },
     "CTIA34": {
       "codigo": "CTIA34",
-      "nome": "CÁLCULO NUMÉRICO"
+      "nome": "CÁLCULO NUMÉRICO",
+      "ch": 60
     },
     "CTIA36": {
       "codigo": "CTIA36",
-      "nome": "CIÊNCIA DOS MATERIAIS"
+      "nome": "CIÊNCIA DOS MATERIAIS",
+      "ch": 60
     },
     "CTIA35": {
       "codigo": "CTIA35",
@@ -154,11 +173,13 @@
     },
     "CTIA73": {
       "codigo": "CTIA73",
-      "nome": "ELETRICIDADE"
+      "nome": "ELETRICIDADE",
+      "ch": 60
     },
     "CTIA80": {
       "codigo": "CTIA80",
-      "nome": "EMPREENDEDORISMO"
+      "nome": "EMPREENDEDORISMO",
+      "ch": 60
     },
     "CTIA39": {
       "codigo": "CTIA39",
@@ -182,15 +203,18 @@
     },
     "CTIA14": {
       "codigo": "CTIA14",
-      "nome": "ESTUDOS DAS CULTURAS"
+      "nome": "ESTUDOS DAS CULTURAS",
+      "ch": 60
     },
     "CTIA15": {
       "codigo": "CTIA15",
-      "nome": "ESTUDOS DAS HUMANIDADES"
+      "nome": "ESTUDOS DAS HUMANIDADES",
+      "ch": 60
     },
     "CTIA16": {
       "codigo": "CTIA16",
-      "nome": "ESTUDOS DAS SUBJETIVIDADES"
+      "nome": "ESTUDOS DAS SUBJETIVIDADES",
+      "ch": 60
     },
     "CTIA42": {
       "codigo": "CTIA42",
@@ -202,7 +226,8 @@
     },
     "CTIA65": {
       "codigo": "CTIA65",
-      "nome": "FERRAMENTAS DIGITAIS PARA A PESQUISA ACADÊMICA"
+      "nome": "FERRAMENTAS DIGITAIS PARA A PESQUISA ACADÊMICA",
+      "ch": 60
     },
     "CTIA44": {
       "codigo": "CTIA44",
@@ -234,11 +259,13 @@
     },
     "CTIA49": {
       "codigo": "CTIA49",
-      "nome": "GEOMETRIA ANALÍTICA"
+      "nome": "GEOMETRIA ANALÍTICA",
+      "ch": 60
     },
     "CTIA50": {
       "codigo": "CTIA50",
-      "nome": "GESTÃO DA PRODUÇÃO"
+      "nome": "GESTÃO DA PRODUÇÃO",
+      "ch": 60
     },
     "CTIA51": {
       "codigo": "CTIA51",
@@ -258,7 +285,8 @@
     },
     "CTIA17": {
       "codigo": "CTIA17",
-      "nome": "INTRODUÇÃO À HISTÓRIA DAS CIÊNCIAS"
+      "nome": "INTRODUÇÃO À HISTÓRIA DAS CIÊNCIAS",
+      "ch": 60
     },
     "CTIA53": {
       "codigo": "CTIA53",
@@ -266,11 +294,13 @@
     },
     "CTIA76": {
       "codigo": "CTIA76",
-      "nome": "INTRODUÇÃO AO ESTUDO DA REALIDADE VIRTUAL E AUMENTADA"
+      "nome": "INTRODUÇÃO AO ESTUDO DA REALIDADE VIRTUAL E AUMENTADA",
+      "ch": 60
     },
     "CTIA18": {
       "codigo": "CTIA18",
-      "nome": "INTRODUÇÃO AOS ESTUDOS DE GÊNERO"
+      "nome": "INTRODUÇÃO AOS ESTUDOS DE GÊNERO",
+      "ch": 60
     },
     "CTIB22": {
       "codigo": "CTIB22",
@@ -278,27 +308,33 @@
     },
     "CTIA21": {
       "codigo": "CTIA21",
-      "nome": "LABORATÓRIOS DE TECNOLOGIAS INTERATIVAS: ARTES E INTERFACES"
+      "nome": "LABORATÓRIOS DE TECNOLOGIAS INTERATIVAS: ARTES E INTERFACES",
+      "ch": 60
     },
     "CTIA22": {
       "codigo": "CTIA22",
-      "nome": "LEITURA DE TEXTOS EM LÍNGUA ESPANHOLA I"
+      "nome": "LEITURA DE TEXTOS EM LÍNGUA ESPANHOLA I",
+      "ch": 60
     },
     "CTIA23": {
       "codigo": "CTIA23",
-      "nome": "LEITURA DE TEXTOS EM LÍNGUA ESPANHOLA II"
+      "nome": "LEITURA DE TEXTOS EM LÍNGUA ESPANHOLA II",
+      "ch": 60
     },
     "CTIA24": {
       "codigo": "CTIA24",
-      "nome": "LEITURA DE TEXTOS EM LÍNGUA INGLESA I"
+      "nome": "LEITURA DE TEXTOS EM LÍNGUA INGLESA I",
+      "ch": 60
     },
     "CTIA25": {
       "codigo": "CTIA25",
-      "nome": "LEITURA DE TEXTOS EM LÍNGUA INGLESA II"
+      "nome": "LEITURA DE TEXTOS EM LÍNGUA INGLESA II",
+      "ch": 60
     },
     "CTIA26": {
       "codigo": "CTIA26",
-      "nome": "LÍNGUA BRASILEIRA DE SINAIS (LIBRAS)"
+      "nome": "LÍNGUA BRASILEIRA DE SINAIS (LIBRAS)",
+      "ch": 60
     },
     "CTIA54": {
       "codigo": "CTIA54",
@@ -306,7 +342,8 @@
     },
     "CTIA78": {
       "codigo": "CTIA78",
-      "nome": "MECÂNICA DOS FLUIDOS I"
+      "nome": "MECÂNICA DOS FLUIDOS I",
+      "ch": 60
     },
     "CTIA55": {
       "codigo": "CTIA55",
@@ -314,11 +351,13 @@
     },
     "CTIA77": {
       "codigo": "CTIA77",
-      "nome": "MECÂNICA GERAL I"
+      "nome": "MECÂNICA GERAL I",
+      "ch": 60
     },
     "CTIA72": {
       "codigo": "CTIA72",
-      "nome": "MÉTODOS ESTATÍSTICOS"
+      "nome": "MÉTODOS ESTATÍSTICOS",
+      "ch": 60
     },
     "CTIA56": {
       "codigo": "CTIA56",
@@ -342,7 +381,8 @@
     },
     "CTIA19": {
       "codigo": "CTIA19",
-      "nome": "TEORIA DA CIDADE E DO URBANO"
+      "nome": "TEORIA DA CIDADE E DO URBANO",
+      "ch": 60
     },
     "CTIA75": {
       "codigo": "CTIA75",
@@ -354,11 +394,13 @@
     },
     "CTIA27": {
       "codigo": "CTIA27",
-      "nome": "TÓPICOS ESPECIAIS EM ARTES E TECNOLOGIAS CONTEMPORÂNEAS"
+      "nome": "TÓPICOS ESPECIAIS EM ARTES E TECNOLOGIAS CONTEMPORÂNEAS",
+      "ch": 60
     },
     "CTIA82": {
       "codigo": "CTIA82",
-      "nome": "ACCS: PRODUÇÃO E CIRCULAÇÃO DE DIVULGAÇÃO CIENTÍFICA"
+      "nome": "ACCS:PRODUÇÃO E CIRCULAÇÃO DE DIVULGAÇÃO CIENTÍFICA",
+      "ch": 60
     },
     "CTIA32": {
       "codigo": "CTIA32",
@@ -367,55 +409,68 @@
     },
     "CTIA85": {
       "codigo": "CTIA85",
-      "nome": "ADMINISTRAÇÃO E ECONOMIA"
+      "nome": "ADMINISTRAÇÃO E ECONOMIA",
+      "ch": 60
     },
     "CTIA86": {
       "codigo": "CTIA86",
-      "nome": "GESTÃO DE SISTEMAS DE GARANTIA DA QUALIDADE"
+      "nome": "GESTÃO DE SISTEMAS DE GARANTIA DA QUALIDADE",
+      "ch": 60
     },
     "CTIA87": {
       "codigo": "CTIA87",
-      "nome": "CONTABILIDADE DE CUSTOS"
+      "nome": "CONTABILIDADE DE CUSTOS",
+      "ch": 60
     },
     "CTIA88": {
       "codigo": "CTIA88",
-      "nome": "PESQUISA OPERACIONAL"
+      "nome": "PESQUISA OPERACIONAL",
+      "ch": 60
     },
     "CTIA89": {
       "codigo": "CTIA89",
-      "nome": "PRINCÍPIOS DE PROCESSOS CONTÍNUOS E DISCRETOS"
+      "nome": "PRINCÍPIOS DE PROCESSOS CONTÍNUOS E DISCRETOS",
+      "ch": 60
     },
     "CTIA90": {
       "codigo": "CTIA90",
-      "nome": "ENGENHARIA DO TRABALHO"
+      "nome": "ENGENHARIA DO TRABALHO",
+      "ch": 60
     },
     "CTIA91": {
       "codigo": "CTIA91",
-      "nome": "ENGENHARIA DA QUALIDADE"
+      "nome": "ENGENHARIA DA QUALIDADE",
+      "ch": 60
     },
     "CTIA92": {
       "codigo": "CTIA92",
-      "nome": "MODELAGEM PROBABILÍSTICA E SIMULAÇÃO DE SISTEMAS DE PRODUÇÃO"
+      "nome": "MODELAGEM PROBABILÍSTICA E SIMULAÇÃO DE SISTEMAS DE PRODUÇÃO",
+      "ch": 60
     },
     "CTIA93": {
       "codigo": "CTIA93",
-      "nome": "ENGENHARIA ECONÔMICA"
+      "nome": "ENGENHARIA ECONÔMICA",
+      "ch": 60
     },
     "CTIA94": {
       "codigo": "CTIA94",
-      "nome": "AUTOMAÇÃO DE PROCESSOS"
+      "nome": "AUTOMAÇÃO DE PROCESSOS",
+      "ch": 60
     },
     "CTIA95": {
       "codigo": "CTIA95",
-      "nome": "ENGENHARIA E DESENVOLVIMENTO DO PRODUTO"
+      "nome": "ENGENHARIA E DESENVOLVIMENTO DO PRODUTO",
+      "ch": 60
     },
     "CTIA96": {
       "codigo": "CTIA96",
-      "nome": "PROJETO DE FÁBRICA E PLANEJAMENTO INDUSTRIAL"
+      "nome": "PROJETO DE FÁBRICA E PLANEJAMENTO INDUSTRIAL",
+      "ch": 60
     },
     "CTIA97": {
       "codigo": "CTIA97",
-      "nome": "LOGÍSTICA E CADEIA DE SUPRIMENTOS"
+      "nome": "LOGÍSTICA E CADEIA DE SUPRIMENTOS",
+      "ch": 60
     },
     "CTIA98": {
       "codigo": "CTIA98",
@@ -431,123 +486,153 @@
     },
     "CTIB02": {
       "codigo": "CTIB02",
-      "nome": "PRODUÇÃO ENXUTA"
+      "nome": "PRODUÇÃO ENXUTA",
+      "ch": 60
     },
     "CTIB03": {
       "codigo": "CTIB03",
-      "nome": "SISTEMAS DE APOIO À DECISÃO"
+      "nome": "SISTEMAS DE APOIO À DECISÃO",
+      "ch": 60
     },
     "CTIB04": {
       "codigo": "CTIB04",
-      "nome": "LOGÍSTICA DE TRANSPORTES"
+      "nome": "LOGÍSTICA DE TRANSPORTES",
+      "ch": 60
     },
     "CTIB05": {
       "codigo": "CTIB05",
-      "nome": "ENGENHARIA DA SUSTENTABILIDADE"
+      "nome": "ENGENHARIA DA SUSTENTABILIDADE",
+      "ch": 60
     },
     "CTIB06": {
       "codigo": "CTIB06",
-      "nome": "TÓPICOS ESPECIAIS EM ENGENHARIA DE PRODUÇÃO"
+      "nome": "TÓPICOS ESPECIAIS EM ENGENHARIA DE PRODUÇÃO",
+      "ch": 60
     },
     "CTIB61": {
       "codigo": "CTIB61",
-      "nome": "GESTÃO DA INFORMAÇÃO"
+      "nome": "GESTÃO DA INFORMAÇÃO",
+      "ch": 60
     },
     "CTIB54": {
       "codigo": "CTIB54",
-      "nome": "PRODUÇÃO LIMPA"
+      "nome": "PRODUÇÃO LIMPA",
+      "ch": 30
     },
     "CTIB55": {
       "codigo": "CTIB55",
-      "nome": "GESTÃO DE PROJETOS"
+      "nome": "GESTÃO DE PROJETOS",
+      "ch": 30
     },
     "CTIB56": {
       "codigo": "CTIB56",
-      "nome": "GESTÃO DE ESTOQUES"
+      "nome": "GESTÃO DE ESTOQUES",
+      "ch": 30
     },
     "CTIB57": {
       "codigo": "CTIB57",
-      "nome": "LOGÍSTICA REVERSA"
+      "nome": "LOGÍSTICA REVERSA",
+      "ch": 30
     },
     "CTIB58": {
       "codigo": "CTIB58",
-      "nome": "PLANEJAMENTO, PROGRAMAÇÃO E CONTROLE DA PRODUÇÃO"
+      "nome": "PLANEJAMENTO, PROGRAMAÇÃO E CONTROLE DA PRODUÇÃO",
+      "ch": 60
     },
     "CTIB59": {
       "codigo": "CTIB59",
-      "nome": "TECNOLOGIAS HABILITADORAS DA INDÚSTRIA 4.0"
+      "nome": "TECNOLOGIAS HABILITADORAS DA INDÚSTRIA 4.0",
+      "ch": 30
     },
     "CTIB60": {
       "codigo": "CTIB60",
-      "nome": "PROCESSOS DE FABRICAÇÃO I"
+      "nome": "PROCESSOS DE FABRICAÇÃO I",
+      "ch": 60
     },
     "CTIB62": {
       "codigo": "CTIB62",
-      "nome": "LEAN SIX SIGMA"
+      "nome": "LEAN SIX SIGMA",
+      "ch": 60
     },
     "CTIB65": {
       "codigo": "CTIB65",
-      "nome": "PROJETO DE CIRCUITOS LÓGICOS PARA ENGENHARIAS"
+      "nome": "PROJETO DE CIRCUITOS LÓGICOS PARA ENGENHARIAS",
+      "ch": 60
     },
     "CTIB66": {
       "codigo": "CTIB66",
-      "nome": "SINAIS E SISTEMAS"
+      "nome": "SINAIS E SISTEMAS",
+      "ch": 60
     },
     "CTIB67": {
       "codigo": "CTIB67",
-      "nome": "MATERIAIS ELÉTRICOS"
+      "nome": "MATERIAIS ELÉTRICOS",
+      "ch": 30
     },
     "CTIB68": {
       "codigo": "CTIB68",
-      "nome": "FUNDAMENTOS DE ELETROMAGNETISMO APLICADO"
+      "nome": "FUNDAMENTOS DE ELETROMAGNETISMO APLICADO",
+      "ch": 60
     },
     "CTIB69": {
       "codigo": "CTIB69",
-      "nome": "ANÁLISE DE CIRCUITOS II"
+      "nome": "ANÁLISE DE CIRCUITOS II",
+      "ch": 60
     },
     "CTIB70": {
       "codigo": "CTIB70",
-      "nome": "MODELAGEM E CONTROLE DE SISTEMAS"
+      "nome": "MODELAGEM E CONTROLE DE SISTEMAS",
+      "ch": 60
     },
     "CTIB71": {
       "codigo": "CTIB71",
-      "nome": "CONVERSÃO DE ENERGIA"
+      "nome": "CONVERSÃO DE ENERGIA",
+      "ch": 60
     },
     "CTIB72": {
       "codigo": "CTIB72",
-      "nome": "INSTALAÇÕES ELÉTRICAS PREDIAIS"
+      "nome": "INSTALAÇÕES ELÉTRICAS PREDIAIS",
+      "ch": 60
     },
     "CTIB73": {
       "codigo": "CTIB73",
-      "nome": "ELETRÔNICA ANALÓGICA"
+      "nome": "ELETRÔNICA ANALÓGICA",
+      "ch": 60
     },
     "CTIB74": {
       "codigo": "CTIB74",
-      "nome": "SISTEMAS ELÉTRICOS DE POTÊNCIA I"
+      "nome": "SISTEMAS ELÉTRICOS DE POTÊNCIA I",
+      "ch": 60
     },
     "CTIB75": {
       "codigo": "CTIB75",
-      "nome": "PRINCÍPIOS DE COMUNICAÇÕES"
+      "nome": "PRINCÍPIOS DE COMUNICAÇÕES",
+      "ch": 60
     },
     "CTIB76": {
       "codigo": "CTIB76",
-      "nome": "MÁQUINAS ELÉTRICAS"
+      "nome": "MÁQUINAS ELÉTRICAS",
+      "ch": 60
     },
     "CTIB77": {
       "codigo": "CTIB77",
-      "nome": "INSTRUMENTAÇÃO ELETRÔNICA"
+      "nome": "INSTRUMENTAÇÃO ELETRÔNICA",
+      "ch": 60
     },
     "CTIB81": {
       "codigo": "CTIB81",
-      "nome": "PLANEJAMENTO DO PROJETO DE CONCLUSÃO CURSO EM ENG. ELÉTRICA"
+      "nome": "PLANEJAMENTO DO PROJETO DE CONCLUSÃO CURSO EM ENG. ELÉTRICA",
+      "ch": 30
     },
     "CTIB78": {
       "codigo": "CTIB78",
-      "nome": "GERAÇÃO, TRANSMISSÃO E DISTRIBUIÇÃO DE ENERGIA"
+      "nome": "GERAÇÃO, TRANSMISSÃO E DISTRIBUIÇÃO DE ENERGIA",
+      "ch": 60
     },
     "CTIB82": {
       "codigo": "CTIB82",
-      "nome": "PROJETO DE CONCLUSÃO DE CURSO EM ENGENHARIA ELÉTRICA"
+      "nome": "PROJETO DE CONCLUSÃO DE CURSO EM ENGENHARIA ELÉTRICA",
+      "ch": 30
     },
     "CTIB84": {
       "codigo": "CTIB84",
@@ -555,39 +640,93 @@
     },
     "CTIB89": {
       "codigo": "CTIB89",
-      "nome": "ACIONAMENTOS ELÉTRICOS"
+      "nome": "ACIONAMENTOS ELÉTRICOS",
+      "ch": 60
     },
     "CTIB80": {
       "codigo": "CTIB80",
-      "nome": "COMUNICAÇÃO DE DADOS E REDES DE COMPUTADORES"
+      "nome": "COMUNICAÇÃO DE DADOS E REDES DE COMPUTADORES",
+      "ch": 60
     },
     "CTIB83": {
       "codigo": "CTIB83",
-      "nome": "EFICIÊNCIA ENERGÉTICA"
+      "nome": "EFICIÊNCIA ENERGÉTICA",
+      "ch": 30
     },
     "CTIB90": {
       "codigo": "CTIB90",
-      "nome": "ELETRÔNICA DE POTÊNCIA"
+      "nome": "ELETRÔNICA DE POTÊNCIA",
+      "ch": 60
     },
     "CTIB87": {
       "codigo": "CTIB87",
-      "nome": "INSTALAÇÕES ELÉTRICAS INDUSTRIAIS"
+      "nome": "INSTALAÇÕES ELÉTRICAS INDUSTRIAIS",
+      "ch": 60
     },
     "CTIB86": {
       "codigo": "CTIB86",
-      "nome": "PROTEÇÃO DE SISTEMAS DE ENERGIA"
+      "nome": "PROTEÇÃO DE SISTEMAS DE ENERGIA",
+      "ch": 60
     },
     "CTIB85": {
       "codigo": "CTIB85",
-      "nome": "QUALIDADE DE ENERGIA"
+      "nome": "QUALIDADE DE ENERGIA",
+      "ch": 30
     },
     "CTIB79": {
       "codigo": "CTIB79",
-      "nome": "REDES MÓVEIS E INTERNET DAS COISAS"
+      "nome": "REDES MÓVEIS E INTERNET DAS COISAS",
+      "ch": 60
     },
     "CTIB88": {
       "codigo": "CTIB88",
-      "nome": "SISTEMAS ELÉTRICOS DE POTÊNCIA II"
+      "nome": "SISTEMAS ELÉTRICOS DE POTÊNCIA II",
+      "ch": 60
+    },
+    "GCTI0008": {
+      "codigo": "GCTI0008",
+      "nome": "FÍSICA I",
+      "ch": 90
+    },
+    "GCTI0013": {
+      "codigo": "GCTI0013",
+      "nome": "DESENHO TÉCNICO I",
+      "ch": 60
+    },
+    "GCTI0001": {
+      "codigo": "GCTI0001",
+      "nome": "ESTÁGIO EM ENGENHARIA DE PRODUÇÃO",
+      "ch": 165
+    },
+    "GCTI0007": {
+      "codigo": "GCTI0007",
+      "nome": "PROJETO DE CONCLUSÃO DE CURSO",
+      "ch": 30
+    },
+    "CTIB17": {
+      "codigo": "CTIB17",
+      "nome": "PROCESSAMENTO DE LINGUAGEM NATURAL",
+      "ch": 60
+    },
+    "CTIB14": {
+      "codigo": "CTIB14",
+      "nome": "MINERAÇÃO DE TEXTOS II",
+      "ch": 60
+    },
+    "CTIB13": {
+      "codigo": "CTIB13",
+      "nome": "MINERAÇÃO DE TEXTOS I",
+      "ch": 60
+    },
+    "GCTI0010": {
+      "codigo": "GCTI0010",
+      "nome": "COMPONENTE DE HOMOLOGAÇÃO DE EXTENSÃO CURRICULAR",
+      "ch": 1
+    },
+    "GCTI0002": {
+      "codigo": "GCTI0002",
+      "nome": "ESTÁGIO EM ENGENHARIA ELÉTRICA",
+      "ch": 165
     }
   },
   "cursos": {
