@@ -67,7 +67,8 @@
     },
     "CTIB24": {
       "codigo": "CTIB24",
-      "nome": "ACCS: ANÁLISE ERGONÔMICA DO TRABALHO"
+      "nome": "ACCS: ANÁLISE ERGONÔMICA DO TRABALHO",
+      "ch": 60
     },
     "CTIA62": {
       "codigo": "CTIA62",
@@ -91,8 +92,8 @@
     },
     "CTIA63": {
       "codigo": "CTIA63",
-      "nome": "ACCS: STEM",
-      "ch": null
+      "nome": "ACCS: STEM - CIÊNCIA, TECNOLOGIA E INOVAÇÃO NAS ESCOLAS",
+      "ch": 60
     },
     "CTIA28": {
       "codigo": "CTIA28",
@@ -111,11 +112,13 @@
     },
     "CTIA29": {
       "codigo": "CTIA29",
-      "nome": "BANCO DE DADOS"
+      "nome": "BANCO DE DADOS",
+      "ch": 60
     },
     "CTIA30": {
       "codigo": "CTIA30",
-      "nome": "BIOTECNOLOGIA"
+      "nome": "BIOTECNOLOGIA",
+      "ch": 60
     },
     "CTIA31": {
       "codigo": "CTIA31",
@@ -149,27 +152,33 @@
     },
     "CTIA35": {
       "codigo": "CTIA35",
-      "nome": "CIÊNCIAS DO AMBIENTE"
+      "nome": "CIÊNCIAS DO AMBIENTE",
+      "ch": 60
     },
     "CTIA37": {
       "codigo": "CTIA37",
-      "nome": "COMPUTADOR, ÉTICA E SOCIEDADE"
+      "nome": "COMPUTADOR, ÉTICA E SOCIEDADE",
+      "ch": 60
     },
     "CTIA79": {
       "codigo": "CTIA79",
-      "nome": "DESENHO TÉCNICO I"
+      "nome": "DESENHO TÉCNICO I",
+      "ch": 60
     },
     "CTIA38": {
       "codigo": "CTIA38",
-      "nome": "EDUCAÇÃO AMBIENTAL"
+      "nome": "EDUCAÇÃO AMBIENTAL",
+      "ch": 60
     },
     "CTIA12": {
       "codigo": "CTIA12",
-      "nome": "EDUCAÇÃO DAS RELAÇÕES ÉTNICO RACIAIS"
+      "nome": "EDUCAÇÃO DAS RELAÇÕES ÉTNICO RACIAIS",
+      "ch": 60
     },
     "CTIA13": {
       "codigo": "CTIA13",
-      "nome": "EDUCAÇÃO EM DIREITOS HUMANOS"
+      "nome": "EDUCAÇÃO EM DIREITOS HUMANOS",
+      "ch": 60
     },
     "CTIA73": {
       "codigo": "CTIA73",
@@ -183,23 +192,28 @@
     },
     "CTIA39": {
       "codigo": "CTIA39",
-      "nome": "ENERGIA E MEIO AMBIENTE"
+      "nome": "ENERGIA E MEIO AMBIENTE",
+      "ch": 60
     },
     "CTIB20": {
       "codigo": "CTIB20",
-      "nome": "ERGONOMIA COGNITIVA E EXPERIÊNCIA DO USUÁRIO"
+      "nome": "ERGONOMIA COGNITIVA E EXPERIÊNCIA DO USUÁRIO",
+      "ch": 60
     },
     "CTIB21": {
       "codigo": "CTIB21",
-      "nome": "ERGONOMIA FÍSICA E ORGANIZACIONAL"
+      "nome": "ERGONOMIA FÍSICA E ORGANIZACIONAL",
+      "ch": 60
     },
     "CTIA40": {
       "codigo": "CTIA40",
-      "nome": "ESTATÍSTICA APLICADA A CIÊNCIA, TECNOLOGIA E INOVAÇÃO"
+      "nome": "ESTATÍSTICA APLICADA A CIÊNCIA, TECNOLOGIA E INOVAÇÃO",
+      "ch": 60
     },
     "CTIA41": {
       "codigo": "CTIA41",
-      "nome": "ESTRUTURA DE DADOS E ALGORITMOS I"
+      "nome": "ESTRUTURA DE DADOS E ALGORITMOS I",
+      "ch": 60
     },
     "CTIA14": {
       "codigo": "CTIA14",
@@ -218,11 +232,13 @@
     },
     "CTIA42": {
       "codigo": "CTIA42",
-      "nome": "EVOLUÇÃO DA FÍSICA"
+      "nome": "EVOLUÇÃO DA FÍSICA",
+      "ch": 60
     },
     "CTIA43": {
       "codigo": "CTIA43",
-      "nome": "FENÔMENOS DE TRANSPORTE I"
+      "nome": "FENÔMENOS DE TRANSPORTE I",
+      "ch": 60
     },
     "CTIA65": {
       "codigo": "CTIA65",
@@ -231,7 +247,8 @@
     },
     "CTIA44": {
       "codigo": "CTIA44",
-      "nome": "FÍSICA E SOCIEDADE"
+      "nome": "FÍSICA E SOCIEDADE",
+      "ch": 60
     },
     "CTIA45": {
       "codigo": "CTIA45",
@@ -255,7 +272,8 @@
     },
     "CTIA48": {
       "codigo": "CTIA48",
-      "nome": "FUNDAMENTOS DE BIOLOGIA"
+      "nome": "FUNDAMENTOS DE BIOLOGIA",
+      "ch": 60
     },
     "CTIA49": {
       "codigo": "CTIA49",
@@ -269,19 +287,23 @@
     },
     "CTIA51": {
       "codigo": "CTIA51",
-      "nome": "HIGIENE E SEGURANÇA DO TRABALHO"
+      "nome": "HIGIENE E SEGURANÇA DO TRABALHO",
+      "ch": 60
     },
     "CTIB25": {
       "codigo": "CTIB25",
-      "nome": "INTRODUÇÃO À ANÁLISE COMBINATÓRIA"
+      "nome": "INTRODUÇÃO À ANÁLISE COMBINATÓRIA",
+      "ch": 60
     },
     "CTIA52": {
       "codigo": "CTIA52",
-      "nome": "INTRODUÇÃO À ASTRONOMIA"
+      "nome": "INTRODUÇÃO À ASTRONOMIA",
+      "ch": 60
     },
     "CTIA61": {
       "codigo": "CTIA61",
-      "nome": "INTRODUÇÃO À ENGENHARIA"
+      "nome": "INTRODUÇÃO À ENGENHARIA",
+      "ch": 60
     },
     "CTIA17": {
       "codigo": "CTIA17",
@@ -290,7 +312,8 @@
     },
     "CTIA53": {
       "codigo": "CTIA53",
-      "nome": "INTRODUÇÃO À LÓGICA DE PROGRAMAÇÃO"
+      "nome": "INTRODUÇÃO À LÓGICA DE PROGRAMAÇÃO",
+      "ch": 60
     },
     "CTIA76": {
       "codigo": "CTIA76",
@@ -304,7 +327,8 @@
     },
     "CTIB22": {
       "codigo": "CTIB22",
-      "nome": "LABORATÓRIO DE PROCESSOS CRIATIVOS"
+      "nome": "LABORATÓRIO DE PROCESSOS CRIATIVOS",
+      "ch": 30
     },
     "CTIA21": {
       "codigo": "CTIA21",
@@ -338,7 +362,8 @@
     },
     "CTIA54": {
       "codigo": "CTIA54",
-      "nome": "LÓGICA PARA A COMPUTAÇÃO"
+      "nome": "LÓGICA PARA A COMPUTAÇÃO",
+      "ch": 60
     },
     "CTIA78": {
       "codigo": "CTIA78",
@@ -347,7 +372,8 @@
     },
     "CTIA55": {
       "codigo": "CTIA55",
-      "nome": "MECÂNICA DOS SÓLIDOS"
+      "nome": "MECÂNICA DOS SÓLIDOS",
+      "ch": 60
     },
     "CTIA77": {
       "codigo": "CTIA77",
@@ -361,23 +387,23 @@
     },
     "CTIA56": {
       "codigo": "CTIA56",
-      "nome": "PROGRAMAÇÃO ORIENTADA A OBJETOS"
+      "nome": "PROGRAMAÇÃO ORIENTADA A OBJETOS",
+      "ch": 60
     },
     "CTIA57": {
       "codigo": "CTIA57",
-      "nome": "PROJETO DE CIRCUITOS LÓGICOS"
+      "nome": "PROJETO DE CIRCUITOS LÓGICOS",
+      "ch": 60
     },
     "CTIA58": {
       "codigo": "CTIA58",
-      "nome": "PROJETO INTEGRADO EM ENGENHARIA I"
+      "nome": "PROJETO INTEGRADO EM ENGENHARIA I",
+      "ch": 30
     },
     "CTIB23": {
       "codigo": "CTIB23",
-      "nome": "PROPRIEDADE INTELECTUAL"
-    },
-    "CTIA59": {
-      "codigo": "CTIA59",
-      "nome": "QUÍMICA"
+      "nome": "PROPRIEDADE INTELECTUAL",
+      "ch": 60
     },
     "CTIA19": {
       "codigo": "CTIA19",
@@ -386,11 +412,13 @@
     },
     "CTIA75": {
       "codigo": "CTIA75",
-      "nome": "TERMODINÂMICA APLICADA I"
+      "nome": "TERMODINÂMICA APLICADA I",
+      "ch": 60
     },
     "CTIA83": {
       "codigo": "CTIA83",
-      "nome": "TÓPICOS DE COMPUTAÇÃO QUÂNTICA E SPINTRÔNICA"
+      "nome": "TÓPICOS DE COMPUTAÇÃO QUÂNTICA E SPINTRÔNICA",
+      "ch": 60
     },
     "CTIA27": {
       "codigo": "CTIA27",
@@ -474,15 +502,8 @@
     },
     "CTIA98": {
       "codigo": "CTIA98",
-      "nome": "PLANEJAMENTO DO PROJETO DE CONCLUSÃO DE CURSO"
-    },
-    "CTIA99": {
-      "codigo": "CTIA99",
-      "nome": "ESTÁGIO EM ENGENHARIA DE PRODUÇÃO"
-    },
-    "CTIB01": {
-      "codigo": "CTIB01",
-      "nome": "PROJETO DE CONCLUSÃO DE CURSO"
+      "nome": "PLANEJAMENTO DO PROJETO DE CONCLUSÃO DE CURSO",
+      "ch": 60
     },
     "CTIB02": {
       "codigo": "CTIB02",
@@ -634,10 +655,6 @@
       "nome": "PROJETO DE CONCLUSÃO DE CURSO EM ENGENHARIA ELÉTRICA",
       "ch": 30
     },
-    "CTIB84": {
-      "codigo": "CTIB84",
-      "nome": "ESTÁGIO EM ENGENHARIA ELÉTRICA"
-    },
     "CTIB89": {
       "codigo": "CTIB89",
       "nome": "ACIONAMENTOS ELÉTRICOS",
@@ -727,6 +744,11 @@
       "codigo": "GCTI0002",
       "nome": "ESTÁGIO EM ENGENHARIA ELÉTRICA",
       "ch": 165
+    },
+    "GCTI0012": {
+      "codigo": "GCTI0012",
+      "nome": "QUÍMICA",
+      "ch": 60
     }
   },
   "cursos": {
@@ -1056,7 +1078,7 @@
         "natureza": "OG"
       },
       {
-        "codigo": "CTIA59",
+        "codigo": "GCTI0012",
         "natureza": "OG"
       },
       {
@@ -1170,7 +1192,7 @@
         "natureza": "OB"
       },
       {
-        "codigo": "CTIA59",
+        "codigo": "GCTI0012",
         "natureza": "OB"
       },
       {
@@ -1254,7 +1276,7 @@
         "natureza": "OB"
       },
       {
-        "codigo": "CTIA99",
+        "codigo": "GCTI0001",
         "natureza": "OB"
       },
       {
@@ -1262,7 +1284,7 @@
         "natureza": "OB"
       },
       {
-        "codigo": "CTIB01",
+        "codigo": "GCTI0007",
         "natureza": "OB"
       },
       {
@@ -1452,7 +1474,7 @@
         "natureza": "OB"
       },
       {
-        "codigo": "CTIA59",
+        "codigo": "GCTI0012",
         "natureza": "OB"
       },
       {
@@ -1548,7 +1570,7 @@
         "natureza": "OB"
       },
       {
-        "codigo": "CTIB84",
+        "codigo": "GCTI0002",
         "natureza": "OB"
       },
       {
