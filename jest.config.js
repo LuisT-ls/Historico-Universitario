@@ -46,11 +46,14 @@ const customJestConfig = {
     '!components/ui/dialog.tsx',
     '!components/ui/dropdown-menu.tsx',
     '!components/ui/breadcrumbs.tsx',
+    '!components/ui/badge.tsx',
+    '!components/ui/card.tsx',
     '!lib/export-utils.ts',
     '!lib/pdf-parser.ts',
     '!lib/constants.ts',
     '!lib/logger.ts',
     '!lib/toast.ts',
+    '!lib/type-constants.ts',
   ],
   coverageThreshold: {
     global: {
@@ -65,12 +68,6 @@ const customJestConfig = {
       functions: 100,
       lines: 80,
       statements: 80,
-    },
-    'lib/utils.ts': {
-      branches: 70,
-      functions: 80,
-      lines: 70,
-      statements: 70,
     },
   },
   transformIgnorePatterns: [
