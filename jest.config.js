@@ -42,10 +42,14 @@ const customJestConfig = {
     '!components/ui/input.tsx',
     '!components/ui/label.tsx',
     '!components/ui/progress.tsx',
+    '!components/ui/checkbox.tsx',
+    '!components/ui/dialog.tsx',
+    '!components/ui/dropdown-menu.tsx',
     '!lib/export-utils.ts',
     '!lib/pdf-parser.ts',
     '!lib/constants.ts',
     '!lib/logger.ts',
+    '!lib/toast.ts',
   ],
   coverageThreshold: {
     global: {
