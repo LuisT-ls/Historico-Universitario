@@ -45,6 +45,7 @@ const customJestConfig = {
     '!components/ui/checkbox.tsx',
     '!components/ui/dialog.tsx',
     '!components/ui/dropdown-menu.tsx',
+    '!components/ui/breadcrumbs.tsx',
     '!lib/export-utils.ts',
     '!lib/pdf-parser.ts',
     '!lib/constants.ts',
