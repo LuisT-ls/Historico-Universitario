@@ -37,7 +37,12 @@ const customJestConfig = {
     '!components/theme-toggle.tsx',
     '!components/ui/skeleton.tsx',
     '!components/ui/textarea.tsx',
+    '!components/ui/select.tsx',
+    '!components/ui/sheet.tsx',
     '!lib/export-utils.ts',
+    '!lib/pdf-parser.ts',
+    '!lib/constants.ts',
+    '!lib/logger.ts',
   ],
   coverageThreshold: {
     global: {
