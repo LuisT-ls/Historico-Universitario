@@ -98,39 +98,45 @@ async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<string> {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
 
-      // Agrupar itens por coordenada Y (linha)
-      const items = textContent.items as any[];
-      const lines: { [key: number]: any[] } = {};
+      // Algoritmo de agrupamento por tolerância (mais robusto que arredondamento fixo)
+      const items = (textContent.items as any[])
+        .filter(item => 'str' in item && item.str.trim() !== '')
+        .map(item => ({
+          str: item.str,
+          x: item.transform[4],
+          y: item.transform[5]
+        }));
 
-      items.forEach((item) => {
-        if (!('str' in item)) return;
+      if (items.length === 0) continue;
 
-        // A coordenada Y está no transform[5]
-        // Arredondamos para agrupar itens na mesma linha (threshold de ~5)
-        const y = Math.round(item.transform[5] / 4) * 4;
+      // Ordenar itens por Y (cima para baixo)
+      items.sort((a, b) => b.y - a.y);
 
-        if (!lines[y]) {
-          lines[y] = [];
+      const lines: string[][] = [];
+      let currentLine: any[] = [items[0]];
+
+      for (let j = 1; j < items.length; j++) {
+        const item = items[j];
+        const prevItem = currentLine[currentLine.length - 1];
+
+        // Se a diferença de Y for pequena (mesma linha), agrupar
+        // Threshold de 5 unidades é seguro para a maioria dos PDFs
+        if (Math.abs(item.y - prevItem.y) < 5) {
+          currentLine.push(item);
+        } else {
+          // Nova linha: ordenar a anterior por X e salvar
+          lines.push(currentLine.sort((a, b) => a.x - b.x).map(i => i.str));
+          currentLine = [item];
         }
-        lines[y].push(item);
-      });
+      }
+      // Adicionar a última linha
+      lines.push(currentLine.sort((a, b) => a.x - b.x).map(i => i.str));
 
-      // Ordenar linhas de cima para baixo (Y decrescente)
-      const sortedY = Object.keys(lines)
-        .map(Number)
-        .sort((a, b) => b - a);
-
-      const pageText = sortedY.map((y) => {
-        // Ordenar itens dentro da linha da esquerda para a direita (X crescente)
-        // A coordenada X está no transform[4]
-        return lines[y]
-          .sort((a, b) => a.transform[4] - b.transform[4])
-          .map((item) => item.str)
-          .join(' ');
-      }).join('\n');
-
+      const pageText = lines.map(cols => cols.join(' ')).join('\n');
       fullText += pageText + '\n';
     }
+
+    console.log('Linhas reconstruídas no PDF:', fullText.split('\n').length);
 
     return fullText;
   } catch (error) {
@@ -157,24 +163,31 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
   let matricula = '';
   let curso = '';
 
-  // Regex robusta para capturar o padrão do Histórico Escolar UFBA em texto estruturado
-  // (Semestre) (Natureza)? (Código) (Nome) (CH) (Nota) (Situação)
-  const fullRowRegex = /(\d{4}\.\d)\s+(EB|EP|OP|AC|OB|LV|OG|OH|OX|OZ)?\s*([A-Z]{2,4}[0-9]{2,4}[A-Z0-9]?)\s+(.+?)\s+(\d+)\s+([\d\.,-]+)\s+(APR|REP|REPF|REPMF|TRANC|DISP|DISPENSADO|MATR|CANC|INCORP|CUMPRIU|TRANSF|TRANSFERIDO)/g;
+  // Regex para capturar uma linha de disciplina (Semestre opcional, Natureza opcional, Código, Nome, CH, Nota, Situação)
+  const rowRegex = /^(\d{4}\.\d)?\s*(EB|EP|OP|AC|OB|LV|OG|OH|OX|OZ)?\s*([A-Z]{2,4}[0-9]{2,4}[A-Z0-9]?)\s+(.+?)\s+(\d+)\s+([\d\.,-]+)\s+(APR|REP|REPF|REPMF|TRANC|DISP|DISPENSADO|MATR|CANC|INCORP|CUMPRIU|TRANSF|TRANSFERIDO)/i;
 
-  let match;
-  // Usar o texto completo com quebras de linha para depuração, mas regex global
-  const normalizedText = text.replace(/\n/g, '  '); // Duas casas de espaço para garantir separação
-
-  console.log('--- DEBUG PARSER ---');
-  console.log('Normalized Text Snippet:', normalizedText.substring(0, 1000));
-  console.log('Running regex search...');
-
+  let currentPeriod = '';
   const data = disciplinasData as any;
   const bictiDisciplinas = data.cursos.BICTI as any[];
 
-  while ((match = fullRowRegex.exec(normalizedText)) !== null) {
-    console.log('Match found:', match[0].substring(0, 60) + '...');
-    const periodo = match[1];
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (!trimmedLine) continue;
+
+    // Tentar encontrar o padrão da linha
+    const match = trimmedLine.match(rowRegex);
+
+    if (!match) {
+      // Se não for uma linha de disciplina, ver se é apenas um período (ex: quebra de página)
+      const periodOnlyMatch = trimmedLine.match(/^(\d{4}\.\d)$/);
+      if (periodOnlyMatch) currentPeriod = periodOnlyMatch[1];
+      continue;
+    }
+
+    // Se encontramos uma linha, atualizar o período se ele estiver presente
+    if (match[1]) currentPeriod = match[1];
+
+    const periodo = currentPeriod || '0000.0';
     const naturezaCapturada = match[2];
     let codigo = match[3];
     let nomeCompleto = match[4].trim();
@@ -189,29 +202,18 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
     }
 
     // 2. Limpeza Profunda do Nome (Remover professores):
-    // Padrão observado: O nome da disciplina é MAIÚSCULO, professores têm letras minúsculas (Misto).
     let nome = nomeCompleto;
-
-    // Remover Dr., Dra., MSc. e o que vem depois
     nome = nome.split(/Dr\.|Dra\.|MSc\./)[0].trim();
-
-    // Remover padrões como "(34h)", "(68h)" etc.
     nome = nome.split(/\(\d+h\)/)[0].trim();
 
-    // Se o nome contém letras minúsculas a partir de certo ponto, 
-    // provavelmente chegamos no nome do professor (ex: "INTRODUÇÃO RAMON SILVA")
-    // O SIGAA UFBA costuma colocar o nome da disciplina todo em UPPERCASE.
-    // Vamos procurar a primeira palavra que tenha letras minúsculas e cortar ali.
     const palavras = nome.split(' ');
     let indexProfessor = -1;
     for (let i = 0; i < palavras.length; i++) {
-      // Se a palavra tem pelo menos uma letra minúscula e não é uma preposição (do, de, da)
       if (/[a-z]/.test(palavras[i]) && !/^(de|do|da|e|o|a)$/i.test(palavras[i])) {
         indexProfessor = i;
         break;
       }
     }
-
     if (indexProfessor !== -1) {
       nome = palavras.slice(0, indexProfessor).join(' ').trim();
     }
@@ -221,11 +223,7 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
 
     if (!nome || nome.length < 2 || nome === 'Componente Curricular') continue;
 
-    // Tentar inferir a natureza pelo código ou pelo NOME da disciplina no catálogo
     const findNaturezaNoCatalogo = (codigo: string, nomeDisciplina: string): Natureza | null => {
-      const data = disciplinasData as any;
-
-      // 1. Tentar encontrar o código via nome no catálogo, se não tiver código
       let codigoBusca = codigo;
       if (!codigoBusca && nomeDisciplina) {
         const itemCatalogo = Object.values(data.catalogo).find((d: any) =>
@@ -235,7 +233,6 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
       }
 
       for (const cursoDisciplinas of Object.values(data.cursos)) {
-        // Tentar por código
         const discPorCodigo = (cursoDisciplinas as any[]).find((d: any) => d.codigo === codigoBusca || codigoBusca.startsWith(d.codigo));
         if (discPorCodigo) return discPorCodigo.natureza as Natureza;
       }
@@ -244,12 +241,10 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
 
     const { resultado, trancamento, dispensada, emcurso } = mapSituacao(situacaoRaw);
 
-    // Tentar encontrar o nome oficial no catálogo usando o código limpo
     const discBicti = bictiDisciplinas.find((d: any) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
     if (discBicti?.nome) {
       nome = discBicti.nome.toUpperCase();
     } else {
-      // Se não está no BICTI, procurar em outros cursos
       for (const cursoDisciplinas of Object.values(data.cursos)) {
         const discOutro = (cursoDisciplinas as any[]).find((d: any) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
         if (discOutro?.nome) {
@@ -259,23 +254,16 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
       }
     }
 
-    // Prioridade: 1. Catálogo (por código ou nome) | 2. PDF (naturezaRaw) | 3. Padrão (OB)
     let naturezaCatalogo = findNaturezaNoCatalogo(codigo, nome);
-
-    // Lógica especial para BICTI: 
-    // Se a disciplina não existe no catálogo do BICTI mas existe em outros cursos, 
-    // ou se não existe em nenhum catálogo, marcar como OP (Optativa) para o usuário revisar.
     let existeNoBicti = bictiDisciplinas.some((d: any) => d.codigo === codigo);
     if (!existeNoBicti) {
-      // Checar pelo nome via catálogo
-      const itemCatalogo = Object.values(data.catalogo).find((d: any) => d.nome.toUpperCase() === nome.toUpperCase());
+      const itemCatalogo = Object.values(data.catalogo).find((d: any) => d?.nome && d.nome.toUpperCase() === nome.toUpperCase());
       if (itemCatalogo) {
         existeNoBicti = bictiDisciplinas.some((d: any) => d.codigo === (itemCatalogo as any).codigo);
       }
     }
 
     if (!existeNoBicti && naturezaCatalogo === 'OB') {
-      // Se no catálogo geral é OB mas não existe no BICTI, provavelmente é de outro curso
       naturezaCatalogo = 'OP';
       if (!avisos.includes('Algumas disciplinas de outros cursos foram marcadas como OP. Revise-as no seu histórico.')) {
         avisos.push('Algumas disciplinas de outros cursos foram marcadas como OP. Revise-as no seu histórico.');
@@ -297,6 +285,7 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
       resultado: resultado || calcularResultado(nota, trancamento, dispensada, emcurso, natureza)
     });
   }
+
 
   return {
     disciplinas,
