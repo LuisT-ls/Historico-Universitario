@@ -392,22 +392,30 @@ export function ProfilePage() {
                       <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Ano Ingresso</Label>
                       <Input
                         type="text"
-                        placeholder="Ex: 2021"
-                        value={profile?.startYear || ''}
+                        placeholder="Ex: 2021.1 ou 2021.2"
+                        value={`${profile?.startYear || ''}${profile?.startSemester ? '.' + profile.startSemester : ''}`}
                         onChange={e => {
-                          const val = e.target.value.replace(/\D/g, '').slice(0, 4)
-                          setProfile(prev => prev ? ({ ...prev, startYear: val }) : null)
+                          const val = e.target.value
+                          // Permite apenas números e um único ponto
+                          if (!/^[0-9.]*$/.test(val)) return
+
+                          const [year, semester] = val.split('.')
+                          // Valida o ano (máximo 4 dígitos)
+                          if (year && year.length > 4) return
+                          // Valida o semestre (apenas 1 ou 2)
+                          if (semester && !['1', '2'].includes(semester)) return
+
+                          setProfile(prev => {
+                            if (!prev) return null
+                            return {
+                              ...prev,
+                              startYear: year || '',
+                              startSemester: (semester as '1' | '2') || '1'
+                            }
+                          })
                         }}
                         className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full"
                       />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Semestre Ingresso</Label>
-                      <select value={profile?.startSemester || '1'} onChange={e => setProfile(prev => prev ? ({ ...prev, startSemester: e.target.value as '1' | '2' }) : null)} className="w-full h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
-                        <option value="1">1º Semestre</option>
-                        <option value="2">2º Semestre</option>
-                      </select>
                     </div>
 
                     <div className="space-y-1.5">
