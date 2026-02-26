@@ -125,54 +125,63 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
   let matricula = '';
   let curso = '';
 
-  // Regex atualizada para capturar o padrão do SIGAA UFBA
-  // O padrão observado é: Semestre Nome_da_Disciplina (CH) Situação Código CH Nota Natureza
-  // Exemplo: "2021.1 INTRODUÇÃO À COMPUTAÇÃO Dr. VITOR PINHEIRO FERREIRA (34h), Dr. VITOR PINHEIRO FERREIRA (34h) APR CTIA01A 68 6.9 EB"
-
-  // Regex para capturar a linha completa da disciplina baseada no texto extraído
-  // O texto extraído do SIGAA UFBA vem em uma linha contínua ou com quebras aleatórias:
-  // "2021.1 INTRODUÇÃO À COMPUTAÇÃO Dr. VITOR... APR CTIA01A 68 6.9 EB"
-  // Padrão: (Semestre) (Nome + Lixo) (Situação) (Código) (CH) (Nota) (Natureza opcional)
-  const fullRowRegex = /(\d{4}\.\d)\s+(.+?)\s+(APR|REP|REPF|REPMF|TRANC|DISP|DISPENSADO|MATR|CANC|INCORP|CUMPRIU|TRANSF|TRANSFERIDO)\s+([A-Z0-9]{4,8})\s+(\d+)\s+([\d\.-]+)(\s+([A-Z]{2}))?/g;
+  // Regex robusta para capturar o padrão do Histórico Escolar UFBA
+  // Padrão identificado na imagem: (Semestre) (Natureza)? (Código) (Nome + Professores) (CH) (Nota) (Situação)
+  // Alguns casos a Natureza (EB/EP/OP) vem antes do código.
+  const fullRowRegex = /(\d{4}\.\d)\s+([A-Z]{2})?\s*([A-Z0-9]{4,8})\s+(.+?)\s+(\d+)\s+([\d\.-]+)\s+(APR|REP|REPF|REPMF|TRANC|DISP|DISPENSADO|MATR|CANC|INCORP|CUMPRIU|TRANSF|TRANSFERIDO)/g;
 
   let match;
   // Usar o texto completo sem quebras de linha forçadas para evitar que a regex falhe
   const normalizedText = text.replace(/\n/g, ' ');
 
+  const data = disciplinasData as any;
+  const bictiDisciplinas = data.cursos.BICTI as any[];
+
   while ((match = fullRowRegex.exec(normalizedText)) !== null) {
     const periodo = match[1];
-    let nomeCompleto = match[2].trim();
-    const situacaoRaw = match[3];
-    const codigo = match[4];
+    const naturezaCapturada = match[2];
+    let codigo = match[3];
+    let nomeCompleto = match[4].trim();
     const ch = parseInt(match[5], 10);
     const notaStr = match[6];
     const nota = (notaStr === '--' || notaStr === '---' || notaStr === '-') ? 0 : parseFloat(notaStr.replace(',', '.'));
-    const naturezaRaw = match[8] || 'OB';
+    const situacaoRaw = match[7];
 
-    // Limpeza profunda do nome:
-    // O nome da disciplina no SIGAA UFBA é sempre em MAIÚSCULO.
-    // O que vem depois (professores, etc) costuma ter letras minúsculas.
-
-    // 1. Tentar pegar apenas a parte em maiúsculo no início
-    let nome = nomeCompleto;
-
-    // Se o nome contém "Dr." ou similares, corta ali
-    nome = nome.split(/Dr\.|Dra\.|MSc\.|(?=\(\d+h\))/)[0].trim();
-
-    // 2. Se o nome ainda contém o semestre no início (ex: "2021.1 INTRODUÇÃO...")
-    // removemos o semestre do nome, pois ele já foi capturado no grupo 1 da regex
-    nome = nome.replace(/^\d{4}\.\d\s+/, '');
-
-    // 3. Se ainda houver lixo de cabeçalho (ex: "Semestre Componente Curricular..."), remove
-    nome = nome.replace(/.*Componente Curricular\s+Situação CH\s+Nota\s+/i, '');
-    nome = nome.replace(/.*ENADE\s+\d\s+---/i, '');
-
-    // 3. Padrão específico: se o nome começar com o semestre anterior ou lixo de página
-    if (nome.includes('Página')) {
-      nome = nome.split(/Página\s+\d\s+de/)[1] || nome;
+    // 1. Limpeza do Código: Remover 'A' final (indicador de turma) se o código tiver mais de 5 caracteres
+    if (codigo.endsWith('A') && codigo.length >= 6) {
+      codigo = codigo.slice(0, -1);
     }
 
-    nome = nome.trim();
+    // 2. Limpeza Profunda do Nome (Remover professores):
+    // Padrão observado: O nome da disciplina é MAIÚSCULO, professores têm letras minúsculas (Misto).
+    let nome = nomeCompleto;
+
+    // Remover Dr., Dra., MSc. e o que vem depois
+    nome = nome.split(/Dr\.|Dra\.|MSc\./)[0].trim();
+
+    // Remover padrões como "(34h)", "(68h)" etc.
+    nome = nome.split(/\(\d+h\)/)[0].trim();
+
+    // Se o nome contém letras minúsculas a partir de certo ponto, 
+    // provavelmente chegamos no nome do professor (ex: "INTRODUÇÃO RAMON SILVA")
+    // O SIGAA UFBA costuma colocar o nome da disciplina todo em UPPERCASE.
+    // Vamos procurar a primeira palavra que tenha letras minúsculas e cortar ali.
+    const palavras = nome.split(' ');
+    let indexProfessor = -1;
+    for (let i = 0; i < palavras.length; i++) {
+      // Se a palavra tem pelo menos uma letra minúscula e não é uma preposição (do, de, da)
+      if (/[a-z]/.test(palavras[i]) && !/^(de|do|da|e|o|a)$/i.test(palavras[i])) {
+        indexProfessor = i;
+        break;
+      }
+    }
+
+    if (indexProfessor !== -1) {
+      nome = palavras.slice(0, indexProfessor).join(' ').trim();
+    }
+
+    // 3. Natureza: Usar a capturada na regex ou 'OB' como padrão
+    const naturezaRaw = naturezaCapturada === 'EB' ? 'OB' : (naturezaCapturada === 'EP' ? 'OP' : (naturezaCapturada || 'OB'));
 
     if (!nome || nome.length < 2 || nome === 'Componente Curricular') continue;
 
@@ -197,15 +206,27 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
 
     const { resultado, trancamento, dispensada, emcurso } = mapSituacao(situacaoRaw);
 
+    // Tentar encontrar o nome oficial no catálogo usando o código limpo
+    const discBicti = bictiDisciplinas.find((d: any) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
+    if (discBicti) {
+      nome = discBicti.nome.toUpperCase();
+    } else {
+      // Se não está no BICTI, procurar em outros cursos
+      for (const cursoDisciplinas of Object.values(data.cursos)) {
+        const discOutro = (cursoDisciplinas as any[]).find((d: any) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
+        if (discOutro) {
+          nome = discOutro.nome.toUpperCase();
+          break;
+        }
+      }
+    }
+
     // Prioridade: 1. Catálogo (por código ou nome) | 2. PDF (naturezaRaw) | 3. Padrão (OB)
     let naturezaCatalogo = findNaturezaNoCatalogo(codigo, nome);
 
     // Lógica especial para BICTI: 
     // Se a disciplina não existe no catálogo do BICTI mas existe em outros cursos, 
     // ou se não existe em nenhum catálogo, marcar como OP (Optativa) para o usuário revisar.
-    const data = disciplinasData as any;
-    const bictiDisciplinas = data.cursos.BICTI as any[];
-
     let existeNoBicti = bictiDisciplinas.some((d: any) => d.codigo === codigo);
     if (!existeNoBicti) {
       // Checar pelo nome via catálogo
