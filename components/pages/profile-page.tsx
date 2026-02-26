@@ -355,7 +355,7 @@ export function ProfilePage() {
                 </div>
 
                 <div className="flex-1 w-full space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
                     <div className="space-y-1.5 col-span-1 md:col-span-2">
                       <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Nome Completo</Label>
                       <Input value={profile?.nome || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, nome: e.target.value }) : null)} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full" />
@@ -390,7 +390,16 @@ export function ProfilePage() {
 
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Ano Ingresso</Label>
-                      <Input value={profile?.startYear || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, startYear: e.target.value }) : null)} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full" />
+                      <Input
+                        type="text"
+                        placeholder="Ex: 2021"
+                        value={profile?.startYear || ''}
+                        onChange={e => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+                          setProfile(prev => prev ? ({ ...prev, startYear: val }) : null)
+                        }}
+                        className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full"
+                      />
                     </div>
 
                     <div className="space-y-1.5">
@@ -402,8 +411,14 @@ export function ProfilePage() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Suspensões (Trancamentos)</Label>
-                      <Input type="number" value={profile?.suspensions || 0} onChange={e => setProfile(prev => prev ? ({ ...prev, suspensions: parseInt(e.target.value, 10) }) : null)} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full" />
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Suspensões (Trancamentos Totais)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={profile?.suspensions || 0}
+                        onChange={e => setProfile(prev => prev ? ({ ...prev, suspensions: parseInt(e.target.value, 10) || 0 }) : null)}
+                        className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full"
+                      />
                     </div>
 
                     <div className="space-y-1.5">

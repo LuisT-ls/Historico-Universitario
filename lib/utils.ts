@@ -688,7 +688,8 @@ export function calcularSemestralizacao(
   const suspensões = profile.suspensions || 0
   const perfilInicial = calcularPerfilInicial(disciplinas, profile.curso || 'BICTI')
 
-  return totalSemestres - suspensões + perfilInicial
+  // O resultado deve ser pelo menos 1
+  return Math.max(1, totalSemestres - suspensões + perfilInicial)
 }
 
 /**
@@ -718,13 +719,16 @@ export function calcularPerfilInicial(
       const chPadrao = (disciplinas as any).catalogo?.[codigo]?.ch || 60 // Padrão 60 se não achar
       chTotalSemestre += chPadrao
 
-      // Verificar se o aluno cumpriu essa disciplina via dispensa ou nota
-      const disc = disciplinas.find(d => d.codigo === codigo || d.codigo.startsWith(codigo))
+      // IMPORTANTE: Perfil Inicial no SIGAA UFBA se refere a aproveitamentos 
+      // de estudos ANTERIORES ao ingresso (transferências, etc).
+      // Disciplinas cursadas normalmente não entram no Perfil Inicial.
+      const disc = disciplinas.find(d =>
+        (d.codigo === codigo || d.codigo.startsWith(codigo)) &&
+        d.dispensada // Apenas aproveitamentos contam para o perfil extra
+      )
+
       if (disc) {
-        // CUMPRIU ou TRANSFERIDO costumam vir como dispensada
-        if (disc.dispensada || (disc.nota && disc.nota >= 5) || disc.resultado === 'AP') {
-          chAproveitada += disc.ch || chPadrao
-        }
+        chAproveitada += disc.ch || chPadrao
       }
     })
 
@@ -743,11 +747,19 @@ export function calcularPerfilInicial(
  * Calcula o número total de semestres transcorridos desde o ingresso até o atual.
  */
 export function calcularTotalSemestresCursados(
-  inicio: string, // Ex: "2023.2"
+  inicio: string, // Ex: "2023.2" ou "2023.2.1"
   fim: string     // Ex: "2025.2"
 ): number {
-  const [anoI, semI] = inicio.split('.').map(Number)
-  const [anoF, semF] = fim.split('.').map(Number)
+  if (!inicio || !fim) return 0
+
+  // Limpar possíveis inputs sujos (ex: "2020.1" no campo ano + ".1" do campo semestre)
+  const partesI = inicio.split('.').filter(p => !isNaN(Number(p)))
+  const partesF = fim.split('.').filter(p => !isNaN(Number(p)))
+
+  const anoI = Number(partesI[0])
+  const semI = Number(partesI[1]) || 1
+  const anoF = Number(partesF[0])
+  const semF = Number(partesF[1]) || 1
 
   if (isNaN(anoI) || isNaN(anoF)) return 0
 

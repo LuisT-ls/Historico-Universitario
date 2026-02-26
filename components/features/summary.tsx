@@ -303,7 +303,9 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
             <GraduationCap className="h-4 w-4 text-primary mb-1" />
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Semestre</p>
-            <p className="text-lg font-bold">{estatisticas.semestralization || '-'}</p>
+            <p className="text-lg font-bold">
+              {estatisticas.semestralization !== undefined ? estatisticas.semestralization : '-'}
+            </p>
           </CardContent>
         </Card>
 
