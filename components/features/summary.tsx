@@ -81,7 +81,9 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
         d.nota !== undefined &&
         !d.dispensada &&
         d.natureza !== 'AC' &&
-        d.resultado !== 'TR'
+        d.resultado !== 'TR' &&
+        !d.emcurso &&
+        d.resultado !== 'DP'
     )
 
     // Disciplinas em curso

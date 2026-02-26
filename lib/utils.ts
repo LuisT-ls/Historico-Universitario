@@ -106,11 +106,19 @@ export function calcularResultado(
  * @param disciplinas - Lista de disciplinas com nota e ch
  * @returns Valor da média calculado
  */
-export function calcularMediaGeral(disciplinas: Array<{ nota: number; ch: number }>): number {
+export function calcularMediaGeral(
+  disciplinas: Array<{ nota: number; ch: number; emcurso?: boolean; resultado?: string }>
+): number {
   if (disciplinas.length === 0) return 0
 
-  const totalPCH = disciplinas.reduce((acc, d) => acc + d.nota * d.ch, 0)
-  const totalCH = disciplinas.reduce((acc, d) => acc + d.ch, 0)
+  const disciplinasValidas = disciplinas.filter(
+    (d) => !d.emcurso && d.resultado !== 'DP' && d.nota !== null && d.nota !== undefined
+  )
+
+  if (disciplinasValidas.length === 0) return 0
+
+  const totalPCH = disciplinasValidas.reduce((acc, d) => acc + d.nota * d.ch, 0)
+  const totalCH = disciplinasValidas.reduce((acc, d) => acc + d.ch, 0)
 
   return totalCH > 0 ? totalPCH / totalCH : 0
 }
@@ -129,6 +137,7 @@ export function calcularCR(
     dispensada?: boolean
     natureza?: string
     trancamento?: boolean
+    emcurso?: boolean
   }>
 ): number {
   const disciplinasValidas = disciplinas.filter(
@@ -137,7 +146,8 @@ export function calcularCR(
       d.natureza !== 'AC' &&
       d.nota !== null &&
       d.nota !== undefined &&
-      !d.trancamento
+      !d.trancamento &&
+      !d.emcurso
   )
 
   if (disciplinasValidas.length === 0) return 0

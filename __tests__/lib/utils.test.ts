@@ -116,6 +116,14 @@ describe('lib/utils', () => {
       // (8*60 + 7*60 + 9*30) / (60+60+30) = (480 + 420 + 270) / 150 = 1170 / 150 = 7.8
       expect(calcularMediaGeral(disciplinas)).toBeCloseTo(7.8, 1)
     })
+
+    it('deve ignorar disciplinas em curso', () => {
+      const disciplinas = [
+        { nota: 8, ch: 60, emcurso: false },
+        { nota: 0, ch: 60, emcurso: true },
+      ]
+      expect(calcularMediaGeral(disciplinas)).toBe(8)
+    })
   })
 
   describe('calcularCR', () => {
@@ -145,6 +153,14 @@ describe('lib/utils', () => {
         { nota: 7, ch: 60 },
       ]
       expect(calcularCR(disciplinas)).toBe(7.5)
+    })
+
+    it('deve ignorar disciplinas em curso', () => {
+      const disciplinas = [
+        { nota: 8, ch: 60, emcurso: false },
+        { nota: 0, ch: 60, emcurso: true },
+      ]
+      expect(calcularCR(disciplinas)).toBe(8)
     })
   })
 
