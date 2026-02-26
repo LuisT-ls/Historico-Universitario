@@ -81,6 +81,9 @@ const mapNatureza = (natureza: string, codigo: string): Natureza => {
 /**
  * Extrai o texto de um PDF usando PDF.js
  */
+/**
+ * Extrai o texto de um PDF usando PDF.js preservando a estrutura de linhas
+ */
 async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<string> {
   try {
     const loadingTask = pdfjs.getDocument({
@@ -94,9 +97,38 @@ async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<string> {
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
-      const pageText = textContent.items
-        .map((item: any) => ('str' in item ? item.str : ''))
-        .join(' ');
+
+      // Agrupar itens por coordenada Y (linha)
+      const items = textContent.items as any[];
+      const lines: { [key: number]: any[] } = {};
+
+      items.forEach((item) => {
+        if (!('str' in item)) return;
+
+        // A coordenada Y está no transform[5]
+        // Arredondamos para agrupar itens na mesma linha (threshold de ~5)
+        const y = Math.round(item.transform[5] / 4) * 4;
+
+        if (!lines[y]) {
+          lines[y] = [];
+        }
+        lines[y].push(item);
+      });
+
+      // Ordenar linhas de cima para baixo (Y decrescente)
+      const sortedY = Object.keys(lines)
+        .map(Number)
+        .sort((a, b) => b - a);
+
+      const pageText = sortedY.map((y) => {
+        // Ordenar itens dentro da linha da esquerda para a direita (X crescente)
+        // A coordenada X está no transform[4]
+        return lines[y]
+          .sort((a, b) => a.transform[4] - b.transform[4])
+          .map((item) => item.str)
+          .join(' ');
+      }).join('\n');
+
       fullText += pageText + '\n';
     }
 
@@ -125,19 +157,23 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
   let matricula = '';
   let curso = '';
 
-  // Regex robusta para capturar o padrão do Histórico Escolar UFBA
-  // Padrão identificado na imagem: (Semestre) (Natureza)? (Código) (Nome + Professores) (CH) (Nota) (Situação)
-  // Alguns casos a Natureza (EB/EP/OP) vem antes do código.
-  const fullRowRegex = /(\d{4}\.\d)\s+([A-Z]{2})?\s*([A-Z0-9]{4,8})\s+(.+?)\s+(\d+)\s+([\d\.-]+)\s+(APR|REP|REPF|REPMF|TRANC|DISP|DISPENSADO|MATR|CANC|INCORP|CUMPRIU|TRANSF|TRANSFERIDO)/g;
+  // Regex robusta para capturar o padrão do Histórico Escolar UFBA em texto estruturado
+  // (Semestre) (Natureza)? (Código) (Nome) (CH) (Nota) (Situação)
+  const fullRowRegex = /(\d{4}\.\d)\s+(EB|EP|OP|AC|OB|LV|OG|OH|OX|OZ)?\s*([A-Z]{2,4}[0-9]{2,4}[A-Z0-9]?)\s+(.+?)\s+(\d+)\s+([\d\.,-]+)\s+(APR|REP|REPF|REPMF|TRANC|DISP|DISPENSADO|MATR|CANC|INCORP|CUMPRIU|TRANSF|TRANSFERIDO)/g;
 
   let match;
-  // Usar o texto completo sem quebras de linha forçadas para evitar que a regex falhe
-  const normalizedText = text.replace(/\n/g, ' ');
+  // Usar o texto completo com quebras de linha para depuração, mas regex global
+  const normalizedText = text.replace(/\n/g, '  '); // Duas casas de espaço para garantir separação
+
+  console.log('--- DEBUG PARSER ---');
+  console.log('Normalized Text Snippet:', normalizedText.substring(0, 1000));
+  console.log('Running regex search...');
 
   const data = disciplinasData as any;
   const bictiDisciplinas = data.cursos.BICTI as any[];
 
   while ((match = fullRowRegex.exec(normalizedText)) !== null) {
+    console.log('Match found:', match[0].substring(0, 60) + '...');
     const periodo = match[1];
     const naturezaCapturada = match[2];
     let codigo = match[3];
