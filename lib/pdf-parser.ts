@@ -227,8 +227,10 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
 
       // 1. Tentar encontrar o código via nome no catálogo, se não tiver código
       let codigoBusca = codigo;
-      if (!codigoBusca) {
-        const itemCatalogo = Object.values(data.catalogo).find((d: any) => d.nome.toUpperCase() === nomeDisciplina.toUpperCase());
+      if (!codigoBusca && nomeDisciplina) {
+        const itemCatalogo = Object.values(data.catalogo).find((d: any) =>
+          d?.nome && d.nome.toUpperCase() === nomeDisciplina.toUpperCase()
+        );
         if (itemCatalogo) codigoBusca = (itemCatalogo as any).codigo;
       }
 
@@ -244,13 +246,13 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
 
     // Tentar encontrar o nome oficial no catálogo usando o código limpo
     const discBicti = bictiDisciplinas.find((d: any) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
-    if (discBicti) {
+    if (discBicti?.nome) {
       nome = discBicti.nome.toUpperCase();
     } else {
       // Se não está no BICTI, procurar em outros cursos
       for (const cursoDisciplinas of Object.values(data.cursos)) {
         const discOutro = (cursoDisciplinas as any[]).find((d: any) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
-        if (discOutro) {
+        if (discOutro?.nome) {
           nome = discOutro.nome.toUpperCase();
           break;
         }
