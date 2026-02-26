@@ -594,35 +594,31 @@ export function calcularEstatisticas(
   horasPorNatureza.AC += acHoursFromCerts
 
   // 3. Redistribute excess hours to LV
-  const naturezasParaLimitar = ['AC', 'OX', 'OG', 'OH', 'OZ', 'OB', 'OP']
+  const naturezasRedistribuemParaLV = ['OX', 'OG', 'OH', 'OZ']
   let totalExcessoLV = 0
 
-  naturezasParaLimitar.forEach((nat) => {
+  naturezasRedistribuemParaLV.forEach((nat) => {
     const natureza = nat as Natureza
-    const requisito = cursoConfig?.requisitos?.[natureza]
+    const requisito = cursoConfig?.requisitos?.[natureza] as number
 
-    if (horasPorNatureza[natureza] && requisito && requisito > 0) {
-      if (horasPorNatureza[natureza] > requisito) {
-        const excesso = horasPorNatureza[natureza] - requisito
-
-        // Apenas naturezas optativas específicas redistribuem excesso para LV
-        const naturezasRedistribuemParaLV = ['OX', 'OG', 'OH', 'OZ']
-        if (naturezasRedistribuemParaLV.includes(natureza)) {
-          totalExcessoLV += excesso
-        }
-
-        horasPorNatureza[natureza] = requisito // Limitar ao requisito
-      }
+    if (horasPorNatureza[natureza] > requisito) {
+      const excesso = horasPorNatureza[natureza] - requisito
+      totalExcessoLV += excesso
+      horasPorNatureza[natureza] = requisito // Limitar a categoria original
     }
   })
 
   // Add excess to LV
   horasPorNatureza.LV += totalExcessoLV
 
-  // Limit LV if needed (though usually LV is the overflow bucket, it might have a cap too)
-  if (cursoConfig?.requisitos?.LV && horasPorNatureza.LV > cursoConfig.requisitos.LV) {
-    horasPorNatureza.LV = cursoConfig.requisitos.LV
-  }
+  // 4. Final Caps based on curriculum requirements
+  Object.keys(horasPorNatureza).forEach((nat) => {
+    const natureza = nat as Natureza
+    const requisito = cursoConfig?.requisitos?.[natureza] as number
+    if (requisito !== undefined && horasPorNatureza[natureza] > requisito) {
+      horasPorNatureza[natureza] = requisito
+    }
+  })
 
   return {
     totalDisciplines,

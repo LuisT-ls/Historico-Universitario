@@ -31,7 +31,7 @@ export const CURSOS: Record<string, ConfigCurso> = {
         chPeriodoMaxima: 540
       }
     },
-    totalHoras: 2400,
+    totalHoras: 2401,
   },
   ENG_PROD: {
     nome: 'Engenharia de Produção',
