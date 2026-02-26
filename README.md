@@ -1,261 +1,145 @@
-# 📚 Histórico Acadêmico
+# 📚 Histórico Acadêmico UFBA v2.0
 
-Sistema web completo para gerenciamento de histórico acadêmico universitário com autenticação Firebase, sincronização em tempo real e armazenamento em nuvem.
+Uma plataforma moderna e intuitiva para estudantes da UFBA gerenciarem sua trajetória acadêmica. O sistema permite o upload do histórico do SIGAA, calcula estatísticas em tempo real e oferece uma visão clara do progresso rumo à formatura.
+
+![Dashboard Preview](imagem-preview.jpg)
+
+## 🚀 Acesse Agora
+[https://historicoacademico.vercel.app](https://historicoacademico.vercel.app)
+
+---
 
 ## ✨ Funcionalidades Principais
 
-### 🔐 Autenticação Avançada
+### 📊 Gestão Acadêmica Inteligente
+- **Importação de PDF:** Basta subir seu histórico do SIGAA e o sistema extrai todas as disciplinas automaticamente.
+- **Cálculo de CR:** Coeficiente de Rendimento calculado em tempo real, seguindo as normas da UFBA.
+- **Semestralização Oficial:** Novo sistema de cálculo de período letivo baseado na fórmula oficial do SIGAA.
+- **Visualização de Progresso:** Gráficos e barras de progresso por natureza de disciplina (OB, OP, AC, etc.).
 
-- **Login múltiplo:** Email/senha e Google OAuth
-- **Sincronização automática:** Dados sincronizados entre dispositivos em tempo real
-- **Perfil personalizado:** Informações acadêmicas e configurações
-- **Segurança:** Proteção CSRF e validação de tokens
+### 🔐 Segurança e Sincronização
+- **Autenticação Firebase:** Login via Google ou Email/Senha.
+- **Sincronização Cloud:** Seus dados são salvos no Firestore e sincronizados entre todos os seus dispositivos.
+- **Privacidade:** Opção de manter seu perfil privado ou público.
 
-### 📊 Gestão Acadêmica Completa
+### 📈 Ferramentas Avançadas
+- **Simulador de Notas:** Planeje quanto precisa tirar para atingir sua meta de CR.
+- **Gestão de Certificados:** Adicione horas complementares e veja o impacto no seu progresso.
+- **Exportação completa:** Exporte seus dados em **PDF estilizado**, **Excel (XLSX)** ou **JSON**.
 
-- **Disciplinas dinâmicas:** Adicionar, editar e remover disciplinas
-- **Cálculo automático:** CR (Coeficiente de Rendimento) em tempo real
-- **Requisitos de formatura:** Acompanhamento visual de progresso
-- **Estatísticas detalhadas:** Total de disciplinas, horas, créditos
-- **Filtros avançados:** Por período, natureza, status
-
-### 🎨 Interface Moderna
-
-- **Tema responsivo:** Claro, escuro e automático
-- **Design adaptativo:** Funciona em desktop, tablet e mobile
-- **Animações suaves:** Transições e feedback visual
-- **Acessibilidade:** Suporte completo a leitores de tela
-
-### 📈 Recursos Avançados
-
-- **Simulação acadêmica:** Planeje sua trajetória acadêmica
-- **Exportação de dados:** PDF, Excel e CSV
-- **Backup automático:** Dados salvos na nuvem
-- **URLs amigáveis:** Navegação limpa sem extensões .html
-
-## 🎯 Cursos Suportados
-
-- **BICTI** - Bacharelado Interdisciplinar em Ciência, Tecnologia e Inovação
-- **ENG PROD** - Engenharia de Produção
-- **ENG ELE** - Engenharia Elétrica
+---
 
 ## 🛠️ Stack Tecnológica
 
-### Frontend
+O projeto foi totalmente migrado para as tecnologias mais modernas do ecossistema Web:
 
-- **HTML5** - Estrutura semântica
-- **CSS3** - Estilos modernos com Grid/Flexbox
-- **JavaScript ES6+** - Lógica dinâmica e modular
-- **Font Awesome** - Ícones profissionais
+- **Framework:** [Next.js 15+ (App Router)](https://nextjs.org/)
+- **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
+- **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
+- **Componentes:** [Shadcn/UI](https://ui.shadcn.com/) & [Framer Motion](https://www.framer.com/motion/)
+- **Banco de Dados & Auth:** [Firebase](https://firebase.google.com/) (Firestore, Auth, Storage)
+- **Gráficos:** [Recharts](https://recharts.org/)
+- **Relatórios:** [jsPDF](https://github.com/parallax/jsPDF) & [SheetJS (XLSX)](https://sheetjs.com/)
 
-### Backend & Infraestrutura
+---
 
-- **Firebase Authentication** - Autenticação segura
-- **Firestore Database** - Banco de dados NoSQL
-- **Firebase Security Rules** - Regras de segurança
-- **Vercel** - Deploy e CDN global
+## 📐 Lógica de Semestralização (UFBA)
 
-### Funcionalidades Especiais
+O sistema implementa rigorosamente a fórmula de período letivo do SIGAA:
 
-- **Service Worker** - Cache offline
-- **PWA** - Instalação como app
-- **Sincronização em tempo real** - Dados sempre atualizados
-- **Proteção CSRF** - Segurança contra ataques
+`Semestralização = (Total de Semestres Cursados) – (Número de Suspensões) + (Perfil Inicial)`
 
-## 📁 Arquitetura do Projeto
+- **Total de Semestres:** Tempo transcorrido desde o ingresso.
+- **Suspensões:** Períodos de trancamento total ou mobilidade.
+- **Perfil Inicial:** Créditos externos (dispensas/transferências) que aceleram a semestralização.
+  - *Nota: Disciplinas cursadas normalmente na UFBA não alteram o perfil inicial, apenas o tempo decorrido.*
 
-```
+---
+
+## 📁 Estrutura do Projeto
+
+```text
 Historico-Universitario/
-├── 📁 assets/
-│   ├── 📁 css/
-│   │   ├── main.css
-│   │   ├── profile.css
-│   │   └── 📁 modules/
-│   │       ├── 📁 auth/
-│   │       ├── 📁 components/
-│   │       ├── 📁 features/
-│   │       ├── 📁 layout/
-│   │       └── 📁 utils/
-│   └── 📁 img/
-├── 📁 js/
-│   ├── app.js
-│   └── 📁 modules/
-│       ├── 📁 firebase/
-│       │   ├── auth.js
-│       │   ├── data.js
-│       │   └── sync-manager.js
-│       ├── 📁 ui/
-│       ├── 📁 security/
-│       └── utils.js
-├── 📁 docs/
-├── 📁 legal/
-├── index.html
-├── login.html
-├── profile.html
-├── vercel.json
-└── firestore.rules
+├── 📁 app/               # Rotas e Páginas (Next.js App Router)
+├── 📁 components/        # Componentes UI e lógicas de interface
+│   ├── 📁 features/      # Funcionalidades específicas (Dashboard, Summary)
+│   ├── 📁 layout/        # Cabeçalho, Rodapé, Sidebar
+│   └── 📁 ui/            # Componentes base (Shadcn)
+├── 📁 lib/               # Utilitários, Config Firebase, Lógicas de cálculo
+├── 📁 public/            # Assets estáticos e imagens
+├── 📁 types/             # Definições de tipos TypeScript
+├── 📁 __tests__/         # Testes Unitários e Integração (Jest)
+└── 📁 e2e/               # Testes de Ponta a Ponta (Playwright)
 ```
 
-## 🚀 Configuração Rápida
+---
 
-### 1. Clone o Repositório
+## 💻 Desenvolvimento Local
 
+### Pré-requisitos
+- Node.js 22.x ou superior
+- NPM ou Yarn
+
+### Instalação
+
+1. Clone o repositório:
 ```bash
 git clone https://github.com/LuisT-ls/Historico-Universitario.git
 cd Historico-Universitario
 ```
 
-### 2. Configure o Firebase
-
-1. **Crie um projeto no [Firebase Console](https://console.firebase.google.com)**
-2. **Ative Authentication:**
-   - Email/Password
-   - Google Sign-in
-3. **Crie um banco Firestore**
-4. **Configure as regras de segurança** (use o arquivo `firestore.rules`)
-
-### 3. Configure as Credenciais
-
-Edite `js/modules/firebase/config.js`:
-
-```javascript
-const firebaseConfig = {
-  apiKey: 'sua-api-key',
-  authDomain: 'seu-projeto.firebaseapp.com',
-  projectId: 'seu-projeto-id',
-  storageBucket: 'seu-projeto.appspot.com',
-  messagingSenderId: '123456789',
-  appId: 'seu-app-id'
-}
-```
-
-### 4. Deploy
-
-#### Vercel (Recomendado)
-
+2. Instale as dependências:
 ```bash
-npm install -g vercel
-vercel
+npm install
 ```
 
-#### GitHub Pages
-
-1. Push para o repositório
-2. Ative GitHub Pages nas configurações
-3. Configure domínio customizado (opcional)
-
-## 🔧 Funcionalidades Técnicas
-
-### Sincronização em Tempo Real
-
-- **Dados sempre atualizados** entre dispositivos
-- **Sincronização automática** a cada 30 segundos
-- **Detecção de mudanças** inteligente
-- **Backup automático** na nuvem
-
-### Segurança Avançada
-
-- **Proteção CSRF** em todas as operações
-- **Validação de tokens** em tempo real
-- **Regras Firestore** restritivas
-- **Sanitização de dados** completa
-
-### Performance Otimizada
-
-- **Lazy loading** de componentes
-- **Cache inteligente** de dados
-- **Compressão de assets**
-- **CDN global** via Vercel
-
-## 📖 Documentação
-
-### Guias Detalhados
-
-- **Configuração Firebase:** `docs/documentation/`
-- **Regras de Segurança:** `firestore.rules`
-- **Testes:** `docs/test-pages/`
-
-### Páginas de Teste
-
-- `docs/test-pages/test-profile.html` - Teste do perfil
-- `docs/test-pages/test-firestore.html` - Teste das regras
-- `docs/test-pages/test-login.html` - Teste de autenticação
-
-## 🐛 Solução de Problemas
-
-### Erro de Permissões Firestore
-
-```
-FirebaseError: Missing or insufficient permissions.
+3. Configure as variáveis de ambiente (.env.local):
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+# ... (restante das credenciais do Firebase)
 ```
 
-**Solução:** Configure as regras conforme `firestore.rules`
-
-### Sincronização Não Funciona
-
-**Verifique:**
-
-1. Conexão com internet
-2. Configuração do Firebase
-3. Console do navegador para erros
-
-### Tema Não Persiste
-
-**Solução:** Verifique localStorage e cookies do navegador
-
-## 🤝 Como Contribuir
-
-1. **Fork** o projeto
-2. **Crie uma branch** para sua feature:
-   ```bash
-   git checkout -b feature/NovaFuncionalidade
-   ```
-3. **Commit** suas mudanças:
-   ```bash
-   git commit -m 'Adiciona nova funcionalidade'
-   ```
-4. **Push** para a branch:
-   ```bash
-   git push origin feature/NovaFuncionalidade
-   ```
-5. **Abra um Pull Request**
-
-### Padrões de Código
-
-- Use **ES6+** para JavaScript
-- Siga **BEM** para CSS
-- Mantenha **semântica HTML**
-- Documente funções complexas
-
-## 📄 Licença
-
-Este projeto está sob a licença **MIT**. Veja o arquivo `LICENSE` para detalhes.
-
-## 👨‍💻 Desenvolvedor
-
-**Luís Antonio Souza Teixeira**
-
-- 🌐 **GitHub:** [@LuisT-ls](https://github.com/LuisT-ls)
-- 💼 **LinkedIn:** [luis-tei](https://linkedin.com/in/luis-tei)
-- 📸 **Instagram:** [@luis.tei](https://instagram.com/luis.tei)
-
-## 🙏 Agradecimentos
-
-- **Firebase** pela infraestrutura robusta
-- **Font Awesome** pelos ícones profissionais
-- **Vercel** pela plataforma de deploy
-- **Comunidade open source** pelo suporte
-
-## 📊 Estatísticas do Projeto
-
-- ✅ **100% Funcional** - Todas as features implementadas
-- 🔒 **Seguro** - Proteção CSRF e validação completa
-- 📱 **Responsivo** - Funciona em todos os dispositivos
-- ⚡ **Rápido** - Otimizado para performance
-- 🌐 **Acessível** - Suporte completo a acessibilidade
+4. Inicie o servidor de desenvolvimento:
+```bash
+npm run dev
+```
 
 ---
 
-⭐ **Se este projeto te ajudou, considere dar uma estrela no GitHub!**
+## 🧪 Testes
 
-**Acesse:** [https://historicoacademico.vercel.app](https://historicoacademico.vercel.app)
+O projeto conta com uma cobertura robusta de testes:
+
+- **Unitários/Integração:** `npm run test` (Jest + React Testing Library)
+- **E2E:** `npm run test:e2e` (Playwright)
+- **Lint:** `npm run lint`
+
+---
+
+## 🤝 Contribuição
+
+Contribuições são muito bem-vindas!
+1. Faça um Fork do projeto.
+2. Crie uma branch para sua feature (`git checkout -b feature/minha-feature`).
+3. Faça o commit (`git commit -m 'feat: Adiciona nova funcionalidade'`).
+4. Envie para o repositório (`git push origin feature/minha-feature`).
+5. Abra um Pull Request.
+
+---
+
+## 📄 Licença
+
+Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+---
+
+## 👨‍💻 Desenvolvedor
+**Luís Antonio Souza Teixeira**  
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/LuisT-ls)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/luis-tei)
+[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/luis.tei)
+
+---
+⭐ **Gostou do projeto? Deixe uma estrela no GitHub!**
