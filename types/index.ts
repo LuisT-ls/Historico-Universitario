@@ -62,6 +62,7 @@ export interface ConfigCurso {
       medio: number
       maximo: number
     }
+    matriz?: Record<number, string[]> // Map of semester (1, 2...) to array of mandatory subject codes
     limites?: {
       chObrigatoriaAula?: number
       chOptativaMinima?: number
@@ -102,6 +103,8 @@ export interface Profile {
     notifications?: boolean
     privacy?: 'private' | 'public'
   }
+  suspensions?: number
+  currentSemester?: string
   createdAt?: Date
   updatedAt?: Date
 }
@@ -112,6 +115,7 @@ export interface UserStatistics {
   inProgressDisciplines: number
   averageGrade: number
   horasPorNatureza?: Record<Natureza, number>
+  semestralization?: number
 }
 
 export type TipoCertificado =

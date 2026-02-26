@@ -52,21 +52,10 @@ function getFirebaseConfig() {
   }
 }
 
-const firebaseConfig = getFirebaseConfig()
-
-// Função lazy para carregar Storage apenas quando necessário
-async function getStorageLazy() {
-  if (storage) return storage
-  if (!app) return undefined
-
-  const { getStorage } = await import('firebase/storage')
-  storage = getStorage(app)
-  return storage
-}
-
 if (typeof window !== 'undefined') {
   // Client-side initialization
   if (!getApps().length) {
+    const firebaseConfig = getFirebaseConfig()
     app = initializeApp(firebaseConfig)
     auth = getAuth(app)
     db = getFirestore(app)
@@ -119,6 +108,16 @@ if (typeof window !== 'undefined') {
     db = getFirestore(app)
     googleProvider = new GoogleAuthProvider()
   }
+}
+
+// Função lazy para carregar Storage apenas quando necessário
+async function getStorageLazy() {
+  if (storage) return storage
+  if (!app) return undefined
+
+  const { getStorage } = await import('firebase/storage')
+  storage = getStorage(app)
+  return storage
 }
 
 export { app, auth, db, storage, analytics, googleProvider, getStorageLazy }

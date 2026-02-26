@@ -12,6 +12,7 @@ import {
   getStatusCR,
   calcularTendenciaNotas,
   calcularPrevisaoFormaturaCompleta,
+  calcularSemestralizacao,
   cn,
 } from '@/lib/utils'
 import {
@@ -29,7 +30,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
-import type { Disciplina, Curso, Natureza, Certificado } from '@/types'
+import type { Disciplina, Curso, Natureza, Certificado, Profile } from '@/types'
 
 // Importação dinâmica dos gráficos para reduzir o bundle inicial
 const PieChartSummary = dynamic(() => import('./charts/pie-chart-summary'), {
@@ -54,9 +55,10 @@ interface SummaryProps {
   disciplinas: Disciplina[]
   certificados?: Certificado[]
   cursoAtual: Curso
+  profile?: Profile
 }
 
-export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryProps) {
+export function Summary({ disciplinas, certificados = [], cursoAtual, profile }: SummaryProps) {
   const cursoConfig = CURSOS[cursoAtual]
 
   const estatisticas = useMemo(() => {
@@ -253,6 +255,8 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
       '#84cc16', // lime
     ]
 
+    const semestralization = profile ? calcularSemestralizacao(profile, disciplinas, profile.currentSemester || '2025.2') : undefined
+
     return {
       totalDisciplinasCadastradas,
       totalDisciplinas,
@@ -277,20 +281,29 @@ export function Summary({ disciplinas, certificados = [], cursoAtual }: SummaryP
       dadosGraficoPizza,
       dadosGraficoBarras,
       coresGrafico,
+      semestralization,
     }
-  }, [disciplinas, certificados, cursoConfig.totalHoras, cursoAtual])
+  }, [disciplinas, certificados, cursoConfig.totalHoras, cursoAtual, profile])
 
   const requisitos = cursoConfig.requisitos
 
   return (
     <div className="space-y-6">
       {/* Métricas Gerais - Cards Horizontais Compactos */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-3">
         <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
             <Book className="h-4 w-4 text-primary mb-1" />
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Disciplinas</p>
             <p className="text-lg font-bold">{estatisticas.totalDisciplinasCadastradas}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
+          <CardContent className="p-3 flex flex-col items-center justify-center text-center">
+            <GraduationCap className="h-4 w-4 text-primary mb-1" />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Semestre</p>
+            <p className="text-lg font-bold">{estatisticas.semestralization || '-'}</p>
           </CardContent>
         </Card>
 

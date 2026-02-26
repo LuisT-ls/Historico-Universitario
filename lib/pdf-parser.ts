@@ -43,7 +43,7 @@ const mapSituacao = (situacao: string): {
   if (s === 'TRANC' || s === 'TRANCADO') {
     return { resultado: 'TR', trancamento: true, dispensada: false, emcurso: false };
   }
-  if (s === 'DISP' || s === 'DISPENSADO') {
+  if (s === 'DISP' || s === 'DISPENSADO' || s === 'CUMPRIU' || s === 'TRANSF' || s === 'TRANSFERIDO') {
     return { resultado: 'DP', trancamento: false, dispensada: true, emcurso: false };
   }
   if (s === 'MATR' || s === 'MATRICULADO') {
@@ -133,7 +133,7 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
   // O texto extraído do SIGAA UFBA vem em uma linha contínua ou com quebras aleatórias:
   // "2021.1 INTRODUÇÃO À COMPUTAÇÃO Dr. VITOR... APR CTIA01A 68 6.9 EB"
   // Padrão: (Semestre) (Nome + Lixo) (Situação) (Código) (CH) (Nota) (Natureza opcional)
-  const fullRowRegex = /(\d{4}\.\d)\s+(.+?)\s+(APR|REP|REPF|REPMF|TRANC|DISP|MATR|CANC|INCORP)\s+([A-Z0-9]{4,8})\s+(\d+)\s+([\d\.-]+)(\s+([A-Z]{2}))?/g;
+  const fullRowRegex = /(\d{4}\.\d)\s+(.+?)\s+(APR|REP|REPF|REPMF|TRANC|DISP|DISPENSADO|MATR|CANC|INCORP|CUMPRIU|TRANSF|TRANSFERIDO)\s+([A-Z0-9]{4,8})\s+(\d+)\s+([\d\.-]+)(\s+([A-Z]{2}))?/g;
 
   let match;
   // Usar o texto completo sem quebras de linha forçadas para evitar que a regex falhe

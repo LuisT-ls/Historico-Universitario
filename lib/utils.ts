@@ -1,7 +1,8 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { CURSOS } from '@/lib/constants'
-import type { Disciplina, UserStatistics, Natureza, Certificado, Curso } from '@/types'
+import MATRIZES from '@/assets/data/matrizes.json'
+import type { Disciplina, UserStatistics, Natureza, Certificado, Curso, Profile } from '@/types'
 import { logger } from '@/lib/logger'
 
 /**
@@ -516,7 +517,9 @@ export function sanitizeLongText(input: string): string {
 export function calcularEstatisticas(
   disciplinas: Disciplina[],
   certificados: Certificado[] = [],
-  curso: Curso = 'BICTI'
+  curso: Curso = 'BICTI',
+  profile?: Profile,
+  periodoAtual?: string
 ): UserStatistics {
   // Configuração do curso para limites e redistribuição
   const cursoConfig = CURSOS[curso]
@@ -626,7 +629,8 @@ export function calcularEstatisticas(
     completedDisciplines,
     inProgressDisciplines,
     averageGrade: Math.round(averageGrade * 100) / 100,
-    horasPorNatureza
+    horasPorNatureza,
+    semestralization: profile && periodoAtual ? calcularSemestralizacao(profile, disciplinas, periodoAtual) : undefined
   }
 }
 
@@ -658,5 +662,95 @@ export function clearUserData(): void {
   } catch (error) {
     logger.error('Erro ao limpar dados do usuário:', error)
   }
+}
+
+/**
+ * Calcula a semestralização do aluno baseada no Perfil Inicial,
+ * semestres cursados e suspensões.
+ * 
+ * @param profile - Objeto de perfil do usuário
+ * @param disciplinas - Lista de disciplinas cursadas
+ * @param periodoAtual - Período letivo atual (Ex: "2025.2")
+ * @returns O semestre letivo atual do aluno
+ */
+export function calcularSemestralizacao(
+  profile: Profile,
+  disciplinas: Disciplina[],
+  periodoAtual: string
+): number {
+  if (!profile.startYear || !profile.startSemester || !periodoAtual) return 0
+
+  const totalSemestres = calcularTotalSemestresCursados(
+    `${profile.startYear}.${profile.startSemester}`,
+    periodoAtual
+  )
+
+  const suspensões = profile.suspensions || 0
+  const perfilInicial = calcularPerfilInicial(disciplinas, profile.curso || 'BICTI')
+
+  return totalSemestres - suspensões + perfilInicial
+}
+
+/**
+ * Calcula o Perfil Inicial baseado nos aproveitamentos de disciplinas obrigatórias.
+ * Um nível é conquistado para cada semestre da matriz onde o aluno
+ * aproveitou >= 75% da carga horária.
+ */
+export function calcularPerfilInicial(
+  disciplinas: Disciplina[],
+  curso: Curso
+): number {
+  const matriz = (MATRIZES as any)[curso]
+  if (!matriz) return 0
+
+  let perfil = 0
+  const semestres = Object.keys(matriz).map(Number).sort((a, b) => a - b)
+
+  for (const sem of semestres) {
+    const codigosObrigatorios = matriz[sem]
+    if (!codigosObrigatorios || codigosObrigatorios.length === 0) continue
+
+    let chTotalSemestre = 0
+    let chAproveitada = 0
+
+    codigosObrigatorios.forEach((codigo: string) => {
+      // Tentar encontrar no catálogo geral para saber a CH padrão
+      const chPadrao = (disciplinas as any).catalogo?.[codigo]?.ch || 60 // Padrão 60 se não achar
+      chTotalSemestre += chPadrao
+
+      // Verificar se o aluno cumpriu essa disciplina via dispensa ou nota
+      const disc = disciplinas.find(d => d.codigo === codigo || d.codigo.startsWith(codigo))
+      if (disc) {
+        // CUMPRIU ou TRANSFERIDO costumam vir como dispensada
+        if (disc.dispensada || (disc.nota && disc.nota >= 5) || disc.resultado === 'AP') {
+          chAproveitada += disc.ch || chPadrao
+        }
+      }
+    })
+
+    if (chTotalSemestre > 0 && (chAproveitada / chTotalSemestre) >= 0.75) {
+      perfil++
+    } else {
+      // Para o cálculo quando não atinge 75% em um semestre consecutivo
+      break
+    }
+  }
+
+  return perfil
+}
+
+/**
+ * Calcula o número total de semestres transcorridos desde o ingresso até o atual.
+ */
+export function calcularTotalSemestresCursados(
+  inicio: string, // Ex: "2023.2"
+  fim: string     // Ex: "2025.2"
+): number {
+  const [anoI, semI] = inicio.split('.').map(Number)
+  const [anoF, semF] = fim.split('.').map(Number)
+
+  if (isNaN(anoI) || isNaN(anoF)) return 0
+
+  return (anoF - anoI) * 2 + (semF - semI) + 1
 }
 

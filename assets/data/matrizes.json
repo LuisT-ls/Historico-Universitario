@@ -1,0 +1,73 @@
+{
+    "BICTI": {
+        "1": [
+            "CTIA01",
+            "CTIA02",
+            "CTIA03",
+            "CTIA04",
+            "CTIA05"
+        ],
+        "2": [
+            "CTIA67",
+            "CTIA07",
+            "CTIA08",
+            "CTIA09",
+            "CTIA10"
+        ],
+        "3": [
+            "CTIA11",
+            "CTIA60"
+        ]
+    },
+    "ENG_PROD": {
+        "1": [
+            "CTIA01",
+            "CTIA02",
+            "CTIA03",
+            "CTIA04",
+            "CTIA05"
+        ],
+        "2": [
+            "CTIA67",
+            "CTIA07",
+            "CTIA08",
+            "CTIA09",
+            "CTIA10"
+        ],
+        "3": [
+            "CTIA31",
+            "CTIA49",
+            "CTIA11",
+            "CTIA45"
+        ],
+        "4": [
+            "CTIA66",
+            "CTIA28",
+            "CTIA33",
+            "CTIA46"
+        ]
+    },
+    "ENG_ELET": {
+        "1": [
+            "CTIA01",
+            "CTIA02",
+            "CTIA03",
+            "CTIA04",
+            "CTIA05"
+        ],
+        "2": [
+            "CTIA67",
+            "CTIA07",
+            "CTIA08",
+            "CTIA10",
+            "CTIA31"
+        ],
+        "3": [
+            "CTIA49",
+            "CTIA11",
+            "CTIA45",
+            "CTIA66",
+            "CTIA80"
+        ]
+    }
+}

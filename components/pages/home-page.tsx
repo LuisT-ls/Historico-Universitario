@@ -6,11 +6,11 @@ import { useAuth } from '@/components/auth-provider'
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
-import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
+import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { calcularResultado, normalizeText } from '@/lib/utils'
 import { handleError } from '@/lib/error-handler'
-import type { Curso, Disciplina, Certificado } from '@/types'
+import type { Curso, Disciplina, Certificado, Profile } from '@/types'
 import { toast } from '@/lib/toast'
 import { logger } from '@/lib/logger'
 import { createDisciplinaId } from '@/lib/constants'
@@ -44,6 +44,7 @@ export function HomePage() {
   const [cursoAtual, setCursoAtual] = useState<Curso>('BICTI')
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
   const [certificados, setCertificados] = useState<Certificado[]>([])
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const formRef = useRef<DisciplineFormRef>(null)
 
@@ -109,6 +110,21 @@ export function HomePage() {
 
       setDisciplinas(disciplinasDoCurso)
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasDoCurso))
+
+      // Load Profile
+      const userRef = doc(db, 'users', user.uid)
+      const userSnap = await getDoc(userRef)
+      if (userSnap.exists()) {
+        const data = userSnap.data()
+        setProfile({
+          uid: user.uid as any,
+          curso: data.profile?.course || 'BICTI',
+          startYear: data.profile?.startYear || 2023,
+          startSemester: data.profile?.startSemester || '1',
+          suspensions: data.profile?.suspensions || 0,
+          currentSemester: data.profile?.currentSemester || '2025.2'
+        } as Profile)
+      }
     } catch (error: unknown) {
       logger.error('Erro ao carregar disciplinas:', error)
     } finally {
@@ -321,7 +337,7 @@ export function HomePage() {
         <DisciplineSearch cursoAtual={cursoAtual} onSelect={(d) => formRef.current?.fillForm(d)} />
       </div>
 
-      <Summary disciplinas={disciplinas} certificados={certificados} cursoAtual={cursoAtual} />
+      <Summary disciplinas={disciplinas} certificados={certificados} cursoAtual={cursoAtual} profile={profile || undefined} />
 
       <AcademicHistory disciplinas={disciplinas} cursoAtual={cursoAtual} onRemove={handleRemoveDisciplina} onEdit={(d, i) => formRef.current?.editDiscipline(d, i)} />
 

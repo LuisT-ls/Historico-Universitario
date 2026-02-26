@@ -152,6 +152,8 @@ export function ProfilePage() {
           institution: data.profile?.institution || '',
           startYear: data.profile?.startYear || new Date().getFullYear(),
           startSemester: data.profile?.startSemester || '1',
+          suspensions: data.profile?.suspensions || 0,
+          currentSemester: data.profile?.currentSemester || '2025.2',
           settings: { notifications: data.settings?.notifications !== false, privacy: data.settings?.privacy || 'private' },
         }
         setProfile(profileData)
@@ -166,6 +168,8 @@ export function ProfilePage() {
           institution: '',
           startYear: new Date().getFullYear(),
           startSemester: '1',
+          suspensions: 0,
+          currentSemester: '2025.2',
           settings: { notifications: true, privacy: 'private' },
         }
         setProfile(defaultData)
@@ -181,7 +185,9 @@ export function ProfilePage() {
       const snap = await getDocs(q)
       const discs: Disciplina[] = []
       snap.forEach(doc => discs.push({ id: doc.id, ...doc.data() } as any))
-      setStatistics(calcularEstatisticas(discs))
+      // Get the most recent period if currentSemester is not set
+      const periodoLetivo = profile?.currentSemester || '2025.1'
+      setStatistics(calcularEstatisticas(discs, [], profile?.curso || 'BICTI', profile || undefined, periodoLetivo))
     } catch (error) { logger.error('Erro ao carregar estatísticas:', error) }
   }
 
@@ -191,7 +197,15 @@ export function ProfilePage() {
     try {
       await setDoc(doc(db, 'users', user.uid), {
         name: sanitizeInput(profile.nome || ''),
-        profile: { course: profile.curso, enrollment: profile.matricula, institution: profile.institution, startYear: profile.startYear, startSemester: profile.startSemester },
+        profile: {
+          course: profile.curso,
+          enrollment: profile.matricula,
+          institution: profile.institution,
+          startYear: profile.startYear,
+          startSemester: profile.startSemester,
+          suspensions: profile.suspensions,
+          currentSemester: profile.currentSemester
+        },
         updatedAt: new Date(),
       }, { merge: true })
       setSaveSuccess(true)
@@ -285,8 +299,8 @@ export function ProfilePage() {
             {[
               { label: 'Disciplinas', value: statistics.totalDisciplines, icon: Book, color: 'text-blue-500', bg: 'bg-blue-500/10', trend: 'Total Cadastrado' },
               { label: 'Concluídas', value: statistics.completedDisciplines, icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-500/10', trend: `${Math.round((statistics.completedDisciplines / (statistics.totalDisciplines || 1)) * 100)}% Conclusão` },
-              { label: 'Em Andamento', value: statistics.inProgressDisciplines, icon: Clock, color: 'text-sky-500', bg: 'bg-sky-500/10', trend: 'Semestre Atual' },
-              { label: 'Média Geral', value: statistics.averageGrade.toFixed(1), icon: Star, color: 'text-amber-500', bg: 'bg-amber-500/10', trend: 'Coeficiente Rendimento' },
+              { label: 'Em Andamento', value: statistics.inProgressDisciplines, icon: Clock, color: 'text-sky-500', bg: 'bg-sky-500/10', trend: 'Total no Semestre' },
+              { label: 'Semestralização', value: statistics.semestralization || '-', icon: Star, color: 'text-amber-500', bg: 'bg-amber-500/10', trend: 'Período Letivo SIGAA' },
             ].map((stat, i) => (
               <Card key={i} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 backdrop-blur-md p-6 transition-all hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-700">
                 <div className="flex items-start justify-between">
@@ -377,6 +391,24 @@ export function ProfilePage() {
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Ano Ingresso</Label>
                       <Input value={profile?.startYear || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, startYear: e.target.value }) : null)} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full" />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Semestre Ingresso</Label>
+                      <select value={profile?.startSemester || '1'} onChange={e => setProfile(prev => prev ? ({ ...prev, startSemester: e.target.value as '1' | '2' }) : null)} className="w-full h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        <option value="1">1º Semestre</option>
+                        <option value="2">2º Semestre</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Suspensões (Trancamentos)</Label>
+                      <Input type="number" value={profile?.suspensions || 0} onChange={e => setProfile(prev => prev ? ({ ...prev, suspensions: parseInt(e.target.value, 10) }) : null)} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full" />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Período Atual SIGAA</Label>
+                      <Input placeholder="Ex: 2025.2" value={profile?.currentSemester || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, currentSemester: e.target.value }) : null)} className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full" />
                     </div>
 
                     <div className="space-y-1.5 col-span-1 md:col-span-2">
