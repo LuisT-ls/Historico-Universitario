@@ -133,7 +133,8 @@ export function ProfilePage() {
 
   // ... (Auth/Profile loading logic remains same)
   useEffect(() => { if (!authLoading && !user) router.push('/login') }, [user, authLoading, router])
-  useEffect(() => { if (!user) return; loadProfile(); loadStatistics() }, [user])
+  useEffect(() => { if (!user) return; loadProfile() }, [user])
+  useEffect(() => { if (!user || !profile) return; loadStatistics() }, [user, profile])
 
   const loadProfile = async () => {
     if (!user || !db) return
@@ -181,16 +182,24 @@ export function ProfilePage() {
     } catch (error) { logger.error('Erro ao carregar perfil:', error) } finally { setIsLoading(false) }
   }
 
-  const loadStatistics = async () => {
+  const loadStatistics = async (overrideProfile?: Profile) => {
     if (!user || !db) return
     try {
       const q = query(collection(db, 'disciplines'), where('userId', '==', user.uid))
       const snap = await getDocs(q)
       const discs: Disciplina[] = []
       snap.forEach(doc => discs.push({ id: doc.id, ...doc.data() } as any))
-      // Get the most recent period if currentSemester is not set
-      const periodoLetivo = profile?.currentSemester || '2025.1'
-      setStatistics(calcularEstatisticas(discs, [], profile?.curso || 'BICTI', profile || undefined, periodoLetivo))
+
+      const p = overrideProfile || profile
+      const periodoLetivo = p?.currentSemester || '2025.2'
+
+      setStatistics(calcularEstatisticas(
+        discs,
+        [],
+        p?.curso || 'BICTI',
+        p || undefined,
+        periodoLetivo
+      ))
     } catch (error) { logger.error('Erro ao carregar estatísticas:', error) }
   }
 
@@ -303,7 +312,7 @@ export function ProfilePage() {
               { label: 'Disciplinas', value: statistics.totalDisciplines, icon: Book, color: 'text-blue-500', bg: 'bg-blue-500/10', trend: 'Total Cadastrado' },
               { label: 'Concluídas', value: statistics.completedDisciplines, icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-500/10', trend: `${Math.round((statistics.completedDisciplines / (statistics.totalDisciplines || 1)) * 100)}% Conclusão` },
               { label: 'Em Andamento', value: statistics.inProgressDisciplines, icon: Clock, color: 'text-sky-500', bg: 'bg-sky-500/10', trend: 'Total no Semestre' },
-              { label: 'Semestralização', value: statistics.semestralization || '-', icon: Star, color: 'text-amber-500', bg: 'bg-amber-500/10', trend: 'Período Letivo SIGAA' },
+              { label: 'Semestralização', value: statistics.semestralization !== undefined ? statistics.semestralization : '-', icon: Star, color: 'text-amber-500', bg: 'bg-amber-500/10', trend: 'Período Letivo SIGAA' },
             ].map((stat, i) => (
               <Card key={i} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 backdrop-blur-md p-6 transition-all hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-700">
                 <div className="flex items-start justify-between">
