@@ -6,7 +6,7 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(userId)).data.settings.privacy == 'public';
     }
 
-    // Helper para validar campos de string
+    // Helper para marcar campos obrigatorios e tipos
     function isValidString(val, min, max) {
       return val is string && val.size() >= min && val.size() <= max;
     }
@@ -15,7 +15,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if (request.auth != null && request.auth.uid == userId) || 
                      (resource.data.settings.privacy == 'public');
-      allow write: if request.auth != null && request.auth.uid == userId
+      allow write: if request.auth != null && request.auth.uid == userId 
                     && isValidString(request.resource.data.name, 1, 100);
     }
     
@@ -25,8 +25,7 @@ service cloud.firestore {
                      isPublic(resource.data.userId);
       allow write: if request.auth != null && request.auth.uid == resource.data.userId
                     && isValidString(request.resource.data.nome, 1, 200)
-                    && request.resource.data.ch is number
-                    && request.resource.data.ch >= 0;
+                    && request.resource.data.ch is number;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId
                     && isValidString(request.resource.data.nome, 1, 200);
     }
@@ -41,14 +40,27 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId
                     && isValidString(request.resource.data.titulo, 1, 300);
     }
-    
-    // Regras simplificadas para outras coleções do usuário (sempre privadas)
-    match /summaries/{id} { allow read, write: if request.auth != null && request.auth.uid == (resource == null ? request.resource.data.userId : resource.data.userId); }
-    match /backups/{id} { allow read, write: if request.auth != null && request.auth.uid == (resource == null ? request.resource.data.userId : resource.data.userId); }
-    match /academicHistory/{uid} { allow read, write: if request.auth != null && request.auth.uid == uid; }
-    match /graduationRequirements/{uid} { allow read, write: if request.auth != null && request.auth.uid == uid; }
 
-    // Negar acesso a todas as outras coleções por padrão
+    // Coleções Privadas (Sempre protegidas)
+    match /summaries/{id} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+    
+    match /backups/{id} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+    
+    match /academicHistory/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    
+    match /graduationRequirements/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    
+    // Bloqueio Global
     match /{document=**} {
       allow read, write: if false;
     }
