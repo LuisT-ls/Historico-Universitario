@@ -6,59 +6,49 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(userId)).data.settings.privacy == 'public';
     }
 
+    // Helper para validar campos de string
+    function isValidString(val, min, max) {
+      return val is string && val.size() >= min && val.size() <= max;
+    }
+
     // Regras para a coleção 'users'
     match /users/{userId} {
-      // Permitir leitura se publico ou dono, escrita apenas se dono
       allow read: if (request.auth != null && request.auth.uid == userId) || 
                      (resource.data.settings.privacy == 'public');
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId
+                    && isValidString(request.resource.data.name, 1, 100);
     }
     
-    // Regras para a coleção 'disciplines' (disciplinas do usuário)
+    // Regras para a coleção 'disciplines'
     match /disciplines/{disciplineId} {
-      // Permitir leitura se publico ou dono, escrita apenas se dono
       allow read: if (request.auth != null && request.auth.uid == resource.data.userId) || 
                      isPublic(resource.data.userId);
-      allow write: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId
+                    && isValidString(request.resource.data.nome, 1, 200)
+                    && request.resource.data.ch is number
+                    && request.resource.data.ch >= 0;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId
+                    && isValidString(request.resource.data.nome, 1, 200);
     }
     
-    // Regras para a coleção 'summaries' (resumos do usuário)
-    match /summaries/{summaryId} {
-      // Permitir leitura e escrita apenas se o usuário estiver autenticado e for o proprietário dos dados
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
-    
-    // Regras para a coleção 'backups' (backups do usuário)
-    match /backups/{backupId} {
-      // Permitir leitura e escrita apenas se o usuário estiver autenticado e for o proprietário dos dados
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
-    
-    // Regras para a coleção 'certificados' (certificados do usuário)
+    // Regras para a coleção 'certificados'
     match /certificados/{certificadoId} {
-      // Permitir leitura se publico ou dono, escrita apenas se dono
       allow read: if (request.auth != null && request.auth.uid == resource.data.userId) || 
                      isPublic(resource.data.userId);
-      allow write: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId
+                    && isValidString(request.resource.data.titulo, 1, 300)
+                    && request.resource.data.cargaHoraria is number;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId
+                    && isValidString(request.resource.data.titulo, 1, 300);
     }
     
-    // Regras para a coleção 'academicHistory' (histórico acadêmico do usuário)
-    match /academicHistory/{userId} {
-      // Permitir leitura e escrita apenas se o usuário estiver autenticado e for o proprietário dos dados
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Regras para a coleção 'graduationRequirements' (requisitos de formatura do usuário)
-    match /graduationRequirements/{userId} {
-      // Permitir leitura e escrita apenas se o usuário estiver autenticado e for o proprietário dos dados
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Negar acesso a todas as outras coleções
+    // Regras simplificadas para outras coleções do usuário (sempre privadas)
+    match /summaries/{id} { allow read, write: if request.auth != null && request.auth.uid == (resource == null ? request.resource.data.userId : resource.data.userId); }
+    match /backups/{id} { allow read, write: if request.auth != null && request.auth.uid == (resource == null ? request.resource.data.userId : resource.data.userId); }
+    match /academicHistory/{uid} { allow read, write: if request.auth != null && request.auth.uid == uid; }
+    match /graduationRequirements/{uid} { allow read, write: if request.auth != null && request.auth.uid == uid; }
+
+    // Negar acesso a todas as outras coleções por padrão
     match /{document=**} {
       allow read, write: if false;
     }

@@ -26,7 +26,7 @@
     "date-fns": "^3.6.0",
     "firebase": "^11.0.0",
     "framer-motion": "^12.23.26",
-    "jspdf": "^3.0.4",
+    "jspdf": "^4.2.0",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.454.0",
     "next": "^16.0.0",

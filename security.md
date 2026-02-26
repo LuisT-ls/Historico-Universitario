@@ -15,14 +15,14 @@ A plataforma utiliza o **Firebase Authentication** para gerenciar o acesso de fo
 ## 🗄️ 2. Segurança de Banco de Dados (Cloud Firestore)
 
 A integridade dos dados é garantida por meio de **Firestore Security Rules**, que operam no lado do servidor (Server-Side):
-- **Isolamento de Dados:** Cada usuário só pode escrever e editar seus próprios registros de disciplinas, certificados e perfil.
-- **Controle de Privacidade:** Através da função `isPublic(userId)`, a leitura de dados por terceiros é bloqueada, a menos que o proprietário tenha explicitamente marcado seu perfil como "Público" nas configurações.
-- **Validação de Esquema:** Regras que impedem a criação de documentos com estruturas inválidas ou IDs que não pertencem ao usuário autenticado.
+- **Isolamento de Dados:** Cada usuário só pode escrever e editar seus próprios registros.
+- **Validação de Tipos e Tamanho:** Implementamos funções de validação (`isValidString`) que verificam o tamanho das strings e o tipo dos campos (ex: CH deve ser número >= 0) diretamente nas regras, impedindo o envio de dados corrompidos ou maliciosos.
+- **Controle de Privacidade:** Através da função `isPublic(userId)`, a leitura de dados por terceiros é bloqueada, a menos que o proprietário tenha explicitamente marcado seu perfil como "Público".
 
 ## 🧹 3. Proteção contra Injeção e XSS
 
 Para prevenir ataques de Cross-Site Scripting (XSS) e outras injeções via interface:
-- **Sanitização de Input:** Todos os dados inseridos manualmente (nome, matrícula, etc.) passam por uma função de sanitização (`sanitizeInput`) antes de serem enviados ao banco de dados.
+- **Cabeçalhos de Segurança:** Implementados via `next.config.ts`, incluindo `Content-Security-Policy` (CSP), `Strict-Transport-Security` (HSTS) e `X-Frame-Options` para mitigar ataques de injeção e clickjacking.
 - **Escapamento Automático:** O uso do React/Next.js garante que o conteúdo renderizado seja escapado por padrão, minimizando riscos de execução de scripts maliciosos.
 
 ## 📁 4. Segurança de Arquivos e Assets
@@ -38,7 +38,7 @@ Para prevenir ataques de Cross-Site Scripting (XSS) e outras injeções via inte
 ## 🐛 6. Relatando Vulnerabilidades
 
 Se você encontrar qualquer falha de segurança ou comportamento suspeito na plataforma, pedimos que **não abra uma Issue pública**. Em vez disso:
-1. Envie um e-mail diretamente para o desenvolvedor: **[Seu E-mail/Contato]**
+1. Envie um e-mail diretamente para o desenvolvedor: **luist_ls@outlook.pt**
 2. Descreva os passos para reproduzir a falha.
 3. Aguarde uma resposta para que possamos corrigir o problema de forma coordenada.
 
