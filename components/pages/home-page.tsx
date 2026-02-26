@@ -213,92 +213,96 @@ export function HomePage() {
       }))
 
       let novas = 0
-      let atualizadas = 0
+      let puladas = 0
+      const batchProcessed = new Set<string>() // Para evitar duplicatas internas no mesmo PDF
 
       if (user && db) {
         // Usuário logado: salvar no Firebase
         logger.info('Usuário autenticado - processando no Firebase')
 
         for (const disciplina of disciplinasProcessadas) {
+          const key = `${normalizeText(disciplina.codigo)}-${normalizeText(disciplina.periodo)}`
+
+          // Verificar duplicata interna no PDF
+          if (batchProcessed.has(key)) {
+            puladas++
+            continue
+          }
+
           try {
-            // Verificar se disciplina já existe (Código e Período)
-            // Usar normalização para garantir match mesmo com pequenas diferenças
-            const disciplinaExistente = disciplinas.find(
+            // Verificar se disciplina já existe no histórico atual (Firebase)
+            const jaExiste = disciplinas.find(
               (d) =>
                 normalizeText(d.codigo) === normalizeText(disciplina.codigo) &&
                 normalizeText(d.periodo) === normalizeText(disciplina.periodo)
             )
 
-            if (disciplinaExistente && disciplinaExistente.id) {
-              // Atualizar existente
-              const disciplineRef = doc(db, 'disciplines', disciplinaExistente.id)
-              const data = {
-                ...disciplina,
-                userId: user.uid,
-                updatedAt: new Date(),
-              }
-              delete (data as any).id // Garantir que não sobrescreva ID
-              await updateDoc(disciplineRef, data)
-              atualizadas++
-            } else {
-              // Criar nova
-              const disciplineData = {
-                ...disciplina,
-                userId: user.uid,
-                curso: disciplina.curso || cursoAtual,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              }
-              delete (disciplineData as any).id
-
-              await addDoc(collection(db, 'disciplines'), disciplineData)
-              novas++
+            if (jaExiste) {
+              // Conforme solicitado pelo usuário, não duplicar e nem atualizar (apenas pular)
+              puladas++
+              batchProcessed.add(key)
+              continue
             }
+
+            // Criar nova
+            const disciplineData = {
+              ...disciplina,
+              userId: user.uid,
+              curso: disciplina.curso || cursoAtual,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            }
+            delete (disciplineData as any).id
+
+            await addDoc(collection(db, 'disciplines'), disciplineData)
+            novas++
+            batchProcessed.add(key)
           } catch (error) {
             logger.error(`Erro ao salvar disciplina ${disciplina.codigo}:`, error)
-            // Continua com as outras disciplinas mesmo se uma falhar
           }
         }
 
         // Recarregar disciplinas do Firebase para garantir sincronização
         await loadDisciplinas()
       } else {
-        // Usuário não logado: salvar apenas no localStorage e estado local
+        // Usuário não logado: salvar apenas no localStorage
         logger.info('Usuário não autenticado - salvando apenas localmente')
 
         const listaAtualizada = [...disciplinas]
 
-        disciplinasProcessadas.forEach((disciplina, index) => {
-          const indexExistente = listaAtualizada.findIndex(
+        disciplinasProcessadas.forEach((disciplina) => {
+          const key = `${normalizeText(disciplina.codigo)}-${normalizeText(disciplina.periodo)}`
+
+          if (batchProcessed.has(key)) {
+            puladas++
+            return
+          }
+
+          const jaExiste = listaAtualizada.find(
             (d) =>
               normalizeText(d.codigo) === normalizeText(disciplina.codigo) &&
               normalizeText(d.periodo) === normalizeText(disciplina.periodo)
           )
 
-          if (indexExistente >= 0) {
-            // Atualizar existente
-            listaAtualizada[indexExistente] = {
-              ...listaAtualizada[indexExistente],
-              ...disciplina,
-              updatedAt: new Date(),
-            }
-            atualizadas++
-          } else {
-            // Criar nova
-            listaAtualizada.push({
-              ...disciplina,
-              id: disciplina.id || createDisciplinaId(`local-${Date.now()}-${index}`),
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            })
-            novas++
+          if (jaExiste) {
+            puladas++
+            batchProcessed.add(key)
+            return
           }
+
+          // Criar nova local
+          listaAtualizada.push({
+            ...disciplina,
+            id: disciplina.id || createDisciplinaId(`local-${Date.now()}-${batchProcessed.size}`),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
+          novas++
+          batchProcessed.add(key)
         })
 
-        // Filtrar apenas disciplinas do curso atual
+        // Filtrar e ordenar
         const disciplinasDoCurso = listaAtualizada.filter((d) => d.curso === cursoAtual)
-
-        // Ordenar por período
         disciplinasDoCurso.sort((a, b) => {
           const [anoA, semA] = a.periodo.split('.').map(Number)
           const [anoB, semB] = b.periodo.split('.').map(Number)
@@ -306,14 +310,16 @@ export function HomePage() {
           return semB - semA
         })
 
-        // Atualizar estado local
         setDisciplinas(disciplinasDoCurso)
-
-        // Salvar no localStorage
         localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasDoCurso))
       }
 
-      toast.success(`Importação concluída: ${novas} novas, ${atualizadas} atualizadas.`)
+      const msg = `Importação concluída: ${novas} novas adicionadas.`
+      if (puladas > 0) {
+        toast.info(`${msg} (${puladas} duplicatas ignoradas).`)
+      } else {
+        toast.success(msg)
+      }
     } catch (error) {
       logger.error('Erro ao importar disciplinas:', error)
       toast.error('Erro ao importar disciplinas. Tente novamente.')
