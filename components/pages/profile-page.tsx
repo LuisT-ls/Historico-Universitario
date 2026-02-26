@@ -90,6 +90,7 @@ export function ProfilePage() {
   const [deletePassword, setDeletePassword] = useState('')
   const [exportFormat, setExportFormat] = useState<'json' | 'xlsx' | 'pdf'>('json')
   const [uploading, setUploading] = useState(false)
+  const [entryInput, setEntryInput] = useState('')
 
   // ... (Image helper functions remain same)
   const compressImage = (file: File): Promise<string> => {
@@ -158,6 +159,7 @@ export function ProfilePage() {
         }
         setProfile(profileData)
         setInitialProfile(profileData)
+        setEntryInput(`${profileData.startYear || ''}${profileData.startSemester ? '.' + profileData.startSemester : ''}`)
       } else {
         const defaultData: Profile = {
           uid: createUserId(user.uid),
@@ -174,6 +176,7 @@ export function ProfilePage() {
         }
         setProfile(defaultData)
         setInitialProfile(defaultData)
+        setEntryInput(`${defaultData.startYear || ''}${defaultData.startSemester ? '.' + defaultData.startSemester : ''}`)
       }
     } catch (error) { logger.error('Erro ao carregar perfil:', error) } finally { setIsLoading(false) }
   }
@@ -393,26 +396,38 @@ export function ProfilePage() {
                       <Input
                         type="text"
                         placeholder="Ex: 2021.1 ou 2021.2"
-                        value={`${profile?.startYear || ''}${profile?.startSemester ? '.' + profile.startSemester : ''}`}
+                        value={entryInput}
                         onChange={e => {
                           const val = e.target.value
                           // Permite apenas números e um único ponto
                           if (!/^[0-9.]*$/.test(val)) return
 
-                          const [year, semester] = val.split('.')
+                          const partes = val.split('.')
+                          if (partes.length > 2) return // Apenas um ponto
+
+                          const year = partes[0]
+                          const semester = partes[1]
+
                           // Valida o ano (máximo 4 dígitos)
                           if (year && year.length > 4) return
-                          // Valida o semestre (apenas 1 ou 2)
+                          // Valida o semestre (apenas 1 ou 2 se existir)
                           if (semester && !['1', '2'].includes(semester)) return
+                          if (semester && semester.length > 1) return
 
-                          setProfile(prev => {
-                            if (!prev) return null
-                            return {
-                              ...prev,
-                              startYear: year || '',
-                              startSemester: (semester as '1' | '2') || '1'
-                            }
-                          })
+                          setEntryInput(val)
+
+                          // Só atualiza o profile se tiver um formato válido para cálculo
+                          // Se for só o ano, ou ano.semestre
+                          if (year.length === 4) {
+                            setProfile(prev => {
+                              if (!prev) return null
+                              return {
+                                ...prev,
+                                startYear: year,
+                                startSemester: (semester === '1' || semester === '2') ? semester : (prev.startSemester || '1')
+                              }
+                            })
+                          }
                         }}
                         className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full"
                       />
