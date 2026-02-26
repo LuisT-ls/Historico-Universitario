@@ -270,7 +270,8 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
       }
     }
 
-    const natureza = naturezaCatalogo || mapNatureza(naturezaRaw, codigo);
+    const naturezaNormal = naturezaCatalogo || mapNatureza(naturezaRaw, codigo);
+    const natureza = codigo.startsWith('MAT') ? 'OP' : naturezaNormal;
 
     disciplinas.push({
       periodo,

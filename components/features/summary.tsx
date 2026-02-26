@@ -142,30 +142,26 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
     // Adicionar horas dos certificados aprovados
     horasPorNatureza.AC += totalHorasCertificados
 
-    // Redistribuir excesso de horas optativas para LV e limitar ao requisito
-    const naturezasParaLimitar = ['AC', 'OX', 'OG', 'OH', 'OZ', 'OB', 'OP']
+    // 3. Universal Redistribution to LV
+    // Any category that exceeds its requirement overflows to Livre (LV)
     let totalExcessoLV = 0
 
-    naturezasParaLimitar.forEach((nat) => {
+    const naturezasParaRedistribuir = ['OX', 'OG', 'OH', 'OZ', 'OP']
+
+    naturezasParaRedistribuir.forEach((nat) => {
       const natureza = nat as Natureza
       const requisito = cursoConfig.requisitos[natureza]
 
       if (horasPorNatureza[natureza] && requisito && requisito > 0) {
         if (horasPorNatureza[natureza] > requisito) {
           const excesso = horasPorNatureza[natureza] - requisito
-
-          // Apenas naturezas optativas específicas redistribuem excesso para LV
-          const naturezasRedistribuemParaLV = ['OX', 'OG', 'OH', 'OZ']
-          if (naturezasRedistribuemParaLV.includes(natureza)) {
-            totalExcessoLV += excesso
-          }
-
-          horasPorNatureza[natureza] = requisito // Limitar ao requisito para o cálculo do total
+          totalExcessoLV += excesso
+          horasPorNatureza[natureza] = requisito // Cap original category
         }
       }
     })
 
-    // Adicionar excesso de optativas ao LV e limitar LV também
+    // Add all excesses to LV and then cap LV based on its own requirement
     horasPorNatureza.LV += totalExcessoLV
     if (cursoConfig.requisitos.LV && horasPorNatureza.LV > cursoConfig.requisitos.LV) {
       horasPorNatureza.LV = cursoConfig.requisitos.LV

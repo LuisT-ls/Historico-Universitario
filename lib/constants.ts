@@ -6,7 +6,7 @@ export const CURSOS: Record<string, ConfigCurso> = {
     requisitos: {
       AC: 240,
       LV: 360,
-      OB: 600,
+      OB: 601,
       OG: 780,
       OH: 120,
       OP: 0,

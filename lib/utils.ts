@@ -593,25 +593,28 @@ export function calcularEstatisticas(
 
   horasPorNatureza.AC += acHoursFromCerts
 
-  // 3. Redistribute excess hours to LV
-  const naturezasRedistribuemParaLV = ['OX', 'OG', 'OH', 'OZ']
+  // 3. Universal Redistribution to LV
+  // Any category that exceeds its requirement overflows to Livre (LV)
   let totalExcessoLV = 0
 
-  naturezasRedistribuemParaLV.forEach((nat) => {
+  Object.keys(horasPorNatureza).forEach((nat) => {
     const natureza = nat as Natureza
+    if (natureza === 'LV' || natureza === 'OB' || natureza === 'AC') return
+
     const requisito = cursoConfig?.requisitos?.[natureza] as number
 
-    if (horasPorNatureza[natureza] > requisito) {
+    if (requisito !== undefined && requisito > 0 && horasPorNatureza[natureza] > requisito) {
       const excesso = horasPorNatureza[natureza] - requisito
       totalExcessoLV += excesso
-      horasPorNatureza[natureza] = requisito // Limitar a categoria original
+      horasPorNatureza[natureza] = requisito // Cap original category
     }
   })
 
-  // Add excess to LV
+  // Add all excesses to LV
   horasPorNatureza.LV += totalExcessoLV
 
   // 4. Final Caps based on curriculum requirements
+  // (Livre itself also has a cap in some curricula)
   Object.keys(horasPorNatureza).forEach((nat) => {
     const natureza = nat as Natureza
     const requisito = cursoConfig?.requisitos?.[natureza] as number
