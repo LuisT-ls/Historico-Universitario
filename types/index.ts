@@ -115,6 +115,7 @@ export interface UserStatistics {
   inProgressDisciplines: number
   averageGrade: number
   horasPorNatureza?: Record<Natureza, number>
+  totalCH?: number
   semestralization?: number
 }
 

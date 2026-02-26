@@ -568,8 +568,9 @@ export function calcularEstatisticas(
 
   // 1. Calculate base hours from disciplines
   disciplinas.forEach((d) => {
-    // Consider only disciplines with approval (AP/RR), dispensation, or valid grade >= 5
-    const isCompleted = d.resultado === 'AP' || d.resultado === 'RR' || d.dispensada || (d.nota !== undefined && d.nota >= 5)
+    // Consider only disciplines with approval (AP) or dispensation
+    // RR (reproved) or DP (in-progress) should NOT count toward hours
+    const isCompleted = (d.resultado === 'AP' || d.dispensada) && !d.emcurso
 
     if (isCompleted && d.ch) {
       // Disciplinas dispensadas contam como LV
@@ -623,12 +624,16 @@ export function calcularEstatisticas(
     }
   })
 
+  // Calculate total capped hours (only approved/dispensada)
+  const totalCH = Object.values(horasPorNatureza).reduce((sum, h) => sum + h, 0)
+
   return {
     totalDisciplines,
     completedDisciplines,
     inProgressDisciplines,
     averageGrade: Math.round(averageGrade * 100) / 100,
     horasPorNatureza,
+    totalCH,
     semestralization: profile && periodoAtual ? calcularSemestralizacao(profile, disciplinas, periodoAtual) : undefined
   }
 }

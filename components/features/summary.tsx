@@ -71,10 +71,10 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
     )
 
     // Disciplinas aprovadas (não inclui AC, pois AC não tem resultado)
-    const disciplinasAprovadas = disciplinas.filter((d) => d.resultado === 'AP')
+    const disciplinasAprovadas = disciplinas.filter((d) => d.resultado === 'AP' && !d.emcurso)
 
-    // Disciplinas AC (para contabilizar horas, mas não como aprovadas)
-    const disciplinasAC = disciplinas.filter((d) => d.natureza === 'AC')
+    // Disciplinas AC (apenas aprovadas contam para progresso)
+    const disciplinasAC = disciplinas.filter((d) => d.natureza === 'AC' && (d.resultado === 'AP' || d.dispensada) && !d.emcurso)
 
     // Disciplinas com nota válida
     const disciplinasComNota = disciplinas.filter(
@@ -170,9 +170,9 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
     // Total CH recalculado com as horas limitadas
     const totalCHLimitado = Object.values(horasPorNatureza).reduce((sum, h) => sum + h, 0)
 
-    // Para o progresso e métricas, usamos o total limitado
+    // Para o progresso e métricas, usamos APENAS o total limitado (aprovado/dispensado)
+    // Disciplinas em curso foram removidas do cálculo de progresso por solicitação do usuário
     const totalCHParaProgresso = totalCHLimitado
-    const totalCHComEmCursoParaProgresso = totalCHParaProgresso + chEmCurso
 
     const mediaGeral =
       disciplinasComNota.length > 0
@@ -188,8 +188,8 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
       totalDisciplinas > 0 ? (totalAprovacoes / totalDisciplinas) * 100 : 0
 
     const progressoFormatura =
-      totalCHComEmCursoParaProgresso > 0
-        ? Math.min((totalCHComEmCursoParaProgresso / cursoConfig.totalHoras) * 100, 100)
+      totalCHParaProgresso > 0
+        ? Math.min((totalCHParaProgresso / cursoConfig.totalHoras) * 100, 100)
         : 0
 
     const statusCR = getStatusCR(cr)
@@ -199,7 +199,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
     const previsaoFormatura = calcularPrevisaoFormaturaCompleta(
       disciplinas,
       totalCHParaProgresso,
-      totalCHComEmCursoParaProgresso,
+      totalCHParaProgresso, // Usamos o total limitado aqui também para a porcentagem principal
       chEmCurso,
       cursoConfig.totalHoras,
       disciplinasEmCurso
@@ -266,7 +266,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
       pch,
       pcr,
       totalCH: totalCHParaProgresso,
-      totalCHComEmCurso: totalCHComEmCursoParaProgresso,
+      totalCHComEmCurso: totalCHParaProgresso, // Agora igual ao total para evitar inflação
       chEmCurso,
       percentualAprovacao,
       progressoFormatura,
@@ -325,7 +325,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
             <Clock className="h-4 w-4 text-primary mb-1" />
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Horas</p>
-            <p className="text-lg font-bold">{estatisticas.totalCHComEmCurso}h</p>
+            <p className="text-lg font-bold">{estatisticas.totalCH}h</p>
           </CardContent>
         </Card>
 
@@ -378,7 +378,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
                 <p className="text-2xl font-black">{estatisticas.progressoFormatura.toFixed(1)}%</p>
               </div>
               <span className="text-sm font-medium text-muted-foreground">
-                {estatisticas.totalCHComEmCurso}h de {cursoConfig.totalHoras}h
+                {estatisticas.totalCH}h de {cursoConfig.totalHoras}h
               </span>
             </div>
             <div className="w-full bg-secondary/50 rounded-full h-4 overflow-hidden">
