@@ -199,13 +199,14 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
     const previsaoFormatura = calcularPrevisaoFormaturaCompleta(
       disciplinas,
       totalCHParaProgresso,
-      totalCHParaProgresso, // Usamos o total limitado aqui também para a porcentagem principal
+      totalCHParaProgresso + chEmCurso, // Aqui injetamos as horas em curso para a previsão
       chEmCurso,
       cursoConfig.totalHoras,
-      disciplinasEmCurso
+      disciplinasEmCurso,
+      horasPorNatureza,
+      cursoAtual
     )
 
-    // Dados para gráfico de pizza
     const dadosGraficoPizza = Object.entries(horasPorNatureza)
       .filter(([_, horas]) => horas > 0)
       .map(([natureza, horas]) => ({
