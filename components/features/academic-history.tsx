@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Trash2, Edit } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Trash2, Edit, Search, X } from 'lucide-react'
 import type { Disciplina, Curso } from '@/types'
 import { calcularResultado, compararPeriodos, cn } from '@/lib/utils'
 import { NATUREZA_LABELS } from '@/lib/constants'
@@ -28,11 +29,23 @@ export function AcademicHistory({
   onRemove,
   onEdit,
 }: AcademicHistoryProps) {
+  const [busca, setBusca] = useState('')
+
+  const disciplinasFiltradas = useMemo(() => {
+    if (!busca.trim()) return disciplinas
+    const termo = busca.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    return disciplinas.filter(d => {
+      const nome = d.nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      const codigo = d.codigo.toLowerCase()
+      return nome.includes(termo) || codigo.includes(termo)
+    })
+  }, [disciplinas, busca])
+
   // Agrupar disciplinas por período
   const disciplinasPorPeriodo = useMemo(() => {
     const grupos: Record<string, Disciplina[]> = {}
 
-    disciplinas.forEach((disc) => {
+    disciplinasFiltradas.forEach((disc) => {
       const periodo = disc.periodo || 'Sem período'
       if (!grupos[periodo]) {
         grupos[periodo] = []
@@ -58,7 +71,7 @@ export function AcademicHistory({
     })
 
     return { grupos, periodosOrdenados }
-  }, [disciplinas])
+  }, [disciplinasFiltradas])
 
   const getResultadoLabel = (resultado?: string, short: boolean = false) => {
     if (short) {
@@ -97,16 +110,38 @@ export function AcademicHistory({
   return (
     <Card className="border-none shadow-none bg-transparent">
       <CardHeader className="px-0 pt-0">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <CardTitle as="h2" className="flex items-center gap-2 text-2xl font-bold">
               <span>📋</span> Disciplinas Cursadas
             </CardTitle>
             <CardDescription className="text-base">
-              {disciplinas.length} disciplina{disciplinas.length !== 1 ? 's' : ''} registrada
-              {disciplinas.length !== 1 ? 's' : ''} organizada por semestre
+              {busca.trim()
+                ? `${disciplinasFiltradas.length} de ${disciplinas.length} disciplina${disciplinas.length !== 1 ? 's' : ''}`
+                : `${disciplinas.length} disciplina${disciplinas.length !== 1 ? 's' : ''} registrada${disciplinas.length !== 1 ? 's' : ''}`
+              } organizada{disciplinas.length !== 1 ? 's' : ''} por semestre
             </CardDescription>
           </div>
+          {disciplinas.length > 0 && (
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                value={busca}
+                onChange={e => setBusca(e.target.value)}
+                placeholder="Buscar por nome ou código..."
+                className="pl-9 pr-9 rounded-xl h-9 text-sm"
+              />
+              {busca && (
+                <button
+                  onClick={() => setBusca('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Limpar busca"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent className="px-0">
@@ -115,11 +150,18 @@ export function AcademicHistory({
             <p className="text-lg font-medium">Nenhuma disciplina cadastrada ainda.</p>
             <p className="text-sm mt-2">Clique no botão "+" para adicionar disciplinas ou importe seu histórico.</p>
           </div>
+        ) : disciplinasFiltradas.length === 0 ? (
+          <div className="text-center py-12 bg-card border rounded-2xl shadow-sm text-muted-foreground">
+            <Search className="h-8 w-8 mx-auto mb-3 opacity-30" />
+            <p className="text-lg font-medium">Nenhuma disciplina encontrada.</p>
+            <p className="text-sm mt-2">Tente outro nome ou código.</p>
+          </div>
         ) : (
           <Accordion type="multiple" defaultValue={[disciplinasPorPeriodo.periodosOrdenados[0]]} className="space-y-4">
             {disciplinasPorPeriodo.periodosOrdenados.map((periodo, idx) => {
               const disciplinasDoPeriodo = disciplinasPorPeriodo.grupos[periodo]
               const aprovadasCount = disciplinasDoPeriodo.filter(d => d.resultado === 'AP').length
+              const chTotal = disciplinasDoPeriodo.reduce((sum, d) => sum + (d.ch || 0), 0)
               
               // Cálculo do número sequencial do semestre (do mais antigo para o mais recente)
               const semestreSequencial = disciplinasPorPeriodo.periodosOrdenados.length - idx
@@ -138,7 +180,7 @@ export function AcademicHistory({
                       <div>
                         <h3 className="font-bold text-lg">Semestre {periodo}</h3>
                         <p className="text-xs text-muted-foreground">
-                          {disciplinasDoPeriodo.length} disciplinas • {aprovadasCount} aprovadas
+                          {disciplinasDoPeriodo.length} disciplinas • {aprovadasCount} aprovadas • {chTotal}h
                         </p>
                       </div>
                     </div>
