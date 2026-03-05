@@ -79,7 +79,7 @@ export function Recommendations({ disciplinas, cursoAtual, onSelect }: Recommend
   const [expanded, setExpanded] = useState(false)
 
   // ── 1. base data ──
-  const { recommendations, deficits } = useMemo(() => {
+  const { recommendations, deficits, podeFormarEsteSemestre } = useMemo(() => {
     const data = disciplinasData as any
     const cursoDisciplinas: { codigo: string; natureza: string }[] = data.cursos[cursoAtual] ?? []
     const catalogo: Record<string, { nome: string; ch: number }> = data.catalogo
@@ -179,9 +179,21 @@ export function Recommendations({ disciplinas, cursoAtual, onSelect }: Recommend
         result.push({ ...d, motivo: { tipo: 'pendente' } })
       })
 
-    return { recommendations: result, deficits }
+    // ── 5. check if user is about to graduate (in-progress covers remaining hours) ──
+    const chAprovadas = disciplinas
+      .filter(d => (d.resultado === 'AP' || d.dispensada) && !d.emcurso)
+      .reduce((s, d) => s + d.ch, 0)
+    const chEmCurso = disciplinas
+      .filter(d => d.emcurso === true || (d.resultado === 'DP' && !d.dispensada))
+      .reduce((s, d) => s + d.ch, 0)
+    const metaComTolerancia = config.totalHoras === 2401 ? 2400 : config.totalHoras
+    const podeFormarEsteSemestre = chEmCurso > 0 && (chAprovadas + chEmCurso) >= metaComTolerancia
+
+    return { recommendations: result, deficits, podeFormarEsteSemestre }
   }, [disciplinas, cursoAtual])
 
+  // Não mostrar pendentes se o usuário já vai se formar com as disciplinas em curso
+  if (podeFormarEsteSemestre) return null
   if (recommendations.length === 0) return null
 
   const visible = expanded ? recommendations : recommendations.slice(0, INITIAL_SHOW)

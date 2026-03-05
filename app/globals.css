@@ -927,6 +927,47 @@ select::-ms-expand {
   scrollbar-color: var(--text-secondary) / 0.3 var(--surface);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   @media print — Exportar / Imprimir PDF
+   Usa o truque visibility para mostrar apenas #print-view.
+   ═══════════════════════════════════════════════════════════ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 1.5cm 1.5cm 1.8cm;
+  }
+
+  /* Esconde todo conteúdo do body */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Mostra apenas o componente de impressão */
+  #print-view,
+  #print-view * {
+    visibility: visible !important;
+  }
+
+  #print-view {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 99999 !important;
+  }
+
+  /* Garantir que tabelas não sejam cortadas de forma estranha */
+  table { page-break-inside: auto; }
+  tr    { page-break-inside: avoid; page-break-after: auto; }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+}
+
 /* Scroll suave para elementos específicos */
 .scroll-smooth {
   scroll-behavior: smooth;

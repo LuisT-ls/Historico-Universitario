@@ -43,6 +43,10 @@ const Recommendations = dynamic(() => import('@/components/features/recommendati
   ssr: false,
 })
 
+const PrintView = dynamic(() => import('@/components/features/print-view').then(mod => mod.PrintView), {
+  ssr: false,
+})
+
 export function HomePage() {
   const { user, loading: authLoading } = useAuth()
   const [cursoAtual, setCursoAtual] = useState<Curso>('BICTI')
@@ -382,6 +386,9 @@ export function HomePage() {
       <AcademicHistory disciplinas={disciplinas} cursoAtual={cursoAtual} onRemove={handleRemoveDisciplina} onEdit={(d, i) => formRef.current?.editDiscipline(d, i)} />
 
       <DisciplineForm ref={formRef} cursoAtual={cursoAtual} onAdd={handleAddDisciplina} onUpdate={handleUpdateDisciplina} disciplinas={disciplinas} />
+
+      {/* Componente invisível na tela — renderizado apenas na impressão */}
+      <PrintView disciplinas={disciplinas} certificados={certificados} cursoAtual={cursoAtual} profile={profile} />
     </div>
   )
 }

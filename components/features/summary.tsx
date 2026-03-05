@@ -29,7 +29,9 @@ import {
   BarChart3,
   PieChart as PieChartIcon,
   Loader2,
+  Printer,
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import dynamic from 'next/dynamic'
 import type { Disciplina, Curso, Natureza, Certificado, Profile } from '@/types'
 
@@ -318,6 +320,19 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
 
   return (
     <div className="space-y-6">
+      {/* Botão de exportar PDF */}
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 text-muted-foreground hover:text-foreground"
+          onClick={() => window.print()}
+        >
+          <Printer className="h-3.5 w-3.5" />
+          Exportar PDF
+        </Button>
+      </div>
+
       {/* Métricas Gerais - Cards Horizontais Compactos */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-3">
         <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
