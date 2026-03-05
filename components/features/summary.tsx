@@ -270,7 +270,23 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
             const [anoD, semD] = d.periodo.split('.').map(Number)
             return anoD < ano || (anoD === ano && semD <= sem)
           })
-          return { periodo, cr: parseFloat(calcularCR(cumulativas).toFixed(2)) }
+
+          // Média isolada do semestre: notas de disciplinas com resultado final neste período
+          const doSemestre = disciplinas.filter(d =>
+            d.periodo === periodo &&
+            (d.resultado === 'AP' || d.resultado === 'RR') &&
+            !d.dispensada &&
+            !d.trancamento &&
+            !d.emcurso &&
+            d.natureza !== 'AC' &&
+            d.nota !== null &&
+            d.nota !== undefined
+          )
+          const mediaSemestre = doSemestre.length > 0
+            ? parseFloat((doSemestre.reduce((s, d) => s + d.nota, 0) / doSemestre.length).toFixed(2))
+            : null
+
+          return { periodo, cr: parseFloat(calcularCR(cumulativas).toFixed(2)), mediaSemestre }
         })
       : []
 
