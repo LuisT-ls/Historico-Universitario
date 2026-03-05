@@ -487,6 +487,16 @@ export function calcularPrevisaoFormaturaCompleta(
 }
 
 /**
+ * Retorna o semestre letivo atual no formato AAAA.S baseado na data do sistema.
+ * Meses 1–7 (Jan–Jul) → semestre 1 | Meses 8–12 (Ago–Dez) → semestre 2
+ */
+export function getCurrentSemester(): string {
+  const now = new Date()
+  const semester = now.getMonth() <= 6 ? 1 : 2
+  return `${now.getFullYear()}.${semester}`
+}
+
+/**
  * Sanitiza input de texto removendo caracteres perigosos e espaços extras
  * @param input - Texto a ser sanitizado
  * @returns Texto sanitizado

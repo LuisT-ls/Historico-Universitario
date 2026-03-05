@@ -8,7 +8,7 @@ import { Loader2 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
-import { calcularResultado, normalizeText } from '@/lib/utils'
+import { calcularResultado, normalizeText, getCurrentSemester } from '@/lib/utils'
 import { handleError } from '@/lib/error-handler'
 import type { Curso, Disciplina, Certificado, Profile } from '@/types'
 import { toast } from '@/lib/toast'
@@ -37,6 +37,10 @@ const AcademicHistory = dynamic(() => import('@/components/features/academic-his
 const Summary = dynamic(() => import('@/components/features/summary').then(mod => mod.Summary), {
   loading: () => <Skeleton className="h-64 w-full rounded-2xl" />,
   ssr: false
+})
+
+const Recommendations = dynamic(() => import('@/components/features/recommendations').then(mod => mod.Recommendations), {
+  ssr: false,
 })
 
 export function HomePage() {
@@ -122,7 +126,7 @@ export function HomePage() {
           startYear: data.profile?.startYear || 2023,
           startSemester: data.profile?.startSemester || '1',
           suspensions: data.profile?.suspensions || 0,
-          currentSemester: data.profile?.currentSemester || '2025.2'
+          currentSemester: data.profile?.currentSemester || getCurrentSemester()
         } as Profile)
       }
     } catch (error: unknown) {
@@ -368,6 +372,12 @@ export function HomePage() {
       </div>
 
       <Summary disciplinas={disciplinas} certificados={certificados} cursoAtual={cursoAtual} profile={profile || undefined} />
+
+      <Recommendations
+        disciplinas={disciplinas}
+        cursoAtual={cursoAtual}
+        onSelect={(d) => formRef.current?.fillForm(d)}
+      />
 
       <AcademicHistory disciplinas={disciplinas} cursoAtual={cursoAtual} onRemove={handleRemoveDisciplina} onEdit={(d, i) => formRef.current?.editDiscipline(d, i)} />
 

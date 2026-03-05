@@ -8,6 +8,7 @@ import {
   calcularCR,
   calcularCreditos,
   calcularPCH,
+  getCurrentSemester,
   calcularPCR,
   getStatusCR,
   calcularTendenciaNotas,
@@ -282,7 +283,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
       '#84cc16', // lime
     ]
 
-    const semestralization = profile ? calcularSemestralizacao(profile, disciplinas, profile.currentSemester || '2025.2') : undefined
+    const semestralization = profile ? calcularSemestralizacao(profile, disciplinas, profile.currentSemester || getCurrentSemester()) : undefined
 
     return {
       totalDisciplinasCadastradas,

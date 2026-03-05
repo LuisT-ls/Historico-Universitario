@@ -42,7 +42,7 @@ import {
 } from 'firebase/auth'
 import { db, auth, googleProvider } from '@/lib/firebase/config'
 import { CURSOS } from '@/lib/constants'
-import { calcularEstatisticas, sanitizeInput } from '@/lib/utils'
+import { calcularEstatisticas, sanitizeInput, getCurrentSemester } from '@/lib/utils'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
 import type { Profile, Curso, Disciplina, UserStatistics } from '@/types'
 import {
@@ -155,7 +155,7 @@ export function ProfilePage() {
           startYear: data.profile?.startYear || new Date().getFullYear(),
           startSemester: data.profile?.startSemester || '1',
           suspensions: data.profile?.suspensions || 0,
-          currentSemester: data.profile?.currentSemester || '2025.2',
+          currentSemester: data.profile?.currentSemester || getCurrentSemester(),
           settings: { notifications: data.settings?.notifications !== false, privacy: data.settings?.privacy || 'private' },
         }
         setProfile(profileData)
@@ -172,7 +172,7 @@ export function ProfilePage() {
           startYear: new Date().getFullYear(),
           startSemester: '1',
           suspensions: 0,
-          currentSemester: '2025.2',
+          currentSemester: getCurrentSemester(),
           settings: { notifications: true, privacy: 'private' },
         }
         setProfile(defaultData)
@@ -191,7 +191,7 @@ export function ProfilePage() {
       snap.forEach(doc => discs.push({ id: doc.id, ...doc.data() } as any))
 
       const p = overrideProfile || profile
-      const periodoLetivo = p?.currentSemester || '2025.2'
+      const periodoLetivo = p?.currentSemester || getCurrentSemester()
 
       setStatistics(calcularEstatisticas(
         discs,
