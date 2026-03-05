@@ -84,7 +84,7 @@ const mapNatureza = (natureza: string, codigo: string): Natureza => {
 /**
  * Extrai o texto de um PDF usando PDF.js preservando a estrutura de linhas
  */
-async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<string> {
+export async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<string> {
   try {
     const loadingTask = pdfjs.getDocument({
       data: arrayBuffer,

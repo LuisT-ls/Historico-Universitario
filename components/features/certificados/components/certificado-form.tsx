@@ -1,13 +1,22 @@
-import { memo } from 'react'
+import { memo, useRef, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Plus, Pencil, FileText, Loader2, Calendar as CalendarIcon } from 'lucide-react'
+import { Plus, Pencil, FileText, Loader2, Calendar as CalendarIcon, ScanText, CheckCircle2 } from 'lucide-react'
 import { TIPOS_CERTIFICADO } from '../constants'
 import { useDateMask, formatDateToDisplay } from '../hooks/use-date-mask'
 import type { CertificadoFormData } from '../hooks/use-certificado-form'
+import { parseCertificadoPDF } from '@/lib/certificate-ocr'
+
+const FIELD_LABELS: Record<string, string> = {
+  titulo: 'Título',
+  instituicao: 'Instituição',
+  cargaHoraria: 'Carga Horária',
+  dataInicio: 'Data Início',
+  dataFim: 'Data Fim',
+}
 
 interface CertificadoFormProps {
     showForm: boolean
@@ -23,6 +32,34 @@ interface CertificadoFormProps {
 export const CertificadoForm = memo<CertificadoFormProps>(
     ({ showForm, setShowForm, formData, setFormData, isSubmitting, editingId, handleSubmit, resetForm }) => {
         const { handleDateChange } = useDateMask()
+        const ocrInputRef = useRef<HTMLInputElement>(null)
+        const [isOcrLoading, setIsOcrLoading] = useState(false)
+        const [ocrFields, setOcrFields] = useState<string[]>([])
+
+        const handleOcrFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0]
+            if (!file) return
+            setIsOcrLoading(true)
+            setOcrFields([])
+            try {
+                const result = await parseCertificadoPDF(file)
+                setFormData(prev => ({
+                    ...prev,
+                    ...(result.titulo && { titulo: result.titulo }),
+                    ...(result.instituicao && { instituicao: result.instituicao }),
+                    ...(result.cargaHoraria && { cargaHoraria: String(result.cargaHoraria) }),
+                    ...(result.dataInicio && { dataInicio: result.dataInicio }),
+                    ...(result.dataFim && { dataFim: result.dataFim }),
+                }))
+                setOcrFields(result.camposEncontrados)
+            } catch {
+                // Silently fail — user fills manually
+            } finally {
+                setIsOcrLoading(false)
+                // Reset input so the same file can be re-selected
+                if (ocrInputRef.current) ocrInputRef.current.value = ''
+            }
+        }
 
         if (!showForm) return null
 
@@ -50,6 +87,51 @@ export const CertificadoForm = memo<CertificadoFormProps>(
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* OCR — Extração automática de dados do PDF */}
+                        <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4">
+                            <input
+                                ref={ocrInputRef}
+                                type="file"
+                                accept="application/pdf"
+                                className="sr-only"
+                                onChange={handleOcrFile}
+                            />
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
+                                        <ScanText className="h-4 w-4" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold">Extrair dados do PDF</p>
+                                        <p className="text-xs text-muted-foreground">Preenche os campos automaticamente a partir do certificado</p>
+                                    </div>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="shrink-0"
+                                    onClick={() => ocrInputRef.current?.click()}
+                                    disabled={isOcrLoading}
+                                >
+                                    {isOcrLoading
+                                        ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />Lendo...</>
+                                        : 'Selecionar PDF'
+                                    }
+                                </Button>
+                            </div>
+                            {ocrFields.length > 0 && (
+                                <div className="mt-3 flex flex-wrap gap-1.5">
+                                    {ocrFields.map(field => (
+                                        <span key={field} className="inline-flex items-center gap-1 text-[10px] bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20 rounded-full px-2 py-0.5 font-semibold uppercase tracking-wide">
+                                            <CheckCircle2 className="h-3 w-3" />
+                                            {FIELD_LABELS[field] ?? field}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="titulo">Título da Atividade</Label>

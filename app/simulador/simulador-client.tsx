@@ -72,6 +72,7 @@ interface ImpactMetrics {
 export function SimuladorPageClient() {
   const { user, loading: authLoading } = useAuth()
   const [cursoAtual, setCursoAtual] = useState<Curso>('BICTI')
+  const [confirmandoLimpar, setConfirmandoLimpar] = useState(false)
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
   const [disciplinasSimuladas, setDisciplinasSimuladas] = useState<Disciplina[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -427,9 +428,31 @@ export function SimuladorPageClient() {
                   <CardDescription>{disciplinasSimuladas.length} matérias no plano</CardDescription>
                 </div>
                 {disciplinasSimuladas.length > 0 && (
-                  <Button variant="ghost" size="sm" onClick={() => setDisciplinasSimuladas([])} className="text-muted-foreground dark:text-slate-400 hover:text-destructive dark:hover:text-red-400">
-                    Limpar Tudo
-                  </Button>
+                  confirmandoLimpar ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Confirmar?</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => { setDisciplinasSimuladas([]); setConfirmandoLimpar(false) }}
+                      >
+                        Sim
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => setConfirmandoLimpar(false)}>
+                        Não
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setConfirmandoLimpar(true)}
+                      className="text-muted-foreground dark:text-slate-400 hover:text-destructive dark:hover:text-red-400"
+                    >
+                      Limpar Tudo
+                    </Button>
+                  )
                 )}
               </CardHeader>
               <CardContent className="p-0">
