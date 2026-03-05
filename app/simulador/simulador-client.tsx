@@ -29,7 +29,9 @@ interface DisciplinaData {
 
 const simulationSchema = z
   .object({
-    periodo: z.string().min(1, 'Semestre é obrigatório'),
+    periodo: z.string()
+      .min(1, 'Semestre é obrigatório')
+      .regex(/^\d{4}\.[12]$/, 'Formato inválido. Use AAAA.S (ex: 2026.1)'),
     codigo: z.string().min(1, 'Código é obrigatório'),
     nome: z.string().min(1, 'Nome é obrigatório'),
     natureza: z.string().min(1, 'Natureza é obrigatória'),

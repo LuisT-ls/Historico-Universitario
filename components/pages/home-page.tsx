@@ -186,19 +186,43 @@ export function HomePage() {
     }
   }
 
-  const handleRemoveDisciplina = async (index: number) => {
+  const handleRemoveDisciplina = (index: number) => {
     const disc = disciplinas[index]
-    try {
-      if (user && db && disc.id) {
-        await deleteDoc(doc(db, 'disciplines', disc.id))
+    const disciplinasAntes = [...disciplinas]
+
+    // Atualiza a UI imediatamente
+    const novas = disciplinas.filter((_, i) => i !== index)
+    setDisciplinas(novas)
+    localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novas))
+
+    let undone = false
+
+    const timeoutId = setTimeout(async () => {
+      if (undone) return
+      try {
+        if (user && db && disc.id) {
+          await deleteDoc(doc(db, 'disciplines', disc.id))
+        }
+      } catch (error) {
+        logger.error('Error removing discipline:', error)
+        setDisciplinas(disciplinasAntes)
+        localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasAntes))
       }
-      const novas = disciplinas.filter((_, i) => i !== index)
-      setDisciplinas(novas)
-      localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novas))
-      toast.success('Disciplina removida!')
-    } catch (error) {
-      logger.error('Error removing discipline:', error)
-    }
+    }, 5000)
+
+    toast.success(`"${disc.nome}" removida`, {
+      action: {
+        label: 'Desfazer',
+        onClick: () => {
+          undone = true
+          clearTimeout(timeoutId)
+          setDisciplinas(disciplinasAntes)
+          localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasAntes))
+          toast.success('Remoção desfeita.')
+        },
+      },
+      duration: 5000,
+    })
   }
 
   const handleImportDisciplinas = async (disciplinasImportadas: Disciplina[]) => {

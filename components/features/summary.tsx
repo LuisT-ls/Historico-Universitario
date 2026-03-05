@@ -51,6 +51,15 @@ const BarChartSummary = dynamic(() => import('./charts/bar-chart-summary'), {
   ),
 })
 
+const LineChartSummary = dynamic(() => import('./charts/line-chart-summary'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-64 flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  ),
+})
+
 interface SummaryProps {
   disciplinas: Disciplina[]
   certificados?: Certificado[]
@@ -241,6 +250,27 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
         total: dados.total,
       }))
 
+    // Dados para gráfico de linha (evolução do CR acumulado semestre a semestre)
+    const todosPeriodos = [...new Set(disciplinas.map(d => d.periodo).filter(Boolean))]
+      .sort((a, b) => {
+        const [anoA, semA] = a.split('.').map(Number)
+        const [anoB, semB] = b.split('.').map(Number)
+        if (anoA !== anoB) return anoA - anoB
+        return semA - semB
+      })
+
+    const dadosGraficoCR = todosPeriodos.length >= 2
+      ? todosPeriodos.map(periodo => {
+          const [ano, sem] = periodo.split('.').map(Number)
+          const cumulativas = disciplinas.filter(d => {
+            if (!d.periodo) return false
+            const [anoD, semD] = d.periodo.split('.').map(Number)
+            return anoD < ano || (anoD === ano && semD <= sem)
+          })
+          return { periodo, cr: parseFloat(calcularCR(cumulativas).toFixed(2)) }
+        })
+      : []
+
     const coresGrafico = [
       '#3b82f6', // blue
       '#10b981', // green
@@ -277,6 +307,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
       horasPorNatureza,
       dadosGraficoPizza,
       dadosGraficoBarras,
+      dadosGraficoCR,
       coresGrafico,
       semestralization,
     }
@@ -492,6 +523,21 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
           </Card>
         )}
       </div>
+
+      {/* Evolução do CR por Semestre */}
+      {estatisticas.dadosGraficoCR.length >= 2 && (
+        <Card className="rounded-2xl shadow-sm border-none bg-card">
+          <CardHeader>
+            <CardTitle as="h2" className="flex items-center gap-2 text-lg font-bold">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              Evolução do CR por Semestre
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <LineChartSummary data={estatisticas.dadosGraficoCR} />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Requisitos para Formatura */}
       <Card className="rounded-2xl shadow-sm border-none bg-card overflow-hidden">
