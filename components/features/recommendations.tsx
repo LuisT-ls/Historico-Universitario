@@ -34,7 +34,6 @@ const INITIAL_SHOW = 9
 type Motivo =
   | { tipo: 'sequencia'; nomePrevio: string }
   | { tipo: 'deficit'; natureza: string; hFaltando: number }
-  | { tipo: 'pendente' }
 
 interface DiscRecomendada {
   codigo: string
@@ -172,22 +171,23 @@ export function Recommendations({ disciplinas, cursoAtual, onSelect }: Recommend
         })
     })
 
-    // Priority 3: remaining pending (no specific deficit context)
-    pendentes
-      .filter(d => !adicionados.has(d.codigo))
-      .forEach(d => {
-        result.push({ ...d, motivo: { tipo: 'pendente' } })
-      })
+    // Não mostrar disciplinas de categorias sem déficit (requisito já cumprido)
+    // Apenas OB pendente aparece sem déficit explícito, pois cada disciplina OB é individualmente obrigatória
+    // Para OG/OX/OH/OZ/OP, só aparecem se houver deficit de horas naquela categoria
 
-    // ── 5. check if user is about to graduate (in-progress covers remaining hours) ──
-    const chAprovadas = disciplinas
-      .filter(d => (d.resultado === 'AP' || d.dispensada) && !d.emcurso)
-      .reduce((s, d) => s + d.ch, 0)
+    // ── 5. check if user is about to graduate ──
+    // Verifica se as disciplinas em curso cobrem todos os déficits restantes por natureza.
+    // Não usa soma bruta de CH para evitar erro com horas de AC vindas de certificados.
     const chEmCurso = disciplinas
       .filter(d => d.emcurso === true || (d.resultado === 'DP' && !d.dispensada))
       .reduce((s, d) => s + d.ch, 0)
-    const metaComTolerancia = config.totalHoras === 2401 ? 2400 : config.totalHoras
-    const podeFormarEsteSemestre = chEmCurso > 0 && (chAprovadas + chEmCurso) >= metaComTolerancia
+
+    const podeFormarEsteSemestre = chEmCurso > 0 && deficits.every(({ natureza, faltando }) => {
+      const emCursoNat = disciplinas
+        .filter(d => (d.emcurso === true || (d.resultado === 'DP' && !d.dispensada)) && d.natureza === natureza)
+        .reduce((s, d) => s + d.ch, 0)
+      return emCursoNat >= faltando
+    })
 
     return { recommendations: result, deficits, podeFormarEsteSemestre }
   }, [disciplinas, cursoAtual])
