@@ -1,5 +1,3 @@
-import { extractTextFromPDF } from './pdf-parser'
-
 export interface CertificadoOCRResult {
   titulo?: string
   instituicao?: string
@@ -97,6 +95,7 @@ function parseInstituicao(text: string): string | undefined {
 }
 
 export async function parseCertificadoPDF(file: File): Promise<CertificadoOCRResult> {
+  const { extractTextFromPDF } = await import('./pdf-parser')
   const arrayBuffer = await file.arrayBuffer()
   const text = await extractTextFromPDF(arrayBuffer)
   const camposEncontrados: string[] = []
