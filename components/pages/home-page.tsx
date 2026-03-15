@@ -77,7 +77,6 @@ export function HomePage() {
         })
 
       setDisciplinas(disciplinasDoCurso)
-      localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasDoCurso))
 
       if (profileData) setProfile(profileData)
     } catch (error: unknown) {
@@ -110,7 +109,7 @@ export function HomePage() {
       }
       const novas = [...disciplinas, disciplina]
       setDisciplinas(novas)
-      localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novas))
+      if (!user) localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novas))
       toast.success('Disciplina adicionada!')
     } catch (error) {
       logger.error('Error adding discipline:', error)
@@ -125,7 +124,7 @@ export function HomePage() {
       const novas = [...disciplinas]
       novas[index] = disciplina
       setDisciplinas(novas)
-      localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novas))
+      if (!user) localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novas))
       toast.success('Disciplina atualizada!')
     } catch (error) {
       logger.error('Error saving data:', error)
@@ -136,10 +135,10 @@ export function HomePage() {
     const disc = disciplinas[index]
     const disciplinasAntes = [...disciplinas]
 
-    // Atualiza a UI imediatamente
+    // Atualiza a UI imediatamente (otimista)
     const novas = disciplinas.filter((_, i) => i !== index)
     setDisciplinas(novas)
-    localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novas))
+    if (!user) localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(novas))
 
     let undone = false
 
@@ -152,7 +151,7 @@ export function HomePage() {
       } catch (error) {
         logger.error('Error removing discipline:', error)
         setDisciplinas(disciplinasAntes)
-        localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasAntes))
+        if (!user) localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasAntes))
       }
     }, 5000)
 
@@ -163,7 +162,7 @@ export function HomePage() {
           undone = true
           clearTimeout(timeoutId)
           setDisciplinas(disciplinasAntes)
-          localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasAntes))
+          if (!user) localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasAntes))
           toast.success('Remoção desfeita.')
         },
       },
