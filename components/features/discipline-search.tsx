@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Search, X, Loader2 } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { logger } from '@/lib/logger'
 import type { Curso, Natureza } from '@/types'
+import disciplinasData from '@/assets/data/disciplinas.json'
 
 import { cn } from '@/lib/utils'
 
@@ -25,29 +25,9 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
   const [searchTerm, setSearchTerm] = useState('')
   const [results, setResults] = useState<DisciplinaData[]>([])
   const [selectedIndex, setSelectedIndex] = useState(-1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [disciplinasData, setDisciplinasData] = useState<Record<string, DisciplinaData[]>>({})
   const [showResults, setShowResults] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-
-  // Carregar dados das disciplinas
-  useEffect(() => {
-    const loadDisciplinas = async () => {
-      setIsLoading(true)
-      try {
-        const response = await fetch('/assets/data/disciplinas.json')
-        const data = await response.json()
-        setDisciplinasData(data)
-      } catch (error) {
-        logger.error('Erro ao carregar disciplinas:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadDisciplinas()
-  }, [])
 
   // Fechar resultados ao clicar fora
   useEffect(() => {
@@ -79,14 +59,6 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
 
   // Buscar disciplinas
   useEffect(() => {
-    // Verificar se os dados já foram carregados
-    const normalizedData = disciplinasData as any
-    if (!normalizedData || !normalizedData.catalogo || !normalizedData.cursos) {
-      setResults([])
-      setShowResults(false)
-      return
-    }
-
     if (searchTerm.trim().length < 2) {
       setResults([])
       setShowResults(false)
@@ -94,11 +66,15 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
       return
     }
 
-    const cursoDisciplinas = normalizedData.cursos?.[cursoAtual] || []
+    type CursoEntry = { codigo: string; natureza: Natureza }
+    type CatalogoEntry = { codigo: string; nome: string; ch?: number }
+    const cursos = disciplinasData.cursos as Record<string, CursoEntry[]>
+    const catalogo = disciplinasData.catalogo as Record<string, CatalogoEntry>
+    const cursoDisciplinas = cursos[cursoAtual] || []
 
     // Mapear combinando com o catálogo
-    const disciplinasCompletas = cursoDisciplinas.map((d: any) => {
-      const catalogoInfo = normalizedData.catalogo?.[d.codigo] || {}
+    const disciplinasCompletas = cursoDisciplinas.map((d: CursoEntry) => {
+      const catalogoInfo = catalogo[d.codigo] || {}
       return {
         ...d,
         ...catalogoInfo
@@ -134,7 +110,7 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
     setResults(matches)
     setShowResults(matches.length > 0)
     setSelectedIndex(-1)
-  }, [searchTerm, cursoAtual, disciplinasData])
+  }, [searchTerm, cursoAtual])
 
   const handleSelect = (disciplina: DisciplinaData) => {
     onSelect(disciplina)
@@ -216,7 +192,6 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
             }
           }}
           className="pl-11 pr-10 h-12 rounded-xl border-none bg-card shadow-sm text-base font-medium placeholder:text-muted-foreground/60 dark:placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-primary/20"
-          disabled={isLoading}
         />
         {searchTerm && (
           <button

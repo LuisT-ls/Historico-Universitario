@@ -19,6 +19,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { CURSOS, NATUREZA_LABELS } from '@/lib/constants'
+import disciplinasData from '@/assets/data/disciplinas.json'
 
 import { calcularResultado, getPeriodoMaisRecente, sanitizeInput } from '@/lib/utils'
 import { PlusCircle, X } from 'lucide-react'
@@ -112,37 +113,23 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
     const isAC = natureza === 'AC'
     const naturezasDisponiveis = Object.keys(CURSOS[cursoAtual]?.requisitos || {}) as Natureza[]
 
-    const [disciplinasData, setDisciplinasData] = useState<any>(null)
-
-    // Carregar dados para auto-fill
-    useEffect(() => {
-      const loadData = async () => {
-        try {
-          const response = await fetch(`/assets/data/disciplinas.json?v=${new Date().getTime()}`)
-          const data = await response.json()
-          setDisciplinasData(data)
-        } catch (error) {
-          logger.error('Erro ao carregar dados de disciplinas:', error)
-        }
-      }
-      loadData()
-    }, [])
-
     // Auto-fill logic
     useEffect(() => {
-      if (!codigo || codigo.length < 5 || !disciplinasData || !disciplinasData.catalogo) return
+      if (!codigo || codigo.length < 5) return
 
       // Evitar sobrescrever se o usuário estiver editando um registro existente intencionalmente
       // Mas como é um form de adição/edição, se ele mudar o código, presume-se que quer os dados daquele código
 
       const codigoUpper = codigo.toUpperCase()
-      const disciplina = disciplinasData.catalogo[codigoUpper]
+      const catalogo = disciplinasData.catalogo as Record<string, { codigo: string; nome: string; ch: number }>
+      const cursos = disciplinasData.cursos as Record<string, Array<{ codigo: string; natureza: Natureza }>>
+      const disciplina = catalogo[codigoUpper]
 
       if (disciplina) {
         // Tentar encontrar natureza específica para o curso
         let novaNatureza: Natureza = 'OP'
-        const cursoDisciplinas = disciplinasData.cursos?.[cursoAtual] || []
-        const courseDiscipline = cursoDisciplinas.find((d: any) => d.codigo === codigoUpper)
+        const cursoDisciplinas = cursos[cursoAtual] || []
+        const courseDiscipline = cursoDisciplinas.find((d) => d.codigo === codigoUpper)
 
         if (courseDiscipline) {
           novaNatureza = courseDiscipline.natureza
@@ -152,7 +139,7 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
         setValue('natureza', novaNatureza)
         if (disciplina.ch) setValue('ch', disciplina.ch)
       }
-    }, [codigo, disciplinasData, cursoAtual, setValue])
+    }, [codigo, cursoAtual, setValue])
 
     const [isSheetOpen, setIsSheetOpen] = useState(false)
 
