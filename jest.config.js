@@ -25,6 +25,7 @@ const customJestConfig = {
   ],
   collectCoverageFrom: [
     'lib/**/*.{js,jsx,ts,tsx}',
+    'services/**/*.{js,jsx,ts,tsx}',
     'components/**/*.{js,jsx,ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
@@ -57,17 +58,36 @@ const customJestConfig = {
   ],
   coverageThreshold: {
     global: {
-      branches: 10,
-      functions: 10,
-      lines: 10,
-      statements: 10,
+      branches: 12,
+      functions: 13,
+      lines: 13,
+      statements: 13,
     },
-    // Thresholds mais altos para arquivos críticos
+    // lib — lógica de negócio crítica
     'lib/error-handler.ts': {
-      branches: 80,
+      branches: 85,
       functions: 100,
-      lines: 80,
-      statements: 80,
+      lines: 85,
+      statements: 85,
+    },
+    'lib/certificate-ocr.ts': {
+      branches: 90,
+      functions: 100,
+      lines: 95,
+      statements: 95,
+    },
+    // services — camada de acesso a dados
+    'services/firestore.service.ts': {
+      branches: 75,
+      functions: 100,
+      lines: 90,
+      statements: 90,
+    },
+    'services/auth.service.ts': {
+      branches: 50,
+      functions: 100,
+      lines: 90,
+      statements: 90,
     },
   },
   transformIgnorePatterns: [
