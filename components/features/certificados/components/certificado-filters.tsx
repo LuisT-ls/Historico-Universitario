@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import { Search } from 'lucide-react'
 import { TIPOS_CERTIFICADO } from '../constants'
 
@@ -23,7 +24,7 @@ export const CertificadoFilters = memo<CertificadoFiltersProps>(
                         className="pl-9 h-10 rounded-xl bg-muted/30 border-none focus-visible:ring-1 focus-visible:ring-primary/20"
                     />
                 </div>
-                <select
+                <Select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
                     className="h-10 w-full sm:w-[200px] rounded-xl border-none bg-muted/30 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/20"
@@ -34,7 +35,7 @@ export const CertificadoFilters = memo<CertificadoFiltersProps>(
                             {tipo.label}
                         </option>
                     ))}
-                </select>
+                </Select>
             </div>
         )
     }

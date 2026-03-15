@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Plus, Pencil, FileText, Loader2, Calendar as CalendarIcon, ScanText, CheckCircle2 } from 'lucide-react'
+import { Select } from '@/components/ui/select'
 import { TIPOS_CERTIFICADO } from '../constants'
 import { useDateMask, formatDateToDisplay } from '../hooks/use-date-mask'
 import type { CertificadoFormData } from '../hooks/use-certificado-form'
@@ -145,11 +146,10 @@ export const CertificadoForm = memo<CertificadoFormProps>(
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="tipo">Tipo de Atividade (Opcional)</Label>
-                                <select
+                                <Select
                                     id="tipo"
                                     value={formData.tipo}
-                                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any })}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value as CertificadoFormData['tipo'] })}
                                 >
                                     <option value="">Selecione o tipo (Auto: Outro)</option>
                                     {TIPOS_CERTIFICADO.map((tipo) => (
@@ -157,7 +157,7 @@ export const CertificadoForm = memo<CertificadoFormProps>(
                                             {tipo.label}
                                         </option>
                                     ))}
-                                </select>
+                                </Select>
                             </div>
                         </div>
 

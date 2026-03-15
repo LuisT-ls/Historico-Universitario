@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress' // Added Progress component
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -381,9 +382,9 @@ export function ProfilePage() {
 
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Curso</Label>
-                      <select value={profile?.curso || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, curso: e.target.value as Curso }) : null)} className="w-full h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-w-[200px]">
+                      <Select value={profile?.curso || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, curso: e.target.value as Curso }) : null)} className="w-full h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-w-[200px]">
                         {Object.entries(CURSOS).map(([k, v]) => <option key={k} value={k}>{v.nome}</option>)}
-                      </select>
+                      </Select>
                     </div>
 
                     <div className="space-y-1.5">
@@ -625,9 +626,9 @@ export function ProfilePage() {
                   </Button>
 
                   <div className="flex gap-2">
-                    <select value={exportFormat} onChange={e => setExportFormat(e.target.value as any)} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <Select value={exportFormat} onChange={e => setExportFormat(e.target.value as 'json' | 'xlsx' | 'pdf')} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20">
                       <option value="json">JSON</option><option value="xlsx">EXCEL</option><option value="pdf">PDF</option>
-                    </select>
+                    </Select>
                     <Button variant="outline" onClick={handleExportData} className="flex-1 h-12 rounded-xl border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900">
                       <Download className="h-4 w-4 mr-2" /> Exportar Dados
                     </Button>
