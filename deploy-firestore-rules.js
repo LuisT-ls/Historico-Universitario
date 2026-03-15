@@ -42,10 +42,10 @@ try {
   execSync('firebase deploy --only firestore:rules', { stdio: 'inherit' })
 
   console.log('✅ Regras do Firestore atualizadas com sucesso!')
-  console.log('🔧 As seguintes coleções agora têm permissões adequadas:')
-  console.log('   - academicHistory')
-  console.log('   - graduationRequirements')
-  console.log('   - Todas as outras coleções existentes')
+  console.log('🔧 As seguintes coleções têm permissões configuradas:')
+  console.log('   - users')
+  console.log('   - disciplines')
+  console.log('   - certificados')
 } catch (error) {
   console.error('❌ Erro ao atualizar regras:', error.message)
   process.exit(1)

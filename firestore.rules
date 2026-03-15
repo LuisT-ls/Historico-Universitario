@@ -41,25 +41,6 @@ service cloud.firestore {
                     && isValidString(request.resource.data.titulo, 1, 300);
     }
 
-    // Coleções Privadas (Sempre protegidas)
-    match /summaries/{id} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
-    
-    match /backups/{id} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
-    
-    match /academicHistory/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
-    }
-    
-    match /graduationRequirements/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
-    }
-    
     // Bloqueio Global
     match /{document=**} {
       allow read, write: if false;
