@@ -8,6 +8,9 @@ import {
     verifyPasswordResetCode as firebaseVerifyPasswordResetCode,
     updatePassword as firebaseUpdatePassword,
     updateProfile as firebaseUpdateProfile,
+    reauthenticateWithCredential,
+    reauthenticateWithPopup,
+    EmailAuthProvider,
     deleteUser,
     type User,
     type ActionCodeSettings,
@@ -126,6 +129,37 @@ export async function confirmPasswordReset(oobCode: string, newPassword: string)
         logger.info('Senha redefinida com sucesso')
     } catch (error) {
         logger.error('Erro ao confirmar redefinição de senha:', error)
+        throw error
+    }
+}
+
+/**
+ * Re-autentica o usuário com email e senha (necessário antes de operações sensíveis)
+ */
+export async function reauthenticateWithEmail(password: string): Promise<void> {
+    if (!auth?.currentUser?.email) throw new Error('Usuário não autenticado')
+
+    try {
+        const credential = EmailAuthProvider.credential(auth.currentUser.email, password)
+        await reauthenticateWithCredential(auth.currentUser, credential)
+        logger.info('Re-autenticação com email realizada')
+    } catch (error) {
+        logger.error('Erro ao re-autenticar com email:', error)
+        throw error
+    }
+}
+
+/**
+ * Re-autentica o usuário com Google (necessário antes de operações sensíveis)
+ */
+export async function reauthenticateWithGoogle(): Promise<void> {
+    if (!auth?.currentUser || !googleProvider) throw new Error('Auth ou Google Provider não inicializados')
+
+    try {
+        await reauthenticateWithPopup(auth.currentUser, googleProvider)
+        logger.info('Re-autenticação com Google realizada')
+    } catch (error) {
+        logger.error('Erro ao re-autenticar com Google:', error)
         throw error
     }
 }

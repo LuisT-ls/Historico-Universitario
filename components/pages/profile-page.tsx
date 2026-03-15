@@ -32,19 +32,17 @@ import {
   Building,
   GraduationCap
 } from 'lucide-react'
-import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore'
+import { getProfile, getDisciplines, updateProfile } from '@/services/firestore.service'
 import {
   updatePassword,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  deleteUser,
-  reauthenticateWithPopup
-} from 'firebase/auth'
-import { db, auth, googleProvider } from '@/lib/firebase/config'
+  deleteAccount,
+  reauthenticateWithEmail,
+  reauthenticateWithGoogle,
+} from '@/services/auth.service'
 import { CURSOS } from '@/lib/constants'
 import { calcularEstatisticas, sanitizeInput, getCurrentSemester } from '@/lib/utils'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
-import type { Profile, Curso, Disciplina, UserStatistics } from '@/types'
+import type { Profile, Curso, UserStatistics } from '@/types'
 import {
   Dialog,
   DialogContent,
@@ -57,6 +55,20 @@ import { toast, setNotificationsEnabled } from '@/lib/toast'
 import { cn } from '@/lib/utils'
 import { logger } from '@/lib/logger'
 import { createUserId } from '@/lib/constants'
+
+const isProfileDirty = (current: Profile | null, initial: Profile | null): boolean => {
+  if (!current || !initial) return false
+  return (
+    current.nome !== initial.nome ||
+    current.curso !== initial.curso ||
+    current.matricula !== initial.matricula ||
+    current.institution !== initial.institution ||
+    current.startYear !== initial.startYear ||
+    current.startSemester !== initial.startSemester ||
+    current.suspensions !== initial.suspensions ||
+    current.currentSemester !== initial.currentSemester
+  )
+}
 
 export function ProfilePage() {
   const router = useRouter()
@@ -118,13 +130,13 @@ export function ProfilePage() {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || !user || !db) return
+    if (!file || !user) return
     if (!file.type.startsWith('image/')) { toast.error('Formato inválido. Use JPG, PNG ou WebP.'); return }
     if (file.size > 10 * 1024 * 1024) { toast.error('Arquivo muito grande. Máximo 10MB.'); return }
     try {
       setUploading(true)
       const base64Image = await compressImage(file)
-      await setDoc(doc(db, 'users', user.uid), { photoURL: base64Image, updatedAt: new Date() }, { merge: true })
+      await updateProfile(user.uid, { photoURL: base64Image })
       setProfile(prev => prev ? ({ ...prev, photoURL: base64Image }) : null)
       toast.success('Foto de perfil atualizada!')
     } catch (error) { toast.error('Erro ao processar imagem') } finally { setUploading(false) }
@@ -136,89 +148,68 @@ export function ProfilePage() {
   useEffect(() => { if (!user || !profile) return; loadStatistics() }, [user, profile])
 
   const loadProfile = async () => {
-    if (!user || !db) return
+    if (!user) return
     setIsLoading(true)
     try {
-      const userRef = doc(db, 'users', user.uid)
-      const userSnap = await getDoc(userRef)
-      if (userSnap.exists()) {
-        const data = userSnap.data()
-        const profileData: Profile = {
-          uid: createUserId(user.uid),
-          nome: data.name || user.displayName || '',
-          email: data.email || user.email || '',
-          photoURL: data.photoURL || user.photoURL || '',
-          curso: data.profile?.course || 'BICTI',
-          matricula: data.profile?.enrollment || '',
-          institution: data.profile?.institution || '',
-          startYear: data.profile?.startYear || new Date().getFullYear(),
-          startSemester: data.profile?.startSemester || '1',
-          suspensions: data.profile?.suspensions || 0,
-          currentSemester: data.profile?.currentSemester || getCurrentSemester(),
-          settings: { notifications: data.settings?.notifications !== false, privacy: data.settings?.privacy || 'private' },
-        }
-        setProfile(profileData)
-        setInitialProfile(profileData)
-        setEntryInput(`${profileData.startYear || ''}${profileData.startSemester ? '.' + profileData.startSemester : ''}`)
-      } else {
-        const defaultData: Profile = {
-          uid: createUserId(user.uid),
-          nome: user.displayName || '',
-          email: user.email || '',
-          curso: 'BICTI',
-          matricula: '',
-          institution: '',
-          startYear: new Date().getFullYear(),
-          startSemester: '1',
-          suspensions: 0,
-          currentSemester: getCurrentSemester(),
-          settings: { notifications: true, privacy: 'private' },
-        }
-        setProfile(defaultData)
-        setInitialProfile(defaultData)
-        setEntryInput(`${defaultData.startYear || ''}${defaultData.startSemester ? '.' + defaultData.startSemester : ''}`)
-      }
+      const data = await getProfile(user.uid)
+      const profileData: Profile = data
+        ? {
+            ...data,
+            nome: data.nome || user.displayName || '',
+            email: data.email || user.email || '',
+            photoURL: data.photoURL || user.photoURL || '',
+            startYear: data.startYear ?? new Date().getFullYear(),
+            startSemester: data.startSemester ?? '1',
+            suspensions: data.suspensions ?? 0,
+            currentSemester: data.currentSemester ?? getCurrentSemester(),
+            settings: {
+              notifications: data.settings?.notifications !== false,
+              privacy: data.settings?.privacy ?? 'private',
+            },
+          }
+        : {
+            uid: createUserId(user.uid),
+            nome: user.displayName || '',
+            email: user.email || '',
+            curso: 'BICTI',
+            matricula: '',
+            institution: '',
+            startYear: new Date().getFullYear(),
+            startSemester: '1',
+            suspensions: 0,
+            currentSemester: getCurrentSemester(),
+            settings: { notifications: true, privacy: 'private' },
+          }
+      setProfile(profileData)
+      setInitialProfile(profileData)
+      setEntryInput(`${profileData.startYear || ''}${profileData.startSemester ? '.' + profileData.startSemester : ''}`)
     } catch (error) { logger.error('Erro ao carregar perfil:', error) } finally { setIsLoading(false) }
   }
 
   const loadStatistics = async (overrideProfile?: Profile) => {
-    if (!user || !db) return
+    if (!user) return
     try {
-      const q = query(collection(db, 'disciplines'), where('userId', '==', user.uid))
-      const snap = await getDocs(q)
-      const discs: Disciplina[] = []
-      snap.forEach(doc => discs.push({ id: doc.id, ...doc.data() } as any))
-
+      const discs = await getDisciplines(user.uid)
       const p = overrideProfile || profile
       const periodoLetivo = p?.currentSemester || getCurrentSemester()
-
-      setStatistics(calcularEstatisticas(
-        discs,
-        [],
-        p?.curso || 'BICTI',
-        p || undefined,
-        periodoLetivo
-      ))
+      setStatistics(calcularEstatisticas(discs, [], p?.curso || 'BICTI', p || undefined, periodoLetivo))
     } catch (error) { logger.error('Erro ao carregar estatísticas:', error) }
   }
 
   const handleSave = async () => {
-    if (!user || !db || !profile) return
+    if (!user || !profile) return
     setIsSaving(true)
     try {
-      await setDoc(doc(db, 'users', user.uid), {
-        name: sanitizeInput(profile.nome || ''),
-        profile: {
-          course: profile.curso,
-          enrollment: profile.matricula,
-          institution: profile.institution,
-          startYear: profile.startYear,
-          startSemester: profile.startSemester,
-          suspensions: profile.suspensions,
-          currentSemester: profile.currentSemester
-        },
-        updatedAt: new Date(),
-      }, { merge: true })
+      await updateProfile(user.uid, {
+        nome: sanitizeInput(profile.nome || ''),
+        curso: profile.curso,
+        matricula: profile.matricula,
+        institution: profile.institution,
+        startYear: profile.startYear,
+        startSemester: profile.startSemester,
+        suspensions: profile.suspensions,
+        currentSemester: profile.currentSemester,
+      })
       setSaveSuccess(true)
       setTimeout(() => setSaveSuccess(false), 3000)
       toast.success('Perfil atualizado!')
@@ -226,39 +217,33 @@ export function ProfilePage() {
     } catch (error) { toast.error('Erro ao salvar perfil') } finally { setIsSaving(false) }
   }
 
-  const handleSettingsChange = async (key: string, value: any) => {
-    if (!user || !db || !profile) return
+  const handleSettingsChange = async (key: string, value: boolean | string) => {
+    if (!user || !profile) return
     setSettingsSaving(prev => ({ ...prev, [key]: true }))
     try {
-      await setDoc(doc(db, 'users', user.uid), {
-        settings: { ...profile.settings, [key]: value },
-        updatedAt: new Date(),
-      }, { merge: true })
+      const newSettings = { ...profile.settings, [key]: value }
+      await updateProfile(user.uid, { settings: newSettings })
       setProfile(prev => prev ? ({ ...prev, settings: { ...prev.settings, [key]: value } }) : null)
-      if (key === 'notifications') setNotificationsEnabled(value)
+      if (key === 'notifications') setNotificationsEnabled(value as boolean)
       setSettingsSuccess(prev => ({ ...prev, [key]: true }))
       setTimeout(() => setSettingsSuccess(prev => ({ ...prev, [key]: false })), 2000)
     } catch (error) { toast.error('Erro ao salvar configuração') } finally { setSettingsSaving(prev => ({ ...prev, [key]: false })) }
   }
 
   const handleChangePassword = async () => {
-    if (!user || !auth || passwordData.new !== passwordData.confirm) return
+    if (!user || passwordData.new !== passwordData.confirm) return
     try {
-      const cred = EmailAuthProvider.credential(user.email!, passwordData.current)
-      await reauthenticateWithCredential(user, cred)
-      await updatePassword(user, passwordData.new)
+      await reauthenticateWithEmail(passwordData.current)
+      await updatePassword(passwordData.new)
       toast.success('Senha alterada!')
       setChangePasswordOpen(false)
     } catch (error) { toast.error('Erro ao alterar senha', { description: getFirebaseErrorMessage(error) }) }
   }
 
   const handleExportData = async () => {
-    if (!user || !db) return
+    if (!user) return
     try {
-      const q = query(collection(db, 'disciplines'), where('userId', '==', user.uid))
-      const snap = await getDocs(q)
-      const disciplines: any[] = []
-      snap.forEach(doc => disciplines.push({ id: doc.id, ...doc.data() }))
+      const disciplines = await getDisciplines(user.uid)
       const backup = { exportedAt: new Date().toISOString(), disciplines, profile, user: { uid: user.uid, email: user.email, displayName: user.displayName } }
       if (exportFormat === 'json') exportAsJSON(backup)
       else if (exportFormat === 'xlsx') await exportAsXLSX(backup, disciplines, statistics)
@@ -271,9 +256,12 @@ export function ProfilePage() {
     if (!user || deleteConfirm !== 'EXCLUIR') return
     try {
       const isGoogleUser = user.providerData?.some(p => p.providerId === 'google.com')
-      if (isGoogleUser) { if (!googleProvider) throw new Error('Provider not found'); await reauthenticateWithPopup(user, googleProvider) }
-      else { const cred = EmailAuthProvider.credential(user.email!, deletePassword); await reauthenticateWithCredential(user, cred) }
-      await deleteUser(user)
+      if (isGoogleUser) {
+        await reauthenticateWithGoogle()
+      } else {
+        await reauthenticateWithEmail(deletePassword)
+      }
+      await deleteAccount()
       localStorage.clear()
       router.push('/')
       toast.success('Conta excluída')
@@ -462,7 +450,7 @@ export function ProfilePage() {
                     </div>
                   </div>
 
-                  {JSON.stringify(profile) !== JSON.stringify(initialProfile) && (
+                  {isProfileDirty(profile, initialProfile) && (
                     <div className="flex justify-end pt-2 animate-in fade-in slide-in-from-bottom-2">
                       <Button onClick={handleSave} disabled={isSaving} className={cn("h-11 px-8 rounded-xl font-bold transition-all shadow-xl shadow-primary/20 hover:shadow-primary/30", saveSuccess ? "bg-emerald-600 hover:bg-emerald-700" : "")}>
                         {isSaving ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : saveSuccess ? <CheckCircle className="h-5 w-5 mr-2" /> : <Save className="h-5 w-5 mr-2" />}
