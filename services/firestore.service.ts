@@ -270,17 +270,49 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 }
 
 /**
- * Atualiza o perfil do usuário
+ * Atualiza o perfil do usuário.
+ *
+ * O documento `users/{userId}` usa a seguinte estrutura no Firestore:
+ *   - name          (raiz)
+ *   - email         (raiz)
+ *   - photoURL      (raiz)
+ *   - settings      (raiz)
+ *   - profile.course
+ *   - profile.enrollment
+ *   - profile.institution
+ *   - profile.startYear
+ *   - profile.startSemester
+ *   - profile.suspensions
+ *   - profile.currentSemester
+ *
+ * Usamos dot-notation para atualizar campos aninhados individualmente
+ * sem sobrescrever o objeto `profile` inteiro.
  */
 export async function updateProfile(userId: string, data: Partial<Profile>): Promise<void> {
     if (!db) throw new Error('Firestore não inicializado')
 
     try {
         const userRef = doc(db, 'users', userId)
-        await updateDoc(userRef, {
-            ...data,
-            updatedAt: new Date(),
-        })
+
+        // Mapeia Profile → estrutura real do documento Firestore
+        const firestoreData: Record<string, unknown> = { updatedAt: new Date() }
+
+        // Campos na raiz do documento
+        if (data.nome !== undefined) firestoreData['name'] = data.nome
+        if (data.email !== undefined) firestoreData['email'] = data.email
+        if (data.photoURL !== undefined) firestoreData['photoURL'] = data.photoURL
+        if (data.settings !== undefined) firestoreData['settings'] = data.settings
+
+        // Campos aninhados em `profile` — dot-notation atualiza sem sobrescrever os demais
+        if (data.curso !== undefined) firestoreData['profile.course'] = data.curso
+        if (data.matricula !== undefined) firestoreData['profile.enrollment'] = data.matricula
+        if (data.institution !== undefined) firestoreData['profile.institution'] = data.institution
+        if (data.startYear !== undefined) firestoreData['profile.startYear'] = data.startYear
+        if (data.startSemester !== undefined) firestoreData['profile.startSemester'] = data.startSemester
+        if (data.suspensions !== undefined) firestoreData['profile.suspensions'] = data.suspensions
+        if (data.currentSemester !== undefined) firestoreData['profile.currentSemester'] = data.currentSemester
+
+        await updateDoc(userRef, firestoreData)
         logger.info('Perfil atualizado com sucesso', { userId })
     } catch (error) {
         logger.error('Erro ao atualizar perfil:', error)
