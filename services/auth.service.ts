@@ -4,9 +4,13 @@ import {
     signInWithPopup,
     signOut as firebaseSignOut,
     sendPasswordResetEmail,
+    confirmPasswordReset as firebaseConfirmPasswordReset,
+    verifyPasswordResetCode as firebaseVerifyPasswordResetCode,
     updatePassword as firebaseUpdatePassword,
+    updateProfile as firebaseUpdateProfile,
     deleteUser,
     type User,
+    type ActionCodeSettings,
 } from 'firebase/auth'
 import { auth, googleProvider } from '@/lib/firebase/config'
 import { logger } from '@/lib/logger'
@@ -50,11 +54,14 @@ export async function signInWithGoogle(): Promise<User> {
 /**
  * Registra um novo usuário com email e senha
  */
-export async function signUp(email: string, password: string): Promise<User> {
+export async function signUp(email: string, password: string, displayName?: string): Promise<User> {
     if (!auth) throw new Error('Auth não inicializado')
 
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+        if (displayName) {
+            await firebaseUpdateProfile(userCredential.user, { displayName })
+        }
         logger.info('Registro realizado com sucesso')
         return userCredential.user
     } catch (error) {
@@ -81,14 +88,44 @@ export async function signOut(): Promise<void> {
 /**
  * Envia email para redefinição de senha
  */
-export async function resetPassword(email: string): Promise<void> {
+export async function resetPassword(email: string, actionCodeSettings?: ActionCodeSettings): Promise<void> {
     if (!auth) throw new Error('Auth não inicializado')
 
     try {
-        await sendPasswordResetEmail(auth, email)
+        await sendPasswordResetEmail(auth, email, actionCodeSettings)
         logger.info('Email de redefinição de senha enviado')
     } catch (error) {
         logger.error('Erro ao enviar email de redefinição:', error)
+        throw error
+    }
+}
+
+/**
+ * Verifica o código de redefinição de senha e retorna o email associado
+ */
+export async function verifyPasswordResetCode(oobCode: string): Promise<string> {
+    if (!auth) throw new Error('Auth não inicializado')
+
+    try {
+        const email = await firebaseVerifyPasswordResetCode(auth, oobCode)
+        return email
+    } catch (error) {
+        logger.error('Erro ao verificar código de redefinição:', error)
+        throw error
+    }
+}
+
+/**
+ * Confirma a redefinição de senha com o novo valor
+ */
+export async function confirmPasswordReset(oobCode: string, newPassword: string): Promise<void> {
+    if (!auth) throw new Error('Auth não inicializado')
+
+    try {
+        await firebaseConfirmPasswordReset(auth, oobCode, newPassword)
+        logger.info('Senha redefinida com sucesso')
+    } catch (error) {
+        logger.error('Erro ao confirmar redefinição de senha:', error)
         throw error
     }
 }

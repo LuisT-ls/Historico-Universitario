@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { sendPasswordResetEmail } from 'firebase/auth'
-import { auth } from '@/lib/firebase/config'
+import { resetPassword } from '@/services/auth.service'
 import { handleError, type AppError } from '@/lib/error-handler'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -38,8 +37,6 @@ export function ForgotPasswordPage() {
   })
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
-    if (!auth) return
-
     setIsLoading(true)
     setError(null)
 
@@ -48,7 +45,7 @@ export function ForgotPasswordPage() {
         url: `${window.location.origin}/reset-password`,
         handleCodeInApp: true,
       }
-      await sendPasswordResetEmail(auth, data.email, actionCodeSettings)
+      await resetPassword(data.email, actionCodeSettings)
       setIsSubmitted(true)
       toast.success('E-mail de recuperação enviado com sucesso!')
     } catch (err: unknown) {

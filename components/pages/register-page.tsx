@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
-import { auth } from '@/lib/firebase/config'
+import { signUp } from '@/services/auth.service'
 import { handleError, type AppError } from '@/lib/error-handler'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -49,14 +48,11 @@ export function RegisterPage() {
   })
 
   const onSubmit = async (data: RegisterFormData) => {
-    if (!auth) return
-
     setIsLoading(true)
     setError(null)
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password)
-      await updateProfile(userCredential.user, { displayName: data.name })
+      await signUp(data.email, data.password, data.name)
       toast.success('Cadastro realizado com sucesso!')
       router.push('/')
     } catch (err: unknown) {

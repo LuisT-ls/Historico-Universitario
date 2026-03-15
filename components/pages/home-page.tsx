@@ -6,9 +6,8 @@ import { useAuth } from '@/components/auth-provider'
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
-import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc, getDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase/config'
-import { calcularResultado, normalizeText, getCurrentSemester } from '@/lib/utils'
+import { getDisciplines, addDiscipline, updateDiscipline, deleteDiscipline, getCertificates, getProfile } from '@/services/firestore.service'
+import { normalizeText } from '@/lib/utils'
 import { handleError } from '@/lib/error-handler'
 import type { Curso, Disciplina, Certificado, Profile } from '@/types'
 import { toast } from '@/lib/toast'
@@ -57,82 +56,30 @@ export function HomePage() {
   const formRef = useRef<DisciplineFormRef>(null)
 
   const loadDisciplinas = useCallback(async () => {
-    if (!user || !db) return
+    if (!user) return
     setIsLoading(true)
     try {
-      const disciplinesRef = collection(db, 'disciplines')
-      const q = query(disciplinesRef, where('userId', '==', user.uid))
-      const querySnapshot = await getDocs(q)
+      const [todasDisciplinas, certificadosData, profileData] = await Promise.all([
+        getDisciplines(user.uid),
+        getCertificates(user.uid),
+        getProfile(user.uid),
+      ])
 
-      const disciplinasFirebase: Disciplina[] = []
-      querySnapshot.forEach((doc) => {
-        const data = doc.data()
-        let resultado = data.resultado
-        if (!resultado && data.natureza !== 'AC' && data.nota !== undefined && data.nota !== null) {
-          resultado = calcularResultado(data.nota, data.trancamento, data.dispensada, data.emcurso, data.natureza)
-        } else if (data.natureza === 'AC') {
-          resultado = undefined
-        }
+      setCertificados(certificadosData)
 
-        disciplinasFirebase.push({
-          id: doc.id,
-          periodo: data.periodo || '',
-          codigo: data.codigo || '',
-          nome: data.nome || '',
-          natureza: data.natureza || 'OB',
-          ch: data.ch || 0,
-          nota: data.nota !== undefined && data.nota !== null ? data.nota : 0,
-          trancamento: data.trancamento || false,
-          dispensada: data.dispensada || false,
-          emcurso: data.emcurso || false,
-          resultado: resultado as any,
-          curso: data.curso || 'BICTI',
-          createdAt: data.createdAt?.toDate?.() || data.createdAt || new Date(),
-          updatedAt: data.updatedAt?.toDate?.() || data.updatedAt || new Date(),
-        } as Disciplina)
-      })
-
-      const certificadosRef = collection(db, 'certificados')
-      const qCert = query(certificadosRef, where('userId', '==', user.uid))
-      const certSnapshot = await getDocs(qCert)
-
-      const certificadosFirebase: Certificado[] = []
-      certSnapshot.forEach((doc) => {
-        const data = doc.data()
-        certificadosFirebase.push({
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate?.() || data.createdAt || new Date(),
-          updatedAt: data.updatedAt?.toDate?.() || data.updatedAt || new Date(),
-        } as Certificado)
-      })
-
-      setCertificados(certificadosFirebase)
-      let disciplinasDoCurso = disciplinasFirebase.filter((d) => d.curso === cursoAtual)
-      disciplinasDoCurso.sort((a, b) => {
-        const [anoA, semA] = a.periodo.split('.').map(Number)
-        const [anoB, semB] = b.periodo.split('.').map(Number)
-        if (anoA !== anoB) return anoB - anoA
-        return semB - semA
-      })
+      const disciplinasDoCurso = todasDisciplinas
+        .filter((d) => d.curso === cursoAtual)
+        .sort((a, b) => {
+          const [anoA, semA] = a.periodo.split('.').map(Number)
+          const [anoB, semB] = b.periodo.split('.').map(Number)
+          if (anoA !== anoB) return anoB - anoA
+          return semB - semA
+        })
 
       setDisciplinas(disciplinasDoCurso)
       localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasDoCurso))
 
-      // Load Profile
-      const userRef = doc(db, 'users', user.uid)
-      const userSnap = await getDoc(userRef)
-      if (userSnap.exists()) {
-        const data = userSnap.data()
-        setProfile({
-          uid: user.uid as any,
-          curso: data.profile?.course || 'BICTI',
-          startYear: data.profile?.startYear || 2023,
-          startSemester: data.profile?.startSemester || '1',
-          suspensions: data.profile?.suspensions || 0,
-          currentSemester: data.profile?.currentSemester || getCurrentSemester()
-        } as Profile)
-      }
+      if (profileData) setProfile(profileData)
     } catch (error: unknown) {
       logger.error('Erro ao carregar disciplinas:', error)
     } finally {
@@ -156,16 +103,10 @@ export function HomePage() {
 
   const handleAddDisciplina = async (disciplina: Disciplina) => {
     try {
-      if (user && db) {
-        const disciplineData = {
-          ...disciplina,
-          userId: user.uid,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }
-        delete (disciplineData as any).id
-        const docRef = await addDoc(collection(db, 'disciplines'), disciplineData)
-        disciplina.id = createDisciplinaId(docRef.id)
+      if (user) {
+        const { id, ...disciplinaWithoutId } = disciplina
+        const docId = await addDiscipline(disciplinaWithoutId, user.uid)
+        disciplina.id = createDisciplinaId(docId)
       }
       const novas = [...disciplinas, disciplina]
       setDisciplinas(novas)
@@ -178,11 +119,8 @@ export function HomePage() {
 
   const handleUpdateDisciplina = async (disciplina: Disciplina, index: number) => {
     try {
-      if (user && db && disciplina.id) {
-        const disciplineRef = doc(db, 'disciplines', disciplina.id)
-        const data = { ...disciplina, updatedAt: new Date() }
-        delete (data as any).id
-        await updateDoc(disciplineRef, data)
+      if (user && disciplina.id) {
+        await updateDiscipline(disciplina.id, disciplina)
       }
       const novas = [...disciplinas]
       novas[index] = disciplina
@@ -208,8 +146,8 @@ export function HomePage() {
     const timeoutId = setTimeout(async () => {
       if (undone) return
       try {
-        if (user && db && disc.id) {
-          await deleteDoc(doc(db, 'disciplines', disc.id))
+        if (user && disc.id) {
+          await deleteDiscipline(disc.id)
         }
       } catch (error) {
         logger.error('Error removing discipline:', error)
@@ -248,7 +186,7 @@ export function HomePage() {
       let puladas = 0
       const batchProcessed = new Set<string>() // Para evitar duplicatas internas no mesmo PDF
 
-      if (user && db) {
+      if (user) {
         // Usuário logado: salvar no Firebase
         logger.info('Usuário autenticado - processando no Firebase')
 
@@ -276,17 +214,12 @@ export function HomePage() {
               continue
             }
 
-            // Criar nova
-            const disciplineData = {
-              ...disciplina,
-              userId: user.uid,
+            // Criar nova via service layer
+            const { id, ...disciplinaWithoutId } = disciplina
+            await addDiscipline({
+              ...disciplinaWithoutId,
               curso: disciplina.curso || cursoAtual,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            }
-            delete (disciplineData as any).id
-
-            await addDoc(collection(db, 'disciplines'), disciplineData)
+            }, user.uid)
             novas++
             batchProcessed.add(key)
           } catch (error) {

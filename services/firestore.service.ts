@@ -8,12 +8,12 @@ import {
     deleteDoc,
     query,
     where,
-    type Firestore,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import type { Disciplina, Certificado, Profile } from '@/types'
 import { createDisciplinaId, createCertificadoId, createUserId } from '@/lib/constants'
 import { logger } from '@/lib/logger'
+import { calcularResultado } from '@/lib/utils'
 
 /**
  * Serviço de Firestore para operações de banco de dados
@@ -35,18 +35,29 @@ export async function getDisciplines(userId: string): Promise<Disciplina[]> {
         const disciplinas: Disciplina[] = []
         querySnapshot.forEach((doc) => {
             const data = doc.data()
+            const natureza = data.natureza || 'OB'
+            const nota = data.nota !== undefined && data.nota !== null ? data.nota : 0
+
+            // Normalizar resultado: calcular se não estiver armazenado
+            let resultado = data.resultado
+            if (!resultado && natureza !== 'AC' && data.nota !== undefined && data.nota !== null) {
+                resultado = calcularResultado(nota, data.trancamento, data.dispensada, data.emcurso, natureza)
+            } else if (natureza === 'AC') {
+                resultado = undefined
+            }
+
             disciplinas.push({
                 id: createDisciplinaId(doc.id),
                 periodo: data.periodo || '',
                 codigo: data.codigo || '',
                 nome: data.nome || '',
-                natureza: data.natureza || 'OB',
+                natureza,
                 ch: data.ch || 0,
-                nota: data.nota || 0,
+                nota,
                 trancamento: data.trancamento || false,
                 dispensada: data.dispensada || false,
                 emcurso: data.emcurso || false,
-                resultado: data.resultado,
+                resultado,
                 curso: data.curso || 'BICTI',
                 createdAt: data.createdAt?.toDate?.() || new Date(),
                 updatedAt: data.updatedAt?.toDate?.() || new Date(),
@@ -240,11 +251,14 @@ export async function getProfile(userId: string): Promise<Profile | null> {
             uid: createUserId(userId),
             nome: data.name || '',
             email: data.email || '',
+            photoURL: data.photoURL || '',
             curso: data.profile?.course || 'BICTI',
             matricula: data.profile?.enrollment || '',
             institution: data.profile?.institution || '',
             startYear: data.profile?.startYear,
             startSemester: data.profile?.startSemester,
+            suspensions: data.profile?.suspensions || 0,
+            currentSemester: data.profile?.currentSemester,
             settings: data.settings,
             createdAt: data.createdAt?.toDate?.(),
             updatedAt: data.updatedAt?.toDate?.(),

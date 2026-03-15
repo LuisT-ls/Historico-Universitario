@@ -5,8 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth'
-import { auth } from '@/lib/firebase/config'
+import { confirmPasswordReset, verifyPasswordResetCode } from '@/services/auth.service'
 import { handleError, type AppError } from '@/lib/error-handler'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -46,7 +45,7 @@ function ResetPasswordContent() {
 
   useEffect(() => {
     async function verifyCode() {
-      if (!auth || !oobCode || mode !== 'resetPassword') {
+      if (!oobCode || mode !== 'resetPassword') {
         setError({
           title: 'Link Inválido',
           message: 'O link de recuperação de senha é inválido ou já expirou.',
@@ -57,7 +56,7 @@ function ResetPasswordContent() {
       }
 
       try {
-        const userEmail = await verifyPasswordResetCode(auth, oobCode)
+        const userEmail = await verifyPasswordResetCode(oobCode)
         setEmail(userEmail)
       } catch (err: unknown) {
         setError({
@@ -82,13 +81,13 @@ function ResetPasswordContent() {
   })
 
   const onSubmit = async (data: ResetPasswordFormData) => {
-    if (!auth || !oobCode) return
+    if (!oobCode) return
 
     setIsLoading(true)
     setError(null)
 
     try {
-      await confirmPasswordReset(auth, oobCode, data.password)
+      await confirmPasswordReset(oobCode, data.password)
       setIsSuccess(true)
       toast.success('Senha redefinida com sucesso!')
       setTimeout(() => {

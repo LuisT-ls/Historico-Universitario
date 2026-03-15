@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react'
 import { useAuth } from '@/components/auth-provider'
-import { collection, addDoc, updateDoc, doc } from 'firebase/firestore'
-import { db } from '@/lib/firebase/config'
+import { addCertificate, updateCertificate } from '@/services/firestore.service'
 import { handleError } from '@/lib/error-handler'
 import { sanitizeInput, sanitizeLongText } from '@/lib/utils'
 import { toast } from '@/lib/toast'
 import { logger } from '@/lib/logger'
 import type { TipoCertificado, StatusCertificado, Certificado } from '@/types'
+import { createUserId } from '@/lib/constants'
 import { dateToISO } from './use-date-mask'
 
 export interface CertificadoFormData {
@@ -70,7 +70,7 @@ export const useCertificadoForm = (loadCertificados: () => Promise<void>) => {
     const handleSubmit = useCallback(
         async (e: React.FormEvent) => {
             e.preventDefault()
-            if (!user || !db) return
+            if (!user) return
 
             setIsSubmitting(true)
 
@@ -87,7 +87,7 @@ export const useCertificadoForm = (loadCertificados: () => Promise<void>) => {
                 }
 
                 const certificadoData = {
-                    userId: user.uid,
+                    userId: createUserId(user.uid),
                     titulo: sanitizeInput(formData.titulo),
                     tipo: (formData.tipo || 'outro') as TipoCertificado,
                     instituicao: formData.instituicao ? sanitizeInput(formData.instituicao) : '',
@@ -102,23 +102,19 @@ export const useCertificadoForm = (loadCertificados: () => Promise<void>) => {
 
                 if (editingId) {
                     // Atualizar certificado existente
-                    const certificadoRef = doc(db, 'certificados', editingId)
-                    await updateDoc(certificadoRef, certificadoData)
-
+                    await updateCertificate(editingId, certificadoData)
                     toast.success('Certificado atualizado!', {
                         description: certificadoData.titulo,
                         duration: 3000,
                     })
                 } else {
                     // Criar novo certificado
-                    const novoCertificado = {
+                    const novoCertificado: Omit<Certificado, 'id'> = {
                         ...certificadoData,
+                        userId: certificadoData.userId as Certificado['userId'],
                         dataCadastro: new Date().toISOString(),
-                        createdAt: new Date(),
                     }
-
-                    await addDoc(collection(db, 'certificados'), novoCertificado)
-
+                    await addCertificate(novoCertificado, user.uid)
                     toast.success('Certificado salvo com sucesso!', {
                         description: certificadoData.titulo,
                         duration: 3000,

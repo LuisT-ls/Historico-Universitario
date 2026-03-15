@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useAuth } from '@/components/auth-provider'
-import { collection, query, where, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore'
-import { db } from '@/lib/firebase/config'
+import { getCertificates, deleteCertificate } from '@/services/firestore.service'
 import { handleError, type AppError } from '@/lib/error-handler'
 import { toast } from '@/lib/toast'
 import { logger } from '@/lib/logger'
@@ -22,24 +21,11 @@ export const useCertificados = (curso: Curso = 'BICTI') => {
 
     // Carregar certificados
     const loadCertificados = useCallback(async () => {
-        if (!user || !db) return
+        if (!user) return
 
         setIsLoading(true)
         try {
-            const certificadosRef = collection(db, 'certificados')
-            const q = query(certificadosRef, where('userId', '==', user.uid))
-            const querySnapshot = await getDocs(q)
-
-            const certificadosData: Certificado[] = []
-            querySnapshot.forEach((doc) => {
-                const data = doc.data()
-                certificadosData.push({
-                    id: doc.id,
-                    ...data,
-                    createdAt: data.createdAt?.toDate?.() || data.createdAt || new Date(),
-                    updatedAt: data.updatedAt?.toDate?.() || data.updatedAt || new Date(),
-                } as Certificado)
-            })
+            const certificadosData = await getCertificates(user.uid)
 
             // Ordenar por data de cadastro (mais recente primeiro)
             certificadosData.sort((a, b) => {
@@ -108,10 +94,10 @@ export const useCertificados = (curso: Curso = 'BICTI') => {
     }, [])
 
     const handleDelete = useCallback(async () => {
-        if (!user || !db || !deleteId) return
+        if (!user || !deleteId) return
 
         try {
-            await deleteDoc(doc(db, 'certificados', deleteId))
+            await deleteCertificate(deleteId)
             toast.success('Certificado excluído com sucesso!')
             setShowDeleteModal(false)
             setDeleteId(null)

@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
-import { auth, googleProvider } from '@/lib/firebase/config'
+import { signInWithEmail, signInWithGoogle } from '@/services/auth.service'
 import { handleError, type AppError } from '@/lib/error-handler'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -39,13 +38,11 @@ export function LoginPage() {
   })
 
   const onSubmit = async (data: LoginFormData) => {
-    if (!auth) return
-
     setIsLoading(true)
     setError(null)
 
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password)
+      await signInWithEmail(data.email, data.password)
       router.push('/')
     } catch (err: unknown) {
       setError(handleError(err))
@@ -55,13 +52,11 @@ export function LoginPage() {
   }
 
   const handleGoogleLogin = async () => {
-    if (!auth || !googleProvider) return
-
     setIsLoading(true)
     setError(null)
 
     try {
-      await signInWithPopup(auth, googleProvider)
+      await signInWithGoogle()
       router.push('/')
     } catch (err: unknown) {
       setError(handleError(err))

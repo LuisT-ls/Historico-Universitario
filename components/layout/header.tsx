@@ -7,9 +7,8 @@ import { useAuth } from '@/components/auth-provider'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GraduationCap, User, LogOut, LogIn, Menu, X, Home, Clock, Calculator } from 'lucide-react'
-import { signOut } from 'firebase/auth'
+import { signOut } from '@/services/auth.service'
 import Image from 'next/image'
-import { auth } from '@/lib/firebase/config'
 import { cn, clearUserData } from '@/lib/utils'
 import { logger } from '@/lib/logger'
 import {
@@ -49,17 +48,11 @@ export function Header() {
   }, [])
 
   const handleLogout = async () => {
-    if (!auth) return
     try {
-      // Limpar todos os dados do usuário antes de fazer logout
       clearUserData()
-
-      // Fazer logout do Firebase
-      await signOut(auth)
-
-      // Redirecionar para a página inicial
+      await signOut()
       router.push('/')
-      router.refresh() // Forçar atualização da página para limpar estado
+      router.refresh()
     } catch (error) {
       logger.error('Erro ao fazer logout:', error)
     }

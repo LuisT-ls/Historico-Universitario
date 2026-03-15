@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
-import { db } from '@/lib/firebase/config'
+import { getProfile, getDisciplines, getCertificates } from '@/services/firestore.service'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -40,76 +39,53 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
 
     useEffect(() => {
         async function loadPublicData() {
-            if (!userId || !db) return
+            if (!userId) return
 
             try {
                 setLoading(true)
 
                 // 1. Fetch User Profile
-                const userRef = doc(db, 'users', userId)
-                const userSnap = await getDoc(userRef)
+                const profileData = await getProfile(userId)
 
-                if (!userSnap.exists()) {
+                if (!profileData) {
                     setError('Perfil não encontrado.')
                     setLoading(false)
                     return
                 }
 
-                const userData = userSnap.data()
-
                 // 2. Check Privacy
-                // If settings.privacy is NOT 'public', access is denied.
-                if (userData.settings?.privacy !== 'public') {
+                if (profileData.settings?.privacy !== 'public') {
                     setIsPrivate(true)
                     setLoading(false)
                     return
                 }
 
-                setProfile({
-                    uid: userId as any,
-                    nome: userData.name || 'Estudante',
-                    email: userData.email,
-                    photoURL: userData.photoURL || '',
-                    curso: userData.profile?.course || 'BICTI',
-                    institution: userData.profile?.institution || '',
-                    startYear: userData.profile?.startYear,
-                    startSemester: userData.profile?.startSemester,
-                })
+                setProfile(profileData)
 
-                // 3. Fetch Disciplines for Stats
-                const disciplinesQ = query(collection(db, 'disciplines'), where('userId', '==', userId))
-                const disciplinesSnap = await getDocs(disciplinesQ)
-                const disciplines: Disciplina[] = []
-                disciplinesSnap.forEach(d => disciplines.push({ ...d.data(), id: d.id } as any))
+                // 3. Fetch Disciplines and Certificates in parallel
+                const [disciplines, allCerts] = await Promise.all([
+                    getDisciplines(userId),
+                    getCertificates(userId),
+                ])
 
                 // Sort disciplines by period (newest first)
                 disciplines.sort((a, b) => {
-                    const [anoA, semA] = (a.periodo || '0.0').split('.').map(Number)
-                    const [anoB, semB] = (b.periodo || '0.0').split('.').map(Number)
+                    const [anoA] = (a.periodo || '0.0').split('.').map(Number)
+                    const [anoB] = (b.periodo || '0.0').split('.').map(Number)
                     if (anoA !== anoB) return anoB - anoA
+                    const semA = Number((a.periodo || '0.0').split('.')[1])
+                    const semB = Number((b.periodo || '0.0').split('.')[1])
                     return semB - semA
                 })
 
                 setDisciplines(disciplines)
 
-                // 4. Fetch Approved Certificates
-                const certsQ = query(
-                    collection(db, 'certificados'),
-                    where('userId', '==', userId),
-                    where('status', '==', 'aprovado')
-                )
-                const certsSnap = await getDocs(certsQ)
-                const certs: Certificado[] = []
-                certsSnap.forEach(c => certs.push({ ...c.data(), id: c.id } as any))
-
+                const certs = allCerts.filter(c => c.status === 'aprovado')
                 setCertificates(certs)
 
-                // Use the course from the fetched user data
-                const userCourse = userData.profile?.course || 'BICTI'
-                setStats(calcularEstatisticas(disciplines, certs, userCourse))
+                setStats(calcularEstatisticas(disciplines, certs, profileData.curso || 'BICTI'))
 
             } catch (err) {
-                console.error('Error loading public profile:', err)
                 setError('Erro ao carregar perfil público.')
             } finally {
                 setLoading(false)

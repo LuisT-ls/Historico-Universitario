@@ -15,8 +15,7 @@ import { getPeriodoMaisRecente, sanitizeInput, calcularCR, calcularCreditos, cal
 import { PlusCircle, X, TrendingUp, TrendingDown, Calculator, Trash2, Search, GraduationCap, Book, CheckCircle, Clock, Star, Loader2 } from 'lucide-react'
 import { logger } from '@/lib/logger'
 import { useAuth } from '@/components/auth-provider'
-import { collection, query, where, getDocs } from 'firebase/firestore'
-import { db } from '@/lib/firebase/config'
+import { getDisciplines } from '@/services/firestore.service'
 import type { Curso, Disciplina, Natureza } from '@/types'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -108,30 +107,14 @@ export function SimuladorPageClient() {
 
   // Carregar disciplinas reais do usuário
   const loadDisciplinas = useCallback(async () => {
-    if (!user || !db) {
+    if (!user) {
       setIsLoading(false)
       return
     }
 
     setIsLoading(true)
     try {
-      const disciplinesRef = collection(db, 'disciplines')
-      const q = query(disciplinesRef, where('userId', '==', user.uid))
-      const querySnapshot = await getDocs(q)
-
-      const docs: Disciplina[] = []
-      querySnapshot.forEach((doc) => {
-        const data = doc.data()
-        docs.push({
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate?.() || data.createdAt || new Date(),
-          updatedAt: data.updatedAt?.toDate?.() || data.updatedAt || new Date(),
-        } as Disciplina)
-      })
-
-      // Filtrar pelo curso (simplificado para o simulador)
-      // Em uma implementação real, poderíamos pegar o curso do perfil
+      const docs = await getDisciplines(user.uid)
       setDisciplinas(docs)
 
       // Tentar pegar o curso mais comum nas disciplinas
