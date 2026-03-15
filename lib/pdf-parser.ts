@@ -136,7 +136,7 @@ export async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<stri
       fullText += pageText + '\n';
     }
 
-    console.log('Linhas reconstruídas no PDF:', fullText.split('\n').length);
+    // console.log removido — usar logger em modo debug se necessário
 
     return fullText;
   } catch (error) {
@@ -152,8 +152,6 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
   const arrayBuffer = await file.arrayBuffer();
   const text = await extractTextFromPDF(arrayBuffer);
 
-  // Log para depuração (remover em produção)
-  console.log('Texto extraído do PDF:', text);
 
   const lines = text.split('\n');
 

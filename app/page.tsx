@@ -3,8 +3,6 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { HomePage } from '@/components/pages/home-page'
 import Image from 'next/image'
-import { Toaster } from 'sonner'
-
 export const metadata: Metadata = {
   title: 'Histórico Acadêmico Online Gratuito - Gerencie seu Histórico Acadêmico',
   description:
@@ -51,7 +49,6 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-      <Toaster position="bottom-right" richColors />
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <header className="mb-10">

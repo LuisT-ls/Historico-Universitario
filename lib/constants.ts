@@ -46,7 +46,7 @@ export const CURSOS: Record<string, ConfigCurso> = {
       codigo: 'G20251X',
       matrizCurricular: 'BACHARELADO EM ENGENHARIA DE PRODUÇÃO',
       entradaVigor: '2025.2',
-      totalMinima: 3810,
+      totalMinima: 3750,
       prazos: {
         minimo: 10,
         medio: 10,

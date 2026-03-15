@@ -5,10 +5,10 @@ import { db } from '@/lib/firebase/config'
 import { handleError, type AppError } from '@/lib/error-handler'
 import { toast } from '@/lib/toast'
 import { logger } from '@/lib/logger'
-import type { Certificado } from '@/types'
-import { META_AC_BICTI } from '../constants'
+import type { Certificado, Curso } from '@/types'
+import { CURSOS } from '@/lib/constants'
 
-export const useCertificados = () => {
+export const useCertificados = (curso: Curso = 'BICTI') => {
     const { user, loading: authLoading } = useAuth()
     const [certificados, setCertificados] = useState<Certificado[]>([])
     const [isLoading, setIsLoading] = useState(true)
@@ -67,6 +67,7 @@ export const useCertificados = () => {
 
     // Calcular estatísticas (memoizadas)
     const stats = useMemo(() => {
+        const metaAC = CURSOS[curso]?.requisitos?.AC ?? 240
         const total = certificados.length
         const horasValidadas = certificados
             .filter((c) => c.status === 'aprovado')
@@ -75,7 +76,7 @@ export const useCertificados = () => {
         const horasPendentes = certificados
             .filter((c) => c.status === 'pendente')
             .reduce((sum, c) => sum + c.cargaHoraria, 0)
-        const horasFaltantes = Math.max(0, META_AC_BICTI - horasValidadas)
+        const horasFaltantes = Math.max(0, metaAC - horasValidadas)
 
         return {
             total,
@@ -83,8 +84,9 @@ export const useCertificados = () => {
             atividadesAprovadas,
             horasPendentes,
             horasFaltantes,
+            metaAC,
         }
-    }, [certificados])
+    }, [certificados, curso])
 
     // Handlers de modal
     const handleView = useCallback((certificado: Certificado) => {

@@ -320,7 +320,7 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                                         </thead>
                                         <tbody>
                                             {disciplines
-                                                .filter(d => (d.resultado === 'AP' || d.nota >= 5) && d.natureza !== 'AC')
+                                                .filter(d => d.resultado === 'AP' && d.natureza !== 'AC')
                                                 .map((d) => (
                                                     <tr key={d.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                                                         <td className="p-4 font-mono text-sm">{d.periodo}</td>

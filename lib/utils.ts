@@ -756,8 +756,9 @@ export function calcularPerfilInicial(
     let chAproveitada = 0
 
     codigosObrigatorios.forEach((codigo: string) => {
-      // Tentar encontrar no catálogo geral para saber a CH padrão
-      const chPadrao = (disciplinas as any).catalogo?.[codigo]?.ch || 60 // Padrão 60 se não achar
+      // Tentar encontrar a CH padrão a partir do array de disciplinas cursadas
+      const discEncontrada = disciplinas.find(d => d.codigo === codigo || d.codigo.startsWith(codigo))
+      const chPadrao = discEncontrada?.ch || 60 // Padrão 60 se não encontrar
       chTotalSemestre += chPadrao
 
       // IMPORTANTE: Perfil Inicial no SIGAA UFBA se refere a aproveitamentos 

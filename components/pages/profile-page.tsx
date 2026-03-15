@@ -54,7 +54,6 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { exportAsJSON, exportAsXLSX, exportAsPDF } from '@/lib/export-utils'
 import { toast, setNotificationsEnabled } from '@/lib/toast'
-import { Toaster } from 'sonner'
 import { cn } from '@/lib/utils'
 import { logger } from '@/lib/logger'
 import { createUserId } from '@/lib/constants'
@@ -297,7 +296,6 @@ export function ProfilePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Toaster position="bottom-right" richColors />
       <Header />
       <main className="flex-1 container mx-auto px-4 py-12">
         <div className="mb-16">

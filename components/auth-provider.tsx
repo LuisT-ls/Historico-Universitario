@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { onAuthStateChanged, type User } from 'firebase/auth'
-import { auth } from '@/lib/firebase/config'
+import { auth, db } from '@/lib/firebase/config'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 
 interface AuthContextType {
   user: User | null
@@ -31,8 +32,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user)
+
+      if (user && db) {
+        try {
+          const userRef = doc(db, 'users', user.uid)
+          const snap = await getDoc(userRef)
+          if (!snap.exists()) {
+            await setDoc(userRef, {
+              name: user.displayName || '',
+              email: user.email || '',
+              photoURL: user.photoURL || '',
+              profile: { course: 'BICTI' },
+              settings: { privacy: 'private' },
+              createdAt: new Date(),
+            })
+          }
+        } catch {
+          // Falha silenciosa: o documento pode ser criado manualmente na página de perfil
+        }
+      }
+
       setLoading(false)
     })
 

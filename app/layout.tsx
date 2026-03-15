@@ -165,11 +165,6 @@ export default function RootLayout({
                 price: '0',
                 priceCurrency: 'BRL',
               },
-              aggregateRating: {
-                '@type': 'AggregateRating',
-                ratingValue: '4.8',
-                ratingCount: '150',
-              },
               description: 'Sistema gratuito para gerenciar histórico acadêmico universitário. Calcule CR, controle disciplinas, simule cenários e planeje sua formatura.',
               featureList: [
                 'Cálculo automático de CR',

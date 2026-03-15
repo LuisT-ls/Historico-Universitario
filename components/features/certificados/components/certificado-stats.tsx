@@ -9,6 +9,7 @@ interface Stats {
     horasValidadas: number
     atividadesAprovadas: number
     horasFaltantes: number
+    metaAC: number
 }
 
 interface CertificadoStatsProps {
@@ -16,46 +17,46 @@ interface CertificadoStatsProps {
     isLoading: boolean
 }
 
-const statsConfig = [
-    {
-        label: 'Total',
-        key: 'total' as const,
-        sub: 'Cadastrados',
-        icon: FileText,
-        iconColor: 'text-primary',
-        bgColor: 'bg-primary/10',
-        formatValue: (value: number) => value.toString(),
-    },
-    {
-        label: 'Validadas',
-        key: 'horasValidadas' as const,
-        sub: 'Horas aprovadas',
-        icon: CheckCircle,
-        iconColor: 'text-green-600',
-        bgColor: 'bg-green-500/10',
-        formatValue: (value: number) => `${value}h`,
-    },
-    {
-        label: 'Aprovadas',
-        key: 'atividadesAprovadas' as const,
-        sub: 'Atividades',
-        icon: GraduationCap,
-        iconColor: 'text-blue-600',
-        bgColor: 'bg-blue-500/10',
-        formatValue: (value: number) => value.toString(),
-    },
-    {
-        label: 'Faltam',
-        key: 'horasFaltantes' as const,
-        sub: 'Para meta de 240h',
-        icon: Hourglass,
-        iconColor: 'text-orange-600',
-        bgColor: 'bg-orange-500/10',
-        formatValue: (value: number) => `${value}h`,
-    },
-]
-
 export const CertificadoStats = memo<CertificadoStatsProps>(({ stats, isLoading }) => {
+    const statsConfig = [
+        {
+            label: 'Total',
+            key: 'total' as const,
+            sub: 'Cadastrados',
+            icon: FileText,
+            iconColor: 'text-primary',
+            bgColor: 'bg-primary/10',
+            formatValue: (value: number) => value.toString(),
+        },
+        {
+            label: 'Validadas',
+            key: 'horasValidadas' as const,
+            sub: 'Horas aprovadas',
+            icon: CheckCircle,
+            iconColor: 'text-green-600',
+            bgColor: 'bg-green-500/10',
+            formatValue: (value: number) => `${value}h`,
+        },
+        {
+            label: 'Aprovadas',
+            key: 'atividadesAprovadas' as const,
+            sub: 'Atividades',
+            icon: GraduationCap,
+            iconColor: 'text-blue-600',
+            bgColor: 'bg-blue-500/10',
+            formatValue: (value: number) => value.toString(),
+        },
+        {
+            label: 'Faltam',
+            key: 'horasFaltantes' as const,
+            sub: `Para meta de ${stats.metaAC}h`,
+            icon: Hourglass,
+            iconColor: 'text-orange-600',
+            bgColor: 'bg-orange-500/10',
+            formatValue: (value: number) => `${value}h`,
+        },
+    ]
+
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {statsConfig.map((stat) => (

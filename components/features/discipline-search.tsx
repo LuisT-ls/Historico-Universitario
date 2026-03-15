@@ -106,7 +106,6 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
     }) as DisciplinaData[]
 
     const termNormalized = normalizeText(searchTerm.trim())
-    console.log('[Search] Term:', termNormalized, 'in Course:', cursoAtual)
 
     const matches = disciplinasCompletas
       .filter(
@@ -132,7 +131,6 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
       })
       .slice(0, 10) // Limita a 10 resultados
 
-    console.log('[Search] Matches found:', matches.length)
     setResults(matches)
     setShowResults(matches.length > 0)
     setSelectedIndex(-1)
