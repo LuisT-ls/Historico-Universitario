@@ -135,8 +135,8 @@ export function AcademicCalendar() {
           <DialogTitle className="flex items-center gap-2">
             <CalendarDays className="h-5 w-5 text-primary" />
             Calendário de Matrícula UFBA
-            <span className="ml-auto text-sm font-normal text-muted-foreground">{SEMESTER}</span>
           </DialogTitle>
+          <p className="text-sm text-muted-foreground pl-7">Semestre {SEMESTER}</p>
         </DialogHeader>
 
         <div className="mt-2 max-h-[60vh] overflow-y-auto pr-1">
