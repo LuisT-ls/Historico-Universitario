@@ -15,18 +15,18 @@ const nextConfig: NextConfig = {
       'firebase/auth',
       'firebase/firestore',
       'firebase/storage',
-      '@/components/ui/button',
-      '@/components/ui/card',
-      '@/components/ui/input',
+      'firebase/analytics',
+      'framer-motion',
+      'date-fns',
+      'sonner',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-select',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-tooltip',
     ],
   },
-  // Modernizar saída para evitar polyfills desnecessários
   transpilePackages: [],
-  modularizeImports: {
-    'lucide-react': {
-      transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
-    },
-  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [

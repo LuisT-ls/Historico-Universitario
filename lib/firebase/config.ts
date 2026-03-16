@@ -89,18 +89,21 @@ if (typeof window !== 'undefined') {
         })
     }
 
-    // Só inicializa quando o navegador estiver realmente ocioso
+    // Inicializa analytics apenas quando o navegador estiver ocioso e o usuário
+    // tiver interagido com a página (garante que o LCP/TTI já aconteceu)
     const hasIdleCallback = 'requestIdleCallback' in window
-    if (hasIdleCallback) {
-      window.requestIdleCallback(() => setTimeout(initAnalytics, 3000), { timeout: 10000 })
-    } else {
-      // Fallback para navegadores sem suporte
-      if (document.readyState === 'complete') {
-        setTimeout(initAnalytics, 5000)
+    const scheduleAnalytics = () => {
+      if (hasIdleCallback) {
+        window.requestIdleCallback(() => setTimeout(initAnalytics, 5000), { timeout: 15000 })
       } else {
-        const win = window as Window & typeof globalThis
-        win.addEventListener('load', () => setTimeout(initAnalytics, 5000))
+        setTimeout(initAnalytics, 8000)
       }
+    }
+
+    if (document.readyState === 'complete') {
+      scheduleAnalytics()
+    } else {
+      window.addEventListener('load', scheduleAnalytics, { once: true })
     }
   } else {
     app = getApps()[0]
