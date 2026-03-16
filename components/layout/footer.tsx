@@ -112,11 +112,11 @@ export function Footer() {
             &copy; {new Date().getFullYear()} Histórico Acadêmico. Todos os direitos reservados.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/legal/terms" className="hover:text-foreground dark:hover:text-slate-300 transition-colors opacity-80 hover:opacity-100">
+            <Link href="/legal/terms" className="hover:text-foreground dark:hover:text-slate-300 transition-colors">
               Termos de Uso
             </Link>
             <div className="h-1 w-1 rounded-full bg-muted-foreground/40 dark:bg-slate-700" />
-            <Link href="/legal/privacy" className="hover:text-foreground dark:hover:text-slate-300 transition-colors opacity-80 hover:opacity-100">
+            <Link href="/legal/privacy" className="hover:text-foreground dark:hover:text-slate-300 transition-colors">
               Privacidade
             </Link>
           </div>

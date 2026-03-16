@@ -11,12 +11,12 @@ import disciplinasData from '@/assets/data/disciplinas.json'
 // ─── constants ────────────────────────────────────────────────────────────────
 
 const NATUREZA_BADGE: Record<string, string> = {
-  OB: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
-  OX: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20',
-  OG: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
-  OZ: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
-  OH: 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20',
-  OP: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20',
+  OB: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
+  OX: 'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20',
+  OG: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
+  OZ: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20',
+  OH: 'bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/20',
+  OP: 'bg-slate-500/10 text-slate-700 dark:text-slate-400 border-slate-500/20',
 }
 const NATUREZA_LABEL: Record<string, string> = {
   OB: 'Obrigatória', OX: 'Ext. Obrigatória', OG: 'Opt. Grande Área',
@@ -283,7 +283,7 @@ function DiscCard({ disc, onSelect }: {
             </span>
           )}
           {motivo.tipo === 'deficit' && (
-            <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
+            <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
               <TrendingDown className="h-3 w-3" />
               faltam {motivo.hFaltando}h de {motivo.natureza}
             </span>

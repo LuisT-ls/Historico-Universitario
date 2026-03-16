@@ -354,7 +354,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
         <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
             <Book className="h-4 w-4 text-primary mb-1" />
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Disciplinas</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Disciplinas</p>
             <p className="text-lg font-bold">{estatisticas.totalDisciplinasCadastradas}</p>
           </CardContent>
         </Card>
@@ -362,7 +362,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
         <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
             <GraduationCap className="h-4 w-4 text-primary mb-1" />
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Semestre</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Semestre</p>
             <p className="text-lg font-bold">
               {estatisticas.semestralization !== undefined ? estatisticas.semestralization : '-'}
             </p>
@@ -372,7 +372,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
         <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
             <Calculator className="h-4 w-4 text-primary mb-1" />
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Média</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Média</p>
             <p className="text-lg font-bold">{estatisticas.mediaGeral.toFixed(2)}</p>
           </CardContent>
         </Card>
@@ -380,7 +380,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
         <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
             <TrendingUp className="h-4 w-4 text-primary mb-1" />
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">CR</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">CR</p>
             <p className="text-lg font-bold">{estatisticas.cr.toFixed(2)}</p>
           </CardContent>
         </Card>
@@ -388,7 +388,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
         <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
             <Clock className="h-4 w-4 text-primary mb-1" />
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Horas</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Horas</p>
             <p className="text-lg font-bold">{estatisticas.totalCH}h</p>
           </CardContent>
         </Card>
@@ -396,7 +396,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
         <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
             <Star className="h-4 w-4 text-primary mb-1" />
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Créditos</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Créditos</p>
             <p className="text-lg font-bold">{estatisticas.creditos.toFixed(1)}</p>
           </CardContent>
         </Card>
@@ -404,7 +404,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
         <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
             <BarChart3 className="h-4 w-4 text-primary mb-1" />
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">PCH</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">PCH</p>
             <p className="text-lg font-bold">{estatisticas.pch.toFixed(1)}</p>
           </CardContent>
         </Card>
@@ -412,7 +412,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
         <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
             <CheckCircle className="h-4 w-4 text-green-500 mb-1" />
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Aprov.</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Aprov.</p>
             <p className="text-lg font-bold">{estatisticas.totalAprovacoes}</p>
           </CardContent>
         </Card>
@@ -420,7 +420,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
         <Card className="rounded-xl shadow-sm border-none bg-card/50 backdrop-blur-sm">
           <CardContent className="p-3 flex flex-col items-center justify-center text-center">
             <XCircle className="h-4 w-4 text-red-500 mb-1" />
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Reprov.</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Reprov.</p>
             <p className="text-lg font-bold">{estatisticas.totalReprovacoes}</p>
           </CardContent>
         </Card>
