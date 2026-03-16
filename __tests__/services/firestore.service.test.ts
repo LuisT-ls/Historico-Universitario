@@ -282,9 +282,9 @@ describe('getProfile', () => {
                     enrollment: '202101001',
                     institution: 'UFBA',
                     startYear: 2021,
-                    startSemester: 1,
+                    startSemester: '1',
                     suspensions: 0,
-                    currentSemester: 5,
+                    currentSemester: '5',
                 },
                 settings: { privacy: 'private' },
                 createdAt: { toDate: () => new Date('2021-01-01') },
@@ -300,7 +300,7 @@ describe('getProfile', () => {
         expect(result?.institution).toBe('UFBA')
         expect(result?.startYear).toBe(2021)
         expect(result?.suspensions).toBe(0)
-        expect(result?.currentSemester).toBe(5)
+        expect(result?.currentSemester).toBe('5')
     })
 
     it('returns null when user document does not exist', async () => {
@@ -348,18 +348,18 @@ describe('updateProfile', () => {
             matricula: '202201001',
             institution: 'UFBA',
             startYear: 2022,
-            startSemester: 1,
+            startSemester: '1',
             suspensions: 1,
-            currentSemester: 3,
+            currentSemester: '3',
         })
         expect(mockUpdateDoc).toHaveBeenCalledWith('docRef', expect.objectContaining({
             'profile.course': 'ENG_PROD',
             'profile.enrollment': '202201001',
             'profile.institution': 'UFBA',
             'profile.startYear': 2022,
-            'profile.startSemester': 1,
+            'profile.startSemester': '1',
             'profile.suspensions': 1,
-            'profile.currentSemester': 3,
+            'profile.currentSemester': '3',
         }))
     })
 
