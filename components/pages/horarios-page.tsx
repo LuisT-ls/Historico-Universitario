@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '@/components/auth-provider'
-import { getDisciplines } from '@/services/firestore.service'
+import { getDisciplines, getScheduleCodes, saveScheduleCodes } from '@/services/firestore.service'
 import { getCurrentSemester } from '@/lib/utils'
 import type { Disciplina } from '@/types'
 import { Input } from '@/components/ui/input'
@@ -164,15 +164,11 @@ function buildGrid(
 
 const STORAGE_KEY = 'horarios_codes_v1'
 
-function loadCodes(): Record<string, string> {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')
-  } catch {
-    return {}
-  }
+function readLocalCodes(): Record<string, string> {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}') } catch { return {} }
 }
 
-function saveCodes(codes: Record<string, string>) {
+function writeLocalCodes(codes: Record<string, string>) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(codes))
 }
 
@@ -183,6 +179,7 @@ export function HorariosPage() {
   const [codes, setCodes] = useState<Record<string, string>>({})
   const [inputs, setInputs] = useState<Record<string, string>>({})
   const [errors, setErrors] = useState<Record<string, boolean>>({})
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const semestre = getCurrentSemester()
 
@@ -196,12 +193,30 @@ export function HorariosPage() {
       .finally(() => setIsLoading(false))
   }, [user, authLoading])
 
-  // Load saved codes from localStorage
+  // Load codes: Firebase first, localStorage as fallback
   useEffect(() => {
-    const saved = loadCodes()
-    setCodes(saved)
-    setInputs(saved)
-  }, [])
+    if (authLoading || !user) return
+    getScheduleCodes(user.uid)
+      .then(saved => {
+        setCodes(saved)
+        setInputs(saved)
+        writeLocalCodes(saved)
+      })
+      .catch(() => {
+        const local = readLocalCodes()
+        setCodes(local)
+        setInputs(local)
+      })
+  }, [user, authLoading])
+
+  // Debounced Firebase save — fires 1s after last change
+  const scheduleSave = useCallback((nextCodes: Record<string, string>) => {
+    if (!user) return
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    saveTimeoutRef.current = setTimeout(() => {
+      saveScheduleCodes(user.uid, nextCodes).catch(() => {})
+    }, 1000)
+  }, [user])
 
   const handleCodeChange = useCallback((id: string, value: string) => {
     setInputs(prev => ({ ...prev, [id]: value }))
@@ -212,7 +227,8 @@ export function HorariosPage() {
       setCodes(prev => {
         const next = { ...prev }
         delete next[id]
-        saveCodes(next)
+        writeLocalCodes(next)
+        scheduleSave(next)
         return next
       })
       return
@@ -223,13 +239,14 @@ export function HorariosPage() {
       setErrors(prev => ({ ...prev, [id]: false }))
       setCodes(prev => {
         const next = { ...prev, [id]: trimmed.toUpperCase() }
-        saveCodes(next)
+        writeLocalCodes(next)
+        scheduleSave(next)
         return next
       })
     } else {
       setErrors(prev => ({ ...prev, [id]: true }))
     }
-  }, [])
+  }, [scheduleSave])
 
   const grid = buildGrid(disciplinas, codes)
 

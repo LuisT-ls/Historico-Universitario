@@ -8,6 +8,7 @@ import {
     deleteDoc,
     query,
     where,
+    setDoc,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import type { Disciplina, Certificado, Profile } from '@/types'
@@ -288,6 +289,42 @@ export async function getProfile(userId: string): Promise<Profile | null> {
  * Usamos dot-notation para atualizar campos aninhados individualmente
  * sem sobrescrever o objeto `profile` inteiro.
  */
+// ===== HORÁRIOS =====
+
+/**
+ * Retorna os códigos de horário salvos para o usuário.
+ * Armazenados no campo `horarioCodes` do documento `users/{userId}`.
+ */
+export async function getScheduleCodes(userId: string): Promise<Record<string, string>> {
+    if (!db) throw new Error('Firestore não inicializado')
+
+    try {
+        const userRef = doc(db, 'users', userId)
+        const snap = await getDoc(userRef)
+        if (!snap.exists()) return {}
+        return (snap.data().horarioCodes as Record<string, string>) ?? {}
+    } catch (error) {
+        logger.error('Erro ao buscar códigos de horário:', error)
+        throw error
+    }
+}
+
+/**
+ * Persiste os códigos de horário do usuário.
+ */
+export async function saveScheduleCodes(userId: string, codes: Record<string, string>): Promise<void> {
+    if (!db) throw new Error('Firestore não inicializado')
+
+    try {
+        const userRef = doc(db, 'users', userId)
+        await setDoc(userRef, { horarioCodes: codes }, { merge: true })
+        logger.info('Códigos de horário salvos', { userId })
+    } catch (error) {
+        logger.error('Erro ao salvar códigos de horário:', error)
+        throw error
+    }
+}
+
 export async function updateProfile(userId: string, data: Partial<Profile>): Promise<void> {
     if (!db) throw new Error('Firestore não inicializado')
 
