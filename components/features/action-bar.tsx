@@ -7,6 +7,7 @@ import { parseSigaaHistory, ParsedHistory } from '@/lib/pdf-parser'
 import { toast } from '@/lib/toast'
 import { logger } from '@/lib/logger'
 import { Disciplina, Curso } from '@/types'
+import { AcademicCalendar } from '@/components/features/academic-calendar'
 
 interface ActionBarProps {
   cursoAtual: Curso
@@ -86,6 +87,7 @@ export function ActionBar({ cursoAtual, onCursoChange, onImport }: ActionBarProp
       </div>
 
       <div className="flex items-center gap-2 w-full sm:w-auto">
+        <AcademicCalendar />
         <label className="w-full sm:w-auto">
           <input
             type="file"

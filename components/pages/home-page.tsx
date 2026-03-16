@@ -46,10 +46,6 @@ const PrintView = dynamic(() => import('@/components/features/print-view').then(
   ssr: false,
 })
 
-const AcademicCalendar = dynamic(() => import('@/components/features/academic-calendar').then(mod => mod.AcademicCalendar), {
-  ssr: false,
-})
-
 export function HomePage() {
   const { user, loading: authLoading } = useAuth()
   const [cursoAtual, setCursoAtual] = useState<Curso>('BICTI')
@@ -305,8 +301,6 @@ export function HomePage() {
       )}
 
       <ActionBar cursoAtual={cursoAtual} onCursoChange={handleCursoChange} onImport={handleImportDisciplinas} />
-
-      <AcademicCalendar />
 
       <div className="space-y-1">
         <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground/60 px-1">Busca Rápida</h2>
