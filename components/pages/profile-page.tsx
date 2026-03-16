@@ -26,6 +26,7 @@ import {
   Star,
   Bell,
   Globe,
+  TableProperties,
   Eye,
   EyeOff,
   Camera,
@@ -605,6 +606,31 @@ export function ProfilePage() {
                         <Input readOnly value={`${typeof window !== 'undefined' ? window.location.origin : ''}/u/${profile.uid}`} className="h-9 text-xs font-mono bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" />
                         <Button size="sm" variant="outline" className="h-9" onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/u/${profile.uid}`); toast.success('Link copiado!') }}>Copiar</Button>
                         <Button size="sm" variant="ghost" className="h-9 w-9 px-0" onClick={() => window.open(`/u/${profile.uid}`, '_blank')}><Eye className="h-4 w-4" /></Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm"><TableProperties className="h-4 w-4 text-slate-400" /></div>
+                      <div>
+                        <span className="text-sm font-bold text-foreground block">Grade de Horários Pública</span>
+                        <span className="text-[10px] text-slate-500">Compartilhe sua grade com colegas</span>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => handleSettingsChange('schedulePrivacy', profile?.settings?.schedulePrivacy === 'public' ? 'private' : 'public')} className={cn("rounded-lg h-8 px-4 font-medium transition-all", profile?.settings?.schedulePrivacy === 'public' ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "text-slate-500")}>
+                      {profile?.settings?.schedulePrivacy === 'public' ? 'Público' : 'Privado'}
+                    </Button>
+                  </div>
+
+                  {profile?.settings?.schedulePrivacy === 'public' && (
+                    <div className="pl-12 animate-in fade-in slide-in-from-top-1">
+                      <div className="flex gap-2">
+                        <Input readOnly value={`${typeof window !== 'undefined' ? window.location.origin : ''}/u/${profile.uid}/horarios`} className="h-9 text-xs font-mono bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800" />
+                        <Button size="sm" variant="outline" className="h-9" onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/u/${profile.uid}/horarios`); toast.success('Link copiado!') }}>Copiar</Button>
+                        <Button size="sm" variant="ghost" className="h-9 w-9 px-0" onClick={() => window.open(`/u/${profile.uid}/horarios`, '_blank')}><Eye className="h-4 w-4" /></Button>
                       </div>
                     </div>
                   )}

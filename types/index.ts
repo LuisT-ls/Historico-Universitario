@@ -102,6 +102,7 @@ export interface Profile {
   settings?: {
     notifications?: boolean
     privacy?: 'private' | 'public'
+    schedulePrivacy?: 'private' | 'public'
   }
   suspensions?: number
   currentSemester?: string

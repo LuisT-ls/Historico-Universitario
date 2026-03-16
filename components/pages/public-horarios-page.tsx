@@ -129,7 +129,7 @@ export function PublicHorariosPage({ userId }: Props) {
       try {
         const profile = await getProfile(userId)
         if (!profile) { setNotFound(true); return }
-        if (profile.settings?.privacy !== 'public') { setIsPrivate(true); return }
+        if (profile.settings?.schedulePrivacy !== 'public') { setIsPrivate(true); return }
 
         setUserName(profile.nome ?? null)
 
