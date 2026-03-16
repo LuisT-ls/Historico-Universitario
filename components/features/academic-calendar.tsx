@@ -29,14 +29,14 @@ type EventStatus = 'past' | 'active' | 'upcoming'
 const SEMESTER = '2026.1'
 
 const EVENTS: CalendarEvent[] = [
-  { label: 'Matrícula WEB (SIGAA)',               start: '2026-02-19', end: '2026-02-24', display: '19 a 24/02' },
+  { label: 'Matrícula WEB (SIGAA)',               start: '2026-02-19', end: '2026-02-24', display: '19/02 a 24/02' },
   { label: 'Processamento da Matrícula (STI)',    start: '2026-02-28', end: '2026-03-02', display: '28/02 a 02/03' },
   { label: 'Resultado da Matrícula WEB',           start: '2026-03-03',                   display: '03/03' },
   { label: 'Início das aulas',                    start: '2026-03-09',                   display: '09/03' },
-  { label: 'Processamento da Re-Matrícula (STI)', start: '2026-03-20', end: '2026-03-23', display: '20 a 23/03' },
-  { label: 'Re-Matrícula WEB',                    start: '2026-03-23', end: '2026-03-26', display: '23 a 26/03' },
+  { label: 'Processamento da Re-Matrícula (STI)', start: '2026-03-20', end: '2026-03-23', display: '20/03 a 23/03' },
+  { label: 'Re-Matrícula WEB',                    start: '2026-03-23', end: '2026-03-26', display: '23/03 a 26/03' },
   { label: 'Resultado da Re-Matrícula WEB',        start: '2026-03-24',                   display: '24/03' },
-  { label: 'Matrícula Extraordinária WEB',         start: '2026-03-27', end: '2026-03-30', display: '27 a 30/03' },
+  { label: 'Matrícula Extraordinária WEB',         start: '2026-03-27', end: '2026-03-30', display: '27/03 a 30/03' },
 ]
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
