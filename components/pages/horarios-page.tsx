@@ -7,7 +7,9 @@ import { getCurrentSemester } from '@/lib/utils'
 import type { Disciplina } from '@/types'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, TableProperties, BookOpen, Info } from 'lucide-react'
+import { Loader2, TableProperties, BookOpen, Info, Share2 } from 'lucide-react'
+import { toast } from '@/lib/toast'
+import { Button } from '@/components/ui/button'
 
 // ─── constants ────────────────────────────────────────────────────────────────
 
@@ -274,14 +276,33 @@ export function HorariosPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-black tracking-tight text-foreground dark:text-slate-100">
-          Grade de Horários
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Semestre <span className="font-semibold text-primary">{semestre}</span>
-          {' '}· Os códigos são salvos localmente e não vão ao banco de dados.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-foreground dark:text-slate-100">
+            Grade de Horários
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Semestre <span className="font-semibold text-primary">{semestre}</span>
+          </p>
+        </div>
+        {user && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0 gap-2"
+            onClick={() => {
+              const url = `${window.location.origin}/u/${user.uid}/horarios`
+              navigator.clipboard.writeText(url).then(() => {
+                toast.success('Link copiado! Compartilhe com seus colegas.')
+              }).catch(() => {
+                toast.error('Não foi possível copiar o link.')
+              })
+            }}
+          >
+            <Share2 className="h-3.5 w-3.5" />
+            Compartilhar
+          </Button>
+        )}
       </div>
 
       {isLoading ? (
