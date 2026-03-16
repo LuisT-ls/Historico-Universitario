@@ -5,7 +5,7 @@
 
 Uma plataforma moderna e intuitiva para estudantes da UFBA gerenciarem sua trajetória acadêmica. O sistema permite o upload do histórico do SIGAA, calcula estatísticas em tempo real e oferece uma visão clara do progresso rumo à formatura.
 
-![Dashboard Preview](imagem-preview.jpg)
+![Dashboard Preview](imagem-preview.png)
 
 ## 🚀 Acesse Agora
 [https://historicoacademico.vercel.app](https://historicoacademico.vercel.app)

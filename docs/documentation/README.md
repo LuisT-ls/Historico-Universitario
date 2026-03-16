@@ -1,6 +1,6 @@
 # Histórico Acadêmico
 
-![Preview do Projeto](imagem-preview.jpg)
+![Preview do Projeto](imagem-preview.png)
 
 Uma aplicação web para gerenciar e acompanhar o histórico acadêmico dos estudantes universitários, com suporte inicial para os cursos de BICTI, Engenharia de Produção e Engenharia Elétrica.
 
@@ -98,7 +98,7 @@ O Histórico Acadêmico é uma ferramenta que permite aos estudantes:
 ├── robots.txt          # Arquivo para configuração de robôs de busca
 ├── sitemap.xml         # Mapa do site para SEO
 ├── sw.js               # Service Worker para funcionalidades offline
-├── imagem-preview.jpg  # Imagem de pré-visualização
+├── imagem-preview.png  # Imagem de pré-visualização
 ├── LICENSE             # Licença do projeto
 └── README.md           # Documentação do projeto
 
