@@ -21,24 +21,28 @@ service cloud.firestore {
     
     // Regras para a coleção 'disciplines'
     match /disciplines/{disciplineId} {
-      allow read: if (request.auth != null && request.auth.uid == resource.data.userId) || 
+      allow read: if (request.auth != null && request.auth.uid == resource.data.userId) ||
                      isPublic(resource.data.userId);
-      allow write: if request.auth != null && request.auth.uid == resource.data.userId
-                    && isValidString(request.resource.data.nome, 1, 200)
-                    && request.resource.data.ch is number;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId
                     && isValidString(request.resource.data.nome, 1, 200);
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId
+                    && isValidString(request.resource.data.nome, 1, 200)
+                    && request.resource.data.ch is number
+                    && request.resource.data.userId == resource.data.userId;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
-    
+
     // Regras para a coleção 'certificados'
     match /certificados/{certificadoId} {
-      allow read: if (request.auth != null && request.auth.uid == resource.data.userId) || 
+      allow read: if (request.auth != null && request.auth.uid == resource.data.userId) ||
                      isPublic(resource.data.userId);
-      allow write: if request.auth != null && request.auth.uid == resource.data.userId
-                    && isValidString(request.resource.data.titulo, 1, 300)
-                    && request.resource.data.cargaHoraria is number;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId
                     && isValidString(request.resource.data.titulo, 1, 300);
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId
+                    && isValidString(request.resource.data.titulo, 1, 300)
+                    && request.resource.data.cargaHoraria is number
+                    && request.resource.data.userId == resource.data.userId;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
 
     // Bloqueio Global

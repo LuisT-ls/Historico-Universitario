@@ -4,6 +4,7 @@ import { getCertificates, deleteCertificate } from '@/services/firestore.service
 import { handleError, type AppError } from '@/lib/error-handler'
 import { toast } from '@/lib/toast'
 import { logger } from '@/lib/logger'
+import { isSafeExternalUrl } from '@/lib/utils'
 import type { Certificado, Curso } from '@/types'
 import { CURSOS } from '@/lib/constants'
 
@@ -81,10 +82,11 @@ export const useCertificados = (curso: Curso = 'BICTI') => {
     }, [])
 
     const handleDownload = useCallback((certificado: Certificado) => {
-        if (certificado.linkExterno) {
-            window.open(certificado.linkExterno, '_blank')
-        } else if (certificado.arquivoURL) {
-            window.open(certificado.arquivoURL, '_blank')
+        const url = certificado.linkExterno || certificado.arquivoURL
+        if (url && isSafeExternalUrl(url)) {
+            window.open(url, '_blank', 'noopener,noreferrer')
+        } else if (url) {
+            logger.warn('URL de certificado bloqueada por protocolo inseguro')
         }
     }, [])
 

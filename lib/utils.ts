@@ -531,6 +531,20 @@ export function normalizeText(input: string): string {
  * @param input - Texto longo a ser sanitizado
  * @returns Texto sanitizado
  */
+/**
+ * Valida se uma URL é segura para abrir externamente.
+ * Aceita apenas http:// e https:// — bloqueia javascript:, data:, vbscript:, etc.
+ */
+export function isSafeExternalUrl(url: string): boolean {
+  if (!url || typeof url !== 'string') return false
+  try {
+    const parsed = new URL(url.trim())
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:'
+  } catch {
+    return false
+  }
+}
+
 export function sanitizeLongText(input: string): string {
   if (typeof input !== 'string') {
     return ''
