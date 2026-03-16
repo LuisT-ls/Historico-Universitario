@@ -1,7 +1,7 @@
 import {
     getDisciplines, addDiscipline, updateDiscipline, deleteDiscipline,
     getCertificates, addCertificate, updateCertificate, deleteCertificate,
-    getProfile, updateProfile,
+    getProfile, updateProfile, getScheduleCodes, saveScheduleCodes,
 } from '@/services/firestore.service'
 
 jest.mock('@/lib/logger', () => ({
@@ -19,6 +19,7 @@ const mockGetDoc = jest.fn()
 const mockAddDoc = jest.fn()
 const mockUpdateDoc = jest.fn()
 const mockDeleteDoc = jest.fn()
+const mockSetDoc = jest.fn()
 const mockQuery = jest.fn()
 const mockWhere = jest.fn()
 
@@ -30,6 +31,7 @@ jest.mock('firebase/firestore', () => ({
     addDoc: (...args: any[]) => mockAddDoc(...args),
     updateDoc: (...args: any[]) => mockUpdateDoc(...args),
     deleteDoc: (...args: any[]) => mockDeleteDoc(...args),
+    setDoc: (...args: any[]) => mockSetDoc(...args),
     query: (...args: any[]) => mockQuery(...args),
     where: (...args: any[]) => mockWhere(...args),
 }))
@@ -387,5 +389,64 @@ describe('updateProfile', () => {
     it('throws and propagates Firestore errors', async () => {
         mockUpdateDoc.mockRejectedValue(new Error('Update profile failed'))
         await expect(updateProfile('user123', {})).rejects.toThrow('Update profile failed')
+    })
+})
+
+// ===== getScheduleCodes =====
+
+describe('getScheduleCodes', () => {
+    it('returns horarioCodes when document exists with codes', async () => {
+        mockGetDoc.mockResolvedValue({
+            exists: () => true,
+            data: () => ({ horarioCodes: { 'MAT001': '46T56', 'FIS001': '24M34' } }),
+        })
+        const result = await getScheduleCodes('user123')
+        expect(result).toEqual({ 'MAT001': '46T56', 'FIS001': '24M34' })
+    })
+
+    it('returns empty object when document does not exist', async () => {
+        mockGetDoc.mockResolvedValue({ exists: () => false })
+        const result = await getScheduleCodes('user123')
+        expect(result).toEqual({})
+    })
+
+    it('returns empty object when horarioCodes field is absent', async () => {
+        mockGetDoc.mockResolvedValue({
+            exists: () => true,
+            data: () => ({ name: 'João' }),
+        })
+        const result = await getScheduleCodes('user123')
+        expect(result).toEqual({})
+    })
+
+    it('throws and propagates Firestore errors', async () => {
+        mockGetDoc.mockRejectedValue(new Error('Get codes failed'))
+        await expect(getScheduleCodes('user123')).rejects.toThrow('Get codes failed')
+    })
+})
+
+// ===== saveScheduleCodes =====
+
+describe('saveScheduleCodes', () => {
+    it('calls setDoc with horarioCodes and merge option', async () => {
+        mockSetDoc.mockResolvedValue(undefined)
+        const codes = { 'MAT001': '46T56' }
+        await saveScheduleCodes('user123', codes)
+        expect(mockSetDoc).toHaveBeenCalledWith(
+            'docRef',
+            { horarioCodes: codes },
+            { merge: true },
+        )
+    })
+
+    it('calls setDoc with empty codes object', async () => {
+        mockSetDoc.mockResolvedValue(undefined)
+        await saveScheduleCodes('user123', {})
+        expect(mockSetDoc).toHaveBeenCalledWith('docRef', { horarioCodes: {} }, { merge: true })
+    })
+
+    it('throws and propagates Firestore errors', async () => {
+        mockSetDoc.mockRejectedValue(new Error('Save codes failed'))
+        await expect(saveScheduleCodes('user123', {})).rejects.toThrow('Save codes failed')
     })
 })

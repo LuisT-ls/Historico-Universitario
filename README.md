@@ -1,4 +1,4 @@
-# 📚 Histórico Acadêmico UFBA v2.2
+# 📚 Histórico Acadêmico UFBA v2.3
 
 > [!IMPORTANT]
 > **Aviso Legal:** Este é um projeto **independente** desenvolvido para auxiliar os estudantes do **ICTI/UFBA (Campus de Camaçari)**. Este software **não possui vínculo oficial** com a Universidade Federal da Bahia (UFBA) ou com a administração do SIGAA.
@@ -50,6 +50,12 @@ Uma plataforma moderna e intuitiva para estudantes da UFBA gerenciarem sua traje
 - **Layout otimizado:** O modo de impressão (`@media print`) exibe um documento estruturado com cabeçalho, tabela de métricas, progresso por categoria e histórico completo de disciplinas.
 - **Sem dependências extras:** Utiliza a API nativa do navegador (`window.print()`), sem bibliotecas adicionais.
 
+### 🗓️ Grade de Horários
+- **Visualização automática:** Disciplinas marcadas como "em curso" aparecem automaticamente na grade semanal.
+- **Código de horário:** Insira códigos no formato UFBA (ex: `46T56` = Quarta+Sexta, Tarde, slots 5–6) para posicionar cada disciplina na grade.
+- **Grade visual:** Exibe os horários de Segunda a Sexta (e Sábado quando necessário), de 07:00 às 22:10, com rowspan automático para aulas de múltiplos horários.
+- **Persistência:** Códigos de horário salvos no Firebase — disponíveis após logout e novo login.
+
 ### 📈 Ferramentas Avançadas
 - **Simulador de Notas:** Planeje quanto precisa tirar para atingir sua meta de CR.
 - **Gestão de Certificados:** Adicione horas complementares e veja o impacto no seu progresso.
@@ -73,6 +79,15 @@ O projeto foi totalmente migrado para as tecnologias mais modernas do ecossistem
 ---
 
 ## 🔄 Changelog
+
+### v2.3 — Grade de Horários
+
+- **Nova página `/horarios`:** Grade semanal interativa das disciplinas em curso, com visualização de Segunda a Sábado e slots de 07:00 às 22:10.
+- **Código de horário:** Suporte ao formato padrão UFBA (ex: `46T56` — dias, turno e slots). Células com múltiplos horários usam rowspan automático.
+- **Persistência no Firebase:** Códigos de horário salvos em `users/{userId}.horarioCodes` — disponíveis após logout e re-login.
+- **Disciplinas automáticas:** Disciplinas marcadas como "em curso" aparecem automaticamente na grade, sem configuração manual.
+
+---
 
 ### v2.2 — Qualidade, Segurança e Arquitetura
 
