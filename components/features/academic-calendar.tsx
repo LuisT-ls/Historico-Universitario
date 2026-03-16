@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -156,7 +157,7 @@ export function AcademicCalendar() {
               <CalendarDays className="h-5 w-5 text-primary shrink-0" />
               Calendário de Matrícula UFBA
             </DialogTitle>
-            <p className="text-sm text-muted-foreground pl-7">Semestre {SEMESTER}</p>
+            <DialogDescription className="pl-7">Semestre {SEMESTER}</DialogDescription>
           </DialogHeader>
         </div>
 
