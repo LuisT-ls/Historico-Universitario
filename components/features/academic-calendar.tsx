@@ -103,24 +103,6 @@ function EventRow({ event, status, isLast }: { event: CalendarEvent; status: Eve
   )
 }
 
-// ─── trigger badge ────────────────────────────────────────────────────────────
-
-function CalendarTriggerBadge({ hasActive }: { hasActive: boolean }) {
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      className="gap-2 border-primary/20 hover:bg-primary/5 rounded-lg relative"
-    >
-      <CalendarDays className="h-3.5 w-3.5" />
-      <span>Calendário {SEMESTER}</span>
-      {hasActive && (
-        <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-background" />
-      )}
-    </Button>
-  )
-}
-
 // ─── main component ───────────────────────────────────────────────────────────
 
 export function AcademicCalendar() {
@@ -135,7 +117,17 @@ export function AcademicCalendar() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <CalendarTriggerBadge hasActive={hasActive} />
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 border-primary/20 hover:bg-primary/5 rounded-lg relative"
+        >
+          <CalendarDays className="h-3.5 w-3.5" />
+          <span>Calendário {SEMESTER}</span>
+          {hasActive && (
+            <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-background" />
+          )}
+        </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md">
