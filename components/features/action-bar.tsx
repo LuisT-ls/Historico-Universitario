@@ -7,7 +7,12 @@ import { parseSigaaHistory, ParsedHistory } from '@/lib/pdf-parser'
 import { toast } from '@/lib/toast'
 import { logger } from '@/lib/logger'
 import { Disciplina, Curso } from '@/types'
-import { AcademicCalendar } from '@/components/features/academic-calendar'
+import dynamic from 'next/dynamic'
+
+const AcademicCalendar = dynamic(
+  () => import('@/components/features/academic-calendar').then(mod => mod.AcademicCalendar),
+  { ssr: false }
+)
 
 interface ActionBarProps {
   cursoAtual: Curso
