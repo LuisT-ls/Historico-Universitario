@@ -416,7 +416,7 @@ export function HorariosPage() {
                           {/* Time label */}
                           <td className="px-3 py-0 h-9 text-[10px] font-mono text-muted-foreground whitespace-nowrap border-b border-border align-middle">
                             {slot.label}
-                            <span className="text-muted-foreground/40"> – {slot.end}</span>
+                            <span> – {slot.end}</span>
                           </td>
 
                           {/* Day cells */}
