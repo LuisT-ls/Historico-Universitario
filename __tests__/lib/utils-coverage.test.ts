@@ -96,33 +96,36 @@ describe('calcularPrevisaoFormaturaCompleta', () => {
   })
 
   it('indica que só faltam horas de AC (branch direto)', () => {
-    // Para BICTI: AC=480h, OB=2400h. Vamos simular que OB já está concluído mas AC não.
+    // Para BICTI: acRequisito=240, totalHoras=2401
+    // metaComTolerancia = 2400; precisamos totalCHComEmCurso < 2400 para não ativar early return
+    // metaSemAC = 2401 - 240 = 2161; metaSemACComTolerancia = 2160 (2401 case → -1)
+    // totalSemAC = 2280 - 100 = 2180 >= 2160 && acAtual(100) < 240 → branch AC executado
     const horasPorNatureza = {
-      AC: 0, LV: 0, OB: 2400, OG: 0, OH: 0, OP: 0, OX: 0, OZ: 0,
+      AC: 100, LV: 0, OB: 2180, OG: 0, OH: 0, OP: 0, OX: 0, OZ: 0,
     } as any
 
     const result = calcularPrevisaoFormaturaCompleta(
       [baseDisc],
-      2400,
-      2400,
+      2280,
+      2280,
       0,
-      2401, // BICTI total com tolerância de 1h
+      2401,
       [],
       horasPorNatureza,
       'BICTI'
     )
-    // totalSemAC = 2400; metaSemAC = 2401-480=1921; metaSemACComTolerancia = 1921-1=1920
-    // 2400 >= 1920 && 0 < 480 → branch executado
     expect(result.texto).toContain('Atividades Complementares')
     expect(result.podeFormarEsteSemestre).toBe(true)
   })
 
   // line 402 — disciplinasComCH.length === 0
   it('retorna dados insuficientes quando não há disciplinas com CH válida', () => {
+    // totalCH > 0 para bypassar o guard inicial (totalCH === 0 && disciplinasEmCurso.length === 0)
+    // mas a única disc tem ch=0, então disciplinasComCH fica vazio → "Dados insuficientes"
     const disc = makeDisc({ ch: 0, resultado: 'AP' })
     const result = calcularPrevisaoFormaturaCompleta(
       [disc],
-      0,
+      60, // totalCH > 0 para não ativar o guard inicial
       0,
       0,
       3600,
@@ -306,13 +309,13 @@ describe('calcularEstatisticas', () => {
 
   // lines 659-661 — excesso em categoria redistribuído para LV
   it('redistribui horas excedentes para LV', () => {
-    // OG com limite por exemplo. Para BICTI, OG tem requisito definido.
-    // Adicionamos mais disciplinas OG do que o requisito.
-    const discs: Disciplina[] = Array.from({ length: 5 }, (_, i) =>
+    // Para BICTI, OG tem requisito de 780h.
+    // 7 × 120h = 840h > 780h → excesso de 60h vai para LV
+    const discs: Disciplina[] = Array.from({ length: 7 }, (_, i) =>
       makeDisc({ natureza: 'OG', ch: 120, resultado: 'AP', codigo: `OG00${i}` })
     )
     const stats = calcularEstatisticas(discs, [], 'BICTI')
-    // LV deve ter recebido excesso de OG
+    // LV deve ter recebido o excesso de 60h de OG
     expect(stats.horasPorNatureza!.LV).toBeGreaterThan(0)
   })
 
