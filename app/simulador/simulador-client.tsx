@@ -376,8 +376,9 @@ export function SimuladorPageClient() {
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">Natureza</Label>
+                      <Label htmlFor="sim-natureza" className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">Natureza</Label>
                       <select
+                        id="sim-natureza"
                         {...register('natureza')}
                         className="flex h-10 w-full rounded-xl border border-border dark:border-slate-700 bg-background dark:bg-slate-800/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
                       >

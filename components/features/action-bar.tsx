@@ -71,9 +71,10 @@ export function ActionBar({ cursoAtual, onCursoChange, onImport }: ActionBarProp
       <div className="flex items-center gap-3 w-full sm:w-auto">
         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
           <BookOpen className="h-4 w-4" />
-          <span>Curso:</span>
+          <label htmlFor="curso-select">Curso:</label>
         </div>
         <select
+          id="curso-select"
           value={cursoAtual}
           onChange={(e) => onCursoChange(e.target.value as Curso)}
           className="flex h-9 w-full sm:w-[280px] rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
