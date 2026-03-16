@@ -9,21 +9,14 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
   experimental: {
+    // Only true barrel-file packages benefit from this optimization.
+    // Firebase subpaths, Radix UI single-purpose packages and small libs
+    // must NOT be listed here — they have their own tree-shaking and adding
+    // them causes Next.js to mishandle the module graph, bloating chunks.
     optimizePackageImports: [
       'lucide-react',
       'recharts',
-      'firebase/auth',
-      'firebase/firestore',
-      'firebase/storage',
-      'firebase/analytics',
-      'framer-motion',
       'date-fns',
-      'sonner',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-dropdown-menu',
-      '@radix-ui/react-select',
-      '@radix-ui/react-tabs',
-      '@radix-ui/react-tooltip',
     ],
   },
   transpilePackages: [],
