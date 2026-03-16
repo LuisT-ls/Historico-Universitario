@@ -36,7 +36,9 @@ const EVENTS: CalendarEvent[] = [
   { label: 'Re-Matrícula WEB',                    start: '2026-03-23', end: '2026-03-26', display: '23/03 a 26/03' },
   { label: 'Resultado da Re-Matrícula WEB',        start: '2026-03-24',                   display: '24/03' },
   { label: 'Matrícula Extraordinária WEB',         start: '2026-03-27', end: '2026-03-30', display: '27/03 a 30/03' },
+  { label: 'Trancamento de Turmas',               start: '2026-04-01', end: '2026-05-09', display: '01/04 a 09/05' },
   { label: 'Término do Semestre',                  start: '2026-07-11',                   display: '11/07' },
+  { label: 'Período de Férias',                    start: '2026-07-12', end: '2026-08-18', display: '12/07 a 18/08' },
 ]
 
 // ─── helpers ──────────────────────────────────────────────────────────────────

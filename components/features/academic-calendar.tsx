@@ -18,9 +18,9 @@ function hasActiveEvent(): boolean {
     const now = new Date()
     return new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
   })()
-  // Matrícula period: 19 Feb – 30 Mar 2026
+  // Semester active period: 19 Feb – 11 Jul 2026
   const start = new Date(2026, 1, 19).getTime()
-  const end   = new Date(2026, 2, 30).getTime()
+  const end   = new Date(2026, 6, 11).getTime()
   return today >= start && today <= end
 }
 
