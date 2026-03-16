@@ -1,4 +1,4 @@
-# 📚 Histórico Acadêmico UFBA v2.1
+# 📚 Histórico Acadêmico UFBA v2.2
 
 > [!IMPORTANT]
 > **Aviso Legal:** Este é um projeto **independente** desenvolvido para auxiliar os estudantes do **ICTI/UFBA (Campus de Camaçari)**. Este software **não possui vínculo oficial** com a Universidade Federal da Bahia (UFBA) ou com a administração do SIGAA.
@@ -35,9 +35,10 @@ Uma plataforma moderna e intuitiva para estudantes da UFBA gerenciarem sua traje
 - **Tooltip detalhado:** Ao passar o mouse, exibe CR acumulado e média do semestre lado a lado.
 
 ### 🔐 Segurança e Sincronização
-- **Autenticação Firebase:** Login via Google ou Email/Senha.
-- **Sincronização Cloud:** Seus dados são salvos no Firestore e sincronizados entre todos os seus dispositivos.
-- **Privacidade:** Opção de manter seu perfil privado ou público.
+- **Autenticação Firebase:** Login via Google ou Email/Senha com re-autenticação exigida para operações sensíveis.
+- **Sincronização Cloud:** Dados salvos no Firestore com regras de segurança server-side por operação (`create`, `update`, `delete`).
+- **Validação de URLs:** Links externos de certificados são validados antes de serem abertos (`https://` / `http://` apenas).
+- **Privacidade:** Opção de manter seu perfil privado ou público, com controle granular.
 
 ### 🌐 Perfil Público
 - **Link compartilhável:** Cada usuário possui um perfil público acessível em `/u/[userId]`.
@@ -71,20 +72,38 @@ O projeto foi totalmente migrado para as tecnologias mais modernas do ecossistem
 
 ---
 
-## 🔄 Changelog v2.1
+## 🔄 Changelog
 
-### Melhorias implementadas
+### v2.2 — Qualidade, Segurança e Arquitetura
 
-- **Semestre dinâmico:** Substituído o valor fixo `'2025.2'` por `getCurrentSemester()` em todo o sistema — o semestre atual é calculado automaticamente com base no mês corrente.
-- **Disciplinas Pendentes inteligentes:** Novo componente de recomendações com dois níveis de prioridade:
-  1. Progressão sequencial — detecta automaticamente continuações de disciplinas (numerais romanos e letras).
-  2. Déficit por categoria — recomenda disciplinas das naturezas onde ainda faltam horas para formatura.
-- **Ocultação automática de pendentes:** Quando as disciplinas em curso já cobrem todos os déficits restantes (por natureza), o painel de recomendações é suprimido — evitando alertas desnecessários para quem está prestes a se formar.
-- **Gráfico de CR expandido:** A evolução do CR agora exibe duas linhas: CR acumulado (sólida, azul) e média isolada do semestre (tracejada, verde), com tooltip detalhado e legenda.
-- **Exportar PDF:** Botão no resumo aciona o modo de impressão otimizado para gerar PDF via navegador, sem dependências externas.
-- **Layout de impressão:** `@media print` com visibilidade seletiva garante que apenas o resumo acadêmico seja impresso, em formato A4 estruturado.
-- **Importação de PDF aprimorada:** Duplicatas internas ao PDF e registros já existentes no histórico são ignorados (não sobrescritos), com resumo informativo ao final da importação.
-- **Perfil público:** Página `/u/[userId]` com controle de privacidade, exibindo CR, horas por categoria, disciplinas e certificados para visitantes autorizados.
+#### 🔒 Segurança
+- **Firestore Rules corrigidas:** Regras separadas por operação (`allow create`, `allow update`, `allow delete`) corrigem bug que bloqueava silenciosamente todas as exclusões em produção. Adicionada imutabilidade do campo `userId` nos updates.
+- **Validação de URLs externas:** Função `isSafeExternalUrl()` bloqueia protocolos perigosos (`javascript:`, `data:`, `vbscript:`) antes de qualquer `window.open()`. Links externos abertos com `noopener,noreferrer`.
+- **CSP endurecido:** Removido `https://unpkg.com` do `script-src`. Domínios de imagem restritos a `*.googleusercontent.com` e `*.firebaseusercontent.com`. Removido header `X-XSS-Protection` depreciado.
+
+#### 🏗️ Arquitetura
+- **Camada de serviço completa:** Todo acesso ao Firebase consolidado em `services/` — eliminados imports diretos do Firebase nos componentes de interface.
+- **Schema do Firestore corrigido:** `updateProfile` agora usa dot-notation (`profile.course`, `profile.enrollment`, etc.) para atualizar campos aninhados sem sobrescrever o objeto `profile` inteiro.
+- **Import estático do catálogo:** `disciplinas.json` migrado de fetch runtime (com cache-busting) para static import em tempo de build — elimina requisição de rede e garante disponibilidade offline.
+- **localStorage como cache-only:** Escrita no localStorage gateada com `!user` — usuários logados usam exclusivamente o Firestore como fonte de verdade.
+- **Componentes `Select` padronizados:** Todos os `<select>` nativos substituídos pelo componente `Select` do design system (shadcn/ui), garantindo consistência visual e suporte a dark mode.
+- **Dirty-check por campo:** Substituído `JSON.stringify` na comparação de perfil por `isProfileDirty()` — evita serialização desnecessária e falsos positivos.
+
+#### 🧪 Testes
+- **88 novos testes:** Cobertura adicionada para `services/firestore.service.ts`, `services/auth.service.ts` e `lib/certificate-ocr.ts` — incluindo mocks de Firestore, guards de autenticação e todos os padrões de extração OCR.
+- **Thresholds por arquivo:** Coverage mínimo configurado individualmente para os módulos críticos de `lib/` e `services/`.
+
+---
+
+### v2.1 — Funcionalidades e Experiência
+
+- **Semestre dinâmico:** Substituído o valor fixo `'2025.2'` por `getCurrentSemester()` em todo o sistema.
+- **Disciplinas Pendentes inteligentes:** Recomendações com progressão sequencial (numerais romanos e letras) e priorização por déficit de categoria.
+- **Ocultação automática de pendentes:** Painel suprimido quando disciplinas em curso já cobrem todos os déficits restantes.
+- **Gráfico de CR expandido:** CR acumulado (linha sólida) e média isolada por semestre (linha tracejada) no mesmo gráfico, com tooltip detalhado.
+- **Exportar PDF:** Modo de impressão otimizado via `window.print()`, sem dependências externas.
+- **Importação de PDF aprimorada:** Duplicatas internas ao PDF e registros já existentes são ignorados, com resumo ao final.
+- **Perfil público:** Página `/u/[userId]` com controle de privacidade e visão completa para visitantes autorizados.
 
 ---
 
@@ -158,6 +177,7 @@ npm run dev
 O projeto conta com uma cobertura robusta de testes:
 
 - **Unitários/Integração:** `npm run test` (Jest + React Testing Library)
+- **Cobertura:** `npm run test:coverage` — thresholds configurados por arquivo crítico (`lib/error-handler`, `lib/certificate-ocr`, `services/firestore.service`, `services/auth.service`)
 - **E2E:** `npm run test:e2e` (Playwright)
 - **Lint:** `npm run lint`
 

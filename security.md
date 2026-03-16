@@ -14,28 +14,49 @@ A plataforma utiliza o **Firebase Authentication** para gerenciar o acesso de fo
 
 ## 🗄️ 2. Segurança de Banco de Dados (Cloud Firestore)
 
-A integridade dos dados é garantida por meio de **Firestore Security Rules**, que operam no lado do servidor (Server-Side):
-- **Isolamento de Dados:** Cada usuário só pode escrever e editar seus próprios registros.
-- **Validação de Tipos e Tamanho:** Implementamos funções de validação (`isValidString`) que verificam o tamanho das strings e o tipo dos campos (ex: CH deve ser número >= 0) diretamente nas regras, impedindo o envio de dados corrompidos ou maliciosos.
-- **Controle de Privacidade:** Através da função `isPublic(userId)`, a leitura de dados por terceiros é bloqueada, a menos que o proprietário tenha explicitamente marcado seu perfil como "Público".
+A integridade dos dados é garantida por meio de **Firestore Security Rules** aplicadas no lado do servidor:
+- **Isolamento de Dados:** Cada usuário só pode criar, editar e excluir seus próprios registros — verificado via `request.auth.uid`.
+- **Regras explícitas por operação:** As coleções `disciplines` e `certificados` utilizam `allow create`, `allow update` e `allow delete` separados, em vez do atalho `allow write`. Isso garante que cada tipo de operação tenha exatamente as verificações necessárias (ex.: `allow delete` não acessa `request.resource`, que é nulo em exclusões).
+- **Imutabilidade do proprietário:** O `allow update` exige `request.resource.data.userId == resource.data.userId`, impedindo que um documento seja "doado" a outro usuário.
+- **Validação de Tipos e Tamanho:** Funções `isValidString` validam tamanho de strings e tipos de campos diretamente nas regras, bloqueando dados malformados antes de chegar ao banco.
+- **Controle de Privacidade:** A função `isPublic(userId)` bloqueia a leitura por terceiros, salvo quando o proprietário definiu o perfil como público.
+- **Bloqueio Global:** Uma regra catch-all (`match /{document=**}`) nega acesso a qualquer coleção não declarada explicitamente.
 
-## 🧹 3. Proteção contra Injeção e XSS
+## 🧹 3. Proteção contra Injeção, XSS e URLs Maliciosas
 
-Para prevenir ataques de Cross-Site Scripting (XSS) e outras injeções via interface:
-- **Cabeçalhos de Segurança:** Implementados via `next.config.ts`, incluindo `Content-Security-Policy` (CSP), `Strict-Transport-Security` (HSTS) e `X-Frame-Options` para mitigar ataques de injeção e clickjacking.
-- **Escapamento Automático:** O uso do React/Next.js garante que o conteúdo renderizado seja escapado por padrão, minimizando riscos de execução de scripts maliciosos.
+Para prevenir ataques de Cross-Site Scripting (XSS) e injeção via interface:
+- **Escapamento Automático:** React/Next.js escapa todo conteúdo renderizado via JSX por padrão — nenhum `dangerouslySetInnerHTML` é alimentado com dados do usuário.
+- **Sanitização de Inputs:** A função `sanitizeInput()` remove tags HTML (`<>`), o protocolo `javascript:` e event handlers inline (`on*=`). `sanitizeLongText()` aplica as mesmas proteções em campos longos.
+- **Validação de URLs Externas:** A função `isSafeExternalUrl()` valida URLs antes de qualquer chamada a `window.open()`, aceitando apenas `http://` e `https://` — bloqueando `javascript:`, `data:`, `vbscript:` e outros protocolos perigosos. Links abertos externamente incluem `noopener,noreferrer`.
+- **Validação de Formulários:** Zod + React Hook Form validam todos os inputs no cliente antes do envio.
+- **Cabeçalhos de Segurança HTTP** (via `next.config.ts`):
+  - `Content-Security-Policy`: restringe scripts a `'self'` e domínios Firebase/Google; sem `unpkg.com` ou outros CDNs de terceiros.
+  - `Strict-Transport-Security` (HSTS): ativo em produção com `preload`.
+  - `X-Frame-Options: DENY`: previne clickjacking.
+  - `X-Content-Type-Options: nosniff`: previne MIME sniffing.
+  - `Referrer-Policy: strict-origin-when-cross-origin`.
+  - `Permissions-Policy`: câmera, microfone e geolocalização desabilitados.
 
 ## 📁 4. Segurança de Arquivos e Assets
 
-- **Firebase Storage Rules:** Regras que garantem que apenas o proprietário da conta possa fazer upload ou visualizar arquivos sensíveis (como fotos de perfil personalizadas).
-- **CORS Policy:** Políticas de Cross-Origin Resource Sharing restritivas para garantir que apenas o domínio oficial da aplicação (`*.vercel.app`) possa interagir com os recursos de armazenamento.
+- **Firebase Storage Rules:** Apenas o proprietário da conta pode fazer upload ou acessar arquivos sensíveis.
+- **Restrição de Domínios de Imagem:** O `next/image` aceita apenas imagens de `*.googleusercontent.com` e `*.firebaseusercontent.com` — evitando uso indevido como proxy de imagens de qualquer domínio.
+- **Source Maps desabilitados em produção:** `productionBrowserSourceMaps: false` impede exposição do código-fonte ao cliente.
+- **Header `X-Powered-By` removido:** `poweredByHeader: false` evita fingerprinting do servidor.
 
 ## 📊 5. Privacidade por Design
 
-- **Exportação Transparente:** O usuário tem total controle sobre seus dados, podendo exportar tudo o que o sistema possui (PDF, Excel, JSON) ou excluir permanentemente sua conta e todos os dados associados.
-- **Mininização de Dados:** Coletamos apenas as informações estritamente necessárias para o cálculo do CR e da semestralização acadêmica.
+- **Exportação Transparente:** O usuário tem total controle sobre seus dados, podendo exportar em PDF, Excel ou JSON, ou excluir permanentemente a conta e todos os registros associados.
+- **Minimização de Dados:** Apenas informações necessárias para o cálculo do CR e semestralização são coletadas.
+- **Direito ao Apagamento (LGPD):** As Firestore Security Rules garantem que operações de exclusão funcionem corretamente, assegurando que o usuário possa de fato remover seus dados da plataforma.
 
-## 🐛 6. Relatando Vulnerabilidades
+## 🏗️ 6. Arquitetura e Isolamento de Código
+
+- **Camada de Serviço Centralizada:** Todo acesso ao Firebase (Firestore, Auth, Storage) é feito exclusivamente via `services/`, isolando a lógica de negócio dos componentes de interface e facilitando auditoria e manutenção.
+- **Sem rotas de API customizadas:** Não há endpoints HTTP expostos pelo servidor Next.js — toda a lógica de backend é delegada ao Firebase, reduzindo significativamente a superfície de ataque.
+- **Variáveis de Ambiente:** Credenciais Firebase são lidas exclusivamente via `NEXT_PUBLIC_` env vars — nunca hardcoded no código-fonte.
+
+## 🐛 7. Relatando Vulnerabilidades
 
 Se você encontrar qualquer falha de segurança ou comportamento suspeito na plataforma, pedimos que **não abra uma Issue pública**. Em vez disso:
 1. Envie um e-mail diretamente para o desenvolvedor: **luist_ls@outlook.pt**
