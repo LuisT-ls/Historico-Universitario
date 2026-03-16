@@ -446,6 +446,7 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
               }}
               className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-lg z-40 sm:h-16 sm:w-16"
               size="icon"
+              aria-label="Adicionar disciplina"
             >
               <PlusCircle className="h-8 w-8" />
             </Button>
