@@ -120,26 +120,47 @@ export function AcademicCalendar() {
         <Button
           variant="outline"
           size="sm"
+          aria-label="Abrir calendário de matrícula UFBA"
           className="gap-2 border-primary/20 hover:bg-primary/5 rounded-lg relative"
         >
-          <CalendarDays className="h-3.5 w-3.5" />
-          <span>Calendário {SEMESTER}</span>
+          <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+          <span className="max-sm:hidden">Calendário {SEMESTER}</span>
           {hasActive && (
             <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-background" />
           )}
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <CalendarDays className="h-5 w-5 text-primary" />
-            Calendário de Matrícula UFBA
-          </DialogTitle>
-          <p className="text-sm text-muted-foreground pl-7">Semestre {SEMESTER}</p>
-        </DialogHeader>
+      {/* Mobile: bottom sheet | Desktop: centered modal */}
+      <DialogContent className={[
+        // mobile — bottom sheet
+        '!fixed !bottom-0 !left-0 !right-0 !top-auto',
+        '!translate-x-0 !translate-y-0',
+        '!max-w-full !w-full',
+        '!rounded-t-2xl !rounded-b-none',
+        '!p-0',
+        // desktop — centered modal
+        'sm:!bottom-auto sm:!left-1/2 sm:!right-auto sm:!top-1/2',
+        'sm:!-translate-x-1/2 sm:!-translate-y-1/2',
+        'sm:!max-w-md',
+        'sm:!rounded-xl',
+        'sm:!p-6',
+      ].join(' ')}>
 
-        <div className="mt-2 max-h-[60vh] overflow-y-auto pr-1">
+        {/* drag handle visible only on mobile */}
+        <div className="mx-auto mt-3 mb-1 h-1.5 w-10 rounded-full bg-muted-foreground/20 sm:hidden" />
+
+        <div className="px-6 pb-2 pt-4 sm:p-0">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <CalendarDays className="h-5 w-5 text-primary shrink-0" />
+              Calendário de Matrícula UFBA
+            </DialogTitle>
+            <p className="text-sm text-muted-foreground pl-7">Semestre {SEMESTER}</p>
+          </DialogHeader>
+        </div>
+
+        <div className="mt-1 max-h-[65svh] sm:max-h-[60vh] overflow-y-auto px-6 pb-6 sm:px-0 sm:pb-0 sm:mt-4">
           {events.map(({ event, status, isLast }) => (
             <EventRow key={event.label} event={event} status={status} isLast={isLast} />
           ))}
