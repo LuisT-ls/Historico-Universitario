@@ -126,6 +126,7 @@ export function PublicHorariosPage({ userId }: Props) {
   const [notFound, setNotFound] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
   const [userCourse, setUserCourse] = useState<string | null>(null)
+  const [userPhoto, setUserPhoto] = useState<string | null>(null)
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
   const [codes, setCodes] = useState<Record<string, string>>({})
 
@@ -140,6 +141,7 @@ export function PublicHorariosPage({ userId }: Props) {
 
         setUserName(profile.nome ?? null)
         setUserCourse(profile.curso ?? null)
+        setUserPhoto(profile.photoURL ?? null)
 
         const [allDisciplinas, savedCodes] = await Promise.all([
           getDisciplines(userId),
@@ -223,8 +225,11 @@ export function PublicHorariosPage({ userId }: Props) {
       <div className="bg-muted/30 border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center sm:items-start gap-5">
-            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background shadow-lg shrink-0">
-              <UserIcon className="h-7 w-7 text-primary" />
+            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background shadow-lg shrink-0 overflow-hidden">
+              {userPhoto
+                ? <img src={userPhoto} alt={userName ?? 'Estudante'} className="h-full w-full object-cover" />
+                : <UserIcon className="h-7 w-7 text-primary" />
+              }
             </div>
             <div className="text-center sm:text-left space-y-1.5 flex-1">
               <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2">
