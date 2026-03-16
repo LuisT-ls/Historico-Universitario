@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/components/auth-provider'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { GraduationCap, User, LogOut, LogIn, Menu, X, Home, Clock, Calculator } from 'lucide-react'
+import { GraduationCap, User, LogOut, LogIn, Menu, X, Home, Clock, Calculator, CalendarRange } from 'lucide-react'
 import { signOut } from '@/services/auth.service'
 import Image from 'next/image'
 import { cn, clearUserData } from '@/lib/utils'
@@ -61,6 +61,7 @@ export function Header() {
   const navItems = [
     { href: '/', label: 'Início', icon: Home, show: !isHomePage },
     { href: '/simulador', label: 'Simulador', icon: Calculator, show: true },
+    { href: '/horarios', label: 'Horários', icon: CalendarRange, show: true },
     { href: '/certificados', label: 'Certificados', icon: GraduationCap, show: true },
     { href: '/profile', label: 'Perfil', icon: User, show: !!user },
   ]
