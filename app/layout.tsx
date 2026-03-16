@@ -124,8 +124,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning className="scroll-smooth">
       <head>
-        <link rel="preconnect" href="https://firestore.googleapis.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://historico-universitario-abc12.firebaseapp.com" />
+        {/* Auth iframe host — in critical path (1,489ms), preconnect saves ~310ms */}
+        <link rel="preconnect" href="https://historico-universitario-abc12.firebaseapp.com" crossOrigin="anonymous" />
+        {/* Google APIs used by Firebase Auth — saves ~300ms each */}
+        <link rel="preconnect" href="https://apis.google.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.googleapis.com" crossOrigin="anonymous" />
+        {/* Lower-priority origins */}
+        <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
         <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <script
