@@ -4,7 +4,13 @@ import './globals.css'
 import { Providers } from '@/components/providers'
 import { ErrorBoundary } from '@/components/error-boundary'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  adjustFontFallback: true,
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'],
+})
 
 export const metadata: Metadata = {
   title: {
@@ -118,10 +124,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning className="scroll-smooth">
       <head>
-        <link rel="preconnect" href="https://historico-universitario-abc12.firebaseapp.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://firestore.googleapis.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://historico-universitario-abc12.firebaseapp.com" />
         <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{const e=localStorage.getItem("historico-ufba-dark-mode")==="true";if(e){document.documentElement.classList.add("dark-mode");document.documentElement.style.colorScheme="dark"}else{document.documentElement.classList.remove("dark-mode");document.documentElement.style.colorScheme="light"}}catch(e){document.documentElement.classList.remove("dark-mode")}})();`,
