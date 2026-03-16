@@ -2,10 +2,14 @@
 
 import React, { useEffect, useState } from 'react'
 import { getProfile, getDisciplines, getScheduleCodes } from '@/services/firestore.service'
-import { Loader2, TableProperties, ShieldAlert } from 'lucide-react'
+import { Loader2, TableProperties, ShieldAlert, AlertCircle, User as UserIcon, GraduationCap, Calendar } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Badge } from '@/components/ui/badge'
+import { CURSOS } from '@/lib/constants'
+import { getCurrentSemester } from '@/lib/utils'
 import type { Disciplina } from '@/types'
 
-// ─── constants (same as horarios-page) ───────────────────────────────────────
+// ─── constants ────────────────────────────────────────────────────────────────
 
 const DAYS = [
   { digit: 2, label: 'Seg' },
@@ -121,8 +125,11 @@ export function PublicHorariosPage({ userId }: Props) {
   const [isPrivate, setIsPrivate] = useState(false)
   const [notFound, setNotFound] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
+  const [userCourse, setUserCourse] = useState<string | null>(null)
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
   const [codes, setCodes] = useState<Record<string, string>>({})
+
+  const semestre = getCurrentSemester()
 
   useEffect(() => {
     async function load() {
@@ -132,6 +139,7 @@ export function PublicHorariosPage({ userId }: Props) {
         if (profile.settings?.schedulePrivacy !== 'public') { setIsPrivate(true); return }
 
         setUserName(profile.nome ?? null)
+        setUserCourse(profile.curso ?? null)
 
         const [allDisciplinas, savedCodes] = await Promise.all([
           getDisciplines(userId),
@@ -149,122 +157,203 @@ export function PublicHorariosPage({ userId }: Props) {
     load()
   }, [userId])
 
+  // ── loading ──
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      <div className="min-h-screen bg-background">
+        <div className="bg-muted/30 border-b border-border">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div className="max-w-5xl mx-auto flex items-center gap-5">
+              <Skeleton className="h-16 w-16 rounded-full shrink-0" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-5xl mx-auto space-y-3">
+            <Skeleton className="h-72 rounded-xl" />
+          </div>
+        </div>
       </div>
     )
   }
 
-  if (notFound || isPrivate) {
+  // ── not found ──
+  if (notFound) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-        <ShieldAlert className="h-12 w-12 text-muted-foreground/40" />
-        <p className="text-muted-foreground font-medium">
-          {notFound ? 'Perfil não encontrado.' : 'Esta grade de horários é privada.'}
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+        <AlertCircle className="h-16 w-16 text-muted-foreground/20 mb-4" />
+        <h1 className="text-2xl font-bold mb-2">Perfil não encontrado</h1>
+        <p className="text-muted-foreground text-sm max-w-xs">
+          Este link pode ter expirado ou o perfil foi removido.
         </p>
-        {isPrivate && (
-          <p className="text-sm text-muted-foreground/70">
-            O dono deste perfil precisa torná-lo público para compartilhar a grade.
-          </p>
-        )}
       </div>
     )
   }
 
+  // ── private ──
+  if (isPrivate) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+        <ShieldAlert className="h-16 w-16 text-muted-foreground/20 mb-4" />
+        <h1 className="text-2xl font-bold mb-2">Grade privada</h1>
+        <p className="text-muted-foreground text-sm max-w-xs">
+          O dono deste perfil precisa tornar a grade de horários pública nas configurações.
+        </p>
+      </div>
+    )
+  }
+
+  // ── grid ──
   const grid = buildGrid(disciplinas, codes)
   const activeDayCols = DAYS.map((_, col) => grid.some(row => row[col] !== null))
   const visibleDays = DAYS.filter((d, i) => d.digit <= 6 || activeDayCols[i])
   const visibleDayIndices = visibleDays.map(d => DAYS.findIndex(dd => dd.digit === d.digit))
   const periodOf = (rowIdx: number) => TIME_SLOTS[rowIdx].period
-
   const hasCodes = disciplinas.some(d => codes[d.id ?? d.codigo])
+  const courseLabel = userCourse ? (CURSOS[userCourse as keyof typeof CURSOS]?.nome ?? userCourse) : null
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-black tracking-tight text-foreground dark:text-slate-100">
-          Grade de Horários
-        </h1>
-        {userName && (
-          <p className="text-sm text-muted-foreground mt-1">
-            de <span className="font-semibold text-foreground">{userName}</span>
-          </p>
-        )}
-      </div>
+    <div className="min-h-screen bg-background text-foreground">
 
-      {disciplinas.length === 0 || !hasCodes ? (
-        <div className="flex flex-col items-center gap-3 py-16 text-center">
-          <TableProperties className="h-10 w-10 text-muted-foreground/30" />
-          <p className="text-muted-foreground text-sm">Nenhuma grade configurada.</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <div className="min-w-[500px] rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-            <table className="w-full text-xs border-collapse">
-              <thead>
-                <tr>
-                  <th className="w-24 px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-muted/50 border-b border-border">
-                    Horário
-                  </th>
-                  {visibleDays.map(day => (
-                    <th key={day.digit} className="px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-muted/50 border-b border-l border-border">
-                      {day.label}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {TIME_SLOTS.map((slot, rowIdx) => {
-                  const isFirstOfPeriod = rowIdx === 0 || periodOf(rowIdx) !== periodOf(rowIdx - 1)
-                  const period = periodOf(rowIdx)
-
-                  return (
-                    <React.Fragment key={rowIdx}>
-                      {isFirstOfPeriod && (
-                        <tr className="bg-muted/30">
-                          <td colSpan={visibleDays.length + 1} className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground border-b border-border">
-                            {PERIOD_LABELS[period]}
-                          </td>
-                        </tr>
-                      )}
-                      <tr className="group">
-                        <td className="px-3 py-0 h-9 text-[10px] font-mono text-muted-foreground whitespace-nowrap border-b border-border align-middle">
-                          {slot.label}<span> – {slot.end}</span>
-                        </td>
-                        {visibleDayIndices.map(colIdx => {
-                          const cell = grid[rowIdx][colIdx]
-                          if (cell && !cell.isFirst && cell.span === 0) return null
-                          const color = cell ? COLORS[cell.colorIndex] : null
-                          return (
-                            <td
-                              key={colIdx}
-                              rowSpan={cell?.isFirst ? cell.span : undefined}
-                              className={[
-                                'border-b border-l border-border px-1.5 align-middle',
-                                cell?.isFirst ? `${color!.bg} ${color!.border}` : 'group-hover:bg-muted/20',
-                              ].join(' ')}
-                              style={cell?.isFirst ? { height: `${cell.span * 36}px` } : { height: '36px' }}
-                            >
-                              {cell?.isFirst && (
-                                <div className="flex flex-col justify-center h-full py-1 gap-0.5">
-                                  <span className={`font-semibold leading-tight line-clamp-2 ${color!.text}`}>{cell.nome}</span>
-                                  <span className={`text-[10px] font-mono opacity-70 ${color!.text}`}>{cell.codigo}</span>
-                                </div>
-                              )}
-                            </td>
-                          )
-                        })}
-                      </tr>
-                    </React.Fragment>
-                  )
-                })}
-              </tbody>
-            </table>
+      {/* ── Hero / Header ── */}
+      <div className="bg-muted/30 border-b border-border">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center sm:items-start gap-5">
+            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background shadow-lg shrink-0">
+              <UserIcon className="h-7 w-7 text-primary" />
+            </div>
+            <div className="text-center sm:text-left space-y-1.5 flex-1">
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2">
+                <h1 className="text-2xl font-black tracking-tight">
+                  {userName ?? 'Estudante'}
+                </h1>
+                <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-wider">
+                  Grade Compartilhada
+                </Badge>
+              </div>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-muted-foreground">
+                {courseLabel && (
+                  <span className="flex items-center gap-1.5">
+                    <GraduationCap className="h-3.5 w-3.5" />
+                    {courseLabel}
+                  </span>
+                )}
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5" />
+                  Semestre {semestre}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* ── Content ── */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+        <div className="max-w-5xl mx-auto space-y-6">
+
+          {disciplinas.length === 0 || !hasCodes ? (
+            <div className="flex flex-col items-center gap-3 py-20 text-center">
+              <TableProperties className="h-10 w-10 text-muted-foreground/20" />
+              <p className="text-muted-foreground text-sm">Nenhuma grade configurada.</p>
+            </div>
+          ) : (
+            <>
+              {/* Legend — discipline chips */}
+              <div className="flex flex-wrap gap-2">
+                {disciplinas
+                  .filter(d => codes[d.id ?? d.codigo])
+                  .map((d, idx) => {
+                    const color = COLORS[idx % COLORS.length]
+                    return (
+                      <span
+                        key={d.id ?? d.codigo}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-medium ${color.bg} ${color.border} ${color.text}`}
+                      >
+                        <span className="font-mono opacity-70">{d.codigo}</span>
+                        <span>{d.nome}</span>
+                      </span>
+                    )
+                  })}
+              </div>
+
+              {/* Grid */}
+              <div className="-mx-4 sm:mx-0 overflow-x-auto">
+                <div className="min-w-[480px] px-4 sm:px-0">
+                  <div className="rounded-none sm:rounded-xl border-y sm:border border-border bg-card shadow-sm overflow-hidden">
+                    <table className="w-full text-xs border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="w-20 sm:w-24 px-2 sm:px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-muted/50 border-b border-border">
+                            Horário
+                          </th>
+                          {visibleDays.map(day => (
+                            <th key={day.digit} className="px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-muted/50 border-b border-l border-border">
+                              {day.label}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {TIME_SLOTS.map((slot, rowIdx) => {
+                          const isFirstOfPeriod = rowIdx === 0 || periodOf(rowIdx) !== periodOf(rowIdx - 1)
+                          const period = periodOf(rowIdx)
+
+                          return (
+                            <React.Fragment key={rowIdx}>
+                              {isFirstOfPeriod && (
+                                <tr className="bg-muted/30">
+                                  <td colSpan={visibleDays.length + 1} className="px-2 sm:px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground border-b border-border">
+                                    {PERIOD_LABELS[period]}
+                                  </td>
+                                </tr>
+                              )}
+                              <tr className="group">
+                                <td className="px-2 sm:px-3 py-0 h-9 text-[10px] font-mono text-muted-foreground whitespace-nowrap border-b border-border align-middle">
+                                  <span className="hidden sm:inline">{slot.label} – {slot.end}</span>
+                                  <span className="sm:hidden">{slot.label}</span>
+                                </td>
+                                {visibleDayIndices.map(colIdx => {
+                                  const cell = grid[rowIdx][colIdx]
+                                  if (cell && !cell.isFirst && cell.span === 0) return null
+                                  const color = cell ? COLORS[cell.colorIndex] : null
+                                  return (
+                                    <td
+                                      key={colIdx}
+                                      rowSpan={cell?.isFirst ? cell.span : undefined}
+                                      className={[
+                                        'border-b border-l border-border px-1 sm:px-1.5 align-middle',
+                                        cell?.isFirst ? `${color!.bg} ${color!.border}` : 'group-hover:bg-muted/20',
+                                      ].join(' ')}
+                                      style={cell?.isFirst ? { height: `${cell.span * 36}px` } : { height: '36px' }}
+                                    >
+                                      {cell?.isFirst && (
+                                        <div className="flex flex-col justify-center h-full py-1 gap-0.5">
+                                          <span className={`font-semibold leading-tight line-clamp-2 ${color!.text}`}>{cell.nome}</span>
+                                          <span className={`text-[10px] font-mono opacity-70 ${color!.text}`}>{cell.codigo}</span>
+                                        </div>
+                                      )}
+                                    </td>
+                                  )
+                                })}
+                              </tr>
+                            </React.Fragment>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
     </div>
   )
 }

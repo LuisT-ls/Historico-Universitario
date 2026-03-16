@@ -183,7 +183,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning>
         <ErrorBoundary>
           <Providers>{children}</Providers>
         </ErrorBoundary>
