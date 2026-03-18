@@ -288,12 +288,13 @@ export function HomePage() {
       // Exibir avisos após o toast de conclusão (em sequência, não simultâneo)
       if (avisos && avisos.length > 0) {
         avisos.forEach((aviso, i) => {
+          // Atraso inicial de 2.5s para a notificação de sucesso ser lida, mais 500ms por aviso extra
           setTimeout(() => {
             toast.info('Aviso de Importação', {
               description: aviso,
               duration: 8000
             })
-          }, (i + 1) * 400)
+          }, 2500 + (i * 500))
         })
       }
     } catch (error) {
