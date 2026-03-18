@@ -6,13 +6,10 @@ import { calcularResultado } from './utils';
 import disciplinasData from '@/assets/data/disciplinas.json';
 
 // Configurar o worker do PDF.js
-// Usar unpkg que tem todas as versões do npm (cdnjs pode não ter versões recentes)
-// IMPORTANTE: Para o worker funcionar corretamente no navegador, ele precisa ser carregado do mesmo domínio ou via Blob
-let pdfjsWorker = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-
-// Tentar configurar o worker de forma mais robusta para Next.js
+// O arquivo worker é copiado de node_modules para public/ via script postinstall
+// e servido localmente para não violar a Content Security Policy (CSP)
 if (typeof window !== 'undefined') {
-  pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+  pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 }
 
 export interface ParsedHistory {

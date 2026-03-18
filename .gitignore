@@ -17,6 +17,9 @@
 # Production
 /build
 
+# Generated assets (copied from node_modules via postinstall)
+/public/pdf.worker.min.mjs
+
 # Old HTML files (legacy, can cause conflicts with Next.js)
 index.html
 *.html
