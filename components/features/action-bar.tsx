@@ -17,7 +17,7 @@ const AcademicCalendar = dynamic(
 interface ActionBarProps {
   cursoAtual: Curso
   onCursoChange: (curso: Curso) => void
-  onImport: (disciplinas: Disciplina[]) => Promise<void>
+  onImport: (disciplinas: Disciplina[], avisos?: string[]) => Promise<void>
 }
 
 export function ActionBar({ cursoAtual, onCursoChange, onImport }: ActionBarProps) {
@@ -43,21 +43,12 @@ export function ActionBar({ cursoAtual, onCursoChange, onImport }: ActionBarProp
         logger.warn('Nenhuma disciplina encontrada no PDF')
         toast.error('Não foi possível encontrar disciplinas no arquivo. Verifique se o PDF é um histórico oficial do SIGAA.')
       } else {
-        // Mostrar avisos antes de importar
-        if (result.avisos && result.avisos.length > 0) {
-          result.avisos.forEach(aviso => {
-            toast.info('Aviso de Importação', {
-              description: aviso,
-              duration: 6000
-            })
-          })
-        }
-
         // Importar disciplinas (salvar no Firebase)
+        // Os avisos são tratados dentro do onImport para evitar toasts simultâneos
         logger.info('Iniciando salvamento das disciplinas no Firebase...')
-        await onImport(result.disciplinas)
+        await onImport(result.disciplinas, result.avisos)
         logger.info('Disciplinas salvas com sucesso')
-        
+
         if (result.nomeAluno) {
           logger.info(`Histórico de ${result.nomeAluno} importado.`)
         }

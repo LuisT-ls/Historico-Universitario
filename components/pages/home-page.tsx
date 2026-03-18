@@ -170,7 +170,7 @@ export function HomePage() {
     })
   }
 
-  const handleImportDisciplinas = async (disciplinasImportadas: Disciplina[]) => {
+  const handleImportDisciplinas = async (disciplinasImportadas: Disciplina[], avisos?: string[]) => {
     setIsLoading(true)
     try {
       logger.info(`Iniciando importação de ${disciplinasImportadas.length} disciplinas`)
@@ -283,6 +283,18 @@ export function HomePage() {
         toast.info(`${msg} (${puladas} duplicatas ignoradas).`)
       } else {
         toast.success(msg)
+      }
+
+      // Exibir avisos após o toast de conclusão (em sequência, não simultâneo)
+      if (avisos && avisos.length > 0) {
+        avisos.forEach((aviso, i) => {
+          setTimeout(() => {
+            toast.info('Aviso de Importação', {
+              description: aviso,
+              duration: 8000
+            })
+          }, (i + 1) * 400)
+        })
       }
     } catch (error) {
       logger.error('Erro ao importar disciplinas:', error)
