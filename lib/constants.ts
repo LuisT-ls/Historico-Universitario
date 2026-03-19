@@ -104,6 +104,12 @@ export const NATUREZA_LABELS: Record<string, string> = {
   OZ: 'OZ - Optativa Artística',
 }
 
+/** Carga horária necessária para equivaler a 1 crédito acadêmico */
+export const CH_POR_CREDITO = 15
+
+/** Nota mínima (inclusiva) para aprovação em disciplinas regulares */
+export const NOTA_MINIMA_APROVACAO = 5.0
+
 // Re-export type-safe constants for convenience
 export {
   RESULTADO_LABELS,

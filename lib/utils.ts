@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { CURSOS } from '@/lib/constants'
+import { CURSOS, CH_POR_CREDITO, NOTA_MINIMA_APROVACAO } from '@/lib/constants'
 import MATRIZES from '@/assets/data/matrizes.json'
 import type { Disciplina, UserStatistics, Natureza, Certificado, Curso, Profile, MatrizCurricular } from '@/types'
 import { logger } from '@/lib/logger'
@@ -91,7 +91,7 @@ export function calcularResultado(
   if (trancamento) return 'TR'
   if (dispensada) return 'AP'
   if (emcurso) return 'DP'
-  return nota >= 5.0 ? 'AP' : 'RR'
+  return nota >= NOTA_MINIMA_APROVACAO ? 'AP' : 'RR'
 }
 
 /**
@@ -175,7 +175,7 @@ export function calcularCreditos(
     (d) => !d.dispensada && d.natureza !== 'AC' && d.ch > 0
   )
 
-  return disciplinasValidas.reduce((sum, d) => sum + d.ch / 15, 0)
+  return disciplinasValidas.reduce((sum, d) => sum + d.ch / CH_POR_CREDITO, 0)
 }
 
 /**
@@ -219,7 +219,7 @@ export function calcularPCR(
       d.ch > 0
   )
 
-  return disciplinasValidas.reduce((sum, d) => sum + (d.ch / 15) * d.nota, 0)
+  return disciplinasValidas.reduce((sum, d) => sum + (d.ch / CH_POR_CREDITO) * d.nota, 0)
 }
 
 /**

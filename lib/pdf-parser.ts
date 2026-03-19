@@ -6,6 +6,9 @@ import { calcularResultado } from './utils';
 import disciplinasData from '@/assets/data/disciplinas.json';
 const catalogo = disciplinasData as DisciplinasCatalogo;
 
+/** Tolerância em unidades de coordenada Y para agrupar itens de texto na mesma linha do PDF */
+const PDF_LINE_Y_TOLERANCE = 5;
+
 // Configurar o worker do PDF.js
 // O arquivo worker é copiado de node_modules para public/ via script postinstall
 // e servido localmente para não violar a Content Security Policy (CSP)
@@ -119,7 +122,7 @@ export async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<stri
 
         // Se a diferença de Y for pequena (mesma linha), agrupar
         // Threshold de 5 unidades é seguro para a maioria dos PDFs
-        if (Math.abs(item.y - prevItem.y) < 5) {
+        if (Math.abs(item.y - prevItem.y) < PDF_LINE_Y_TOLERANCE) {
           currentLine.push(item);
         } else {
           // Nova linha: ordenar a anterior por X e salvar
