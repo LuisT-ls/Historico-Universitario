@@ -315,7 +315,7 @@ describe('parseSigaaHistoryText — avisos', () => {
       makeLine('2022.1', 'EB', 'ZZZ001', 'DISCIPLINA A', 60, '8.0', 'APR'),
       makeLine('2022.1', 'EB', 'ZZZ002', 'DISCIPLINA B', 60, '7.0', 'APR'),
     ].join('\n')
-    const { avisos } = parseSigaaHistoryText(text)
+    const { avisos = [] } = parseSigaaHistoryText(text)
     const uniqueAvisos = new Set(avisos)
     expect(avisos.length).toBe(uniqueAvisos.size)
   })
