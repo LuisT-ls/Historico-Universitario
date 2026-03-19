@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getDisciplines, addDiscipline, updateDiscipline, deleteDiscipline, getCertificates, getProfile } from '@/services/firestore.service'
-import { normalizeText } from '@/lib/utils'
+import { normalizeText, compararPeriodos } from '@/lib/utils'
 import { handleError } from '@/lib/error-handler'
 import type { Curso, Disciplina, Certificado, Profile } from '@/types'
 import { toast } from '@/lib/toast'
@@ -69,12 +69,7 @@ export function HomePage() {
 
       const disciplinasDoCurso = todasDisciplinas
         .filter((d) => d.curso === cursoAtual)
-        .sort((a, b) => {
-          const [anoA, semA] = a.periodo.split('.').map(Number)
-          const [anoB, semB] = b.periodo.split('.').map(Number)
-          if (anoA !== anoB) return anoB - anoA
-          return semB - semA
-        })
+        .sort((a, b) => compararPeriodos(a.periodo, b.periodo))
 
       setDisciplinas(disciplinasDoCurso)
 
@@ -267,12 +262,7 @@ export function HomePage() {
 
         // Filtrar e ordenar
         const disciplinasDoCurso = listaAtualizada.filter((d) => d.curso === cursoAtual)
-        disciplinasDoCurso.sort((a, b) => {
-          const [anoA, semA] = a.periodo.split('.').map(Number)
-          const [anoB, semB] = b.periodo.split('.').map(Number)
-          if (anoA !== anoB) return anoB - anoA
-          return semB - semA
-        })
+        disciplinasDoCurso.sort((a, b) => compararPeriodos(a.periodo, b.periodo))
 
         setDisciplinas(disciplinasDoCurso)
         localStorage.setItem(`disciplinas_${cursoAtual}`, JSON.stringify(disciplinasDoCurso))

@@ -8,6 +8,7 @@ import {
   calcularSemestralizacao,
   calcularPrevisaoFormaturaCompleta,
   getCurrentSemester,
+  compararPeriodos,
 } from '@/lib/utils'
 
 // ─── types ────────────────────────────────────────────────────────────────────
@@ -109,11 +110,7 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
     })
 
     const disciplinasPorPeriodo = Object.entries(porPeriodo)
-      .sort(([a], [b]) => {
-        const [anoA, semA] = a.split('.').map(Number)
-        const [anoB, semB] = b.split('.').map(Number)
-        return anoA !== anoB ? anoA - anoB : semA - semB
-      })
+      .sort(([a], [b]) => compararPeriodos(b, a)) // ascendente: mais antigo primeiro (impressão cronológica)
 
     return {
       stats: {

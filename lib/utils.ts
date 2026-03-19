@@ -48,13 +48,7 @@ export function getPeriodoMaisRecente(disciplinas: Array<{ periodo: string }>): 
   const periodos = disciplinas
     .map((d) => d.periodo)
     .filter((p) => p && p.trim() !== '')
-    .sort((a, b) => {
-      const [anoA, semA] = a.split('.').map(Number)
-      const [anoB, semB] = b.split('.').map(Number)
-
-      if (anoA !== anoB) return anoB - anoA
-      return semB - semA
-    })
+    .sort(compararPeriodos)
 
   return periodos[0] || null
 }
@@ -278,12 +272,7 @@ export function calcularTendenciaNotas(
   }
 
   // Ordenar por período
-  const disciplinasOrdenadas = [...disciplinasComNota].sort((a, b) => {
-    const [anoA, semA] = a.periodo.split('.').map(Number)
-    const [anoB, semB] = b.periodo.split('.').map(Number)
-    if (anoA !== anoB) return anoB - anoA
-    return semB - semA
-  })
+  const disciplinasOrdenadas = [...disciplinasComNota].sort((a, b) => compararPeriodos(a.periodo, b.periodo))
 
   const metade = Math.ceil(disciplinasOrdenadas.length / 2)
   const primeirasNotas = disciplinasOrdenadas.slice(0, metade)

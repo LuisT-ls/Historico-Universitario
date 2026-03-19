@@ -14,6 +14,7 @@ import {
   calcularTendenciaNotas,
   calcularPrevisaoFormaturaCompleta,
   calcularSemestralizacao,
+  compararPeriodos,
   cn,
 } from '@/lib/utils'
 import {
@@ -241,12 +242,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
       })
 
     const dadosGraficoBarras = Object.entries(periodos)
-      .sort(([a], [b]) => {
-        const [anoA, semA] = a.split('.').map(Number)
-        const [anoB, semB] = b.split('.').map(Number)
-        if (anoA !== anoB) return anoA - anoB
-        return semA - semB
-      })
+      .sort(([a], [b]) => compararPeriodos(b, a)) // ascendente: mais antigo primeiro (eixo X cronológico)
       .map(([periodo, dados]) => ({
         periodo,
         aprovadas: dados.aprovadas,
@@ -255,12 +251,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
 
     // Dados para gráfico de linha (evolução do CR acumulado semestre a semestre)
     const todosPeriodos = [...new Set(disciplinas.map(d => d.periodo).filter(Boolean))]
-      .sort((a, b) => {
-        const [anoA, semA] = a.split('.').map(Number)
-        const [anoB, semB] = b.split('.').map(Number)
-        if (anoA !== anoB) return anoA - anoB
-        return semA - semB
-      })
+      .sort((a, b) => compararPeriodos(b, a)) // ascendente: mais antigo primeiro (evolução do CR)
 
     const dadosGraficoCR = todosPeriodos.length >= 2
       ? todosPeriodos.map(periodo => {

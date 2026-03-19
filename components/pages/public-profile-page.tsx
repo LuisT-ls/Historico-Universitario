@@ -20,7 +20,7 @@ import {
     ArrowUpRight
 } from 'lucide-react'
 import { CURSOS, NATUREZA_LABELS } from '@/lib/constants'
-import { calcularEstatisticas } from '@/lib/utils'
+import { calcularEstatisticas, compararPeriodos } from '@/lib/utils'
 import type { Profile, Disciplina, Certificado, UserStatistics, Natureza } from '@/types'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 
@@ -69,14 +69,7 @@ export function PublicProfilePage({ userId }: PublicProfilePageProps) {
                 ])
 
                 // Sort disciplines by period (newest first)
-                disciplines.sort((a, b) => {
-                    const [anoA] = (a.periodo || '0.0').split('.').map(Number)
-                    const [anoB] = (b.periodo || '0.0').split('.').map(Number)
-                    if (anoA !== anoB) return anoB - anoA
-                    const semA = Number((a.periodo || '0.0').split('.')[1])
-                    const semB = Number((b.periodo || '0.0').split('.')[1])
-                    return semB - semA
-                })
+                disciplines.sort((a, b) => compararPeriodos(a.periodo || '0.0', b.periodo || '0.0'))
 
                 setDisciplines(disciplines)
 
