@@ -129,7 +129,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{const e=localStorage.getItem("historico-ufba-dark-mode")==="true";if(e){document.documentElement.classList.add("dark-mode");document.documentElement.style.colorScheme="dark"}else{document.documentElement.classList.remove("dark-mode");document.documentElement.style.colorScheme="light"}}catch(e){document.documentElement.classList.remove("dark-mode")}})();`,
+            __html: `(function(){try{const e=localStorage.getItem("historico-ufba-dark-mode")==="true";if(e){document.documentElement.classList.add("dark-mode");document.documentElement.style.colorScheme="dark"}else{document.documentElement.classList.remove("dark-mode");document.documentElement.style.colorScheme="light"}}catch(e){document.documentElement.classList.remove("dark-mode")}})();requestAnimationFrame(function(){requestAnimationFrame(function(){document.body.classList.add("theme-ready")})});`,
           }}
         />
         <meta name="theme-color" content="#000000" media="(prefers-color-scheme: light)" />
