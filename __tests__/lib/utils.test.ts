@@ -320,6 +320,136 @@ describe('lib/utils', () => {
     })
   })
 
+  describe('validação de bounds - dados inválidos', () => {
+    describe('calcularMediaGeral', () => {
+      it('deve ignorar nota negativa', () => {
+        const disciplinas = [
+          { nota: 8, ch: 60 },
+          { nota: -5, ch: 60 }, // inválida
+        ]
+        expect(calcularMediaGeral(disciplinas)).toBe(8)
+      })
+
+      it('deve ignorar nota acima de 10', () => {
+        const disciplinas = [
+          { nota: 8, ch: 60 },
+          { nota: 15, ch: 60 }, // inválida
+        ]
+        expect(calcularMediaGeral(disciplinas)).toBe(8)
+      })
+
+      it('deve ignorar ch <= 0', () => {
+        const disciplinas = [
+          { nota: 8, ch: 60 },
+          { nota: 7, ch: 0 },  // inválida
+          { nota: 6, ch: -30 }, // inválida
+        ]
+        expect(calcularMediaGeral(disciplinas)).toBe(8)
+      })
+
+      it('deve retornar 0 quando todos os registros são inválidos', () => {
+        const disciplinas = [
+          { nota: -1, ch: 60 },
+          { nota: 8, ch: 0 },
+        ]
+        expect(calcularMediaGeral(disciplinas)).toBe(0)
+      })
+    })
+
+    describe('calcularCR', () => {
+      it('deve ignorar nota negativa no cálculo do CR', () => {
+        const disciplinas = [
+          { nota: 8, ch: 60 },
+          { nota: -3, ch: 60 }, // inválida
+        ]
+        expect(calcularCR(disciplinas)).toBe(8)
+      })
+
+      it('deve ignorar nota acima de 10 no cálculo do CR', () => {
+        const disciplinas = [
+          { nota: 7, ch: 60 },
+          { nota: 11, ch: 60 }, // inválida
+        ]
+        expect(calcularCR(disciplinas)).toBe(7)
+      })
+
+      it('deve ignorar ch <= 0 no cálculo do CR', () => {
+        const disciplinas = [
+          { nota: 8, ch: 60 },
+          { nota: 9, ch: 0 },  // inválida
+        ]
+        expect(calcularCR(disciplinas)).toBe(8)
+      })
+    })
+
+    describe('calcularCreditos', () => {
+      it('deve ignorar ch zero', () => {
+        const disciplinas = [
+          { ch: 60 },
+          { ch: 0 }, // inválida
+        ]
+        expect(calcularCreditos(disciplinas)).toBe(4)
+      })
+
+      it('deve ignorar ch negativo', () => {
+        const disciplinas = [
+          { ch: 60 },
+          { ch: -30 }, // inválida
+        ]
+        expect(calcularCreditos(disciplinas)).toBe(4)
+      })
+    })
+
+    describe('calcularPCH', () => {
+      it('deve ignorar dados inválidos no cálculo do PCH', () => {
+        const disciplinas = [
+          { nota: 8, ch: 60 },   // 8 * 60 = 480
+          { nota: -1, ch: 60 },  // inválida
+          { nota: 9, ch: 0 },    // inválida
+        ]
+        expect(calcularPCH(disciplinas)).toBe(480)
+      })
+    })
+
+    describe('calcularPCR', () => {
+      it('deve ignorar dados inválidos no cálculo do PCR', () => {
+        const disciplinas = [
+          { nota: 8, ch: 60 },   // (60/15) * 8 = 32
+          { nota: 11, ch: 60 },  // inválida
+          { nota: 8, ch: -30 },  // inválida
+        ]
+        expect(calcularPCR(disciplinas)).toBe(32)
+      })
+    })
+
+    describe('calcularTendenciaNotas', () => {
+      it('deve ignorar notas fora da faixa ao analisar tendência', () => {
+        // 1 válida + 1 inválida → apenas 1 aproveitável → "insuficientes"
+        const disciplinas = [
+          { nota: 8, periodo: '2023.1' },   // válida
+          { nota: -5, periodo: '2024.1' },  // inválida (nota < 0)
+        ]
+        const tendencia = calcularTendenciaNotas(disciplinas)
+        expect(tendencia.text).toContain('insuficientes')
+      })
+
+      it('não deve distorcer a tendência por causa de notas inválidas', () => {
+        const validas = [
+          { nota: 6, periodo: '2023.1' },
+          { nota: 8, periodo: '2023.2' },
+        ]
+        const comInvalidas = [
+          ...validas,
+          { nota: -5, periodo: '2024.1' }, // inválida
+          { nota: 15, periodo: '2024.2' }, // inválida
+        ]
+        // O resultado com inválidas deve ser idêntico ao resultado sem elas
+        expect(calcularTendenciaNotas(comInvalidas).icon)
+          .toBe(calcularTendenciaNotas(validas).icon)
+      })
+    })
+  })
+
   describe('calcularEstatisticas', () => {
     it('deve calcular estatísticas corretamente', () => {
       const disciplinas: Disciplina[] = [

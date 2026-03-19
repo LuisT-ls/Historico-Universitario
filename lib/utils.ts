@@ -107,7 +107,13 @@ export function calcularMediaGeral(
   if (disciplinas.length === 0) return 0
 
   const disciplinasValidas = disciplinas.filter(
-    (d) => !d.emcurso && d.resultado !== 'DP' && d.nota !== null && d.nota !== undefined
+    (d) =>
+      !d.emcurso &&
+      d.resultado !== 'DP' &&
+      d.nota !== null &&
+      d.nota !== undefined &&
+      d.nota >= 0 && d.nota <= 10 &&
+      d.ch > 0
   )
 
   if (disciplinasValidas.length === 0) return 0
@@ -141,6 +147,8 @@ export function calcularCR(
       d.natureza !== 'AC' &&
       d.nota !== null &&
       d.nota !== undefined &&
+      d.nota >= 0 && d.nota <= 10 &&
+      d.ch > 0 &&
       !d.trancamento &&
       !d.emcurso
   )
@@ -164,7 +172,7 @@ export function calcularCreditos(
   disciplinas: Array<{ ch: number; dispensada?: boolean; natureza?: string }>
 ): number {
   const disciplinasValidas = disciplinas.filter(
-    (d) => !d.dispensada && d.natureza !== 'AC'
+    (d) => !d.dispensada && d.natureza !== 'AC' && d.ch > 0
   )
 
   return disciplinasValidas.reduce((sum, d) => sum + d.ch / 15, 0)
@@ -180,7 +188,13 @@ export function calcularPCH(
   disciplinas: Array<{ nota: number; ch: number; dispensada?: boolean; natureza?: string }>
 ): number {
   const disciplinasValidas = disciplinas.filter(
-    (d) => !d.dispensada && d.natureza !== 'AC' && d.nota !== null && d.nota !== undefined
+    (d) =>
+      !d.dispensada &&
+      d.natureza !== 'AC' &&
+      d.nota !== null &&
+      d.nota !== undefined &&
+      d.nota >= 0 && d.nota <= 10 &&
+      d.ch > 0
   )
 
   return disciplinasValidas.reduce((sum, d) => sum + d.ch * d.nota, 0)
@@ -196,7 +210,13 @@ export function calcularPCR(
   disciplinas: Array<{ nota: number; ch: number; dispensada?: boolean; natureza?: string }>
 ): number {
   const disciplinasValidas = disciplinas.filter(
-    (d) => !d.dispensada && d.natureza !== 'AC' && d.nota !== null && d.nota !== undefined
+    (d) =>
+      !d.dispensada &&
+      d.natureza !== 'AC' &&
+      d.nota !== null &&
+      d.nota !== undefined &&
+      d.nota >= 0 && d.nota <= 10 &&
+      d.ch > 0
   )
 
   return disciplinasValidas.reduce((sum, d) => sum + (d.ch / 15) * d.nota, 0)
@@ -259,6 +279,7 @@ export function calcularTendenciaNotas(
     (d) =>
       d.nota !== null &&
       d.nota !== undefined &&
+      d.nota >= 0 && d.nota <= 10 &&
       !d.dispensada &&
       d.natureza !== 'AC' &&
       d.resultado !== 'TR'
