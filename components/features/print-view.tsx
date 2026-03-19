@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { Fragment, useMemo } from 'react'
 import type { Disciplina, Certificado, Curso, Natureza, Profile } from '@/types'
 import { CURSOS } from '@/lib/constants'
 import {
@@ -226,8 +226,8 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
         </thead>
         <tbody>
           {disciplinasPorPeriodo.map(([periodo, discs]) => (
-            <>
-              <tr key={`period-${periodo}`} style={{ background: '#e8ecf0' }}>
+            <Fragment key={`period-${periodo}`}>
+              <tr style={{ background: '#e8ecf0' }}>
                 <td colSpan={6} style={{ padding: '4px 8px', fontWeight: 'bold', fontSize: '8pt', letterSpacing: '0.05em' }}>
                   {periodo}
                 </td>
@@ -246,7 +246,7 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
                   </Td>
                 </tr>
               ))}
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>
