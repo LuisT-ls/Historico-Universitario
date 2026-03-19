@@ -154,3 +154,27 @@ export interface Certificado {
   updatedAt?: Date
 }
 
+// ─── Catalog JSON data types ─────────────────────────────────────────────────
+
+/** Entry in assets/data/disciplinas.json > catalogo */
+export interface CatalogoDisciplina {
+  codigo: string
+  nome: string
+  ch: number
+}
+
+/** Entry in assets/data/disciplinas.json > cursos[curso] */
+export interface CursoDisciplinaEntry {
+  codigo: string
+  natureza: Natureza
+}
+
+/** Shape of assets/data/disciplinas.json */
+export interface DisciplinasCatalogo {
+  catalogo: Record<string, CatalogoDisciplina>
+  cursos: Record<Curso, CursoDisciplinaEntry[]>
+}
+
+/** Shape of assets/data/matrizes.json — curso → semestre → lista de códigos */
+export type MatrizCurricular = Record<Curso, Record<string, string[]>>
+

@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { CURSOS } from '@/lib/constants'
 import MATRIZES from '@/assets/data/matrizes.json'
-import type { Disciplina, UserStatistics, Natureza, Certificado, Curso, Profile } from '@/types'
+import type { Disciplina, UserStatistics, Natureza, Certificado, Curso, Profile, MatrizCurricular } from '@/types'
 import { logger } from '@/lib/logger'
 
 /**
@@ -756,7 +756,7 @@ export function calcularPerfilInicial(
   disciplinas: Disciplina[],
   curso: Curso
 ): number {
-  const matriz = (MATRIZES as any)[curso]
+  const matriz = (MATRIZES as MatrizCurricular)[curso]
   if (!matriz) return 0
 
   let perfil = 0

@@ -1,9 +1,10 @@
 import * as pdfjs from 'pdfjs-dist';
-import { Disciplina, Natureza, ResultadoDisciplina } from '@/types';
+import { Disciplina, Natureza, ResultadoDisciplina, DisciplinasCatalogo } from '@/types';
 import { calcularResultado } from './utils';
 
 // Importar o catálogo de disciplinas para inferência de natureza
 import disciplinasData from '@/assets/data/disciplinas.json';
+const catalogo = disciplinasData as DisciplinasCatalogo;
 
 // Configurar o worker do PDF.js
 // O arquivo worker é copiado de node_modules para public/ via script postinstall
@@ -62,9 +63,9 @@ const mapNatureza = (natureza: string, codigo: string): Natureza => {
   // Se a natureza for vazia ou desconhecida, tentar inferir pelo código da disciplina
   if (!n || n === 'OB' || n === '-') {
     // Procurar em todos os cursos do JSON (agora na propriedade cursos)
-    for (const cursoDisciplinas of Object.values((disciplinasData as any).cursos)) {
-      const disc = (cursoDisciplinas as any[]).find((d: any) => d.codigo === codigo || codigo.startsWith(d.codigo));
-      if (disc) return disc.natureza as Natureza;
+    for (const cursoDisciplinas of Object.values(catalogo.cursos)) {
+      const disc = cursoDisciplinas.find((d) => d.codigo === codigo || codigo.startsWith(d.codigo));
+      if (disc) return disc.natureza;
     }
   }
 
@@ -162,8 +163,7 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
   const rowRegex = /^(\d{4}\.\d)?\s*(EB|EP|OP|AC|OB|LV|OG|OH|OX|OZ)?\s*([A-Z]{2,4}[0-9]{2,4}[A-Z0-9]?)\s+(.+?)\s+(\d+)\s+([\d\.,-]+)\s+(APR|REP|REPF|REPMF|TRANC|DISP|DISPENSADO|MATR|CANC|INCORP|CUMPRIU|TRANSF|TRANSFERIDO)/i;
 
   let currentPeriod = '';
-  const data = disciplinasData as any;
-  const bictiDisciplinas = data.cursos.BICTI as any[];
+  const bictiDisciplinas = catalogo.cursos.BICTI;
 
   for (const line of lines) {
     const trimmedLine = line.trim();
@@ -221,40 +221,48 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
     const findNaturezaNoCatalogo = (codigo: string, nomeDisciplina: string): Natureza | null => {
       let codigoBusca = codigo;
       if (!codigoBusca && nomeDisciplina) {
-        const itemCatalogo = Object.values(data.catalogo).find((d: any) =>
-          d?.nome && d.nome.toUpperCase() === nomeDisciplina.toUpperCase()
+        const itemCatalogo = Object.values(catalogo.catalogo).find(
+          (d) => d.nome.toUpperCase() === nomeDisciplina.toUpperCase()
         );
-        if (itemCatalogo) codigoBusca = (itemCatalogo as any).codigo;
+        if (itemCatalogo) codigoBusca = itemCatalogo.codigo;
       }
 
-      for (const cursoDisciplinas of Object.values(data.cursos)) {
-        const discPorCodigo = (cursoDisciplinas as any[]).find((d: any) => d.codigo === codigoBusca || codigoBusca.startsWith(d.codigo));
-        if (discPorCodigo) return discPorCodigo.natureza as Natureza;
+      for (const cursoDisciplinas of Object.values(catalogo.cursos)) {
+        const disc = cursoDisciplinas.find(
+          (d) => d.codigo === codigoBusca || codigoBusca.startsWith(d.codigo)
+        );
+        if (disc) return disc.natureza;
       }
       return null;
     };
 
     const { resultado, trancamento, dispensada, emcurso } = mapSituacao(situacaoRaw);
 
-    const discBicti = bictiDisciplinas.find((d: any) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
-    if (discBicti?.nome) {
-      nome = discBicti.nome.toUpperCase();
+    const discBicti = bictiDisciplinas.find((d) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
+    if (discBicti) {
+      const itemCatalogo = catalogo.catalogo[discBicti.codigo];
+      if (itemCatalogo?.nome) nome = itemCatalogo.nome.toUpperCase();
     } else {
-      for (const cursoDisciplinas of Object.values(data.cursos)) {
-        const discOutro = (cursoDisciplinas as any[]).find((d: any) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
-        if (discOutro?.nome) {
-          nome = discOutro.nome.toUpperCase();
-          break;
+      for (const cursoDisciplinas of Object.values(catalogo.cursos)) {
+        const discOutro = cursoDisciplinas.find((d) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
+        if (discOutro) {
+          const itemCatalogo = catalogo.catalogo[discOutro.codigo];
+          if (itemCatalogo?.nome) {
+            nome = itemCatalogo.nome.toUpperCase();
+            break;
+          }
         }
       }
     }
 
     let naturezaCatalogo = findNaturezaNoCatalogo(codigo, nome);
-    let existeNoBicti = bictiDisciplinas.some((d: any) => d.codigo === codigo);
+    let existeNoBicti = bictiDisciplinas.some((d) => d.codigo === codigo);
     if (!existeNoBicti) {
-      const itemCatalogo = Object.values(data.catalogo).find((d: any) => d?.nome && d.nome.toUpperCase() === nome.toUpperCase());
+      const itemCatalogo = Object.values(catalogo.catalogo).find(
+        (d) => d.nome.toUpperCase() === nome.toUpperCase()
+      );
       if (itemCatalogo) {
-        existeNoBicti = bictiDisciplinas.some((d: any) => d.codigo === (itemCatalogo as any).codigo);
+        existeNoBicti = bictiDisciplinas.some((d) => d.codigo === itemCatalogo.codigo);
       }
     }
 
