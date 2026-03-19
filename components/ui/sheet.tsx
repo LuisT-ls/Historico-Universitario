@@ -3,7 +3,6 @@
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 const Sheet = DialogPrimitive.Root
@@ -20,6 +19,7 @@ const SheetOverlay = React.forwardRef<
             'fixed inset-0 z-50 bg-black/60 backdrop-blur-sm',
             'data-[state=open]:animate-in data-[state=closed]:animate-out',
             'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'data-[state=closed]:duration-300 data-[state=open]:duration-300',
             className
         )}
         {...props}
@@ -32,73 +32,46 @@ type SheetContentProps = React.ComponentPropsWithoutRef<typeof DialogPrimitive.C
     side?: 'top' | 'right' | 'bottom' | 'left'
 }
 
+const slideClasses = {
+    top: 'data-[state=open]:slide-in-from-top data-[state=closed]:slide-out-to-top',
+    bottom: 'data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom',
+    left: 'data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left',
+    right: 'data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right',
+}
+
+const sideClasses = {
+    top: 'inset-x-0 top-0 border-b',
+    bottom: 'inset-x-0 bottom-0 border-t',
+    left: 'inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-sm',
+    right: 'inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm',
+}
+
 const SheetContent = React.forwardRef<
     React.ElementRef<typeof DialogPrimitive.Content>,
     SheetContentProps
->(({ side = 'right', className, children, ...props }, ref) => {
-    const variants = {
-        right: {
-            initial: { x: '100%' },
-            animate: { x: 0 },
-            exit: { x: '100%' },
-        },
-        left: {
-            initial: { x: '-100%' },
-            animate: { x: 0 },
-            exit: { x: '-100%' },
-        },
-        top: {
-            initial: { y: '-100%' },
-            animate: { y: 0 },
-            exit: { y: '-100%' },
-        },
-        bottom: {
-            initial: { y: '100%' },
-            animate: { y: 0 },
-            exit: { y: '100%' },
-        },
-    }
-
-    const sideClasses = {
-        top: 'inset-x-0 top-0 border-b',
-        bottom: 'inset-x-0 bottom-0 border-t',
-        left: 'inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-sm',
-        right: 'inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm',
-    }
-
-    return (
-        <SheetPortal>
-            <SheetOverlay />
-            <DialogPrimitive.Content
-                ref={ref}
-                className={cn(
-                    'fixed z-50 gap-4 bg-background p-6 shadow-lg',
-                    sideClasses[side],
-                    className
-                )}
-                asChild
-                {...props}
-            >
-                <motion.div
-                    initial={variants[side].initial}
-                    animate={variants[side].animate}
-                    exit={variants[side].exit}
-                    transition={{
-                        type: 'spring',
-                        damping: 30,
-                        stiffness: 300,
-                    }}
-                >
-                    {children}
-                    <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
-                        <X className="h-5 w-5" />
-                        <span className="sr-only">Fechar</span>
-                    </DialogPrimitive.Close>
-                </motion.div>
-            </DialogPrimitive.Content>
-        </SheetPortal>
-    )
-})
+>(({ side = 'right', className, children, ...props }, ref) => (
+    <SheetPortal>
+        <SheetOverlay />
+        <DialogPrimitive.Content
+            ref={ref}
+            className={cn(
+                'fixed z-50 gap-4 bg-background p-6 shadow-lg',
+                'data-[state=open]:animate-in data-[state=closed]:animate-out',
+                'data-[state=closed]:duration-300 data-[state=open]:duration-300',
+                sideClasses[side],
+                slideClasses[side],
+                className
+            )}
+            {...props}
+        >
+            {children}
+            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+                <X className="h-5 w-5" />
+                <span className="sr-only">Fechar</span>
+            </DialogPrimitive.Close>
+        </DialogPrimitive.Content>
+    </SheetPortal>
+))
 SheetContent.displayName = DialogPrimitive.Content.displayName
 
 const SheetHeader = ({
