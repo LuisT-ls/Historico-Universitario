@@ -1,4 +1,4 @@
-# 📚 Histórico Acadêmico UFBA v2.3
+# 📚 Histórico Acadêmico UFBA v2.4
 
 > [!IMPORTANT]
 > **Aviso Legal:** Este é um projeto **independente** desenvolvido para auxiliar os estudantes do **ICTI/UFBA (Campus de Camaçari)**. Este software **não possui vínculo oficial** com a Universidade Federal da Bahia (UFBA) ou com a administração do SIGAA.
@@ -56,6 +56,14 @@ Uma plataforma moderna e intuitiva para estudantes da UFBA gerenciarem sua traje
 - **Grade visual:** Exibe os horários de Segunda a Sexta (e Sábado quando necessário), de 07:00 às 22:10, com rowspan automático para aulas de múltiplos horários.
 - **Persistência:** Códigos de horário salvos no Firebase — disponíveis após logout e novo login.
 
+### 🎓 Grade Curricular
+- **Visualização completa:** Todas as disciplinas obrigatórias do curso organizadas por semestre, com status de conclusão em tempo real.
+- **Múltiplas naturezas:** Abas dedicadas para Obrigatórias (OB), Optativas (OP/OX/OG), Atividades Complementares (AC/OZ) e Livres (LV).
+- **Matching inteligente:** Correspondência em três camadas — código exato → prefixo de turma (ex: `CTIA10B`) → nome canônico — para garantir que disciplinas cursadas em períodos diferentes sejam corretamente reconhecidas.
+- **Nota e período corretos:** Exibe sempre a nota e o semestre da tentativa aprovada, ignorando reprovações e trancamentos anteriores.
+- **Seleção de curso:** Suporte a múltiplos cursos do catálogo (ex: BICTI, Eng. de Computação), com alternância direta na página.
+- **Sem dados:** Funciona mesmo sem importação — exibe todas as disciplinas como pendentes até que o histórico seja importado.
+
 ### 📈 Ferramentas Avançadas
 - **Simulador de Notas:** Planeje quanto precisa tirar para atingir sua meta de CR.
 - **Gestão de Certificados:** Adicione horas complementares e veja o impacto no seu progresso.
@@ -79,6 +87,18 @@ O projeto foi totalmente migrado para as tecnologias mais modernas do ecossistem
 ---
 
 ## 🔄 Changelog
+
+### v2.4 — Grade Curricular
+
+- **Nova página `/grade`:** Grade Curricular completa e interativa.
+- **Disciplinas por semestre:** Obrigatórias organizadas por semestre do curso, com status visual (aprovado, em curso, pendente).
+- **Matching em três camadas:** Código exato → prefixo de turma (sufixo de turma como `CTIA10B`) → nome canônico do catálogo — resolve casos onde o código do SIGAA difere do catálogo.
+- **Nota e período da aprovação:** Sempre exibe a nota e o semestre da tentativa aprovada, nunca de reprovações ou trancamentos.
+- **Abas por natureza:** OB, OP/OX/OG, AC/OZ, LV — cada grupo com sua própria visualização.
+- **Seleção de curso:** Alternância de curso diretamente na página, sem necessidade de recarregar.
+- **SEO protegido:** Página autenticada com `robots: noindex, nofollow`.
+
+---
 
 ### v2.3 — Grade de Horários
 

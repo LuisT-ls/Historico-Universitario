@@ -1,6 +1,6 @@
 import * as pdfjs from 'pdfjs-dist';
 import { Disciplina, Natureza, ResultadoDisciplina, DisciplinasCatalogo } from '@/types';
-import { calcularResultado } from './utils';
+import { calcularResultado } from './utils/calculations';
 
 // Importar o catálogo de disciplinas para inferência de natureza
 import disciplinasData from '@/assets/data/disciplinas.json';

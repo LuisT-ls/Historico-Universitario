@@ -1,5 +1,5 @@
 import type { UserStatistics } from '@/types'
-import { calcularCR } from './utils'
+import { calcularCR } from './utils/calculations'
 
 /**
  * Gera e inicia o download de um arquivo JSON contendo o backup dos dados.
