@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { onAuthStateChanged, type User } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase/config'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { logger } from '@/lib/logger'
 
 interface AuthContextType {
   user: User | null
@@ -49,8 +50,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               createdAt: new Date(),
             })
           }
-        } catch {
-          // Falha silenciosa: o documento pode ser criado manualmente na página de perfil
+        } catch (error) {
+          // Não bloqueia o login — o documento pode ser criado manualmente na página de perfil
+          logger.error('Falha ao criar documento do usuário no primeiro login', error)
         }
       }
 
