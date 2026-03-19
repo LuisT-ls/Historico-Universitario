@@ -147,11 +147,10 @@ export async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<stri
 }
 
 /**
- * Parseia o conteúdo do histórico escolar da UFBA (SIGAA)
+ * Parseia o texto extraído de um histórico escolar da UFBA (SIGAA).
+ * Separado do I/O para permitir testes unitários sem dependência do PDF.js.
  */
-export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
-  const arrayBuffer = await file.arrayBuffer();
-  const text = await extractTextFromPDF(arrayBuffer);
+export function parseSigaaHistoryText(text: string): ParsedHistory {
 
 
   const lines = text.split('\n');
@@ -301,4 +300,14 @@ export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
     curso,
     avisos
   };
+}
+
+/**
+ * Parseia o histórico escolar da UFBA a partir de um arquivo PDF.
+ * Extrai o texto via PDF.js e delega o parsing para parseSigaaHistoryText.
+ */
+export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
+  const arrayBuffer = await file.arrayBuffer();
+  const text = await extractTextFromPDF(arrayBuffer);
+  return parseSigaaHistoryText(text);
 }

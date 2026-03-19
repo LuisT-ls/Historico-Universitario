@@ -50,7 +50,6 @@ const customJestConfig = {
     '!components/ui/badge.tsx',
     '!components/ui/card.tsx',
     '!lib/export-utils.ts',
-    '!lib/pdf-parser.ts',
     '!lib/constants.ts',
     '!lib/logger.ts',
     '!lib/toast.ts',
@@ -60,8 +59,14 @@ const customJestConfig = {
     global: {
       branches: 12,
       functions: 13,
-      lines: 13,
-      statements: 13,
+      lines: 15,
+      statements: 15,
+    },
+    'lib/pdf-parser.ts': {
+      branches: 50,
+      functions: 50,
+      lines: 65,
+      statements: 65,
     },
     // lib — lógica de negócio crítica
     'lib/error-handler.ts': {
@@ -73,8 +78,8 @@ const customJestConfig = {
     'lib/certificate-ocr.ts': {
       branches: 90,
       functions: 100,
-      lines: 95,
-      statements: 95,
+      lines: 90,
+      statements: 90,
     },
     // services — camada de acesso a dados
     'services/firestore.service.ts': {

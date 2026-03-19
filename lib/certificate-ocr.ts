@@ -7,7 +7,7 @@ export interface CertificadoOCRResult {
   camposEncontrados: string[]
 }
 
-function parseCargaHoraria(text: string): number | undefined {
+export function parseCargaHoraria(text: string): number | undefined {
   const patterns = [
     /carga\s+hor[aá]ria[:\s]+(\d+)/i,
     /dura[cç][aã]o[:\s]+(\d+)\s*h/i,
@@ -26,7 +26,7 @@ function parseCargaHoraria(text: string): number | undefined {
   return undefined
 }
 
-function parseDates(text: string): { dataInicio?: string; dataFim?: string } {
+export function parseDates(text: string): { dataInicio?: string; dataFim?: string } {
   const dates: Date[] = []
 
   // DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY
@@ -60,7 +60,7 @@ function parseDates(text: string): { dataInicio?: string; dataFim?: string } {
   return { dataInicio: toISO(dates[0]), dataFim: toISO(dates[dates.length - 1]) }
 }
 
-function parseTitulo(text: string): string | undefined {
+export function parseTitulo(text: string): string | undefined {
   // Após verbos de conclusão + tipo de atividade
   const activityTypes = 'curso|workshop|palestra|evento|congresso|semin[aá]rio|treinamento|capacita[cç][aã]o|simpl[oó]sio'
   const verbPatterns = [
@@ -81,7 +81,7 @@ function parseTitulo(text: string): string | undefined {
   return undefined
 }
 
-function parseInstituicao(text: string): string | undefined {
+export function parseInstituicao(text: string): string | undefined {
   const patterns = [
     /(?:promovido|realizado|oferecido|ministrado|organizado)\s+p(?:or|ela?|elo)\s+(?:a\s+)?([A-ZÀ-Úa-zà-ú][^\n.,]{5,120}?)(?:\n|,|\.|$)/i,
     /(?:da|do|pela|pelo)\s+((?:Universidade|Instituto|Faculdade|Centro|Escola|Funda[cç][aã]o|UFBA|USP|UNICAMP|UFRJ|UFMG|UFRGS|UFC|UFPE|UNB|UFSC|UFSM)[^\n.,]{0,100})(?:\n|,|\.|$)/i,
