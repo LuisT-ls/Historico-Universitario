@@ -80,16 +80,46 @@ describe('parseSigaaHistoryText — basic parsing', () => {
     expect(d.dispensada).toBe(true)
   })
 
-  it('parses CUMPRIU as dispensado', () => {
-    const text = makeLine('2020.2', 'EB', 'CTIA02', 'BASES EPISTEMOLÓGICAS', 30, '--', 'CUMPRIU')
+  it('parses CUMP as dispensado', () => {
+    const text = makeLine('2020.2', 'EB', 'CTIA02', 'BASES EPISTEMOLÓGICAS', 30, '--', 'CUMP')
     const { disciplinas } = parseSigaaHistoryText(text)
     expect(disciplinas[0].dispensada).toBe(true)
   })
 
-  it('parses TRANSF as dispensado', () => {
-    const text = makeLine('2020.2', 'EB', 'CTIA02', 'BASES EPISTEMOLÓGICAS', 30, '--', 'TRANSF')
+  it('parses TRANS as dispensado', () => {
+    const text = makeLine('2020.2', 'EB', 'CTIA02', 'BASES EPISTEMOLÓGICAS', 30, '--', 'TRANS')
     const { disciplinas } = parseSigaaHistoryText(text)
     expect(disciplinas[0].dispensada).toBe(true)
+  })
+
+  it('parses TRANS line with "--" period as periodo 0000.0', () => {
+    const text = '-- OB CTIA03 BASES MATEMÁTICAS 60 -- TRANS'
+    const { disciplinas } = parseSigaaHistoryText(text)
+    expect(disciplinas).toHaveLength(1)
+    expect(disciplinas[0].dispensada).toBe(true)
+    expect(disciplinas[0].periodo).toBe('0000.0')
+  })
+
+  it('does not carry "--" period to subsequent lines', () => {
+    const text = [
+      makeLine('2023.2', 'OB', 'CTIA01', 'INTRODUÇÃO À COMPUTAÇÃO', 60, '8.6', 'APR'),
+      '-- OB CTIA03 BASES MATEMÁTICAS 60 -- TRANS',
+      makeLine('', 'OB', 'CTIA04', 'ELEMENTOS ACADÊMICOS', 30, '10.0', 'APR'),
+    ].join('\n')
+    const { disciplinas } = parseSigaaHistoryText(text)
+    expect(disciplinas.find(d => d.codigo === 'CTIA04')?.periodo).toBe('2023.2')
+  })
+
+  it('parses INCORP as dispensado', () => {
+    const text = makeLine('2020.2', 'EB', 'CTIA02', 'BASES EPISTEMOLÓGICAS', 30, '--', 'INCORP')
+    const { disciplinas } = parseSigaaHistoryText(text)
+    expect(disciplinas[0].dispensada).toBe(true)
+  })
+
+  it('parses CANC as trancamento', () => {
+    const text = makeLine('2021.1', 'EB', 'CTIA05', 'LÍNGUA PORTUGUESA', 60, '--', 'CANC')
+    const { disciplinas } = parseSigaaHistoryText(text)
+    expect(disciplinas[0].trancamento).toBe(true)
   })
 
   it('parses MATR as em curso', () => {

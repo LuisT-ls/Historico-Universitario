@@ -21,14 +21,14 @@ export function calcularEstatisticas(
   // Total de disciplinas cadastradas
   const totalDisciplines = disciplinas.length
 
-  // Disciplinas concluídas (AP ou RR)
+  // Disciplinas concluídas (AP, RR, ou dispensadas/transferidas)
   const completedDisciplines = disciplinas.filter(
-    (d) => d.resultado === 'AP' || d.resultado === 'RR'
+    (d) => d.resultado === 'AP' || d.resultado === 'RR' || (d.dispensada && !d.emcurso)
   ).length
 
-  // Disciplinas em andamento (DP ou emcurso)
+  // Disciplinas em andamento (apenas emcurso; dispensadas não são em andamento)
   const inProgressDisciplines = disciplinas.filter(
-    (d) => d.resultado === 'DP' || d.emcurso === true
+    (d) => d.emcurso === true
   ).length
 
   // Média geral: apenas disciplinas concluídas com nota válida, não dispensadas, não trancadas, não AC
@@ -67,8 +67,7 @@ export function calcularEstatisticas(
     const isCompleted = (d.resultado === 'AP' || d.dispensada) && !d.emcurso
 
     if (isCompleted && d.ch) {
-      // Disciplinas dispensadas contam como LV
-      const natureza = d.dispensada ? 'LV' : d.natureza
+      const natureza = d.natureza
 
       if (natureza && natureza !== 'AC') {
         if (horasPorNatureza[natureza as Natureza] !== undefined) {

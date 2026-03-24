@@ -35,19 +35,19 @@ const mapSituacao = (situacao: string): {
 } => {
   const s = situacao.toUpperCase();
 
-  if (s === 'APR' || s === 'APROVADO') {
+  if (s === 'APR') {
     return { resultado: 'AP', trancamento: false, dispensada: false, emcurso: false };
   }
-  if (s === 'REP' || s === 'REPROVADO' || s === 'REPF' || s === 'REPMF') {
+  if (s === 'REP' || s === 'REPF' || s === 'REPMF') {
     return { resultado: 'RR', trancamento: false, dispensada: false, emcurso: false };
   }
-  if (s === 'TRANC' || s === 'TRANCADO') {
+  if (s === 'TRANC' || s === 'CANC') {
     return { resultado: 'TR', trancamento: true, dispensada: false, emcurso: false };
   }
-  if (s === 'DISP' || s === 'DISPENSADO' || s === 'CUMPRIU' || s === 'TRANSF' || s === 'TRANSFERIDO') {
+  if (s === 'DISP' || s === 'CUMP' || s === 'TRANS' || s === 'INCORP') {
     return { resultado: 'DP', trancamento: false, dispensada: true, emcurso: false };
   }
-  if (s === 'MATR' || s === 'MATRICULADO') {
+  if (s === 'MATR') {
     return { resultado: undefined, trancamento: false, dispensada: false, emcurso: true };
   }
 
@@ -162,7 +162,7 @@ export function parseSigaaHistoryText(text: string): ParsedHistory {
   let curso = '';
 
   // Regex para capturar uma linha de disciplina (Semestre opcional, Natureza opcional, Código, Nome, CH, Nota, Situação)
-  const rowRegex = /^(\d{4}\.\d)?\s*(EB|EP|OP|AC|OB|LV|OG|OH|OX|OZ)?\s*([A-Z]{2,4}[0-9]{2,4}[A-Z0-9]?)\s+(.+?)\s+(\d+)\s+([\d\.,-]+)\s+(APR|REP|REPF|REPMF|TRANC|DISP|DISPENSADO|MATR|CANC|INCORP|CUMPRIU|TRANSF|TRANSFERIDO)/i;
+  const rowRegex = /^(\d{4}\.\d|--)?\s*(EB|EP|EC|OP|AC|OB|LV|OG|OH|OX|OZ)?\s*([A-Z]{2,4}[0-9]{2,4}[A-Z0-9]?)\s+(.+?)\s+(\d+)\s+([\d\.,-]+)\s+(APR|REP|REPF|REPMF|TRANC|DISP|MATR|CANC|INCORP|CUMP|TRANS)/i;
 
   let currentPeriod = '';
   const bictiDisciplinas = catalogo.cursos.BICTI;
@@ -181,10 +181,10 @@ export function parseSigaaHistoryText(text: string): ParsedHistory {
       continue;
     }
 
-    // Se encontramos uma linha, atualizar o período se ele estiver presente
-    if (match[1]) currentPeriod = match[1];
+    // Se encontramos uma linha, atualizar o período se ele estiver presente (ignorar "--")
+    if (match[1] && match[1] !== '--') currentPeriod = match[1];
 
-    const periodo = currentPeriod || '0000.0';
+    const periodo = match[1] === '--' ? '0000.0' : (currentPeriod || '0000.0');
     const naturezaCapturada = match[2];
     let codigo = match[3];
     let nomeCompleto = match[4].trim();
@@ -216,7 +216,7 @@ export function parseSigaaHistoryText(text: string): ParsedHistory {
     }
 
     // 3. Natureza: Usar a capturada na regex ou 'OB' como padrão
-    const naturezaRaw = naturezaCapturada === 'EB' ? 'OB' : (naturezaCapturada === 'EP' ? 'OP' : (naturezaCapturada || 'OB'));
+    const naturezaRaw = naturezaCapturada === 'EB' ? 'OB' : (naturezaCapturada === 'EP' ? 'OP' : (naturezaCapturada === 'EC' ? 'AC' : (naturezaCapturada || 'OB')));
 
     if (!nome || nome.length < 2 || nome === 'Componente Curricular') continue;
 

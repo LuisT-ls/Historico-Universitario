@@ -47,15 +47,15 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
     const config = CURSOS[cursoAtual]
 
     // Approved / dispensed disciplines
-    const aprovadas = disciplinas.filter(d => d.resultado === 'AP' && !d.emcurso)
-    const emCurso = disciplinas.filter(d => d.emcurso === true || d.resultado === 'DP' && !d.dispensada)
+    const aprovadas = disciplinas.filter(d => (d.resultado === 'AP' || d.dispensada) && !d.emcurso)
+    const emCurso = disciplinas.filter(d => d.emcurso === true)
 
     // Hours by natureza with redistribution (mirrors Summary logic)
     const horasPorNatureza: Record<Natureza, number> = {
       AC: 0, LV: 0, OB: 0, OG: 0, OH: 0, OP: 0, OX: 0, OZ: 0,
     }
     aprovadas.forEach(d => {
-      const nat = d.dispensada ? 'LV' : d.natureza
+      const nat = d.natureza
       if (nat && horasPorNatureza[nat as Natureza] !== undefined) {
         horasPorNatureza[nat as Natureza] += d.ch
       }
@@ -227,7 +227,7 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
         <tbody>
           {disciplinasPorPeriodo.map(([periodo, discs]) => (
             <Fragment key={`period-${periodo}`}>
-              <tr style={{ background: '#e8ecf0' }}>
+              <tr key={`header-${periodo}`} style={{ background: '#e8ecf0' }}>
                 <td colSpan={6} style={{ padding: '4px 8px', fontWeight: 'bold', fontSize: '8pt', letterSpacing: '0.05em' }}>
                   {periodo}
                 </td>

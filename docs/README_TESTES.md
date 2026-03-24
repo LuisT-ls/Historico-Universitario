@@ -53,39 +53,66 @@ npm run test:all
 
 ```
 .
-├── __tests__/              # Testes unitários e de integração
-│   ├── lib/               # Testes de utilitários
-│   │   ├── utils.test.ts
-│   │   └── error-handler.test.ts
-│   └── components/        # Testes de componentes
-│       ├── ui/
-│       └── utils.test.tsx
-├── e2e/                    # Testes end-to-end
+├── __tests__/                        # Testes unitários e de integração
+│   ├── lib/                          # Testes de utilitários e lógica de negócio
+│   │   ├── pdf-parser.test.ts        # Parser do histórico SIGAA (situações, naturezas, períodos)
+│   │   ├── utils.test.ts             # Funções utilitárias gerais e calcularEstatisticas
+│   │   ├── utils-coverage.test.ts    # Cobertura adicional: previsão, CR, perfil inicial
+│   │   ├── utils-additional.test.ts  # Casos de borda das utilidades
+│   │   ├── cr-calculation.test.ts    # Cálculo do Coeficiente de Rendimento
+│   │   ├── normalization.test.ts     # Normalização de dados
+│   │   ├── certificate-ocr.test.ts   # OCR de certificados
+│   │   ├── error-handler.test.ts     # Tratamento de erros do Firebase
+│   │   └── error-handler-additional.test.ts
+│   ├── components/                   # Testes de componentes React
+│   │   ├── auth-provider.test.tsx
+│   │   ├── features/certificados/hooks/
+│   │   │   ├── use-certificado-filters.test.ts
+│   │   │   ├── use-certificado-form.test.ts
+│   │   │   └── use-date-mask.test.ts
+│   │   ├── ui/
+│   │   │   └── button.test.tsx
+│   │   └── utils.test.tsx
+│   └── services/                     # Testes de serviços externos
+│       ├── auth.service.test.ts
+│       └── firestore.service.test.ts
+├── e2e/                              # Testes end-to-end
 │   ├── home.spec.ts
 │   ├── navigation.spec.ts
 │   └── accessibility.spec.ts
-├── jest.config.js         # Configuração do Jest
-├── jest.setup.js          # Setup do ambiente de testes
-└── playwright.config.ts    # Configuração do Playwright
+├── jest.config.js                    # Configuração do Jest
+├── jest.setup.js                     # Setup do ambiente de testes
+└── playwright.config.ts              # Configuração do Playwright
 ```
 
 ---
 
 ## 🧩 Testes Unitários
 
+### Parser do Histórico SIGAA (`lib/pdf-parser.ts`)
+
+- ✅ Parsing das situações: `APR`, `REP`, `REPF`, `REPMF`, `TRANC`, `CANC`, `DISP`, `CUMP`, `TRANS`, `INCORP`, `MATR`
+- ✅ Mapping de naturezas: `EB→OB`, `EP→OP`, `EC→AC`
+- ✅ Disciplinas com período `--` (transferidas) → `periodo: '0000.0'`
+- ✅ Tracking de período entre linhas sem semestre
+- ✅ Limpeza de código de turma (sufixo `A`)
+- ✅ Limpeza de nome do professor no nome da disciplina
+- ✅ Tratamento de nota `--` como `0` sem afetar a média
+- ✅ Disciplinas TRANS/INCORP contam CH mas não afetam a média
+
 ### Funções Utilitárias
 
-Testes para funções em `lib/utils.ts`:
+Testes para funções em `lib/utils/`:
 
+- ✅ `calcularResultado()` - Resultado acadêmico (AP, RR, TR, DP)
+- ✅ `calcularCR()` - Coeficiente de Rendimento
+- ✅ `calcularMediaGeral()` - Média geral (exclui dispensadas/trancadas)
+- ✅ `calcularCreditos()` - Total de créditos
+- ✅ `calcularEstatisticas()` - Estatísticas completas incluindo dispensadas como concluídas
+- ✅ `calcularPrevisaoFormaturaCompleta()` - Previsão de formatura
+- ✅ `calcularPerfilInicial()` - Perfil de semestralização
 - ✅ `cn()` - Combinação de classes CSS
-- ✅ `formatDate()` - Formatação de datas
-- ✅ `getPeriodoMaisRecente()` - Cálculo de período
-- ✅ `calcularResultado()` - Cálculo de resultado acadêmico
-- ✅ `calcularCR()` - Cálculo de Coeficiente de Rendimento
-- ✅ `calcularMediaGeral()` - Cálculo de média geral
-- ✅ `sanitizeInput()` - Sanitização de inputs
-- ✅ `sanitizeLongText()` - Sanitização de textos longos
-- ✅ E mais...
+- ✅ `sanitizeInput()` / `sanitizeLongText()` - Sanitização de inputs
 
 ### Tratamento de Erros
 
@@ -96,13 +123,12 @@ Testes para `lib/error-handler.ts`:
 - ✅ `handleError()` - Tratamento padronizado
 - ✅ Cobertura de todos os códigos de erro do Firebase
 
-### Componentes
+### Componentes e Serviços
 
-Testes para componentes React:
-
-- ✅ Componentes UI básicos (Button, Input, etc.)
-- ✅ Integração de sanitização
-- ✅ Renderização e interações
+- ✅ Componentes UI básicos (Button, AuthProvider, etc.)
+- ✅ Hooks de certificados (filtros, formulário, máscara de data)
+- ✅ Serviço Firestore (CRUD de disciplinas)
+- ✅ Serviço de autenticação
 
 ---
 
@@ -132,11 +158,7 @@ Testes para componentes React:
 
 ## 📊 Cobertura de Código
 
-A cobertura mínima configurada é de **70%** para:
-- Branches
-- Functions
-- Lines
-- Statements
+A cobertura mínima configurada é de **70%** para branches e lines, e **60%** para functions e statements. Total atual: **364 testes** (360 passando, 4 skipped).
 
 Para ver a cobertura:
 

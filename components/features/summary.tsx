@@ -83,8 +83,8 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
         d.natureza !== 'AC'
     )
 
-    // Disciplinas aprovadas (não inclui AC, pois AC não tem resultado)
-    const disciplinasAprovadas = disciplinas.filter((d) => d.resultado === 'AP' && !d.emcurso)
+    // Disciplinas aprovadas ou dispensadas/transferidas (não inclui AC)
+    const disciplinasAprovadas = disciplinas.filter((d) => (d.resultado === 'AP' || d.dispensada) && !d.emcurso)
 
     // Disciplinas AC (apenas aprovadas contam para progresso)
     const disciplinasAC = disciplinas.filter((d) => d.natureza === 'AC' && (d.resultado === 'AP' || d.dispensada) && !d.emcurso)
@@ -101,9 +101,9 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
         d.resultado !== 'DP'
     )
 
-    // Disciplinas em curso
+    // Disciplinas em curso (apenas MATR; dispensadas/transferidas não são em andamento)
     const disciplinasEmCurso = disciplinas.filter(
-      (d) => (d.resultado === 'DP' || d.emcurso === true) && !d.dispensada && d.natureza !== 'AC'
+      (d) => d.emcurso === true && d.natureza !== 'AC'
     )
 
     const totalDisciplinasCadastradas = disciplinas.length
@@ -136,10 +136,9 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
       OZ: 0,
     }
 
-    // Primeiro, calcular horas por natureza considerando disciplinas dispensadas como LV
+    // Calcular horas por natureza usando a natureza real da disciplina
     disciplinasAprovadas.forEach((d) => {
-      // Disciplinas dispensadas contam como LV
-      const natureza = d.dispensada ? 'LV' : d.natureza
+      const natureza = d.natureza
       if (natureza && horasPorNatureza[natureza as Natureza] !== undefined) {
         horasPorNatureza[natureza as Natureza] += d.ch
       }
