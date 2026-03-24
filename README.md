@@ -209,23 +209,14 @@ npm run dev
 
 ## 🧪 Testes
 
-O projeto conta com uma cobertura robusta de testes:
-
-- **Unitários/Integração:** `npm run test` (Jest + React Testing Library)
-- **Cobertura:** `npm run test:coverage` — thresholds configurados por arquivo crítico (`lib/error-handler`, `lib/certificate-ocr`, `services/firestore.service`, `services/auth.service`)
-- **E2E:** `npm run test:e2e` (Playwright)
-- **Lint:** `npm run lint`
+Cobertura robusta com Jest + React Testing Library e Playwright para E2E.
+Veja [TESTES.md](./TESTES.md) para comandos, estrutura e detalhes de cobertura por suite.
 
 ---
 
 ## 🤝 Contribuição
 
-Contribuições são muito bem-vindas!
-1. Faça um Fork do projeto.
-2. Crie uma branch para sua feature (`git checkout -b feature/minha-feature`).
-3. Faça o commit (`git commit -m 'feat: Adiciona nova funcionalidade'`).
-4. Envie para o repositório (`git push origin feature/minha-feature`).
-5. Abra um Pull Request.
+Contribuições são bem-vindas! Veja [CONTRIBUTING.md](./CONTRIBUTING.md) para configuração do ambiente, convenções de commit, como estender o parser do SIGAA, adicionar novos cursos e abrir um PR.
 
 ---
 

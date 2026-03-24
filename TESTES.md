@@ -1,6 +1,49 @@
-# Cobertura de Testes
+# Testes
 
-Descrição do que cada suite de testes cobre e a motivação por trás dos casos.
+## Executar
+
+```bash
+npm run test              # todos os testes unitários
+npm run test:watch        # modo watch
+npm run test:coverage     # com relatório de cobertura
+npm run test:e2e          # testes end-to-end (Playwright)
+npm run test:all          # unitários + E2E
+```
+
+Cobertura mínima: **70%** para branches e lines, **60%** para functions e statements.
+Total atual: **364 testes** (360 passando, 4 skipped).
+
+---
+
+## Estrutura
+
+```
+__tests__/
+├── lib/
+│   ├── pdf-parser.test.ts
+│   ├── utils.test.ts
+│   ├── utils-coverage.test.ts
+│   ├── utils-additional.test.ts
+│   ├── cr-calculation.test.ts
+│   ├── normalization.test.ts
+│   ├── certificate-ocr.test.ts
+│   ├── error-handler.test.ts
+│   └── error-handler-additional.test.ts
+├── components/
+│   ├── auth-provider.test.tsx
+│   ├── features/certificados/hooks/
+│   ├── ui/button.test.tsx
+│   └── utils.test.tsx
+└── services/
+    ├── auth.service.test.ts
+    └── firestore.service.test.ts
+```
+
+---
+
+## Cobertura por suite
+
+Descrição do que cada suite cobre e a motivação por trás dos casos.
 
 ---
 
