@@ -473,9 +473,9 @@ describe('lib/utils', () => {
 
       const stats = calcularEstatisticas(disciplinas, [], 'BICTI')
       // OP deve ser 0h (redistribuído para LV)
-      expect(stats.horasPorNatureza.OP).toBe(0)
+      expect(stats.horasPorNatureza?.OP).toBe(0)
       // As 60h devem estar em LV
-      expect(stats.horasPorNatureza.LV).toBeGreaterThan(0)
+      expect(stats.horasPorNatureza?.LV).toBeGreaterThan(0)
     })
 
     it('dispensadas e transferidas contam como completedDisciplines e não como inProgressDisciplines', () => {
