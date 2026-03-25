@@ -75,7 +75,7 @@ Uma plataforma moderna e intuitiva para estudantes da UFBA gerenciarem sua traje
 
 O projeto foi totalmente migrado para as tecnologias mais modernas do ecossistema Web:
 
-- **Framework:** [Next.js 15+ (App Router)](https://nextjs.org/)
+- **Framework:** [Next.js 16.1.6 (App Router)](https://nextjs.org/)
 - **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
 - **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
 - **Componentes:** [Shadcn/UI](https://ui.shadcn.com/) & [Framer Motion](https://www.framer.com/motion/)
