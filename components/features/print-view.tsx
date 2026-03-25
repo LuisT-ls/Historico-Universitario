@@ -1,6 +1,7 @@
 'use client'
 
-import { Fragment, useMemo } from 'react'
+import { Fragment, useMemo, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { Disciplina, Certificado, Curso, Natureza, Profile } from '@/types'
 import { CURSOS } from '@/lib/constants'
 import {
@@ -43,6 +44,9 @@ const RESULTADO_NOME: Record<string, string> = {
 // ─── component ────────────────────────────────────────────────────────────────
 
 export function PrintView({ disciplinas, certificados, cursoAtual, profile }: PrintViewProps) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+
   const { stats, disciplinasPorPeriodo } = useMemo(() => {
     const config = CURSOS[cursoAtual]
 
@@ -124,7 +128,9 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
   const config = CURSOS[cursoAtual]
   const geradoEm = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
-  return (
+  if (!mounted) return null
+
+  return createPortal(
     <div
       id="print-view"
       style={{
@@ -255,7 +261,8 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
       <div style={{ marginTop: '24px', borderTop: '1px solid #ccc', paddingTop: '8px', fontSize: '7.5pt', color: '#888', textAlign: 'center' }}>
         Relatório gerado pelo Sistema de Histórico Universitário em {geradoEm}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
