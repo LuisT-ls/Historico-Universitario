@@ -50,9 +50,9 @@
 | **Licença de Uso** | MIT License |
 | **Plataforma de Hospedagem** | Vercel (infraestrutura em nuvem) |
 | **Linguagem Principal** | TypeScript |
-| **Framework Principal** | Next.js 16 (App Router) |
+| **Framework Principal** | Next.js ^16.0.0 (App Router) |
 
-> **Nota legal:** Este é um projeto independente desenvolvido para auxiliar estudantes do ICTI/UFBA (Campus de Camaçari). O software **não possui vínculo oficial** com a Universidade Federal da Bahia (UFBA) nem com a administração do sistema SIGAA.
+> **Nota legal:** Este é um projeto acadêmico independente desenvolvido por estudante da Universidade Federal da Bahia (UFBA). O software não é um sistema oficial da instituição, operando de forma complementar ao sistema SIGAA sem qualquer integração direta com os servidores da UFBA. O projeto poderá ser hospedado em infraestrutura institucional mediante autorização formal da instituição.
 
 ---
 
@@ -111,7 +111,7 @@ O sistema adota uma arquitetura de **aplicação web de página única com rende
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    CAMADA DE APRESENTAÇÃO                │
-│           Next.js 16 App Router + React 19               │
+│        Next.js (^16.0.0) App Router + React 19           │
 │    (components/, app/, Tailwind CSS, Shadcn/UI)         │
 └────────────────────────┬───────────────────────────────-┘
                          │ Chamadas diretas via SDK
@@ -138,7 +138,7 @@ O sistema adota uma arquitetura de **aplicação web de página única com rende
 
 O projeto adota os seguintes padrões arquiteturais:
 
-- **App Router do Next.js 16:** Cada diretório em `app/` representa uma rota. O componente `page.tsx` dentro de cada diretório é o ponto de entrada da rota correspondente. Layouts compartilhados são definidos em `layout.tsx`.
+- **App Router do Next.js (^16.0.0):** Cada diretório em `app/` representa uma rota. O componente `page.tsx` dentro de cada diretório é o ponto de entrada da rota correspondente. Layouts compartilhados são definidos em `layout.tsx`.
 - **Separação de responsabilidades em camadas:**
   - `app/` — Rotas e configuração de metadados (SEO, títulos de página)
   - `components/pages/` — Componentes de página completa (lógica de UI)
@@ -595,7 +595,7 @@ Permite ao estudante registrar e gerenciar comprovantes de atividades complement
 ### 5.9 Módulo Simulador de Notas
 
 **Arquivos principais:**
-- `components/pages/` (simulador-page.tsx)
+- `app/simulador/simulador-client.tsx`
 - `app/simulador/page.tsx`
 - `lib/utils/predictions.ts`
 
@@ -714,7 +714,8 @@ Armazena as informações acadêmicas e preferências de cada usuário.
 | Campo | Tipo | Obrigatório | Descrição |
 |-------|------|-------------|-----------|
 | `uid` | `string` (UserId) | Sim | Identificador único do usuário (igual ao UID do Firebase Auth) |
-| `nome` | `string` | Não | Nome completo do usuário |
+| `nome` | `string` | Não | Nome completo do usuário (campo do modelo TypeScript `Profile`) |
+| `name` | `string` | Sim¹ | Campo validado pelas Firestore Security Rules na operação `write` (1–100 caracteres) |
 | `email` | `string` | Não | Endereço de e-mail |
 | `photoURL` | `string` | Não | URL da foto de perfil |
 | `curso` | `'BICTI' \| 'ENG_PROD' \| 'ENG_ELET'` | Não | Código do curso matriculado |
@@ -729,6 +730,8 @@ Armazena as informações acadêmicas e preferências de cada usuário.
 | `currentSemester` | `string` | Não | Semestre atual calculado (ex: `2025.2`) |
 | `createdAt` | `Timestamp` | Não | Data de criação do documento |
 | `updatedAt` | `Timestamp` | Não | Data da última atualização |
+
+> ¹ **Nota de inconsistência:** A Firestore Security Rule para a coleção `users` valida o campo `name` (`request.resource.data.name`, em inglês), enquanto a interface TypeScript `Profile` declara o campo equivalente como `nome` (em português). O campo `name` deve estar presente no documento gravado no Firestore para que a regra de escrita seja satisfeita. Esta inconsistência está documentada como encontrada no código-fonte (`firestore.rules` linha 27 vs. `types/index.ts` interface `Profile`).
 
 ### 6.3 Coleção `disciplines` — Disciplinas do Histórico
 
@@ -999,6 +1002,37 @@ service cloud.firestore {
    └─► Gráfico de linha atualiza evolução semestral do CR
 ```
 
+**Fórmula do Coeficiente de Rendimento (CR) — implementação em `lib/utils/calculations.ts`:**
+
+```
+CR = Σ(CHᵢ × notaᵢ) / Σ(CHᵢ)
+```
+
+Onde o conjunto de disciplinas válidas `i` é definido pelo filtro (todos os critérios devem ser satisfeitos):
+
+| Condição | Descrição |
+|----------|-----------|
+| `!dispensada` | Disciplinas com dispensa/aproveitamento são excluídas |
+| `natureza !== 'AC'` | Atividades Complementares não entram no CR |
+| `nota ∈ [0, 10]` | Nota deve ser um valor numérico válido |
+| `ch > 0` | Carga horária deve ser positiva |
+| `!trancamento` | Disciplinas trancadas (TR) são excluídas |
+| `!emcurso` | Disciplinas ainda em curso são excluídas |
+
+> Disciplinas **aprovadas (AP) e reprovadas (RR)** são igualmente incluídas no cálculo do CR, pois o filtro opera sobre os campos primitivos e não sobre o campo calculado `resultado`. Notas de reprovação (abaixo de 5,0) são, portanto, contabilizadas e reduzem o CR.
+
+**Fórmula de Semestralização — implementação em `lib/utils/calculations.ts`:**
+
+```
+Semestralização = max(1, totalSemestres − suspensões + perfilInicial)
+```
+
+Onde:
+- `totalSemestres` = número de semestres decorridos desde `startYear.startSemester` até o período atual
+- `suspensões` = valor do campo `profile.suspensions` (informado manualmente pelo usuário)
+- `perfilInicial` = número de semestres consecutivos da matriz em que o estudante aproveitou ≥ 75% da CH obrigatória via dispensas/transferências (função `calcularPerfilInicial`)
+- O resultado mínimo é sempre **1** (`Math.max(1, ...)`)
+
 ### 7.4 Fluxo do Simulador de Notas ("E Se?")
 
 ```
@@ -1092,7 +1126,6 @@ Exportação como XLSX:
 | `/u/[userId]/horarios` | `app/u/[userId]/horarios/page.tsx` | `PublicHorariosPage` | Não | Grade de horários pública |
 | `/legal/privacy` | `app/legal/privacy/page.tsx` | `PrivacyPage` | Não | Política de Privacidade |
 | `/legal/terms` | `app/legal/terms/page.tsx` | `TermsPage` | Não | Termos de Uso |
-| `/sitemap.xml` | `app/sitemap.ts` | — | Não | Sitemap dinâmico para SEO |
 
 ### 8.2 Layout Global
 
@@ -1665,7 +1698,7 @@ Historico-Universitario/
 
 5. **Simulador de formatura:** A estimativa de prazo de formatura é baseada no ritmo histórico do estudante e não leva em consideração pré-requisitos formais entre disciplinas ou limitações de vagas por semestre.
 
-6. **Reconhecimento de certificados:** A funcionalidade de OCR para extração automática de dados de certificados (`lib/certificate-ocr.ts`) está em fase experimental e pode não funcionar corretamente para todos os formatos de documento.
+6. **Reconhecimento de certificados:** A funcionalidade de extração automática de dados de certificados via OCR (`lib/certificate-ocr.ts`) oferece suporte aos formatos de documento mais amplamente utilizados. A expansão da compatibilidade com formatos adicionais está prevista em versões futuras do sistema.
 
 7. **Validação de status de certificados:** O status `aprovado` dos certificados é definido manualmente pelo próprio estudante no sistema, sem integração com o SIGAA ou validação por parte da coordenação do curso.
 
@@ -1705,4 +1738,5 @@ Repositório oficial: https://github.com/LuisT-ls/Historico-Universitario
 ---
 
 *Documento gerado com base na análise do código-fonte do repositório em março de 2026.*
+*Revisão 1.1 — Correções aplicadas em março de 2026.*
 *Versão do software documentada: 2.4 (Grade Curricular).*
