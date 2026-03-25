@@ -48,10 +48,9 @@ const nextConfig: NextConfig = {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
           },
-          {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.firebaseapp.com https://*.googleapis.com https://apis.google.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://*.googleusercontent.com https://*.firebaseusercontent.com https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.cloudfunctions.net wss://*.firebaseio.com https://www.google-analytics.com https://*.sentry.io https://*.ingest.sentry.io; frame-src 'self' https://*.firebaseapp.com https://*.google.com; worker-src 'self' blob:; object-src 'none';",
-          },
+          // Content-Security-Policy é gerenciado pelo middleware.ts (com nonce por request).
+          // Não definir aqui evita que o header estático do next.config sobrescreva
+          // o CSP dinâmico gerado pelo middleware.
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',

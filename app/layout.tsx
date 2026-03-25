@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { headers } from 'next/headers'
 import './globals.css'
 import { Providers } from '@/components/providers'
 import { ErrorBoundary } from '@/components/error-boundary'
@@ -116,11 +117,15 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // Lê o nonce gerado pelo middleware (x-nonce) para autorizar o script de tema inline.
+  // O nonce é único por request, eliminando a necessidade de 'unsafe-inline' no CSP.
+  const nonce = (await headers()).get('x-nonce') ?? ''
+
   return (
     <html lang="pt-BR" suppressHydrationWarning className="scroll-smooth">
       <head>
@@ -128,6 +133,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `(function(){try{const e=localStorage.getItem("historico-ufba-dark-mode")==="true";if(e){document.documentElement.classList.add("dark-mode");document.documentElement.style.colorScheme="dark"}else{document.documentElement.classList.remove("dark-mode");document.documentElement.style.colorScheme="light"}}catch(e){document.documentElement.classList.remove("dark-mode")}})();requestAnimationFrame(function(){requestAnimationFrame(function(){document.body.classList.add("theme-ready")})});`,
           }}

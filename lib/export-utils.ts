@@ -23,22 +23,24 @@ export function exportAsJSON(backup: any) {
 /**
  * Gera e inicia o download de um arquivo Excel (.xlsx) formatado.
  * Cria abas separadas para o resumo geral e para cada período letivo.
- * 
+ *
+ * Usa ExcelJS (substitui xlsx 0.18.5 que possuía CVE-2023-30533).
+ *
  * @param backup - Objeto de backup (usado para dados do perfil)
  * @param disciplinas - Lista completa de disciplinas
  * @param statistics - Estatísticas calculadas do usuário
  */
 export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: UserStatistics) {
     // Importação dinâmica para reduzir o bundle inicial
-    const XLSX = await import('xlsx')
+    const ExcelJS = await import('exceljs')
+    const workbook = new ExcelJS.Workbook()
 
-    const wb = XLSX.utils.book_new()
-
-    // Calcular CR corretamente
     const cr = calcularCR(disciplinas)
 
     // Aba 1: Resumo
-    const resumoData = [
+    const wsResumo = workbook.addWorksheet('Resumo')
+    wsResumo.columns = [{ width: 25 }, { width: 40 }]
+    wsResumo.addRows([
         ['Histórico Acadêmico'],
         [''],
         ['Informações do Aluno'],
@@ -55,12 +57,7 @@ export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: 
         ['Em Andamento', statistics.inProgressDisciplines],
         ['Média Geral', statistics.averageGrade.toFixed(2)],
         ['CR (Coeficiente de Rendimento)', cr.toFixed(2)],
-    ]
-    const wsResumo = XLSX.utils.aoa_to_sheet(resumoData)
-
-    // Ajustar largura das colunas do resumo
-    wsResumo['!cols'] = [{ wch: 25 }, { wch: 40 }]
-    XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo')
+    ])
 
     // Agrupar disciplinas por período
     const disciplinasPorPeriodo: { [key: string]: any[] } = {}
@@ -81,60 +78,54 @@ export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: 
 
     // Criar aba para cada período
     periodosOrdenados.forEach((periodo) => {
-        const disciplinasDoPeriodo = disciplinasPorPeriodo[periodo].map((d) => ({
-            Código: d.codigo,
-            Disciplina: d.nome,
-            Natureza: d.natureza,
-            'CH': d.ch,
-            Nota: d.nota,
-            Resultado: d.resultado || '-',
-            Curso: d.curso,
-        }))
-
-        const ws = XLSX.utils.json_to_sheet(disciplinasDoPeriodo)
-
-        // Ajustar largura das colunas
-        ws['!cols'] = [
-            { wch: 10 },  // Código
-            { wch: 50 },  // Disciplina
-            { wch: 10 },  // Natureza
-            { wch: 8 },   // CH
-            { wch: 8 },   // Nota
-            { wch: 12 },  // Resultado
-            { wch: 30 }   // Curso
-        ]
-
-        // Nome da aba (máximo 31 caracteres)
+        // Nome da aba (máximo 31 caracteres — limite do formato .xlsx)
         const nomeAba = periodo.length > 31 ? periodo.substring(0, 28) + '...' : periodo
-        XLSX.utils.book_append_sheet(wb, ws, nomeAba)
+        const ws = workbook.addWorksheet(nomeAba)
+        ws.columns = [
+            { width: 10 },  // Código
+            { width: 50 },  // Disciplina
+            { width: 10 },  // Natureza
+            { width: 8 },   // CH
+            { width: 8 },   // Nota
+            { width: 12 },  // Resultado
+            { width: 30 },  // Curso
+        ]
+        ws.addRow(['Código', 'Disciplina', 'Natureza', 'CH', 'Nota', 'Resultado', 'Curso'])
+        disciplinasPorPeriodo[periodo].forEach((d) => {
+            ws.addRow([d.codigo, d.nome, d.natureza, d.ch, d.nota, d.resultado || '-', d.curso])
+        })
     })
 
     // Aba: Todas as Disciplinas (visão completa)
-    const todasDisciplinas = disciplinas.map((d) => ({
-        Período: d.periodo,
-        Código: d.codigo,
-        Disciplina: d.nome,
-        Natureza: d.natureza,
-        'CH': d.ch,
-        Nota: d.nota,
-        Resultado: d.resultado || '-',
-        Curso: d.curso,
-    }))
-    const wsTodas = XLSX.utils.json_to_sheet(todasDisciplinas)
-    wsTodas['!cols'] = [
-        { wch: 10 },  // Período
-        { wch: 10 },  // Código
-        { wch: 50 },  // Disciplina
-        { wch: 10 },  // Natureza
-        { wch: 8 },   // CH
-        { wch: 8 },   // Nota
-        { wch: 12 },  // Resultado
-        { wch: 30 }   // Curso
+    const wsTodas = workbook.addWorksheet('Todas')
+    wsTodas.columns = [
+        { width: 10 },  // Período
+        { width: 10 },  // Código
+        { width: 50 },  // Disciplina
+        { width: 10 },  // Natureza
+        { width: 8 },   // CH
+        { width: 8 },   // Nota
+        { width: 12 },  // Resultado
+        { width: 30 },  // Curso
     ]
-    XLSX.utils.book_append_sheet(wb, wsTodas, 'Todas')
+    wsTodas.addRow(['Período', 'Código', 'Disciplina', 'Natureza', 'CH', 'Nota', 'Resultado', 'Curso'])
+    disciplinas.forEach((d) => {
+        wsTodas.addRow([d.periodo, d.codigo, d.nome, d.natureza, d.ch, d.nota, d.resultado || '-', d.curso])
+    })
 
-    // Salvar arquivo
-    XLSX.writeFile(wb, `historico-universitario-${new Date().toISOString().split('T')[0]}.xlsx`)
+    // Gerar buffer e iniciar download no browser
+    const buffer = await workbook.xlsx.writeBuffer()
+    const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `historico-universitario-${new Date().toISOString().split('T')[0]}.xlsx`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    setTimeout(() => URL.revokeObjectURL(url), 100)
 }
 
 
