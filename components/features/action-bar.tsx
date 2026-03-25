@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { FileUp, Loader2, BookOpen } from 'lucide-react'
+import { FileUp, Loader2, BookOpen, Info } from 'lucide-react'
 import { parseSigaaHistory, ParsedHistory } from '@/lib/pdf-parser'
 import { toast } from '@/lib/toast'
 import { logger } from '@/lib/logger'
@@ -14,6 +14,11 @@ const AcademicCalendar = dynamic(
   { ssr: false }
 )
 
+const InfoDialog = dynamic(
+  () => import('@/components/features/info-dialog').then(mod => mod.InfoDialog),
+  { ssr: false }
+)
+
 interface ActionBarProps {
   cursoAtual: Curso
   onCursoChange: (curso: Curso) => void
@@ -22,6 +27,7 @@ interface ActionBarProps {
 
 export function ActionBar({ cursoAtual, onCursoChange, onImport }: ActionBarProps) {
   const [isParsing, setIsParsing] = useState(false)
+  const [infoOpen, setInfoOpen] = useState(false)
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -84,6 +90,17 @@ export function ActionBar({ cursoAtual, onCursoChange, onImport }: ActionBarProp
 
       <div className="flex items-center gap-2 w-full sm:w-auto">
         <AcademicCalendar />
+        <Button
+          variant="outline"
+          size="sm"
+          aria-label="Informações úteis do ICTI"
+          className="gap-2 border-primary/20 hover:bg-primary/5 rounded-lg"
+          onClick={() => setInfoOpen(true)}
+        >
+          <Info className="h-3.5 w-3.5 shrink-0" />
+          <span className="max-sm:hidden">Informações</span>
+        </Button>
+        {infoOpen && <InfoDialog open={infoOpen} onOpenChange={setInfoOpen} />}
         <label className="w-full sm:w-auto">
           <input
             type="file"
