@@ -464,5 +464,29 @@ describe('lib/utils', () => {
       expect(stats.inProgressDisciplines).toBe(1)
       expect(stats.averageGrade).toBe(7) // (8 + 6) / 2
     })
+
+    it('redistribui horas de OP para LV quando requisito de OP é 0 (BICTI)', () => {
+      // No BICTI, OP tem requisito=0, então qualquer hora de OP deve ir para LV
+      const disciplinas: Disciplina[] = [
+        { periodo: '2024.1', codigo: 'D1', nome: 'Optativa', natureza: 'OP', ch: 60, nota: 8, resultado: 'AP' },
+      ]
+
+      const stats = calcularEstatisticas(disciplinas, [], 'BICTI')
+      // OP deve ser 0h (redistribuído para LV)
+      expect(stats.horasPorNatureza.OP).toBe(0)
+      // As 60h devem estar em LV
+      expect(stats.horasPorNatureza.LV).toBeGreaterThan(0)
+    })
+
+    it('dispensadas e transferidas contam como completedDisciplines e não como inProgressDisciplines', () => {
+      const disciplinas: Disciplina[] = [
+        { periodo: '0000.0', codigo: 'D1', nome: 'Transferida', natureza: 'OP', ch: 75, nota: 0, resultado: 'DP', dispensada: true },
+        { periodo: '2024.1', codigo: 'D2', nome: 'Em Curso', natureza: 'OB', ch: 60, nota: 0, emcurso: true },
+      ]
+
+      const stats = calcularEstatisticas(disciplinas)
+      expect(stats.completedDisciplines).toBe(1)
+      expect(stats.inProgressDisciplines).toBe(1)
+    })
   })
 })

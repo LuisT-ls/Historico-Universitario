@@ -164,12 +164,10 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
       const natureza = nat as Natureza
       const requisito = cursoConfig.requisitos[natureza]
 
-      if (horasPorNatureza[natureza] && requisito && requisito > 0) {
-        if (horasPorNatureza[natureza] > requisito) {
-          const excesso = horasPorNatureza[natureza] - requisito
-          totalExcessoLV += excesso
-          horasPorNatureza[natureza] = requisito // Cap original category
-        }
+      if (requisito !== undefined && horasPorNatureza[natureza] > requisito) {
+        const excesso = horasPorNatureza[natureza] - requisito
+        totalExcessoLV += excesso
+        horasPorNatureza[natureza] = requisito // Cap original category
       }
     })
 

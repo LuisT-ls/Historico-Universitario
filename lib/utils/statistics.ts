@@ -96,7 +96,7 @@ export function calcularEstatisticas(
 
     const requisito = cursoConfig?.requisitos?.[natureza] as number
 
-    if (requisito !== undefined && requisito > 0 && horasPorNatureza[natureza] > requisito) {
+    if (requisito !== undefined && horasPorNatureza[natureza] > requisito) {
       const excesso = horasPorNatureza[natureza] - requisito
       totalExcessoLV += excesso
       horasPorNatureza[natureza] = requisito // Cap original category
