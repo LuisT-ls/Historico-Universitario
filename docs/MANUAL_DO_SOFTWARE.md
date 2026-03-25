@@ -50,7 +50,7 @@
 | **Licença de Uso** | MIT License |
 | **Plataforma de Hospedagem** | Vercel (infraestrutura em nuvem) |
 | **Linguagem Principal** | TypeScript |
-| **Framework Principal** | Next.js ^16.0.0 (App Router) |
+| **Framework Principal** | Next.js 16.1.6 (App Router) |
 
 > **Nota legal:** Este é um projeto acadêmico independente desenvolvido por estudante da Universidade Federal da Bahia (UFBA). O software não é um sistema oficial da instituição, operando de forma complementar ao sistema SIGAA sem qualquer integração direta com os servidores da UFBA. O projeto poderá ser hospedado em infraestrutura institucional mediante autorização formal da instituição.
 
@@ -111,7 +111,7 @@ O sistema adota uma arquitetura de **aplicação web de página única com rende
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    CAMADA DE APRESENTAÇÃO                │
-│        Next.js (^16.0.0) App Router + React 19           │
+│          Next.js 16.1.6 App Router + React 19            │
 │    (components/, app/, Tailwind CSS, Shadcn/UI)         │
 └────────────────────────┬───────────────────────────────-┘
                          │ Chamadas diretas via SDK
@@ -138,7 +138,7 @@ O sistema adota uma arquitetura de **aplicação web de página única com rende
 
 O projeto adota os seguintes padrões arquiteturais:
 
-- **App Router do Next.js (^16.0.0):** Cada diretório em `app/` representa uma rota. O componente `page.tsx` dentro de cada diretório é o ponto de entrada da rota correspondente. Layouts compartilhados são definidos em `layout.tsx`.
+- **App Router do Next.js 16.1.6:** Cada diretório em `app/` representa uma rota. O componente `page.tsx` dentro de cada diretório é o ponto de entrada da rota correspondente. Layouts compartilhados são definidos em `layout.tsx`.
 - **Separação de responsabilidades em camadas:**
   - `app/` — Rotas e configuração de metadados (SEO, títulos de página)
   - `components/pages/` — Componentes de página completa (lógica de UI)
@@ -206,7 +206,7 @@ Para operações sensíveis (alteração de senha, exclusão de conta), o sistem
 
 | Biblioteca | Versão | Finalidade |
 |-----------|--------|-----------|
-| `next` | ^16.0.0 | Framework web principal (App Router, SSR, SSG, middleware) |
+| `next` | 16.1.6 | Framework web principal (App Router, SSR, SSG, middleware) |
 | `react` | ^19.0.0 | Biblioteca de componentes reativos |
 | `react-dom` | ^19.0.0 | Renderização React para o DOM |
 | `firebase` | ^11.0.0 | SDK do Firebase (Auth, Firestore, Storage, Analytics) |
@@ -238,7 +238,7 @@ Para operações sensíveis (alteração de senha, exclusão de conta), o sistem
 |-----------|--------|-----------|
 | `typescript` | ^5.6.0 | Compilador TypeScript |
 | `eslint` | ^9.0.0 | Linting estático do código |
-| `eslint-config-next` | ^16.0.0 | Regras ESLint para projetos Next.js |
+| `eslint-config-next` | 16.0.10 | Regras ESLint para projetos Next.js |
 | `jest` | ^29.7.0 | Framework de testes unitários |
 | `jest-environment-jsdom` | ^29.7.0 | Ambiente de simulação do DOM para testes |
 | `@testing-library/react` | ^16.1.0 | Utilitários de teste para componentes React |
