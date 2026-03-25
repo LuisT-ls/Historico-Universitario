@@ -18,6 +18,7 @@ export function middleware(request: NextRequest) {
   const isProd = process.env.NODE_ENV === 'production'
 
   const cspDirectives = [
+    "base-uri 'self'",
     "default-src 'self'",
     // 'nonce-...' autoriza apenas scripts com o atributo nonce correto.
     // 'strict-dynamic' permite que esses scripts carreguem outros (chunks do Next.js).

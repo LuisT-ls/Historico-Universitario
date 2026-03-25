@@ -32,7 +32,7 @@ export function exportAsJSON(backup: any) {
  */
 export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: UserStatistics) {
     // Importação dinâmica para reduzir o bundle inicial
-    const ExcelJS = await import('exceljs')
+    const { default: ExcelJS } = await import('exceljs')
     const workbook = new ExcelJS.Workbook()
 
     const cr = calcularCR(disciplinas)
