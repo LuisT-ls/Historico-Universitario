@@ -471,40 +471,41 @@ O código é formado por três partes: **dias + turno + slots de hora**
 **Manhã (M):**
 | Código | Horário |
 |--------|---------|
-| M1 | 07:00 |
-| M2 | 08:00 |
-| M3 | 09:00 |
-| M4 | 10:00 |
-| M5 | 11:00 |
+| M1 | 07:00 – 07:55 |
+| M2 | 07:55 – 08:50 |
+| M3 | 08:50 – 09:45 |
+| M4 | 09:45 – 10:40 |
+| M5 | 10:40 – 11:35 |
+| M6 | 11:35 – 12:30 |
 
 **Tarde (T):**
 | Código | Horário |
 |--------|---------|
-| T1 | 13:00 |
-| T2 | 14:00 |
-| T3 | 15:00 |
-| T4 | 16:00 |
-| T5 | 17:00 |
-| T6 | 18:00 |
+| T1 | 13:00 – 13:55 |
+| T2 | 13:55 – 14:50 |
+| T3 | 14:50 – 15:45 |
+| T4 | 15:45 – 16:40 |
+| T5 | 16:40 – 17:35 |
+| T6 | 17:35 – 18:30 |
 
 **Noite (N):**
 | Código | Horário |
 |--------|---------|
-| N1 | 18:00 |
-| N2 | 19:00 |
-| N3 | 20:00 |
-| N4 | 21:00 |
+| N1 | 18:30 – 19:25 |
+| N2 | 19:25 – 20:20 |
+| N3 | 20:20 – 21:15 |
+| N4 | 21:15 – 22:10 |
 
 #### Exemplo prático
 
 O código `46T56` significa:
 - Dias: `4` (Quarta) e `6` (Sexta)
 - Turno: `T` (Tarde)
-- Slots: `5` e `6` (17:00 e 18:00)
+- Slots: `5` e `6` (16:40 – 17:35 e 17:35 – 18:30)
 
-Ou seja: a disciplina acontece na **Quarta e na Sexta, das 17:00 às 18:00**.
+Ou seja: a disciplina acontece na **Quarta e na Sexta, das 16:40 às 18:30**.
 
-Outro exemplo: `35M34` = Terça e Quinta (3 e 5), Manhã (M), slots 3 e 4 = das **09:00 às 10:00**.
+Outro exemplo: `35M34` = Terça e Quinta (3 e 5), Manhã (M), slots 3 e 4 = das **08:50 às 10:40**.
 
 #### Inserindo os horários no sistema
 
