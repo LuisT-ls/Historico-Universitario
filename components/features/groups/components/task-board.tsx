@@ -342,7 +342,7 @@ function TaskCard({
                     <div className="p-3 space-y-2.5 relative">
                         {/* Título */}
                         <p className={cn(
-                            'text-sm font-semibold leading-snug',
+                            'text-sm font-semibold leading-normal',
                             isDone && 'line-through text-muted-foreground'
                         )}>
                             {task.title}
@@ -450,7 +450,7 @@ function TaskDetailDialog({
 
     const handleAssigneeChange = async (val: string) => {
         setAssignedTo(val)
-        await save({ assignedTo: val || undefined })
+        await save({ assignedTo: (val || undefined) as import('@/types').UserId | undefined })
     }
 
     const handleDueDateChange = async (val: string) => {
