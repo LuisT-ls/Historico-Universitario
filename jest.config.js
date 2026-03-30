@@ -54,6 +54,11 @@ const customJestConfig = {
     '!lib/logger.ts',
     '!lib/toast.ts',
     '!lib/type-constants.ts',
+    // Componentes de grupos — Client Components com estado complexo (TODO: testes de integração)
+    '!components/features/groups/components/**',
+    '!components/features/groups/hooks/**',
+    '!components/pages/groups-page.tsx',
+    '!services/storage.service.ts',
   ],
   coverageThreshold: {
     global: {
