@@ -47,6 +47,7 @@ export function GroupDetailsPage() {
         isTasksLoading,
         user,
         handleAddTask,
+        handleUpdateTask,
         handleUpdateTaskStatus,
         handleDeleteTask,
         handleAddMaterial,
@@ -357,6 +358,7 @@ export function GroupDetailsPage() {
                                 tasks={tasks}
                                 isLoading={isTasksLoading}
                                 onAdd={handleAddTask}
+                                onUpdate={handleUpdateTask}
                                 onUpdateStatus={handleUpdateTaskStatus}
                                 onDelete={handleDeleteTask}
                                 members={group.members}

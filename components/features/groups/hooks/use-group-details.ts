@@ -146,7 +146,8 @@ export function useGroupDetails() {
         title: string,
         description?: string,
         assignedTo?: string,
-        dueDate?: Date
+        dueDate?: Date,
+        status: GroupTaskStatus = 'pending'
     ) => {
         if (!user || !group?.id) return
         try {
@@ -156,7 +157,7 @@ export function useGroupDetails() {
                 description,
                 assignedTo: assignedTo as UserId | undefined,
                 dueDate,
-                status: 'pending',
+                status,
                 createdBy: user.uid as UserId,
             })
             toast.success('Tarefa adicionada!')
@@ -182,6 +183,18 @@ export function useGroupDetails() {
                 )
             }
             toast.error('Erro ao atualizar tarefa. Verifique sua conexão.')
+        }
+    }
+
+    const handleUpdateTask = async (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status'>>) => {
+        if (!group?.id) return
+        const snapshot = [...tasks]
+        setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, ...data, updatedAt: new Date() } : t)))
+        try {
+            await updateGroupTask(group.id, taskId, data)
+        } catch {
+            setTasks(snapshot)
+            toast.error('Erro ao atualizar tarefa.')
         }
     }
 
@@ -281,6 +294,7 @@ export function useGroupDetails() {
         isTasksLoading,
         user,
         handleAddTask,
+        handleUpdateTask,
         handleUpdateTaskStatus,
         handleDeleteTask,
         handleAddMaterial,
