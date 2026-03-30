@@ -5,9 +5,10 @@ import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/comp
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
 import { Plus, FileText, Link as LinkIcon, Trash2, ExternalLink, Download, Loader2, FileUp, Globe } from 'lucide-react'
 import { useState } from 'react'
-import { uploadFile } from '@/services/storage.service'
+import { uploadFileWithProgress } from '@/services/storage.service'
 import {
     Dialog,
     DialogContent,
@@ -19,6 +20,7 @@ import {
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
+import { z } from 'zod'
 
 const ALLOWED_FILE_TYPES = [
     'application/pdf',
@@ -36,6 +38,25 @@ const ALLOWED_FILE_TYPES = [
 ]
 
 const ALLOWED_FILE_ACCEPT = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.zip,.txt'
+
+const linkSchema = z.object({
+    title: z.string().min(1, 'Título obrigatório').max(100, 'Máximo 100 caracteres'),
+    url: z
+        .string()
+        .min(1, 'URL obrigatória')
+        .refine(
+            (val) => {
+                try {
+                    const normalized = val.startsWith('http') ? val : `https://${val}`
+                    const parsed = new URL(normalized)
+                    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+                } catch {
+                    return false
+                }
+            },
+            'URL inválida. Use um endereço http/https válido.'
+        ),
+})
 
 interface MaterialListProps {
     groupId: GroupId
@@ -55,6 +76,7 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
     const [url, setUrl] = useState('')
     const [file, setFile] = useState<File | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState<number | null>(null)
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
     const handleFileChange = (selected: File | undefined) => {
@@ -67,30 +89,32 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
     }
 
     const handleSubmit = async () => {
-        if (!title.trim()) return toast.error('Dê um título ao material')
-
         setIsSubmitting(true)
+        setUploadProgress(null)
         try {
             if (addType === 'link') {
-                if (!url.trim()) throw new Error('A URL do link é obrigatória')
-                if (!url.startsWith('http')) {
-                    await onAdd(title, 'link', `https://${url}`)
-                } else {
-                    await onAdd(title, 'link', url)
+                const normalized = url.trim().startsWith('http') ? url.trim() : `https://${url.trim()}`
+                const validation = linkSchema.safeParse({ title: title.trim(), url: normalized })
+                if (!validation.success) {
+                    throw new Error(validation.error.errors[0].message)
                 }
+                await onAdd(title.trim(), 'link', normalized)
             } else {
+                if (!title.trim()) throw new Error('Dê um título ao material')
                 if (!file) throw new Error('Selecione um arquivo para upload')
-                if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-                    throw new Error('Tipo de arquivo não permitido.')
-                }
+                if (!ALLOWED_FILE_TYPES.includes(file.type)) throw new Error('Tipo de arquivo não permitido.')
+
                 const path = `groups/${groupId}/${Date.now()}-${file.name}`
-                const downloadUrl = await uploadFile(file, path)
-                await onAdd(title, 'file', downloadUrl, path, file.size)
+                const downloadUrl = await uploadFileWithProgress(file, path, (pct) => {
+                    setUploadProgress(pct)
+                })
+                await onAdd(title.trim(), 'file', downloadUrl, path, file.size)
             }
             setIsAddOpen(false)
             setTitle('')
             setUrl('')
             setFile(null)
+            setUploadProgress(null)
         } catch (error: unknown) {
             toast.error(error instanceof Error ? error.message : 'Erro ao adicionar material')
         } finally {
@@ -114,7 +138,7 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
     if (isLoading) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
-                {[1, 2, 3].map(i => <div key={i} className="h-32 bg-muted rounded-2xl" />)}
+                {[1, 2, 3].map((i) => <div key={i} className="h-32 bg-muted rounded-2xl" />)}
             </div>
         )
     }
@@ -126,8 +150,12 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
                     <h2 className="text-2xl font-black tracking-tight">Materiais & Documentos</h2>
                     <p className="text-sm text-muted-foreground font-medium">Compartilhe links do Drive, GitHub ou suba PDFs importantes.</p>
                 </div>
-                <Button onClick={() => setIsAddOpen(true)} className="gap-2 rounded-xl h-12 px-6 shadow-lg shadow-primary/10 transition-all active:scale-95">
-                    <Plus className="h-5 w-5" />
+                <Button
+                    onClick={() => setIsAddOpen(true)}
+                    className="gap-2 rounded-xl h-12 px-6 shadow-lg shadow-primary/10 transition-all active:scale-95"
+                    aria-label="Adicionar novo material"
+                >
+                    <Plus className="h-5 w-5" aria-hidden="true" />
                     Adicionar Material
                 </Button>
             </div>
@@ -135,7 +163,7 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
             {materials.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 bg-white/50 dark:bg-slate-900/50 rounded-[2.5rem] border border-dashed border-border/50 text-center">
                     <div className="w-16 h-16 bg-muted/40 rounded-3xl flex items-center justify-center mb-4">
-                        <FileText className="h-8 w-8 text-muted-foreground opacity-30" />
+                        <FileText className="h-8 w-8 text-muted-foreground opacity-30" aria-hidden="true" />
                     </div>
                     <h3 className="text-xl font-bold mb-2">Nenhum material compartilhado</h3>
                     <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-8 font-medium italic opacity-70">
@@ -159,23 +187,26 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
                             >
                                 <Card className="border border-border/50 hover:border-primary/40 hover:shadow-xl transition-all duration-300 rounded-[1.5rem] overflow-hidden bg-white dark:bg-slate-900/40">
                                     <div className={cn(
-                                        "h-1 w-full bg-gradient-to-r",
-                                        m.type === 'file' ? "from-blue-500 to-indigo-600" : "from-emerald-400 to-teal-600"
+                                        'h-1 w-full bg-gradient-to-r',
+                                        m.type === 'file' ? 'from-blue-500 to-indigo-600' : 'from-emerald-400 to-teal-600'
                                     )} />
                                     <CardHeader className="pb-3 p-6">
                                         <div className="flex items-start justify-between gap-4">
                                             <div className={cn(
-                                                "p-3 rounded-2xl shrink-0 group-hover:scale-110 transition-transform duration-500",
-                                                m.type === 'file' ? "bg-blue-500/10 text-blue-600" : "bg-emerald-500/10 text-emerald-600"
+                                                'p-3 rounded-2xl shrink-0 group-hover:scale-110 transition-transform duration-500',
+                                                m.type === 'file' ? 'bg-blue-500/10 text-blue-600' : 'bg-emerald-500/10 text-emerald-600'
                                             )}>
-                                                {m.type === 'file' ? <FileText className="h-5 w-5" /> : <LinkIcon className="h-5 w-5" />}
+                                                {m.type === 'file'
+                                                    ? <FileText className="h-5 w-5" aria-hidden="true" />
+                                                    : <LinkIcon className="h-5 w-5" aria-hidden="true" />
+                                                }
                                             </div>
                                             <button
                                                 onClick={() => setConfirmDeleteId(m.id!)}
                                                 className="text-muted-foreground hover:text-destructive p-2 hover:bg-destructive/5 rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                                                title="Remover"
+                                                aria-label={`Remover material: ${m.title}`}
                                             >
-                                                <Trash2 className="h-4 w-4" />
+                                                <Trash2 className="h-4 w-4" aria-hidden="true" />
                                             </button>
                                         </div>
                                         <div className="pt-2">
@@ -186,13 +217,17 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
                                         </div>
                                     </CardHeader>
                                     <CardFooter className="px-6 pb-6 pt-0">
-                                        <Button 
-                                            variant="secondary" 
-                                            size="sm" 
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
                                             className="w-full gap-2 rounded-xl font-bold bg-muted/50 group-hover:bg-primary group-hover:text-primary-foreground transition-all"
-                                            onClick={() => window.open(m.url, '_blank')}
+                                            onClick={() => window.open(m.url, '_blank', 'noopener,noreferrer')}
+                                            aria-label={m.type === 'file' ? `Baixar ${m.title}` : `Abrir link: ${m.title}`}
                                         >
-                                            {m.type === 'file' ? <Download className="h-3.5 w-3.5" /> : <ExternalLink className="h-3.5 w-3.5" />}
+                                            {m.type === 'file'
+                                                ? <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                                                : <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                                            }
                                             {m.type === 'file' ? 'Baixar' : 'Abrir Link'}
                                         </Button>
                                     </CardFooter>
@@ -223,8 +258,8 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
                 </DialogContent>
             </Dialog>
 
-            {/* Dialog de Adição */}
-            <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+            {/* Dialog de adição */}
+            <Dialog open={isAddOpen} onOpenChange={(open) => { if (!isSubmitting) setIsAddOpen(open) }}>
                 <DialogContent className="sm:max-w-[450px] rounded-[2rem] p-0 overflow-hidden">
                     <DialogHeader className="p-8 pb-4 bg-muted/30">
                         <DialogTitle className="text-2xl font-black">Adicionar Material</DialogTitle>
@@ -232,27 +267,30 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
                             Compartilhe recursos com o resto do time.
                         </DialogDescription>
                     </DialogHeader>
-                    
+
                     <div className="p-8 space-y-6">
+                        {/* Toggle arquivo / link */}
                         <div className="flex p-1.5 bg-muted rounded-[1.2rem] gap-1">
-                            <button 
+                            <button
                                 onClick={() => setAddType('file')}
                                 className={cn(
-                                    "flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-[0.9rem] transition-all",
-                                    addType === 'file' ? "bg-white dark:bg-slate-800 text-primary shadow-sm" : "text-muted-foreground hover:bg-white/40"
+                                    'flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-[0.9rem] transition-all',
+                                    addType === 'file' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-muted-foreground hover:bg-white/40'
                                 )}
+                                aria-pressed={addType === 'file'}
                             >
-                                <FileUp className="h-3.5 w-3.5" />
+                                <FileUp className="h-3.5 w-3.5" aria-hidden="true" />
                                 Arquivo (Local)
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setAddType('link')}
                                 className={cn(
-                                    "flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-[0.9rem] transition-all",
-                                    addType === 'link' ? "bg-white dark:bg-slate-800 text-primary shadow-sm" : "text-muted-foreground hover:bg-white/40"
+                                    'flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-[0.9rem] transition-all',
+                                    addType === 'link' ? 'bg-white dark:bg-slate-800 text-primary shadow-sm' : 'text-muted-foreground hover:bg-white/40'
                                 )}
+                                aria-pressed={addType === 'link'}
                             >
-                                <Globe className="h-3.5 w-3.5" />
+                                <Globe className="h-3.5 w-3.5" aria-hidden="true" />
                                 Link (Externo)
                             </button>
                         </div>
@@ -266,34 +304,49 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     className="h-12 rounded-xl focus-visible:ring-primary/20"
+                                    aria-required="true"
                                 />
                             </div>
 
                             {addType === 'file' ? (
                                 <div className="grid gap-2">
                                     <Label className="font-bold opacity-60">Upload do Arquivo</Label>
-                                    <div className="relative group/up">
+                                    <div className="relative">
                                         <Input
                                             type="file"
                                             onChange={(e) => handleFileChange(e.target.files?.[0])}
                                             className="hidden"
                                             id="file-up-input"
                                             accept={ALLOWED_FILE_ACCEPT}
+                                            aria-label="Selecionar arquivo para upload"
                                         />
-                                        <label 
+                                        <label
                                             htmlFor="file-up-input"
                                             className={cn(
-                                                "flex flex-col items-center justify-center py-10 px-4 rounded-2xl border-2 border-dashed border-border/60 hover:border-primary/40 hover:bg-primary/[0.02] transition-all cursor-pointer",
-                                                file && "border-primary/30 bg-primary/[0.01]"
+                                                'flex flex-col items-center justify-center py-10 px-4 rounded-2xl border-2 border-dashed border-border/60 hover:border-primary/40 hover:bg-primary/[0.02] transition-all cursor-pointer',
+                                                file && 'border-primary/30 bg-primary/[0.01]'
                                             )}
                                         >
-                                            <FileUp className={cn("h-8 w-8 mb-3 transition-colors", file ? "text-primary" : "text-muted-foreground/40")} />
+                                            <FileUp className={cn('h-8 w-8 mb-3 transition-colors', file ? 'text-primary' : 'text-muted-foreground/40')} aria-hidden="true" />
                                             <p className="text-xs font-bold text-center">
-                                                {file ? file.name : "Clique para selecionar ou arraste"}
+                                                {file ? file.name : 'Clique para selecionar ou arraste'}
                                             </p>
-                                            <p className="text-[10px] text-muted-foreground mt-1 uppercase font-bold tracking-widest opacity-60">Max 5MB</p>
+                                            <p className="text-[10px] text-muted-foreground mt-1 uppercase font-bold tracking-widest opacity-60">
+                                                Max 5MB • PDF, Word, Excel, PPT, Imagens, ZIP
+                                            </p>
                                         </label>
                                     </div>
+
+                                    {/* Barra de progresso do upload */}
+                                    {uploadProgress !== null && (
+                                        <div className="space-y-1.5">
+                                            <div className="flex justify-between text-xs font-bold text-muted-foreground">
+                                                <span>Enviando arquivo...</span>
+                                                <span>{uploadProgress}%</span>
+                                            </div>
+                                            <Progress value={uploadProgress} className="h-2" aria-label={`Upload ${uploadProgress}% concluído`} />
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="grid gap-2">
@@ -304,8 +357,12 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
                                         value={url}
                                         onChange={(e) => setUrl(e.target.value)}
                                         className="h-12 rounded-xl focus-visible:ring-primary/20"
+                                        aria-required="true"
+                                        aria-describedby="mat-url-hint"
                                     />
-                                    <p className="text-[10px] text-muted-foreground font-bold italic opacity-60 px-1">Lembre-se de liberar o acesso no link do Drive/Canva.</p>
+                                    <p id="mat-url-hint" className="text-[10px] text-muted-foreground font-bold italic opacity-60 px-1">
+                                        Lembre-se de liberar o acesso no link do Drive/Canva.
+                                    </p>
                                 </div>
                             )}
                         </div>
@@ -321,14 +378,15 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
                         >
                             Cancelar
                         </Button>
-                        <Button 
-                            onClick={handleSubmit} 
+                        <Button
+                            onClick={handleSubmit}
                             disabled={isSubmitting || !title || (addType === 'file' ? !file : !url)}
                             className="rounded-xl h-12 px-8 font-black shadow-lg shadow-primary/20 grow"
+                            aria-live="polite"
                         >
                             {isSubmitting ? (
                                 <div className="flex items-center gap-2">
-                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                                     <span>{addType === 'file' ? 'Enviando...' : 'Adicionando...'}</span>
                                 </div>
                             ) : (

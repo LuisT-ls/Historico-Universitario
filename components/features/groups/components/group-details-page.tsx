@@ -3,7 +3,8 @@
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { useGroupDetails } from '@/components/features/groups/hooks/use-group-details'
-import { Loader2, ArrowLeft, Files, CheckSquare, LayoutDashboard, Copy, Info, Plus } from 'lucide-react'
+import { useUserProfiles } from '@/components/features/groups/hooks/use-user-profiles'
+import { Loader2, ArrowLeft, Files, CheckSquare, LayoutDashboard, Copy, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
@@ -21,12 +22,12 @@ import { TaskBoard } from './task-board'
  * Permite gerenciar materiais e tarefas do trabalho em grupo.
  */
 export function GroupDetailsPage() {
-    const { 
-        group, 
-        materials, 
-        tasks, 
-        isLoading, 
-        isMaterialsLoading, 
+    const {
+        group,
+        materials,
+        tasks,
+        isLoading,
+        isMaterialsLoading,
         isTasksLoading,
         handleAddTask,
         handleUpdateTaskStatus,
@@ -34,7 +35,9 @@ export function GroupDetailsPage() {
         handleAddMaterial,
         handleDeleteMaterial
     } = useGroupDetails()
-    
+
+    const getUserName = useUserProfiles(group?.members ?? [])
+
     const [activeTab, setActiveTab] = useState<'overview' | 'materials' | 'tasks'>('overview')
 
     if (isLoading) {
@@ -92,12 +95,12 @@ export function GroupDetailsPage() {
                                 <div className="flex items-center gap-3 text-xs text-muted-foreground font-bold bg-muted/50 px-4 py-1.5 rounded-xl border border-border group-hover:border-primary/30 transition-colors">
                                     <span className="uppercase tracking-widest opacity-60">Código:</span>
                                     <code className="font-mono text-primary text-sm font-black">{group.inviteCode}</code>
-                                    <button 
-                                        onClick={copyInviteCode} 
+                                    <button
+                                        onClick={copyInviteCode}
                                         className="hover:text-primary transition-colors p-1 hover:bg-primary/5 rounded"
-                                        title="Copiar código"
+                                        aria-label="Copiar código de convite"
                                     >
-                                        <Copy className="h-3.5 w-3.5" />
+                                        <Copy className="h-3.5 w-3.5" aria-hidden="true" />
                                     </button>
                                 </div>
                             </div>
@@ -177,25 +180,35 @@ export function GroupDetailsPage() {
                                         />
                                     </div>
 
-                                    {/* Helpful Tip/Intro Card */}
-                                    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-indigo-500/20 relative overflow-hidden">
-                                        <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
-                                        <div className="flex flex-col md:flex-row gap-8 items-center relative z-10">
-                                            <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center shrink-0">
-                                                <Info className="h-10 w-10 text-white" />
+                                    {/* Quick Actions */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <button
+                                            onClick={() => setActiveTab('tasks')}
+                                            className="group flex items-center gap-4 p-5 bg-white dark:bg-slate-900 rounded-[1.5rem] border border-border/50 hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-0.5 transition-all duration-300 text-left"
+                                        >
+                                            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-blue-500/20 transition-all duration-300">
+                                                <CheckSquare className="h-6 w-6 text-blue-500" aria-hidden="true" />
                                             </div>
-                                            <div className="space-y-3">
-                                                <h3 className="text-2xl font-black">Como funciona este painel?</h3>
-                                                <p className="text-white/80 leading-relaxed font-medium">
-                                                    Use as abas acima para gerenciar a colaboração do seu grupo. Em <b>Materiais</b>, você pode salvar links e PDFs importantes. Em <b>Tarefas</b>, você divide quem faz o que para ninguém ficar sobrecarregado.
-                                                </p>
-                                                <div className="pt-2">
-                                                    <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-xl" onClick={() => setActiveTab('tasks')}>
-                                                        Começar a organizar
-                                                    </Button>
-                                                </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-black text-sm">Quadro de Tarefas</p>
+                                                <p className="text-xs text-muted-foreground font-medium mt-0.5 leading-relaxed">Divida responsabilidades e acompanhe o progresso.</p>
                                             </div>
-                                        </div>
+                                            <Plus className="h-4 w-4 text-muted-foreground/40 group-hover:text-blue-500 group-hover:rotate-90 transition-all duration-300 shrink-0" aria-hidden="true" />
+                                        </button>
+
+                                        <button
+                                            onClick={() => setActiveTab('materials')}
+                                            className="group flex items-center gap-4 p-5 bg-white dark:bg-slate-900 rounded-[1.5rem] border border-border/50 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-0.5 transition-all duration-300 text-left"
+                                        >
+                                            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-300">
+                                                <Files className="h-6 w-6 text-emerald-500" aria-hidden="true" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-black text-sm">Materiais & Links</p>
+                                                <p className="text-xs text-muted-foreground font-medium mt-0.5 leading-relaxed">Salve PDFs, links do Drive e referências do grupo.</p>
+                                            </div>
+                                            <Plus className="h-4 w-4 text-muted-foreground/40 group-hover:text-emerald-500 group-hover:rotate-90 transition-all duration-300 shrink-0" aria-hidden="true" />
+                                        </button>
                                     </div>
                                 </div>
                                 
@@ -204,17 +217,22 @@ export function GroupDetailsPage() {
                                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-border shadow-sm">
                                         <h3 className="text-lg font-black mb-6 uppercase tracking-widest text-muted-foreground opacity-60">Membros do Time</h3>
                                         <div className="space-y-4">
-                                            {group.members.slice(0, 5).map((memberId, idx) => (
-                                                <div key={memberId} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-muted/50 transition-colors">
-                                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-black text-sm">
-                                                        {idx === 0 ? '👑' : memberId.substring(0, 2).toUpperCase()}
+                                            {group.members.slice(0, 5).map((memberId, idx) => {
+                                                const name = getUserName(memberId)
+                                                return (
+                                                    <div key={memberId} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-muted/50 transition-colors">
+                                                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-black text-sm" aria-hidden="true">
+                                                            {idx === 0 ? '👑' : name.substring(0, 2).toUpperCase()}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm font-bold truncate">{name}</p>
+                                                            <p className="text-[10px] uppercase font-bold text-muted-foreground opacity-50">
+                                                                {idx === 0 ? 'Criador' : 'Membro'}
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-sm font-bold truncate">Usuário {memberId.substring(0, 5)}</p>
-                                                        <p className="text-[10px] uppercase font-bold text-muted-foreground opacity-50">Membro</p>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                )
+                                            })}
                                             {group.members.length > 5 && (
                                                 <p className="text-xs text-center text-muted-foreground font-bold py-2">
                                                     + {group.members.length - 5} outros membros
@@ -237,7 +255,7 @@ export function GroupDetailsPage() {
                         )}
 
                         {activeTab === 'tasks' && (
-                             <TaskBoard 
+                             <TaskBoard
                                 groupId={group.id!}
                                 tasks={tasks}
                                 isLoading={isTasksLoading}
@@ -245,6 +263,7 @@ export function GroupDetailsPage() {
                                 onUpdateStatus={handleUpdateTaskStatus}
                                 onDelete={handleDeleteTask}
                                 members={group.members}
+                                getUserName={getUserName}
                              />
                         )}
                     </motion.div>

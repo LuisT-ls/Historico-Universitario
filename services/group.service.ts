@@ -22,11 +22,9 @@ import { createGroupId, createGroupMaterialId, createGroupTaskId } from '@/lib/t
  */
 function generateInviteCode(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    let code = ''
-    for (let i = 0; i < 6; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    return code
+    const bytes = new Uint8Array(6)
+    crypto.getRandomValues(bytes)
+    return Array.from(bytes, (b) => chars[b % chars.length]).join('')
 }
 
 // ===== GRUPOS =====
@@ -153,10 +151,12 @@ export async function addGroupMaterial(material: Omit<GroupMaterial, 'id' | 'cre
     if (!db) throw new Error('Firestore não inicializado')
 
     try {
-        const materialData = {
-            ...material,
-            createdAt: new Date()
-        }
+        const materialData = Object.fromEntries(
+            Object.entries({
+                ...material,
+                createdAt: new Date(),
+            }).filter(([, v]) => v !== undefined)
+        )
 
         const docRef = await addDoc(collection(db, 'groups', material.groupId, 'materials'), materialData)
         return createGroupMaterialId(docRef.id)
@@ -233,11 +233,14 @@ export async function addGroupTask(task: Omit<GroupTask, 'id' | 'createdAt' | 'u
     if (!db) throw new Error('Firestore não inicializado')
 
     try {
-        const taskData = {
-            ...task,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        }
+        // Firestore não aceita campos undefined — filtra antes de persistir
+        const taskData = Object.fromEntries(
+            Object.entries({
+                ...task,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            }).filter(([, v]) => v !== undefined)
+        )
 
         const docRef = await addDoc(collection(db, 'groups', task.groupId, 'tasks'), taskData)
         return createGroupTaskId(docRef.id)

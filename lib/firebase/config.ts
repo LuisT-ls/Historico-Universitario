@@ -1,6 +1,6 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app'
 import { getAuth, type Auth } from 'firebase/auth'
-import { getFirestore, type Firestore } from 'firebase/firestore'
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, type Firestore } from 'firebase/firestore'
 import { GoogleAuthProvider } from 'firebase/auth'
 import type { Analytics } from 'firebase/analytics'
 import type { FirebaseStorage } from 'firebase/storage'
@@ -58,7 +58,13 @@ if (typeof window !== 'undefined') {
     const firebaseConfig = getFirebaseConfig()
     app = initializeApp(firebaseConfig)
     auth = getAuth(app)
-    db = getFirestore(app)
+    // Persistência offline: operações pendentes são re-enviadas ao reconectar.
+    // persistentMultipleTabManager permite uso em múltiplas abas simultâneas.
+    db = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    })
     googleProvider = new GoogleAuthProvider()
 
     // Delay analytics para não impactar o LCP/Performance inicial no mobile
