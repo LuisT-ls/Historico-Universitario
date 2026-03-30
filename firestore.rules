@@ -20,12 +20,17 @@ service cloud.firestore {
 
     // Regras para a coleção 'users'
     match /users/{userId} {
-      // Qualquer usuário autenticado pode ler perfis — necessário para exibir nomes
-      // de membros em grupos colaborativos. Dados sensíveis são controlados na camada
-      // de aplicação (campos como email não são exibidos a terceiros).
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId
-                    && isValidString(request.resource.data.name, 1, 100);
+      // Leitura permitida para:
+      // 1. Usuário autenticado (próprio perfil ou perfis de colegas de grupo)
+      // 2. Visitante não autenticado que acessa um perfil marcado como público
+      // 3. Visitante não autenticado que acessa uma grade de horários pública
+      allow read: if request.auth != null
+                  || (resource.data.settings.privacy == 'public')
+                  || (resource.data.settings.schedulePrivacy == 'public');
+
+      // Escrita restrita ao próprio usuário autenticado.
+      // A validação de campos obrigatórios é feita na camada de aplicação.
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
     
     // Regras para a coleção 'disciplines'
