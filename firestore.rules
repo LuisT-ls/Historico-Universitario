@@ -54,6 +54,35 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
 
+    // Retorna true se o usuário autenticado está apenas adicionando a si mesmo à lista de membros
+    function onlyAddingSelf() {
+      let affectedKeys = request.resource.data.diff(resource.data).affectedKeys();
+      let newMembers = request.resource.data.members;
+      let oldMembers = resource.data.members;
+      return affectedKeys.hasOnly(['members', 'updatedAt'])
+        && newMembers.hasAll(oldMembers)
+        && newMembers.size() == oldMembers.size() + 1
+        && newMembers.removeAll(oldMembers).hasOnly([request.auth.uid]);
+    }
+
+    // Regras para o módulo de Grupos
+    match /groups/{groupId} {
+      // Leitura pública para usuários autenticados: necessário para busca por código de convite
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
+      // Membros podem atualizar o grupo; não-membros só podem adicionar a si mesmos (via código de convite)
+      allow update: if request.auth != null && (request.auth.uid in resource.data.members || onlyAddingSelf());
+      allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      
+      match /materials/{materialId} {
+        allow read, write: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.members;
+      }
+      
+      match /tasks/{taskId} {
+        allow read, write: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.members;
+      }
+    }
+
     // Bloqueio Global
     match /{document=**} {
       allow read, write: if false;

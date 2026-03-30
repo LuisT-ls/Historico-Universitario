@@ -15,6 +15,17 @@ service firebase.storage {
         && request.resource.size <= 10 * 1024 * 1024; // 10MB em bytes
     }
     
+    // Regras para grupos (Materiais) — apenas membros do grupo têm acesso
+    match /groups/{groupId}/{allPaths=**} {
+      allow read: if request.auth != null
+        && request.auth.uid in firestore.get(/databases/(default)/documents/groups/$(groupId)).data.members;
+      allow write: if request.auth != null
+        && request.auth.uid in firestore.get(/databases/(default)/documents/groups/$(groupId)).data.members
+        && request.resource.size <= 5 * 1024 * 1024; // 5MB limit max
+      allow delete: if request.auth != null
+        && request.auth.uid in firestore.get(/databases/(default)/documents/groups/$(groupId)).data.members;
+    }
+
     // Negar acesso a todos os outros arquivos
     match /{allPaths=**} {
       allow read, write: if false;

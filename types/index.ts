@@ -2,6 +2,9 @@
 export type DisciplinaId = string & { readonly __brand: 'DisciplinaId' }
 export type UserId = string & { readonly __brand: 'UserId' }
 export type CertificadoId = string & { readonly __brand: 'CertificadoId' }
+export type GroupId = string & { readonly __brand: 'GroupId' }
+export type GroupMaterialId = string & { readonly __brand: 'GroupMaterialId' }
+export type GroupTaskId = string & { readonly __brand: 'GroupTaskId' }
 
 // Course types
 export type Curso = 'BICTI' | 'ENG_PROD' | 'ENG_ELET'
@@ -150,6 +153,55 @@ export interface Certificado {
   linkExterno?: string
   status: StatusCertificado
   dataCadastro: string
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+// ─── Group Module types ──────────────────────────────────────────────────────
+
+export interface GroupMember {
+  userId: UserId
+  role: 'owner' | 'member'
+  joinedAt: Date
+}
+
+export interface Group {
+  id?: GroupId
+  name: string
+  description?: string
+  subjectCode?: string // Código da disciplina, opcional
+  ownerId: UserId
+  members: UserId[] // Array rápido para consultas no Firestore
+  inviteCode: string // Código de 6 caracteres para entrar no grupo
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export type GroupMaterialType = 'file' | 'link'
+
+export interface GroupMaterial {
+  id?: GroupMaterialId
+  groupId: GroupId
+  title: string
+  type: GroupMaterialType
+  url: string // Firebase Storage URL ou Link Externo
+  storagePath?: string // Caminho no Storage para poter deletar depois
+  uploadedBy: UserId
+  sizeBytes?: number
+  createdAt?: Date
+}
+
+export type GroupTaskStatus = 'pending' | 'in_progress' | 'completed'
+
+export interface GroupTask {
+  id?: GroupTaskId
+  groupId: GroupId
+  title: string
+  description?: string
+  status: GroupTaskStatus
+  assignedTo?: UserId // Para quem a tarefa está atribuída
+  dueDate?: Date
+  createdBy: UserId
   createdAt?: Date
   updatedAt?: Date
 }

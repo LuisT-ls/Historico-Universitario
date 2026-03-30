@@ -49,3 +49,18 @@ export const createUserId = (id: string) => id as import('@/types').UserId
  * Helper para criar um ID de certificado com tipo seguro
  */
 export const createCertificadoId = (id: string) => id as import('@/types').CertificadoId
+
+/**
+ * Helper para criar um ID de grupo com tipo seguro
+ */
+export const createGroupId = (id: string) => id as import('@/types').GroupId
+
+/**
+ * Helper para criar um ID de material de grupo com tipo seguro
+ */
+export const createGroupMaterialId = (id: string) => id as import('@/types').GroupMaterialId
+
+/**
+ * Helper para criar um ID de tarefa de grupo com tipo seguro
+ */
+export const createGroupTaskId = (id: string) => id as import('@/types').GroupTaskId
