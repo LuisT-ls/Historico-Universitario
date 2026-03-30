@@ -1,4 +1,4 @@
-# 📚 Histórico Acadêmico UFBA v2.4
+# 📚 Histórico Acadêmico UFBA v2.5
 
 > [!IMPORTANT]
 > **Aviso Legal:** Este é um projeto **independente** desenvolvido para auxiliar os estudantes do **ICTI/UFBA (Campus de Camaçari)**. Este software **não possui vínculo oficial** com a Universidade Federal da Bahia (UFBA) ou com a administração do SIGAA.
@@ -64,6 +64,15 @@ Uma plataforma moderna e intuitiva para estudantes da UFBA gerenciarem sua traje
 - **Seleção de curso:** Suporte a múltiplos cursos do catálogo (ex: BICTI, Eng. de Computação), com alternância direta na página.
 - **Sem dados:** Funciona mesmo sem importação — exibe todas as disciplinas como pendentes até que o histórico seja importado.
 
+### 👥 Grupos de Estudo
+- **Criação e entrada por código:** Crie um grupo e compartilhe o código de convite; outros membros entram digitando o código.
+- **Quadro de Tarefas Kanban:** Quadro estilo Trello com colunas "A Fazer", "Em Andamento" e "Concluído". Adicione tarefas diretamente em cada coluna e mova-as arrastando entre colunas.
+- **Detalhes da tarefa:** Clique em qualquer cartão para editar título, descrição, responsável e data de entrega.
+- **Progresso do grupo:** Barra de progresso com percentual de tarefas concluídas visível na página do grupo.
+- **Gerenciamento de membros:** Lista de membros com destaque para o criador do grupo.
+- **Controles do dono:** O criador pode editar nome/descrição do grupo e excluir o grupo permanentemente.
+- **Sair do grupo:** Membros podem sair do grupo a qualquer momento.
+
 ### 📈 Ferramentas Avançadas
 - **Simulador de Notas:** Planeje quanto precisa tirar para atingir sua meta de CR.
 - **Gestão de Certificados:** Adicione horas complementares e veja o impacto no seu progresso.
@@ -87,6 +96,19 @@ O projeto foi totalmente migrado para as tecnologias mais modernas do ecossistem
 ---
 
 ## 🔄 Changelog
+
+### v2.5 — Grupos de Estudo
+
+- **Nova página `/grupos`:** Módulo completo de gestão de grupos de estudo.
+- **Criação e entrada por convite:** Crie grupos e compartilhe o código gerado automaticamente; membros entram digitando o código na tela de grupos.
+- **Quadro Kanban:** Quadro de tarefas estilo Trello com três colunas (A Fazer, Em Andamento, Concluído), adição inline por coluna e drag-and-drop para mover cartões.
+- **Detalhes da tarefa:** Modal de edição com título, descrição, responsável e data de entrega.
+- **Barra de progresso:** Percentual de tarefas concluídas exibido na página do grupo.
+- **Controles de dono:** Editar nome/descrição do grupo e excluir grupo (somente dono). Membros podem sair do grupo a qualquer momento.
+- **Regras Firestore:** Coleções `groups`, `groups/materials` e `groups/tasks` protegidas — leitura/escrita restrita a membros autenticados; entrada por convite via `onlyAddingSelf()`.
+- **Foto de perfil no nav:** Avatar do cabeçalho prioriza foto personalizada (Firestore) > foto do Google OAuth > inicial do nome. Menu do usuário condensado em dropdown para Perfil e Certificados.
+
+---
 
 ### v2.4 — Grade Curricular
 
