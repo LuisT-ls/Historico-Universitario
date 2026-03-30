@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { GraduationCap, User, LogOut, LogIn, Menu, Home, Clock, Calculator, CalendarRange, LayoutGrid, Users, ChevronDown } from 'lucide-react'
 import { signOut } from '@/services/auth.service'
+import { getProfile } from '@/services/firestore.service'
 import Image from 'next/image'
 import { cn, clearUserData } from '@/lib/utils'
 import { logger } from '@/lib/logger'
@@ -31,7 +32,16 @@ export function Header() {
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [currentDateTime, setCurrentDateTime] = useState('')
+  const [profilePhotoURL, setProfilePhotoURL] = useState<string | null>(null)
   const isHomePage = pathname === '/'
+
+  // Carrega a foto de perfil personalizada do Firestore
+  useEffect(() => {
+    if (!user) { setProfilePhotoURL(null); return }
+    getProfile(user.uid).then((profile) => {
+      setProfilePhotoURL(profile?.photoURL || null)
+    }).catch(() => {})
+  }, [user])
 
   useEffect(() => {
     const updateDateTime = () => {
@@ -150,14 +160,11 @@ export function Header() {
                       aria-label="Menu do usuário"
                     >
                       <div className="w-6 h-6 rounded-full bg-primary/10 dark:bg-blue-500/10 border border-primary/20 dark:border-blue-500/20 flex items-center justify-center text-[10px] font-black text-primary dark:text-blue-400 uppercase overflow-hidden shrink-0">
-                        {user.photoURL ? (
-                          <Image
-                            src={user.photoURL}
-                            alt={user.displayName ?? 'Foto de perfil'}
-                            width={24}
-                            height={24}
-                            className="object-cover w-full h-full"
-                          />
+                        {profilePhotoURL ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={profilePhotoURL} alt="Foto de perfil" className="object-cover w-full h-full" />
+                        ) : user.photoURL && user.providerData?.[0]?.providerId === 'google.com' ? (
+                          <Image src={user.photoURL} alt="Foto de perfil" width={24} height={24} className="object-cover w-full h-full" />
                         ) : (
                           user.displayName?.[0] ?? user.email?.[0] ?? 'U'
                         )}
