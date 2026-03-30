@@ -143,6 +143,7 @@ export default async function RootLayout({
         <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
         <script
           nonce={nonce}
+          suppressHydrationWarning
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
@@ -166,6 +167,7 @@ export default async function RootLayout({
         />
         <script
           nonce={nonce}
+          suppressHydrationWarning
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
