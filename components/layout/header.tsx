@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/components/auth-provider'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { GraduationCap, User, LogOut, LogIn, Menu, X, Home, Clock, Calculator, CalendarRange, LayoutGrid, Users } from 'lucide-react'
+import { GraduationCap, User, LogOut, LogIn, Menu, Home, Clock, Calculator, CalendarRange, LayoutGrid, Users, ChevronDown } from 'lucide-react'
 import { signOut } from '@/services/auth.service'
 import Image from 'next/image'
 import { cn, clearUserData } from '@/lib/utils'
@@ -17,6 +17,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export function Header() {
   const { user, loading } = useAuth()
@@ -64,8 +71,11 @@ export function Header() {
     { href: '/horarios', label: 'Horários', icon: CalendarRange, show: true },
     { href: '/grade', label: 'Grade Curricular', icon: LayoutGrid, show: true },
     { href: '/grupos', label: 'Grupos', icon: Users, show: !!user },
-    { href: '/certificados', label: 'Certificados', icon: GraduationCap, show: true },
-    { href: '/profile', label: 'Perfil', icon: User, show: !!user },
+  ]
+
+  const userMenuItems = [
+    { href: '/profile', label: 'Perfil', icon: User },
+    { href: '/certificados', label: 'Certificados', icon: GraduationCap },
   ]
 
   return (
@@ -131,15 +141,53 @@ export function Header() {
               <ThemeToggle />
 
               {user ? (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleLogout} 
-                  className="h-9 w-9 p-0 rounded-lg text-muted-foreground dark:text-slate-400 hover:text-destructive dark:hover:text-red-400 hover:bg-destructive/10 dark:hover:bg-red-500/10 transition-colors"
-                  title="Sair"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-9 gap-1.5 px-2 rounded-lg text-muted-foreground dark:text-slate-400 hover:text-foreground dark:hover:text-slate-100 hover:bg-accent dark:hover:bg-slate-800 transition-colors"
+                      aria-label="Menu do usuário"
+                    >
+                      <div className="w-6 h-6 rounded-full bg-primary/10 dark:bg-blue-500/10 border border-primary/20 dark:border-blue-500/20 flex items-center justify-center text-[10px] font-black text-primary dark:text-blue-400 uppercase overflow-hidden shrink-0">
+                        {user.photoURL ? (
+                          <Image
+                            src={user.photoURL}
+                            alt={user.displayName ?? 'Foto de perfil'}
+                            width={24}
+                            height={24}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          user.displayName?.[0] ?? user.email?.[0] ?? 'U'
+                        )}
+                      </div>
+                      <ChevronDown className="h-3 w-3 opacity-50" aria-hidden="true" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 rounded-2xl">
+                    {userMenuItems.map((item) => {
+                      const Icon = item.icon
+                      const isActive = pathname === item.href
+                      return (
+                        <Link key={item.href} href={item.href}>
+                          <DropdownMenuItem className={cn('gap-2 rounded-xl font-medium cursor-pointer', isActive && 'text-primary font-bold')}>
+                            <Icon className="h-4 w-4 opacity-60" aria-hidden="true" />
+                            {item.label}
+                          </DropdownMenuItem>
+                        </Link>
+                      )
+                    })}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="gap-2 rounded-xl font-medium cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                    >
+                      <LogOut className="h-4 w-4" aria-hidden="true" />
+                      Sair
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Link href="/login">
                   <Button variant="default" size="sm" className="h-8 gap-2 bg-primary dark:bg-blue-600 hover:bg-primary/90 dark:hover:bg-blue-500 text-primary-foreground dark:text-white text-xs font-bold rounded-lg px-4 shadow-lg shadow-primary/20 dark:shadow-blue-900/20">
@@ -214,6 +262,31 @@ export function Header() {
               </nav>
 
               <div className="space-y-4">
+                {user && (
+                  <div className="px-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-500 mb-2 px-2">Conta</p>
+                    {userMenuItems.map((item) => {
+                      const isActive = pathname === item.href
+                      const Icon = item.icon
+                      return (
+                        <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                          <Button
+                            variant="ghost"
+                            className={cn(
+                              'w-full justify-start gap-3 h-11 px-4 rounded-xl transition-all',
+                              'bg-transparent text-muted-foreground dark:text-slate-400 hover:bg-accent dark:hover:bg-slate-800 hover:text-foreground dark:hover:text-slate-100',
+                              isActive && 'bg-primary/10 dark:bg-blue-500/10 text-primary dark:text-blue-400 font-bold'
+                            )}
+                          >
+                            <Icon className="h-4 w-4" />
+                            <span className="text-sm">{item.label}</span>
+                          </Button>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
+
                 <div className="px-4">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-500 mb-3">Sistema</p>
                   <div className="flex items-center justify-between p-3 bg-muted dark:bg-slate-800/50 rounded-xl border border-border dark:border-slate-800">
@@ -227,10 +300,7 @@ export function Header() {
                     <Button
                       variant="ghost"
                       className="w-full justify-start gap-3 h-11 px-4 rounded-xl text-muted-foreground dark:text-slate-400 hover:text-destructive dark:hover:text-red-400 hover:bg-destructive/10 dark:hover:bg-red-500/10 transition-all"
-                      onClick={() => {
-                        handleLogout()
-                        setMobileMenuOpen(false)
-                      }}
+                      onClick={() => { handleLogout(); setMobileMenuOpen(false) }}
                     >
                       <LogOut className="h-4 w-4" />
                       <span className="text-sm font-medium">Sair da Conta</span>

@@ -9,6 +9,9 @@ import {
     updateGroupTask,
     deleteGroupTask,
     deleteGroupMaterial,
+    leaveGroup,
+    updateGroup,
+    deleteGroup,
 } from '@/services/group.service'
 import type { Group, GroupMaterial, GroupTask, GroupTaskStatus, UserId } from '@/types'
 import { createGroupId, createGroupMaterialId, createGroupTaskId } from '@/lib/type-constants'
@@ -139,18 +142,24 @@ export function useGroupDetails() {
 
     // --- AÇÕES DE TAREFAS ---
 
-    const handleAddTask = async (title: string, description?: string) => {
+    const handleAddTask = async (
+        title: string,
+        description?: string,
+        assignedTo?: string,
+        dueDate?: Date
+    ) => {
         if (!user || !group?.id) return
         try {
             await addGroupTask({
                 groupId: group.id,
                 title,
                 description,
+                assignedTo: assignedTo as UserId | undefined,
+                dueDate,
                 status: 'pending',
                 createdBy: user.uid as UserId,
             })
             toast.success('Tarefa adicionada!')
-            // onSnapshot atualiza o estado automaticamente
         } catch {
             toast.error('Erro ao adicionar tarefa.')
         }
@@ -229,6 +238,40 @@ export function useGroupDetails() {
         }
     }
 
+    const handleLeaveGroup = async () => {
+        if (!user || !group?.id) return
+        try {
+            await leaveGroup(group.id, user.uid as UserId)
+            toast.success('Você saiu do grupo.')
+            router.push('/grupos')
+        } catch {
+            toast.error('Erro ao sair do grupo.')
+        }
+    }
+
+    const handleUpdateGroup = async (
+        data: Partial<Pick<Group, 'name' | 'description' | 'subjectCode'>>
+    ) => {
+        if (!group?.id) return
+        try {
+            await updateGroup(group.id, data)
+            toast.success('Grupo atualizado!')
+        } catch {
+            toast.error('Erro ao atualizar grupo.')
+        }
+    }
+
+    const handleDeleteGroup = async () => {
+        if (!group?.id) return
+        try {
+            await deleteGroup(group.id)
+            toast.success('Grupo excluído.')
+            router.push('/grupos')
+        } catch {
+            toast.error('Erro ao excluir grupo.')
+        }
+    }
+
     return {
         group,
         materials,
@@ -242,5 +285,8 @@ export function useGroupDetails() {
         handleDeleteTask,
         handleAddMaterial,
         handleDeleteMaterial,
+        handleLeaveGroup,
+        handleUpdateGroup,
+        handleDeleteGroup,
     }
 }

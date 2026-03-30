@@ -3,6 +3,8 @@
 import { GroupTask, GroupTaskStatus } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import {
     Dialog,
     DialogContent,
@@ -11,6 +13,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
+import { Select } from '@/components/ui/select'
 import {
     DragDropContext,
     Droppable,
@@ -28,6 +31,7 @@ import {
     Loader2,
     ListTodo,
     GripVertical,
+    ChevronDown,
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -37,7 +41,7 @@ interface TaskBoardProps {
     groupId: string
     tasks: GroupTask[]
     isLoading: boolean
-    onAdd: (title: string, description?: string) => Promise<void>
+    onAdd: (title: string, description?: string, assignedTo?: string, dueDate?: Date) => Promise<void>
     onUpdateStatus: (id: string, status: GroupTaskStatus) => Promise<void>
     onDelete: (id: string) => Promise<void>
     members: string[]
@@ -45,29 +49,44 @@ interface TaskBoardProps {
 }
 
 const COLUMNS: { id: GroupTaskStatus; label: string; icon: React.ElementType; color: string; bg: string }[] = [
-    { id: 'pending',     label: 'Pendente',      icon: Circle,        color: 'text-amber-500',   bg: 'bg-amber-500/10 border-amber-500/20' },
-    { id: 'in_progress', label: 'Em Progresso',  icon: Clock,         color: 'text-blue-500',    bg: 'bg-blue-500/10 border-blue-500/20' },
-    { id: 'completed',   label: 'Concluída',     icon: CheckCircle2,  color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+    { id: 'pending',     label: 'Pendente',     icon: Circle,       color: 'text-amber-500',   bg: 'bg-amber-500/10 border-amber-500/20' },
+    { id: 'in_progress', label: 'Em Progresso', icon: Clock,        color: 'text-blue-500',    bg: 'bg-blue-500/10 border-blue-500/20' },
+    { id: 'completed',   label: 'Concluída',    icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' },
 ]
 
 /**
  * Quadro Kanban de tarefas com drag-and-drop entre colunas.
  * Atualizações de outros membros aparecem em tempo real via onSnapshot.
  */
-export function TaskBoard({ tasks, isLoading, onAdd, onUpdateStatus, onDelete, getUserName }: TaskBoardProps) {
-    const [isAdding, setIsAdding] = useState(false)
-    const [newTaskTitle, setNewTaskTitle] = useState('')
+export function TaskBoard({ tasks, isLoading, onAdd, onUpdateStatus, onDelete, members, getUserName }: TaskBoardProps) {
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
+    const [title, setTitle] = useState('')
+    const [description, setDescription] = useState('')
+    const [assignedTo, setAssignedTo] = useState('')
+    const [dueDate, setDueDate] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
+    const resetForm = () => {
+        setTitle('')
+        setDescription('')
+        setAssignedTo('')
+        setDueDate('')
+    }
+
     const handleAddTask = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!newTaskTitle.trim()) return
+        if (!title.trim()) return
         setIsSubmitting(true)
         try {
-            await onAdd(newTaskTitle.trim())
-            setNewTaskTitle('')
-            setIsAdding(false)
+            await onAdd(
+                title.trim(),
+                description.trim() || undefined,
+                assignedTo || undefined,
+                dueDate ? new Date(dueDate + 'T00:00:00') : undefined
+            )
+            resetForm()
+            setIsDialogOpen(false)
         } finally {
             setIsSubmitting(false)
         }
@@ -112,56 +131,14 @@ export function TaskBoard({ tasks, isLoading, onAdd, onUpdateStatus, onDelete, g
                         Arraste as tarefas entre as colunas para atualizar o status.
                     </p>
                 </div>
-                {!isAdding && (
-                    <Button
-                        onClick={() => setIsAdding(true)}
-                        className="gap-2 rounded-[1.2rem] h-12 px-6 shadow-lg shadow-primary/20 font-black shrink-0"
-                    >
-                        <Plus className="h-5 w-5" aria-hidden="true" />
-                        Nova Tarefa
-                    </Button>
-                )}
+                <Button
+                    onClick={() => setIsDialogOpen(true)}
+                    className="gap-2 rounded-[1.2rem] h-12 px-6 shadow-lg shadow-primary/20 font-black shrink-0"
+                >
+                    <Plus className="h-5 w-5" aria-hidden="true" />
+                    Nova Tarefa
+                </Button>
             </div>
-
-            {/* Form de nova tarefa */}
-            <AnimatePresence>
-                {isAdding && (
-                    <motion.form
-                        initial={{ opacity: 0, scale: 0.97, y: -12 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.97, y: -12 }}
-                        onSubmit={handleAddTask}
-                        className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border-2 border-primary/30 shadow-xl flex flex-col sm:flex-row items-center gap-4"
-                    >
-                        <Input
-                            autoFocus
-                            placeholder="O que precisa ser feito pelo time?"
-                            value={newTaskTitle}
-                            onChange={(e) => setNewTaskTitle(e.target.value)}
-                            className="flex-1 h-12 bg-transparent border-none focus-visible:ring-0 text-lg font-bold placeholder:text-muted-foreground/30 shadow-none"
-                            aria-label="Título da nova tarefa"
-                        />
-                        <div className="flex gap-2 w-full sm:w-auto">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={() => setIsAdding(false)}
-                                disabled={isSubmitting}
-                                className="rounded-xl flex-1 sm:flex-initial h-12 font-bold"
-                            >
-                                Cancelar
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={isSubmitting || !newTaskTitle.trim()}
-                                className="rounded-xl flex-1 sm:flex-initial h-12 px-8 font-black shadow-lg shadow-primary/20"
-                            >
-                                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" aria-label="Salvando..." /> : 'Criar'}
-                            </Button>
-                        </div>
-                    </motion.form>
-                )}
-            </AnimatePresence>
 
             {/* Kanban Board */}
             <DragDropContext onDragEnd={handleDragEnd}>
@@ -220,7 +197,7 @@ export function TaskBoard({ tasks, isLoading, onAdd, onUpdateStatus, onDelete, g
                 </div>
             </DragDropContext>
 
-            {tasks.length === 0 && !isAdding && (
+            {tasks.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-24 bg-white/40 dark:bg-slate-900/40 rounded-[3rem] border-2 border-dashed border-border/40 text-center animate-in zoom-in duration-500">
                     <div className="w-20 h-20 bg-muted/40 rounded-[2rem] flex items-center justify-center mb-6">
                         <ListTodo className="h-10 w-10 text-muted-foreground/30" aria-hidden="true" />
@@ -229,11 +206,110 @@ export function TaskBoard({ tasks, isLoading, onAdd, onUpdateStatus, onDelete, g
                     <p className="text-muted-foreground mb-8 max-w-xs mx-auto leading-relaxed font-medium">
                         Ninguém adicionou tarefas ainda. Divida o trabalho para garantir o 10!
                     </p>
-                    <Button onClick={() => setIsAdding(true)} className="rounded-full px-8 h-12 font-bold shadow-lg shadow-primary/10">
+                    <Button onClick={() => setIsDialogOpen(true)} className="rounded-full px-8 h-12 font-bold shadow-lg shadow-primary/10">
                         Criar primeira tarefa
                     </Button>
                 </div>
             )}
+
+            {/* Dialog: Nova Tarefa */}
+            <Dialog open={isDialogOpen} onOpenChange={(o) => { if (!isSubmitting) { setIsDialogOpen(o); if (!o) resetForm() } }}>
+                <DialogContent className="sm:max-w-[480px] rounded-[2rem]">
+                    <form onSubmit={handleAddTask}>
+                        <DialogHeader>
+                            <DialogTitle className="text-xl font-black">Nova Tarefa</DialogTitle>
+                            <DialogDescription className="font-medium">
+                                Adicione uma tarefa ao quadro. Preencha os detalhes para facilitar a distribuição do trabalho.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="grid gap-5 py-6">
+                            <div className="grid gap-2">
+                                <Label htmlFor="task-title" className="font-semibold">
+                                    Título *
+                                </Label>
+                                <Input
+                                    id="task-title"
+                                    autoFocus
+                                    placeholder="O que precisa ser feito?"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    aria-required="true"
+                                    className="h-11"
+                                />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="task-description" className="font-semibold">
+                                    Descrição <span className="text-muted-foreground font-normal">(Opcional)</span>
+                                </Label>
+                                <Textarea
+                                    id="task-description"
+                                    placeholder="Detalhes adicionais, instruções ou links relevantes..."
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    className="min-h-[80px] resize-none"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="task-assignee" className="font-semibold">
+                                        Responsável
+                                    </Label>
+                                    <Select
+                                        id="task-assignee"
+                                        value={assignedTo}
+                                        onChange={(e) => setAssignedTo(e.target.value)}
+                                        className="h-11 rounded-xl"
+                                        aria-label="Selecionar responsável"
+                                    >
+                                        <option value="">Ninguém</option>
+                                        {members.map((memberId) => (
+                                            <option key={memberId} value={memberId}>
+                                                {getUserName(memberId)}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="task-due-date" className="font-semibold">
+                                        Prazo
+                                    </Label>
+                                    <Input
+                                        id="task-due-date"
+                                        type="date"
+                                        value={dueDate}
+                                        onChange={(e) => setDueDate(e.target.value)}
+                                        className="h-11 rounded-xl"
+                                        min={new Date().toISOString().split('T')[0]}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <DialogFooter className="gap-2">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                className="rounded-xl"
+                                onClick={() => { setIsDialogOpen(false); resetForm() }}
+                                disabled={isSubmitting}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting || !title.trim()}
+                                className="rounded-xl px-8 font-black shadow-lg shadow-primary/20"
+                            >
+                                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" aria-label="Salvando..." /> : 'Criar Tarefa'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
 
             {/* Dialog de confirmação de exclusão */}
             <Dialog open={!!confirmDeleteId} onOpenChange={(open) => !open && setConfirmDeleteId(null)}>
@@ -259,7 +335,7 @@ export function TaskBoard({ tasks, isLoading, onAdd, onUpdateStatus, onDelete, g
 }
 
 /**
- * Card individual de tarefa — draggável.
+ * Card individual de tarefa — draggável. Suporta expansão para ver a descrição.
  */
 function TaskCard({
     task,
@@ -272,7 +348,7 @@ function TaskCard({
     getUserName: (id: string) => string
     onDelete: () => void
 }) {
-    const [isToggling, setIsToggling] = useState(false)
+    const [expanded, setExpanded] = useState(false)
     const isDone = task.status === 'completed'
 
     return (
@@ -283,50 +359,80 @@ function TaskCard({
                     {...provided.draggableProps}
                     className={cn(
                         'group bg-white dark:bg-slate-900/80 p-4 rounded-2xl border border-border/40 shadow-sm',
-                        'flex items-start gap-3 transition-all duration-200',
+                        'flex flex-col gap-2 transition-all duration-200',
                         snapshot.isDragging && 'shadow-2xl shadow-primary/20 ring-2 ring-primary/30 rotate-1 scale-105',
                         isDone && 'opacity-60 saturate-50'
                     )}
                 >
-                    {/* Handle de drag */}
-                    <div
-                        {...provided.dragHandleProps}
-                        className="mt-0.5 shrink-0 text-muted-foreground/30 hover:text-muted-foreground/60 cursor-grab active:cursor-grabbing transition-colors"
-                        aria-label="Arrastar tarefa"
-                    >
-                        <GripVertical className="h-4 w-4" aria-hidden="true" />
-                    </div>
+                    <div className="flex items-start gap-3">
+                        {/* Handle de drag */}
+                        <div
+                            {...provided.dragHandleProps}
+                            className="mt-0.5 shrink-0 text-muted-foreground/30 hover:text-muted-foreground/60 cursor-grab active:cursor-grabbing transition-colors"
+                            aria-label="Arrastar tarefa"
+                        >
+                            <GripVertical className="h-4 w-4" aria-hidden="true" />
+                        </div>
 
-                    <div className="flex-1 min-w-0 space-y-2">
-                        <p className={cn(
-                            'text-sm font-bold leading-snug',
-                            isDone && 'line-through text-muted-foreground'
-                        )}>
-                            {task.title}
-                        </p>
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <div className="flex items-center gap-1 text-[10px] uppercase font-black tracking-widest text-muted-foreground/50 bg-muted/50 px-2 py-0.5 rounded-lg">
-                                <UserIcon className="h-3 w-3" aria-hidden="true" />
-                                <span>{getUserName(task.createdBy)}</span>
-                            </div>
-                            {task.dueDate && (
-                                <div className="flex items-center gap-1 text-[10px] uppercase font-black tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-lg">
-                                    <Calendar className="h-3 w-3" aria-hidden="true" />
-                                    <span>{task.dueDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
+                        <div className="flex-1 min-w-0 space-y-2">
+                            <p className={cn(
+                                'text-sm font-bold leading-snug',
+                                isDone && 'line-through text-muted-foreground'
+                            )}>
+                                {task.title}
+                            </p>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <div className="flex items-center gap-1 text-[10px] uppercase font-black tracking-widest text-muted-foreground/50 bg-muted/50 px-2 py-0.5 rounded-lg">
+                                    <UserIcon className="h-3 w-3" aria-hidden="true" />
+                                    <span>{task.assignedTo ? getUserName(task.assignedTo) : getUserName(task.createdBy)}</span>
                                 </div>
+                                {task.dueDate && (
+                                    <div className="flex items-center gap-1 text-[10px] uppercase font-black tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-lg">
+                                        <Calendar className="h-3 w-3" aria-hidden="true" />
+                                        <span>{task.dueDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-1 shrink-0">
+                            {task.description && (
+                                <button
+                                    onClick={() => setExpanded((v) => !v)}
+                                    className="w-7 h-7 flex items-center justify-center text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/50 rounded-xl transition-all"
+                                    aria-label={expanded ? 'Recolher descrição' : 'Ver descrição'}
+                                    aria-expanded={expanded}
+                                >
+                                    <ChevronDown className={cn('h-3.5 w-3.5 transition-transform duration-200', expanded && 'rotate-180')} aria-hidden="true" />
+                                </button>
                             )}
+                            {/* Botão de remover */}
+                            <button
+                                onClick={onDelete}
+                                className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl opacity-0 group-hover:opacity-100 transition-all"
+                                aria-label={`Remover tarefa: ${task.title}`}
+                            >
+                                <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                            </button>
                         </div>
                     </div>
 
-                    {/* Botão de remover */}
-                    <button
-                        onClick={onDelete}
-                        disabled={isToggling}
-                        className="shrink-0 w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl opacity-0 group-hover:opacity-100 transition-all"
-                        aria-label={`Remover tarefa: ${task.title}`}
-                    >
-                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                    </button>
+                    {/* Expandable description */}
+                    <AnimatePresence>
+                        {expanded && task.description && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                            >
+                                <p className="text-xs text-muted-foreground leading-relaxed pl-7 pt-1 border-t border-border/30">
+                                    {task.description}
+                                </p>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             )}
         </Draggable>

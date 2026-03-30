@@ -4,8 +4,10 @@ import { Group } from '@/types'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
-import { Users, ArrowRight, BookOpen } from 'lucide-react'
+import { Users, ArrowRight, BookOpen, Copy, Check } from 'lucide-react'
 import Link from 'next/link'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 interface GroupListProps {
     groups: Group[]
@@ -66,48 +68,70 @@ export function GroupList({ groups, isLoading, onCreateRequest, onJoinRequest }:
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groups.map((group) => (
-                <Card 
-                    key={group.id} 
-                    className="group border border-border/50 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1 overflow-hidden flex flex-col"
-                >
-                    <CardHeader className="pb-4">
-                        <div className="flex items-center justify-between mb-3">
-                             <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform duration-300">
-                                <BookOpen className="h-5 w-5" />
-                             </div>
-                             <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-muted px-2.5 py-1 rounded-full border border-border/50">
-                                {group.subjectCode || 'ESTUDO'}
-                             </span>
-                        </div>
-                        <CardTitle className="text-xl font-bold line-clamp-1">{group.name}</CardTitle>
-                        <CardDescription className="line-clamp-2 min-h-[40px] text-sm leading-relaxed">
-                            {group.description || 'Sem descrição cadastrada. Use este espaço para organizar sua colaboração.'}
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pb-6 flex-1">
-                        <div className="flex items-center gap-5 text-xs text-muted-foreground font-medium">
-                            <div className="flex items-center gap-1.5">
-                                <Users className="h-4 w-4 opacity-50" />
-                                <span>{group.members.length} {group.members.length === 1 ? 'membro' : 'membros'}</span>
-                            </div>
-                            <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-                            <div className="flex items-center gap-1.5">
-                                <span className="text-primary font-mono bg-primary/5 px-2 py-0.5 rounded cursor-help" title="Código de Convite">
-                                    {group.inviteCode}
-                                </span>
-                            </div>
-                        </div>
-                    </CardContent>
-                    <CardFooter className="pt-0 px-6 pb-6">
-                        <Link href={`/grupos/${group.id}`} className="w-full">
-                            <Button className="w-full gap-2 group-hover:gap-3 transition-all duration-300 shadow-sm" variant="secondary">
-                                Acessar Painel
-                                <ArrowRight className="h-4 w-4" />
-                            </Button>
-                        </Link>
-                    </CardFooter>
-                </Card>
+                <GroupCard key={group.id} group={group} />
             ))}
         </div>
+    )
+}
+
+/**
+ * Card individual de grupo com botão de cópia do código de convite.
+ */
+function GroupCard({ group }: { group: Group }) {
+    const [copied, setCopied] = useState(false)
+
+    const copyCode = (e: React.MouseEvent) => {
+        e.preventDefault()
+        navigator.clipboard.writeText(group.inviteCode)
+        toast.success('Código copiado! Compartilhe com seus colegas.')
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+    }
+
+    return (
+        <Card className="group border border-border/50 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1 overflow-hidden flex flex-col">
+            <CardHeader className="pb-4">
+                <div className="flex items-center justify-between mb-3">
+                    <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform duration-300">
+                        <BookOpen className="h-5 w-5" aria-hidden="true" />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-muted px-2.5 py-1 rounded-full border border-border/50">
+                        {group.subjectCode || 'ESTUDO'}
+                    </span>
+                </div>
+                <CardTitle className="text-xl font-bold line-clamp-1">{group.name}</CardTitle>
+                <CardDescription className="line-clamp-2 min-h-[40px] text-sm leading-relaxed">
+                    {group.description || 'Sem descrição cadastrada. Use este espaço para organizar sua colaboração.'}
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="pb-6 flex-1">
+                <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
+                    <div className="flex items-center gap-1.5">
+                        <Users className="h-4 w-4 opacity-50" aria-hidden="true" />
+                        <span>{group.members.length} {group.members.length === 1 ? 'membro' : 'membros'}</span>
+                    </div>
+                    <button
+                        onClick={copyCode}
+                        className="flex items-center gap-1.5 text-primary font-mono bg-primary/5 hover:bg-primary/15 px-2.5 py-1 rounded-lg transition-colors border border-primary/10 hover:border-primary/30"
+                        aria-label={`Copiar código de convite: ${group.inviteCode}`}
+                        title="Copiar código de convite"
+                    >
+                        <span className="font-black tracking-wider">{group.inviteCode}</span>
+                        {copied
+                            ? <Check className="h-3 w-3 text-emerald-500" aria-hidden="true" />
+                            : <Copy className="h-3 w-3 opacity-60" aria-hidden="true" />
+                        }
+                    </button>
+                </div>
+            </CardContent>
+            <CardFooter className="pt-0 px-6 pb-6">
+                <Link href={`/grupos/${group.id}`} className="w-full">
+                    <Button className="w-full gap-2 group-hover:gap-3 transition-all duration-300 shadow-sm" variant="secondary">
+                        Acessar Painel
+                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                </Link>
+            </CardFooter>
+        </Card>
     )
 }

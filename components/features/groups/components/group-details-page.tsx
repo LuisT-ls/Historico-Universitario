@@ -4,18 +4,34 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { useGroupDetails } from '@/components/features/groups/hooks/use-group-details'
 import { useUserProfiles } from '@/components/features/groups/hooks/use-user-profiles'
-import { Loader2, ArrowLeft, Files, CheckSquare, LayoutDashboard, Copy, Plus } from 'lucide-react'
+import { Loader2, ArrowLeft, Files, CheckSquare, LayoutDashboard, Copy, Plus, MoreVertical, Pencil, LogOut, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 
-// Sub-components (serão movidos para arquivos próprios se crescerem demais)
 import { MaterialList } from './material-list'
 import { TaskBoard } from './task-board'
+import { EditGroupDialog } from './edit-group-dialog'
 
 /**
  * Página de Detalhes do Grupo (Painel).
@@ -29,16 +45,23 @@ export function GroupDetailsPage() {
         isLoading,
         isMaterialsLoading,
         isTasksLoading,
+        user,
         handleAddTask,
         handleUpdateTaskStatus,
         handleDeleteTask,
         handleAddMaterial,
-        handleDeleteMaterial
+        handleDeleteMaterial,
+        handleLeaveGroup,
+        handleUpdateGroup,
+        handleDeleteGroup,
     } = useGroupDetails()
 
     const getUserName = useUserProfiles(group?.members ?? [])
 
     const [activeTab, setActiveTab] = useState<'overview' | 'materials' | 'tasks'>('overview')
+    const [editOpen, setEditOpen] = useState(false)
+    const [confirmLeave, setConfirmLeave] = useState(false)
+    const [confirmDelete, setConfirmDelete] = useState(false)
 
     if (isLoading) {
         return (
@@ -56,6 +79,12 @@ export function GroupDetailsPage() {
     }
 
     if (!group) return null
+
+    const isOwner = group.ownerId === user?.uid
+
+    const completedTasks = tasks.filter(t => t.status === 'completed').length
+    const totalTasks = tasks.length
+    const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
 
     const copyInviteCode = () => {
         navigator.clipboard.writeText(group.inviteCode)
@@ -85,9 +114,9 @@ export function GroupDetailsPage() {
                 {/* Header Information Card */}
                 <div className="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 md:p-12 border border-border/50 shadow-2xl shadow-primary/5 mb-10 group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl" />
-                    
+
                     <div className="relative flex flex-col lg:flex-row justify-between items-start gap-8">
-                        <div className="space-y-6 max-w-3xl">
+                        <div className="space-y-6 max-w-3xl flex-1">
                             <div className="flex flex-wrap items-center gap-3">
                                 <Badge variant="secondary" className="px-4 py-1.5 rounded-xl font-bold text-[10px] tracking-[0.15em] bg-primary/10 text-primary border-none uppercase">
                                     {group.subjectCode || 'ESTUDO'}
@@ -104,24 +133,70 @@ export function GroupDetailsPage() {
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground sm:text-6xl bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70">
                                 {group.name}
                             </h1>
-                            
+
                             <p className="text-lg text-muted-foreground leading-relaxed font-medium opacity-80">
                                 {group.description || 'Nenhuma descrição detalhada. Use este painel para colaborar com seu time.'}
                             </p>
                         </div>
-                        
-                        <div className="flex items-center gap-6 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] border border-border min-w-[200px] justify-center lg:self-center shadow-inner">
-                            <div className="text-center group-hover:scale-110 transition-transform duration-500">
-                                <p className="text-[10px] uppercase font-black text-muted-foreground tracking-[0.2em] mb-2 opacity-60 italic">Equipe</p>
-                                <div className="flex flex-col items-center">
-                                    <span className="text-5xl font-black text-primary leading-none">{group.members.length}</span>
-                                    <span className="text-xs font-bold text-muted-foreground mt-1 uppercase">Membros</span>
+
+                        <div className="flex items-center gap-4 self-start lg:self-center">
+                            <div className="flex items-center gap-6 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] border border-border min-w-[200px] justify-center shadow-inner">
+                                <div className="text-center group-hover:scale-110 transition-transform duration-500">
+                                    <p className="text-[10px] uppercase font-black text-muted-foreground tracking-[0.2em] mb-2 opacity-60 italic">Equipe</p>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-5xl font-black text-primary leading-none">{group.members.length}</span>
+                                        <span className="text-xs font-bold text-muted-foreground mt-1 uppercase">Membros</span>
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Group Actions Dropdown */}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="rounded-2xl h-12 w-12 border-border/60 shrink-0"
+                                        aria-label="Opções do grupo"
+                                    >
+                                        <MoreVertical className="h-5 w-5" aria-hidden="true" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48 rounded-2xl">
+                                    {isOwner && (
+                                        <DropdownMenuItem
+                                            onClick={() => setEditOpen(true)}
+                                            className="gap-2 rounded-xl font-medium cursor-pointer"
+                                        >
+                                            <Pencil className="h-4 w-4 opacity-60" aria-hidden="true" />
+                                            Editar Grupo
+                                        </DropdownMenuItem>
+                                    )}
+                                    <DropdownMenuItem
+                                        onClick={() => setConfirmLeave(true)}
+                                        className="gap-2 rounded-xl font-medium cursor-pointer"
+                                    >
+                                        <LogOut className="h-4 w-4 opacity-60" aria-hidden="true" />
+                                        Sair do Grupo
+                                    </DropdownMenuItem>
+                                    {isOwner && (
+                                        <>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem
+                                                onClick={() => setConfirmDelete(true)}
+                                                className="gap-2 rounded-xl font-medium cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                                            >
+                                                <Trash2 className="h-4 w-4" aria-hidden="true" />
+                                                Excluir Grupo
+                                            </DropdownMenuItem>
+                                        </>
+                                    )}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
                 </div>
@@ -134,15 +209,15 @@ export function GroupDetailsPage() {
                         return (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id as any)}
+                                onClick={() => setActiveTab(tab.id as 'overview' | 'materials' | 'tasks')}
                                 className={cn(
                                     "flex items-center gap-3 px-8 py-3.5 rounded-[1.2rem] text-sm font-black transition-all duration-300 relative",
-                                    isActive 
-                                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-[1.03] z-10" 
+                                    isActive
+                                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-[1.03] z-10"
                                         : "text-muted-foreground hover:bg-muted font-bold"
                                 )}
                             >
-                                <Icon className={cn("h-4 w-4", isActive ? "animate-pulse" : "opacity-60")} />
+                                <Icon className={cn("h-4 w-4", isActive ? "animate-pulse" : "opacity-60")} aria-hidden="true" />
                                 <span>{tab.label}</span>
                             </button>
                         )
@@ -164,21 +239,42 @@ export function GroupDetailsPage() {
                                 <div className="lg:col-span-2 space-y-8">
                                     {/* Stats Cards Row */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        <CardInfo 
-                                            title="Tarefas Ativas" 
-                                            icon={CheckSquare} 
-                                            count={tasks.filter(t => t.status !== 'completed').length} 
+                                        <CardInfo
+                                            title="Tarefas Ativas"
+                                            icon={CheckSquare}
+                                            count={tasks.filter(t => t.status !== 'completed').length}
                                             color="blue"
                                             onClick={() => setActiveTab('tasks')}
                                         />
-                                        <CardInfo 
-                                            title="Arquivos do Grupo" 
-                                            icon={Files} 
-                                            count={materials.length} 
+                                        <CardInfo
+                                            title="Arquivos do Grupo"
+                                            icon={Files}
+                                            count={materials.length}
                                             color="emerald"
                                             onClick={() => setActiveTab('materials')}
                                         />
                                     </div>
+
+                                    {/* Task Progress Bar */}
+                                    {totalTasks > 0 && (
+                                        <div
+                                            className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-border shadow-sm cursor-pointer hover:border-primary/40 hover:shadow-lg transition-all duration-300"
+                                            onClick={() => setActiveTab('tasks')}
+                                            role="button"
+                                            tabIndex={0}
+                                            onKeyDown={(e) => e.key === 'Enter' && setActiveTab('tasks')}
+                                            aria-label={`Progresso das tarefas: ${completedTasks} de ${totalTasks} concluídas`}
+                                        >
+                                            <div className="flex items-center justify-between mb-4">
+                                                <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground opacity-60 italic">Progresso das Tarefas</p>
+                                                <span className="text-sm font-black text-primary tabular-nums">{progressPercent}%</span>
+                                            </div>
+                                            <Progress value={progressPercent} className="h-3 rounded-full" />
+                                            <p className="text-xs text-muted-foreground font-medium mt-3">
+                                                {completedTasks} de {totalTasks} {totalTasks === 1 ? 'tarefa concluída' : 'tarefas concluídas'}
+                                            </p>
+                                        </div>
+                                    )}
 
                                     {/* Quick Actions */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -211,23 +307,24 @@ export function GroupDetailsPage() {
                                         </button>
                                     </div>
                                 </div>
-                                
-                                {/* Members List / Activity Mini Sidebar */}
+
+                                {/* Members List Sidebar */}
                                 <div className="space-y-6">
                                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-border shadow-sm">
                                         <h3 className="text-lg font-black mb-6 uppercase tracking-widest text-muted-foreground opacity-60">Membros do Time</h3>
                                         <div className="space-y-4">
                                             {group.members.slice(0, 5).map((memberId, idx) => {
                                                 const name = getUserName(memberId)
+                                                const isCreator = memberId === group.ownerId
                                                 return (
                                                     <div key={memberId} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-muted/50 transition-colors">
                                                         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-black text-sm" aria-hidden="true">
-                                                            {idx === 0 ? '👑' : name.substring(0, 2).toUpperCase()}
+                                                            {isCreator ? '👑' : name.substring(0, 2).toUpperCase()}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
                                                             <p className="text-sm font-bold truncate">{name}</p>
                                                             <p className="text-[10px] uppercase font-bold text-muted-foreground opacity-50">
-                                                                {idx === 0 ? 'Criador' : 'Membro'}
+                                                                {isCreator ? 'Criador' : 'Membro'}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -245,7 +342,7 @@ export function GroupDetailsPage() {
                         )}
 
                         {activeTab === 'materials' && (
-                            <MaterialList 
+                            <MaterialList
                                 groupId={group.id!}
                                 materials={materials}
                                 isLoading={isMaterialsLoading}
@@ -270,6 +367,64 @@ export function GroupDetailsPage() {
                 </AnimatePresence>
             </main>
             <Footer />
+
+            {/* Edit Group Dialog */}
+            {editOpen && (
+                <EditGroupDialog
+                    open={editOpen}
+                    onOpenChange={setEditOpen}
+                    group={group}
+                    onSave={handleUpdateGroup}
+                />
+            )}
+
+            {/* Confirm Leave */}
+            <Dialog open={confirmLeave} onOpenChange={setConfirmLeave}>
+                <DialogContent className="sm:max-w-[400px] rounded-[2rem]">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-black">Sair do grupo?</DialogTitle>
+                        <DialogDescription className="font-medium">
+                            Você perderá acesso ao painel e aos materiais do grupo. Para voltar, precisará de um novo código de convite.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 mt-2">
+                        <Button variant="ghost" className="rounded-xl" onClick={() => setConfirmLeave(false)}>
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            className="rounded-xl"
+                            onClick={() => { setConfirmLeave(false); handleLeaveGroup() }}
+                        >
+                            Sair do Grupo
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Confirm Delete */}
+            <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+                <DialogContent className="sm:max-w-[400px] rounded-[2rem]">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-black">Excluir grupo permanentemente?</DialogTitle>
+                        <DialogDescription className="font-medium">
+                            Esta ação não pode ser desfeita. Todos os membros perderão o acesso e os dados do grupo serão removidos.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 mt-2">
+                        <Button variant="ghost" className="rounded-xl" onClick={() => setConfirmDelete(false)}>
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            className="rounded-xl"
+                            onClick={() => { setConfirmDelete(false); handleDeleteGroup() }}
+                        >
+                            Excluir Grupo
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
@@ -277,16 +432,16 @@ export function GroupDetailsPage() {
 /**
  * Card de informação resumida para a dashboard do grupo.
  */
-function CardInfo({ 
-    title, 
-    icon: Icon, 
-    count, 
-    color, 
-    onClick 
-}: { 
-    title: string, 
-    icon: any, 
-    count: number, 
+function CardInfo({
+    title,
+    icon: Icon,
+    count,
+    color,
+    onClick
+}: {
+    title: string,
+    icon: React.ElementType,
+    count: number,
     color: 'blue' | 'emerald',
     onClick: () => void
 }) {
@@ -296,20 +451,20 @@ function CardInfo({
     }
 
     return (
-        <button 
+        <button
             onClick={onClick}
             className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-border shadow-sm flex items-center justify-between group hover:border-primary/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full text-left"
         >
             <div className="flex items-center gap-6">
                 <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-6", colorClasses[color])}>
-                    <Icon className="h-8 w-8" />
+                    <Icon className="h-8 w-8" aria-hidden="true" />
                 </div>
                 <div>
                     <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-1 opacity-60 italic">{title}</p>
                     <p className="text-4xl font-black tabular-nums">{count}</p>
                 </div>
             </div>
-            <div className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-all">
+            <div className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-all" aria-hidden="true">
                 <Plus className="h-5 w-5 rotate-45" />
             </div>
         </button>

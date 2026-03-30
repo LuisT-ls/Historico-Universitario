@@ -10,6 +10,7 @@ import {
     where,
     orderBy,
     arrayUnion,
+    arrayRemove,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { deleteFile } from '@/services/storage.service'
@@ -138,6 +139,57 @@ export async function joinGroupByCode(userId: UserId, inviteCode: string): Promi
         return createGroupId(groupDoc.id)
     } catch (error) {
         logger.error('Erro ao entrar no grupo:', error)
+        throw error
+    }
+}
+
+/**
+ * Remove o usuário do grupo (sair do grupo)
+ */
+export async function leaveGroup(groupId: string, userId: UserId): Promise<void> {
+    if (!db) throw new Error('Firestore não inicializado')
+    try {
+        await updateDoc(doc(db, 'groups', groupId), {
+            members: arrayRemove(userId),
+            updatedAt: new Date(),
+        })
+        logger.info('Usuário saiu do grupo', { groupId, userId })
+    } catch (error) {
+        logger.error('Erro ao sair do grupo:', error)
+        throw error
+    }
+}
+
+/**
+ * Atualiza os dados editáveis de um grupo (apenas owner)
+ */
+export async function updateGroup(
+    groupId: string,
+    data: Partial<Pick<Group, 'name' | 'description' | 'subjectCode'>>
+): Promise<void> {
+    if (!db) throw new Error('Firestore não inicializado')
+    try {
+        const payload = Object.fromEntries(
+            Object.entries({ ...data, updatedAt: new Date() }).filter(([, v]) => v !== undefined)
+        )
+        await updateDoc(doc(db, 'groups', groupId), payload)
+        logger.info('Grupo atualizado', { groupId })
+    } catch (error) {
+        logger.error('Erro ao atualizar grupo:', error)
+        throw error
+    }
+}
+
+/**
+ * Exclui o grupo (apenas owner). Subcoleções tornam-se inativas sem o documento pai.
+ */
+export async function deleteGroup(groupId: string): Promise<void> {
+    if (!db) throw new Error('Firestore não inicializado')
+    try {
+        await deleteDoc(doc(db, 'groups', groupId))
+        logger.info('Grupo excluído', { groupId })
+    } catch (error) {
+        logger.error('Erro ao excluir grupo:', error)
         throw error
     }
 }
