@@ -157,7 +157,10 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
     const [addingColumn, setAddingColumn] = useState(false)
     const [newColumnName, setNewColumnName] = useState('')
+    const [compact, setCompact] = useState(false)
     const newColumnRef = useRef<HTMLInputElement>(null)
+    const searchRef = useRef<HTMLInputElement>(null)
+    const firstColAddRef = useRef<(() => void) | null>(null)
 
     // Filtros
     const [searchQuery, setSearchQuery] = useState('')
@@ -185,6 +188,28 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
     }, [tasks, searchQuery, filterLabel, filterAssignee, filterDue, hasFilters])
 
     useEffect(() => { if (addingColumn) newColumnRef.current?.focus() }, [addingColumn])
+
+    // Atalhos de teclado globais
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+            const tag = (e.target as HTMLElement).tagName
+            const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable
+            if (isInput) return
+            if (e.key === '/' || e.key === 'f') {
+                e.preventDefault()
+                searchRef.current?.focus()
+            }
+            if (e.key === 'n' || e.key === 'N') {
+                e.preventDefault()
+                firstColAddRef.current?.()
+            }
+            if (e.key === 'c' || e.key === 'C') {
+                setCompact((v) => !v)
+            }
+        }
+        window.addEventListener('keydown', handler)
+        return () => window.removeEventListener('keydown', handler)
+    }, [])
 
     // Build all column definitions (unordered map)
     const allColumnDefs = useMemo<Record<string, ColumnDef>>(() => {
@@ -282,10 +307,11 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
                 <div className="relative flex-1 min-w-[160px] max-w-xs">
                     <ListTodo className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                     <input
+                        ref={searchRef}
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Buscar cartão..."
+                        placeholder="Buscar cartão... (/)"
                         className="w-full h-9 pl-8 pr-3 text-sm rounded-xl border border-border/60 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/30"
                     />
                     {searchQuery && (
@@ -362,6 +388,22 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
                         Limpar
                     </button>
                 )}
+
+                {/* Modo compacto */}
+                <button
+                    type="button"
+                    onClick={() => setCompact((v) => !v)}
+                    title={compact ? 'Modo normal (C)' : 'Modo compacto (C)'}
+                    aria-pressed={compact}
+                    className={cn(
+                        'h-9 w-9 rounded-xl border flex items-center justify-center transition-all duration-150 ml-auto shrink-0',
+                        compact
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'border-border/60 text-muted-foreground hover:border-primary/40 hover:text-primary bg-white dark:bg-slate-900'
+                    )}
+                >
+                    <LayoutList className="h-4 w-4" aria-hidden="true" />
+                </button>
             </div>
 
             <DragDropContext onDragEnd={handleDragEnd}>
@@ -394,6 +436,8 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
                                                     onAdd={onAdd}
                                                     onCardClick={setDetailTask}
                                                     onToggleDone={handleToggleDone}
+                                                    compact={compact}
+                                                    addTriggerRef={colIndex === 0 ? firstColAddRef : undefined}
                                                     onDeleteColumn={col.isCustom ? () => handleDeleteColumn(col.id) : undefined}
                                                     onMoveLeft={colIndex > 0 ? () => {
                                                         const newOrder = columns.map(c => c.id)
@@ -552,6 +596,8 @@ function KanbanColumn({
     onDeleteColumn,
     onMoveLeft,
     onMoveRight,
+    compact,
+    addTriggerRef,
     dragHandleProps,
 }: {
     col: ColumnDef
@@ -565,6 +611,8 @@ function KanbanColumn({
     onDeleteColumn?: () => void
     onMoveLeft?: () => void
     onMoveRight?: () => void
+    compact?: boolean
+    addTriggerRef?: React.MutableRefObject<(() => void) | null>
     dragHandleProps?: DraggableProvidedDragHandleProps | null
 }) {
     const [adding, setAdding] = useState(false)
@@ -577,6 +625,10 @@ function KanbanColumn({
     useEffect(() => {
         if (adding) inputRef.current?.focus()
     }, [adding])
+
+    useEffect(() => {
+        if (addTriggerRef) addTriggerRef.current = () => setAdding(true)
+    }, [addTriggerRef])
 
     const submit = async (e?: React.FormEvent) => {
         e?.preventDefault()
@@ -757,6 +809,7 @@ function KanbanColumn({
                                 getUserName={getUserName}
                                 onClick={() => onCardClick(task)}
                                 onToggleDone={() => onToggleDone(task)}
+                                compact={compact}
                             />
                         ))}
                         {provided.placeholder}
@@ -836,12 +889,14 @@ function TaskCard({
     getUserName,
     onClick,
     onToggleDone,
+    compact,
 }: {
     task: GroupTask
     index: number
     getUserName: (id: string) => string
     onClick: () => void
     onToggleDone: () => void
+    compact?: boolean
 }) {
     const isDone = task.done === true
     const due = task.dueDate ? formatDueDate(task.dueDate) : null
@@ -850,9 +905,21 @@ function TaskCard({
     const contrast = getTextContrast(cardBg)
     const isDark = contrast === 'dark'
 
+    // Detect drag-end for settle animation
+    const wasDraggingRef = useRef(false)
+    const [justDropped, setJustDropped] = useState(false)
+
     return (
         <Draggable draggableId={task.id!} index={index}>
-            {(provided, snapshot) => (
+            {(provided, snapshot) => {
+                if (wasDraggingRef.current && !snapshot.isDragging) {
+                    wasDraggingRef.current = false
+                    // Schedule animation trigger after render
+                    setTimeout(() => { setJustDropped(true); setTimeout(() => setJustDropped(false), 320) }, 0)
+                }
+                if (snapshot.isDragging) wasDraggingRef.current = true
+
+                return (
                 <div
                     ref={provided.innerRef}
                     {...provided.draggableProps}
@@ -863,6 +930,7 @@ function TaskCard({
                         boxShadow: snapshot.isDragging
                             ? '4px 8px 24px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.06)'
                             : '2px 3px 8px rgba(0,0,0,0.13), 0 0 0 1px rgba(0,0,0,0.04)',
+                        animation: justDropped ? 'card-settle 300ms ease-out' : undefined,
                     }}
                     className={cn(
                         'rounded-sm relative select-none overflow-hidden',
@@ -875,133 +943,187 @@ function TaskCard({
                     onClick={onClick}
                     aria-label={`Tarefa: ${task.title}. Segure e arraste para mover de coluna, ou clique para editar.`}
                 >
-                    {/* Faixa superior (efeito adesivo) */}
-                    <div
-                        className="h-5 w-full shrink-0"
-                        style={{ backgroundColor: 'rgba(0,0,0,0.08)' }}
-                        aria-hidden="true"
-                    />
-
-                    {/* Etiquetas */}
-                    {task.labels && task.labels.length > 0 && (
-                        <div className="flex flex-wrap gap-1 px-3 pt-2">
-                            {task.labels.map((labelId) => {
-                                const label = TASK_LABELS.find((l) => l.id === labelId)
-                                if (!label) return null
-                                return (
-                                    <span
-                                        key={labelId}
-                                        className="h-2 w-10 rounded-full opacity-80"
-                                        style={{ backgroundColor: label.color }}
-                                        title={label.name}
-                                        aria-label={label.name}
-                                    />
-                                )
-                            })}
-                        </div>
-                    )}
-
-                    <div
-                        className="px-3 pb-4 pt-2.5 space-y-2.5"
-                        style={{ color: isDark ? '#1e293b' : '#ffffff' }}
-                    >
-                        {/* Título + botão de conclusão */}
-                        <div className="flex items-start gap-2">
+                    {compact ? (
+                        /* ── Modo compacto: linha única sem ornamentos ── */
+                        <div
+                            className="flex items-center gap-2 px-2.5 py-1.5"
+                            style={{ color: isDark ? '#1e293b' : '#ffffff' }}
+                        >
                             <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); onToggleDone() }}
                                 aria-label={isDone ? 'Desmarcar como concluída' : 'Marcar como concluída'}
                                 className={cn(
-                                    'mt-0.5 w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all duration-150',
+                                    'w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center transition-all duration-150',
                                     isDone
-                                        ? 'bg-emerald-500 border-emerald-500 text-white scale-110 shadow shadow-emerald-500/40'
+                                        ? 'bg-emerald-500 border-emerald-500 text-white'
                                         : isDark
-                                            ? 'border-current/40 bg-black/10 hover:border-emerald-600 hover:bg-black/20 hover:scale-110'
-                                            : 'border-white/60 bg-white/20 hover:border-emerald-300 hover:bg-white/30 hover:scale-110'
+                                            ? 'border-current/40 bg-black/10 hover:border-emerald-600'
+                                            : 'border-white/60 bg-white/20 hover:border-emerald-300'
                                 )}
-                                style={{ borderColor: isDone ? undefined : 'currentColor', opacity: isDone ? 1 : undefined }}
+                                style={{ borderColor: isDone ? undefined : 'currentColor' }}
                             >
-                                {isDone && <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />}
+                                {isDone && <CheckCircle2 className="h-2.5 w-2.5" aria-hidden="true" />}
                             </button>
                             <p className={cn(
-                                'text-sm font-bold leading-normal flex-1',
+                                'text-xs font-semibold leading-tight truncate flex-1',
                                 isDone && 'line-through opacity-50'
                             )}>
                                 {task.title}
                             </p>
-                        </div>
-
-                        {/* Indicators row */}
-                        {(
-                            (task.description && stripHtml(task.description)) ||
-                            (task.checklists && task.checklists.length > 0) ||
-                            (task.links && task.links.length > 0)
-                        ) && (
-                            <div className="flex items-center gap-2 flex-wrap opacity-60">
-                                {task.description && stripHtml(task.description) && (
-                                    <AlignLeft className="h-3.5 w-3.5" aria-label="Contém descrição" />
+                            {/* Mini-indicators */}
+                            <div className="flex items-center gap-1 shrink-0 opacity-50">
+                                {task.labels && task.labels.length > 0 && (
+                                    <span className="flex gap-0.5">
+                                        {task.labels.slice(0, 3).map((id) => {
+                                            const l = TASK_LABELS.find((x) => x.id === id)
+                                            return l ? <span key={id} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: l.color }} /> : null
+                                        })}
+                                    </span>
                                 )}
-                                {task.checklists && task.checklists.length > 0 && (() => {
-                                    const allItems = task.checklists.flatMap((l) => l.items)
-                                    const doneItems = allItems.filter((i) => i.done).length
-                                    return (
-                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold">
-                                            <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-                                            {doneItems}/{allItems.length}
-                                        </span>
-                                    )
-                                })()}
-                                {task.links && task.links.length > 0 && (
-                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold">
-                                        <Paperclip className="h-3 w-3" aria-hidden="true" />
-                                        {task.links.length}
+                                {due && (
+                                    <span className={cn(
+                                        'text-[9px] font-bold px-1 py-0.5 rounded',
+                                        due.overdue ? 'bg-red-500/25' : due.soon ? 'bg-amber-500/25' : 'bg-black/10'
+                                    )}>
+                                        {due.label}
                                     </span>
                                 )}
                             </div>
-                        )}
+                        </div>
+                    ) : (
+                        /* ── Modo normal: post-it completo ── */
+                        <>
+                            {/* Faixa superior (efeito adesivo) */}
+                            <div
+                                className="h-5 w-full shrink-0"
+                                style={{ backgroundColor: 'rgba(0,0,0,0.08)' }}
+                                aria-hidden="true"
+                            />
 
-                        {/* Footer: due date + assignee */}
-                        {(due || task.assignedTo) && (
-                            <div className="flex items-center justify-between gap-2 pt-0.5">
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                    {due && (
-                                        <span className={cn(
-                                            'inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md',
-                                            due.overdue
-                                                ? 'bg-red-500/25'
-                                                : due.soon
-                                                    ? 'bg-amber-500/25'
-                                                    : 'bg-black/10'
-                                        )}>
-                                            <Calendar className="h-2.5 w-2.5" aria-hidden="true" />
-                                            {due.label}
-                                        </span>
-                                    )}
+                            {/* Etiquetas */}
+                            {task.labels && task.labels.length > 0 && (
+                                <div className="flex flex-wrap gap-1 px-3 pt-2">
+                                    {task.labels.map((labelId) => {
+                                        const label = TASK_LABELS.find((l) => l.id === labelId)
+                                        if (!label) return null
+                                        return (
+                                            <span
+                                                key={labelId}
+                                                className="h-2 w-10 rounded-full opacity-80"
+                                                style={{ backgroundColor: label.color }}
+                                                title={label.name}
+                                                aria-label={label.name}
+                                            />
+                                        )
+                                    })}
+                                </div>
+                            )}
+
+                            <div
+                                className="px-3 pb-4 pt-2.5 space-y-2.5"
+                                style={{ color: isDark ? '#1e293b' : '#ffffff' }}
+                            >
+                                {/* Título + botão de conclusão */}
+                                <div className="flex items-start gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); onToggleDone() }}
+                                        aria-label={isDone ? 'Desmarcar como concluída' : 'Marcar como concluída'}
+                                        className={cn(
+                                            'mt-0.5 w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all duration-150',
+                                            isDone
+                                                ? 'bg-emerald-500 border-emerald-500 text-white scale-110 shadow shadow-emerald-500/40'
+                                                : isDark
+                                                    ? 'border-current/40 bg-black/10 hover:border-emerald-600 hover:bg-black/20 hover:scale-110'
+                                                    : 'border-white/60 bg-white/20 hover:border-emerald-300 hover:bg-white/30 hover:scale-110'
+                                        )}
+                                        style={{ borderColor: isDone ? undefined : 'currentColor', opacity: isDone ? 1 : undefined }}
+                                    >
+                                        {isDone && <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />}
+                                    </button>
+                                    <p className={cn(
+                                        'text-sm font-bold leading-normal flex-1',
+                                        isDone && 'line-through opacity-50'
+                                    )}>
+                                        {task.title}
+                                    </p>
                                 </div>
 
-                                {task.assignedTo && (
-                                    <div
-                                        className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black uppercase shrink-0 bg-black/15"
-                                        title={getUserName(task.assignedTo)}
-                                        aria-label={`Responsável: ${getUserName(task.assignedTo)}`}
-                                    >
-                                        {getUserName(task.assignedTo).substring(0, 2)}
+                                {/* Indicators row */}
+                                {(
+                                    (task.description && stripHtml(task.description)) ||
+                                    (task.checklists && task.checklists.length > 0) ||
+                                    (task.links && task.links.length > 0)
+                                ) && (
+                                    <div className="flex items-center gap-2 flex-wrap opacity-60">
+                                        {task.description && stripHtml(task.description) && (
+                                            <AlignLeft className="h-3.5 w-3.5" aria-label="Contém descrição" />
+                                        )}
+                                        {task.checklists && task.checklists.length > 0 && (() => {
+                                            const allItems = task.checklists.flatMap((l) => l.items)
+                                            const doneItems = allItems.filter((i) => i.done).length
+                                            return (
+                                                <span className="inline-flex items-center gap-1 text-[10px] font-bold">
+                                                    <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                                                    {doneItems}/{allItems.length}
+                                                </span>
+                                            )
+                                        })()}
+                                        {task.links && task.links.length > 0 && (
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-bold">
+                                                <Paperclip className="h-3 w-3" aria-hidden="true" />
+                                                {task.links.length}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Footer: due date + assignee */}
+                                {(due || task.assignedTo) && (
+                                    <div className="flex items-center justify-between gap-2 pt-0.5">
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                            {due && (
+                                                <span className={cn(
+                                                    'inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md',
+                                                    due.overdue
+                                                        ? 'bg-red-500/25'
+                                                        : due.soon
+                                                            ? 'bg-amber-500/25'
+                                                            : 'bg-black/10'
+                                                )}>
+                                                    <Calendar className="h-2.5 w-2.5" aria-hidden="true" />
+                                                    {due.label}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {task.assignedTo && (
+                                            <div
+                                                className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black uppercase shrink-0 bg-black/15"
+                                                title={getUserName(task.assignedTo)}
+                                                aria-label={`Responsável: ${getUserName(task.assignedTo)}`}
+                                            >
+                                                {getUserName(task.assignedTo).substring(0, 2)}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
-                        )}
-                    </div>
 
-                    {/* Cantinho dobrado */}
-                    <div
-                        className="absolute bottom-0 right-0 w-5 h-5"
-                        aria-hidden="true"
-                        style={{
-                            background: `linear-gradient(225deg, rgba(0,0,0,0.12) 50%, transparent 50%)`,
-                        }}
-                    />
+                            {/* Cantinho dobrado */}
+                            <div
+                                className="absolute bottom-0 right-0 w-5 h-5"
+                                aria-hidden="true"
+                                style={{
+                                    background: `linear-gradient(225deg, rgba(0,0,0,0.12) 50%, transparent 50%)`,
+                                }}
+                            />
+                        </>
+                    )}
                 </div>
-            )}
+                )
+            }}
         </Draggable>
     )
 }

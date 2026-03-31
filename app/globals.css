@@ -299,3 +299,11 @@ html:not(.dark-mode) footer a:hover:not([class*="bg-"]) {
   content: attr(data-placeholder);
   @apply text-muted-foreground/50 pointer-events-none float-left h-0;
 }
+
+/* ─── Kanban card drop/settle animation ─────────────────────────────────────── */
+@keyframes card-settle {
+  0%   { transform: scale(1.04) rotate(2deg); }
+  40%  { transform: scale(1.02) rotate(-0.5deg); }
+  70%  { transform: scale(1.01) rotate(0.3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
