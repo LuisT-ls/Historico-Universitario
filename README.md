@@ -1,4 +1,4 @@
-# 📚 Histórico Acadêmico UFBA v2.5
+# 📚 Histórico Acadêmico UFBA v2.6
 
 > [!IMPORTANT]
 > **Aviso Legal:** Este é um projeto **independente** desenvolvido para auxiliar os estudantes do **ICTI/UFBA (Campus de Camaçari)**. Este software **não possui vínculo oficial** com a Universidade Federal da Bahia (UFBA) ou com a administração do SIGAA.
@@ -65,13 +65,22 @@ Uma plataforma moderna e intuitiva para estudantes da UFBA gerenciarem sua traje
 - **Sem dados:** Funciona mesmo sem importação — exibe todas as disciplinas como pendentes até que o histórico seja importado.
 
 ### 👥 Grupos de Estudo
-- **Criação e entrada por código:** Crie um grupo e compartilhe o código de convite; outros membros entram digitando o código.
-- **Quadro de Tarefas Kanban:** Quadro estilo Trello com colunas "A Fazer", "Em Andamento" e "Concluído". Adicione tarefas diretamente em cada coluna e mova-as arrastando entre colunas.
-- **Detalhes da tarefa:** Clique em qualquer cartão para editar título, descrição, responsável e data de entrega.
-- **Progresso do grupo:** Barra de progresso com percentual de tarefas concluídas visível na página do grupo.
-- **Gerenciamento de membros:** Lista de membros com destaque para o criador do grupo.
-- **Controles do dono:** O criador pode editar nome/descrição do grupo e excluir o grupo permanentemente.
-- **Sair do grupo:** Membros podem sair do grupo a qualquer momento.
+- **Criação e entrada por código:** Crie um grupo e compartilhe o código de convite de 6 caracteres; outros membros entram digitando o código.
+- **Quadro Kanban avançado:** Colunas padrão (A Fazer, Em Andamento, Concluído) + colunas personalizadas. Arraste cartões entre colunas e reordene as próprias colunas por drag-and-drop.
+- **Cartões estilo post-it:** Cor de fundo personalizável via paleta pré-definida ou seletor manual. Contraste de texto calculado automaticamente (fórmula WCAG) para garantir legibilidade em qualquer cor.
+- **Detalhes da tarefa:** Modal com título, descrição (WYSIWYG), responsável, data de entrega, cor, etiquetas, checklists, links e histórico de atividade.
+- **Etiquetas coloridas:** 8 etiquetas fixas (Prioridade, Bloqueado, Em revisão, etc.) exibidas como faixas coloridas no cartão.
+- **Checklists:** Múltiplas listas de verificação nomeadas por cartão, com barra de progresso e contagem concluídos/total visível no quadro.
+- **Links/Anexos:** Adicione links com rótulo opcionais; contador exibido no cartão.
+- **Membros online:** Indicador de presença em tempo real — avatares com pulsação verde mostram quem está visualizando o quadro no momento.
+- **Notificações de atividade:** Toast automático quando outro membro edita, move ou comenta uma tarefa, exibindo o nome real da pessoa.
+- **Menu de opções da lista:** Adicionar cartão, ordenar por (data/nome), copiar lista, mover esquerda/direita, remover lista.
+- **Busca e filtros:** Filtre cartões por texto, etiqueta, responsável ou prazo (atrasados/próximos) sem sair do quadro.
+- **Modo compacto:** Alterne para visualização de linha única (sem ornamentos) para ter mais cartões na tela; tecla de atalho `C`.
+- **Atalhos de teclado:** `/` foca a busca, `N` abre o formulário de novo cartão na primeira coluna.
+- **Animação de arraste:** Cartão gira e escala ao ser arrastado; animação de "settle" ao ser solto.
+- **Progresso do grupo:** Barra de progresso com percentual de tarefas concluídas na página do grupo.
+- **Gerenciamento de membros:** Lista de membros com destaque para o criador; controles de dono para editar/excluir o grupo. Membros podem sair a qualquer momento.
 
 ### 📈 Ferramentas Avançadas
 - **Simulador de Notas:** Planeje quanto precisa tirar para atingir sua meta de CR.
@@ -96,6 +105,25 @@ O projeto foi totalmente migrado para as tecnologias mais modernas do ecossistem
 ---
 
 ## 🔄 Changelog
+
+### v2.6 — Kanban Avançado
+
+- **Cartões post-it:** Cor de fundo personalizável por paleta pré-definida ou seletor manual de cor. Contraste de texto calculado via luminância WCAG — texto sempre legível em qualquer cor.
+- **Etiquetas:** 8 etiquetas fixas com cores distintas (Prioridade, Bloqueado, Em revisão, Design, etc.) exibidas como faixas coloridas no cartão. Ocultas por padrão, visíveis ao editar o cartão.
+- **Checklists:** Múltiplas listas de verificação nomeadas por cartão. Barra de progresso e contador `concluídos/total` visível diretamente no quadro.
+- **Links/Anexos:** Adicione links com rótulo opcional; indicador com ícone e contador no cartão.
+- **Membros online:** Presença em tempo real via Firestore heartbeat (20 s) + TTL (45 s). Avatares com pulsação verde exibem quem está visualizando o quadro. Subcoleção `presence` protegida por regras Firestore.
+- **Notificações de atividade:** Toast automático ao detectar novas entradas de atividade de outros membros; exibe nome real do autor (salvo junto à entrada de atividade no Firestore).
+- **Menu de opções da lista:** Adicionar cartão, ordenar por (mais recentes, mais antigos, A→Z, Z→A), copiar lista para área de transferência, mover lista esquerda/direita, remover lista customizada.
+- **Colunas personalizadas:** Crie, reordene e remova colunas além das padrão. Ordem persistida no Firestore.
+- **Busca e filtros:** Barra com busca textual, filtro por etiqueta (dots coloridos), filtro por responsável e filtro por prazo (atrasados / próximos 2 dias). Botão "Limpar" remove todos os filtros.
+- **Data de entrega inline:** Campo de prazo disponível diretamente no formulário de criação de cartão, sem abrir o modal.
+- **Modo compacto:** Tecla `C` ou botão na barra de filtros alterna para linha única por cartão (sem faixa, sem dobra, sem indicadores expandidos).
+- **Atalhos de teclado:** `/` foca a busca; `N` abre o add-card na primeira coluna.
+- **Animação drag-and-drop:** Cartão gira 2° e escala ao ser arrastado; keyframe `card-settle` aplica micro-bounce ao soltar.
+- **Descrição como ícone:** Cartões com descrição exibem ícone em vez de trecho de texto.
+
+---
 
 ### v2.5 — Grupos de Estudo
 
