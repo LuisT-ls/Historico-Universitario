@@ -81,7 +81,7 @@ interface ColumnDef {
 }
 
 const CARD_COLORS: { id: string; label: string; hex: string | null }[] = [
-    { id: 'none',   label: 'Sem cor',   hex: null },
+    { id: 'none',   label: 'Amarelo (padrão)',   hex: null },
     { id: 'red',    label: 'Vermelho',  hex: '#ef4444' },
     { id: 'orange', label: 'Laranja',   hex: '#f97316' },
     { id: 'yellow', label: 'Amarelo',   hex: '#eab308' },
@@ -567,6 +567,10 @@ function TaskCard({
     const isDone = task.done === true
     const due = task.dueDate ? formatDueDate(task.dueDate) : null
 
+    const cardBg = task.color || '#fef9c3'
+    const contrast = getTextContrast(cardBg)
+    const isDark = contrast === 'dark'
+
     return (
         <Draggable draggableId={task.id!} index={index}>
             {(provided, snapshot) => (
@@ -574,37 +578,41 @@ function TaskCard({
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
+                    style={{
+                        ...provided.draggableProps.style,
+                        backgroundColor: cardBg,
+                        boxShadow: snapshot.isDragging
+                            ? '4px 8px 24px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.06)'
+                            : '2px 3px 8px rgba(0,0,0,0.13), 0 0 0 1px rgba(0,0,0,0.04)',
+                    }}
                     className={cn(
-                        'bg-white dark:bg-slate-800/80 rounded-xl border shadow-sm',
-                        'transition-all duration-150 select-none',
+                        'rounded-sm relative select-none overflow-hidden',
+                        'transition-[transform,box-shadow] duration-200',
                         snapshot.isDragging
-                            ? 'cursor-grabbing shadow-2xl ring-2 ring-primary/40 rotate-2 scale-[1.03] opacity-95'
-                            : 'cursor-grab hover:shadow-md',
-                        isDone
-                            ? 'border-emerald-400/60 dark:border-emerald-600/50 hover:border-emerald-400/80'
-                            : 'border-border/40 hover:border-border/70'
+                            ? 'cursor-grabbing rotate-2 scale-[1.04] opacity-95'
+                            : 'cursor-grab hover:-translate-y-0.5 hover:scale-[1.01]',
+                        isDone && 'opacity-75'
                     )}
                     onClick={onClick}
                     aria-label={`Tarefa: ${task.title}. Segure e arraste para mover de coluna, ou clique para editar.`}
                 >
-                    {/* Faixa de cor */}
-                    {task.color && (
-                        <div
-                            className="h-2 w-full rounded-t-xl"
-                            style={{ backgroundColor: task.color }}
-                            aria-hidden="true"
-                        />
-                    )}
+                    {/* Faixa superior (efeito adesivo) */}
+                    <div
+                        className="h-5 w-full shrink-0"
+                        style={{ backgroundColor: 'rgba(0,0,0,0.08)' }}
+                        aria-hidden="true"
+                    />
+
                     {/* Etiquetas */}
                     {task.labels && task.labels.length > 0 && (
-                        <div className="flex flex-wrap gap-1 px-3 pt-2.5">
+                        <div className="flex flex-wrap gap-1 px-3 pt-2">
                             {task.labels.map((labelId) => {
                                 const label = TASK_LABELS.find((l) => l.id === labelId)
                                 if (!label) return null
                                 return (
                                     <span
                                         key={labelId}
-                                        className="h-2 w-10 rounded-full"
+                                        className="h-2 w-10 rounded-full opacity-80"
                                         style={{ backgroundColor: label.color }}
                                         title={label.name}
                                         aria-label={label.name}
@@ -613,7 +621,11 @@ function TaskCard({
                             })}
                         </div>
                     )}
-                    <div className="p-3 space-y-2.5">
+
+                    <div
+                        className="px-3 pb-4 pt-2.5 space-y-2.5"
+                        style={{ color: isDark ? '#1e293b' : '#ffffff' }}
+                    >
                         {/* Título + botão de conclusão */}
                         <div className="flex items-start gap-2">
                             <button
@@ -623,15 +635,18 @@ function TaskCard({
                                 className={cn(
                                     'mt-0.5 w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all duration-150',
                                     isDone
-                                        ? 'bg-emerald-500 border-emerald-500 text-white scale-110 shadow shadow-emerald-400/50 dark:shadow-emerald-500/40'
-                                        : 'border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-700 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:scale-110'
+                                        ? 'bg-emerald-500 border-emerald-500 text-white scale-110 shadow shadow-emerald-500/40'
+                                        : isDark
+                                            ? 'border-current/40 bg-black/10 hover:border-emerald-600 hover:bg-black/20 hover:scale-110'
+                                            : 'border-white/60 bg-white/20 hover:border-emerald-300 hover:bg-white/30 hover:scale-110'
                                 )}
+                                style={{ borderColor: isDone ? undefined : 'currentColor', opacity: isDone ? 1 : undefined }}
                             >
                                 {isDone && <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />}
                             </button>
                             <p className={cn(
-                                'text-sm font-semibold leading-normal flex-1',
-                                isDone && 'line-through text-muted-foreground'
+                                'text-sm font-bold leading-normal flex-1',
+                                isDone && 'line-through opacity-50'
                             )}>
                                 {task.title}
                             </p>
@@ -643,22 +658,22 @@ function TaskCard({
                             (task.checklists && task.checklists.length > 0) ||
                             (task.links && task.links.length > 0)
                         ) && (
-                            <div className="flex items-center gap-2 flex-wrap">
+                            <div className="flex items-center gap-2 flex-wrap opacity-60">
                                 {task.description && stripHtml(task.description) && (
-                                    <AlignLeft className="h-3.5 w-3.5 text-muted-foreground" aria-label="Contém descrição" />
+                                    <AlignLeft className="h-3.5 w-3.5" aria-label="Contém descrição" />
                                 )}
                                 {task.checklists && task.checklists.length > 0 && (() => {
                                     const allItems = task.checklists.flatMap((l) => l.items)
                                     const doneItems = allItems.filter((i) => i.done).length
                                     return (
-                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
+                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold">
                                             <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                                             {doneItems}/{allItems.length}
                                         </span>
                                     )
                                 })()}
                                 {task.links && task.links.length > 0 && (
-                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold">
                                         <Paperclip className="h-3 w-3" aria-hidden="true" />
                                         {task.links.length}
                                     </span>
@@ -674,10 +689,10 @@ function TaskCard({
                                         <span className={cn(
                                             'inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md',
                                             due.overdue
-                                                ? 'bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400'
+                                                ? 'bg-red-500/25'
                                                 : due.soon
-                                                    ? 'bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400'
-                                                    : 'bg-muted text-muted-foreground'
+                                                    ? 'bg-amber-500/25'
+                                                    : 'bg-black/10'
                                         )}>
                                             <Calendar className="h-2.5 w-2.5" aria-hidden="true" />
                                             {due.label}
@@ -687,7 +702,7 @@ function TaskCard({
 
                                 {task.assignedTo && (
                                     <div
-                                        className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[9px] font-black text-primary uppercase shrink-0"
+                                        className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black uppercase shrink-0 bg-black/15"
                                         title={getUserName(task.assignedTo)}
                                         aria-label={`Responsável: ${getUserName(task.assignedTo)}`}
                                     >
@@ -697,6 +712,15 @@ function TaskCard({
                             </div>
                         )}
                     </div>
+
+                    {/* Cantinho dobrado */}
+                    <div
+                        className="absolute bottom-0 right-0 w-5 h-5"
+                        aria-hidden="true"
+                        style={{
+                            background: `linear-gradient(225deg, rgba(0,0,0,0.12) 50%, transparent 50%)`,
+                        }}
+                    />
                 </div>
             )}
         </Draggable>
@@ -704,6 +728,17 @@ function TaskCard({
 }
 
 // ─── Editor WYSIWYG de Descrição ─────────────────────────────────────────────
+
+/** Retorna 'dark' se o texto deve ser escuro sobre a cor de fundo, ou 'light' se deve ser claro */
+function getTextContrast(hex: string): 'dark' | 'light' {
+    const clean = hex.replace('#', '')
+    const r = parseInt(clean.substring(0, 2), 16) / 255
+    const g = parseInt(clean.substring(2, 4), 16) / 255
+    const b = parseInt(clean.substring(4, 6), 16) / 255
+    const toLinear = (c: number) => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+    const L = 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b)
+    return L > 0.40 ? 'dark' : 'light'
+}
 
 function stripHtml(html: string): string {
     return html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim()
@@ -1257,6 +1292,40 @@ function TaskDetailDialog({
                                     )}
                                 </button>
                             ))}
+
+                            {/* Seletor de cor personalizada */}
+                            <label
+                                title="Cor personalizada"
+                                aria-label="Cor personalizada"
+                                className={cn(
+                                    'w-6 h-6 rounded-full border-2 cursor-pointer transition-all duration-150 overflow-hidden relative',
+                                    !CARD_COLORS.some(({ hex }) => hex && cardColor === hex) && cardColor
+                                        ? 'border-foreground scale-110 shadow-md'
+                                        : 'border-transparent hover:scale-110 hover:border-muted-foreground/40'
+                                )}
+                                style={
+                                    !CARD_COLORS.some(({ hex }) => hex && cardColor === hex) && cardColor
+                                        ? { backgroundColor: cardColor }
+                                        : undefined
+                                }
+                            >
+                                {!((!CARD_COLORS.some(({ hex }) => hex && cardColor === hex)) && cardColor) && (
+                                    <span className="w-full h-full rounded-full border border-border/60 flex items-center justify-center bg-muted absolute inset-0">
+                                        <Plus className="h-3 w-3 text-muted-foreground/60" aria-hidden="true" />
+                                    </span>
+                                )}
+                                <input
+                                    type="color"
+                                    value={cardColor || '#fef9c3'}
+                                    onChange={async (e) => {
+                                        const newColor = e.target.value
+                                        setCardColor(newColor)
+                                        await save({ color: newColor })
+                                    }}
+                                    className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
+                                    aria-label="Escolher cor personalizada"
+                                />
+                            </label>
                         </div>
                     </div>
 
