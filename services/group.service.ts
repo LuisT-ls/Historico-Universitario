@@ -6,6 +6,7 @@ import {
     addDoc,
     updateDoc,
     deleteDoc,
+    deleteField,
     query,
     where,
     orderBy,
@@ -340,10 +341,12 @@ export async function updateGroupTask(groupId: string, taskId: string, data: Par
 
     try {
         const taskRef = doc(db, 'groups', groupId, 'tasks', taskId)
-        await updateDoc(taskRef, {
-            ...data,
-            updatedAt: new Date()
-        })
+        // Firestore não aceita undefined — substitui por deleteField() para remover o campo
+        const payload = Object.fromEntries(
+            Object.entries({ ...data, updatedAt: new Date() })
+                .map(([k, v]) => [k, v === undefined ? deleteField() : v])
+        )
+        await updateDoc(taskRef, payload)
     } catch (error) {
         logger.error('Erro ao atualizar tarefa do grupo:', error)
         throw error

@@ -4,6 +4,7 @@ import { ChecklistItem, GroupTask, GroupTaskStatus, TaskLink } from '@/types'
 import { isSafeExternalUrl } from '@/lib/utils/text'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import Placeholder from '@tiptap/extension-placeholder'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -494,6 +495,7 @@ function DescriptionEditor({ initialContent, editable, onChange, onClickEdit }: 
     const editor = useEditor({
         extensions: [
             StarterKit.configure({ heading: false }),
+            Placeholder.configure({ placeholder: 'Clique para adicionar uma descrição...' }),
         ],
         content: initialContent || '',
         editable,
@@ -578,8 +580,14 @@ function DescriptionEditor({ initialContent, editable, onChange, onClickEdit }: 
                     !editable && 'cursor-text group'
                 )}
             >
-                <EditorContent editor={editor} />
-                {!editable && (
+                {!editable && editor?.isEmpty ? (
+                    <p className="px-3 py-2.5 text-sm text-muted-foreground/50 min-h-[80px]">
+                        Clique para adicionar uma descrição...
+                    </p>
+                ) : (
+                    <EditorContent editor={editor} />
+                )}
+                {!editable && !editor?.isEmpty && (
                     <span className="absolute top-2 right-2 text-[10px] font-semibold text-muted-foreground/0 group-hover:text-muted-foreground/60 transition-colors pointer-events-none">
                         Clique para editar
                     </span>
