@@ -4,7 +4,7 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { useGroupDetails } from '@/components/features/groups/hooks/use-group-details'
 import { useUserProfiles } from '@/components/features/groups/hooks/use-user-profiles'
-import { Loader2, ArrowLeft, Files, CheckSquare, LayoutDashboard, Copy, Plus, MoreVertical, Pencil, LogOut, Trash2 } from 'lucide-react'
+import { Loader2, ArrowLeft, Files, CheckSquare, LayoutDashboard, Copy, Plus, MoreVertical, Pencil, LogOut, Trash2, Users, CalendarDays, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -64,6 +64,7 @@ export function GroupDetailsPage() {
     const [editOpen, setEditOpen] = useState(false)
     const [confirmLeave, setConfirmLeave] = useState(false)
     const [confirmDelete, setConfirmDelete] = useState(false)
+    const [codeCopied, setCodeCopied] = useState(false)
 
     if (isLoading) {
         return (
@@ -90,7 +91,8 @@ export function GroupDetailsPage() {
 
     const copyInviteCode = () => {
         navigator.clipboard.writeText(group.inviteCode)
-        toast.success('Código de convite copiado para a área de transferência!')
+        setCodeCopied(true)
+        setTimeout(() => setCodeCopied(false), 2000)
     }
 
     const tabs = [
@@ -114,84 +116,62 @@ export function GroupDetailsPage() {
                 </div>
 
                 {/* Header Information Card */}
-                <div className="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 md:p-12 border border-border/50 shadow-2xl shadow-primary/5 mb-10 group">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl" />
+                <div className="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] border border-border/50 shadow-xl shadow-primary/5 mb-10">
+                    {/* Decoração de fundo */}
+                    <div className="absolute top-0 right-0 w-72 h-72 bg-primary/5 rounded-full -mr-36 -mt-36 blur-3xl pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary/3 rounded-full -ml-24 -mb-24 blur-2xl pointer-events-none" />
 
-                    <div className="relative flex flex-col lg:flex-row justify-between items-start gap-8">
-                        <div className="space-y-6 max-w-3xl flex-1">
-                            <div className="flex flex-wrap items-center gap-3">
-                                <Badge variant="secondary" className="px-4 py-1.5 rounded-xl font-bold text-[10px] tracking-[0.15em] bg-primary/10 text-primary border-none uppercase">
+                    <div className="relative p-6 md:p-8 space-y-5">
+                        {/* Linha 1: disciplina + código + ações */}
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                {/* Badge da disciplina */}
+                                <span className="inline-flex items-center px-3 py-1 rounded-lg bg-primary/10 text-primary text-[11px] font-black uppercase tracking-widest">
                                     {group.subjectCode || 'ESTUDO'}
-                                </Badge>
-                                <div className="flex items-center gap-3 text-xs text-muted-foreground font-bold bg-muted/50 px-4 py-1.5 rounded-xl border border-border group-hover:border-primary/30 transition-colors">
-                                    <span className="uppercase tracking-widest opacity-60">Código:</span>
-                                    <code className="font-mono text-primary text-sm font-black">{group.inviteCode}</code>
-                                    <button
-                                        onClick={copyInviteCode}
-                                        className="hover:text-primary transition-colors p-1 hover:bg-primary/5 rounded"
-                                        aria-label="Copiar código de convite"
-                                    >
-                                        <Copy className="h-3.5 w-3.5" aria-hidden="true" />
-                                    </button>
-                                </div>
+                                </span>
+
+                                {/* Chip do código de convite */}
+                                <button
+                                    onClick={copyInviteCode}
+                                    className={cn(
+                                        'inline-flex items-center gap-2 px-3 py-1 rounded-lg border text-xs font-bold transition-all duration-200',
+                                        codeCopied
+                                            ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400'
+                                            : 'bg-muted/40 border-border/60 text-muted-foreground hover:border-primary/40 hover:text-primary hover:bg-primary/5'
+                                    )}
+                                    aria-label="Copiar código de convite"
+                                >
+                                    <span className="opacity-60 text-[10px] uppercase tracking-wider font-bold">Código</span>
+                                    <code className="font-mono font-black text-sm tracking-wider">{group.inviteCode}</code>
+                                    {codeCopied
+                                        ? <Check className="h-3 w-3 shrink-0" aria-hidden="true" />
+                                        : <Copy className="h-3 w-3 shrink-0" aria-hidden="true" />
+                                    }
+                                </button>
                             </div>
 
-                            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground sm:text-6xl bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70">
-                                {group.name}
-                            </h1>
-
-                            <p className="text-lg text-muted-foreground leading-relaxed font-medium opacity-80">
-                                {group.description || 'Nenhuma descrição detalhada. Use este painel para colaborar com seu time.'}
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-4 self-start lg:self-center">
-                            <div className="flex items-center gap-6 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] border border-border min-w-[200px] justify-center shadow-inner">
-                                <div className="text-center group-hover:scale-110 transition-transform duration-500">
-                                    <p className="text-[10px] uppercase font-black text-muted-foreground tracking-[0.2em] mb-2 opacity-60 italic">Equipe</p>
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-5xl font-black text-primary leading-none">{group.members.length}</span>
-                                        <span className="text-xs font-bold text-muted-foreground mt-1 uppercase">Membros</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Group Actions Dropdown */}
+                            {/* Dropdown de ações */}
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        className="rounded-2xl h-12 w-12 border-border/60 shrink-0"
-                                        aria-label="Opções do grupo"
-                                    >
-                                        <MoreVertical className="h-5 w-5" aria-hidden="true" />
+                                    <Button variant="ghost" size="icon" className="rounded-xl h-9 w-9 border border-border/60 shrink-0" aria-label="Opções do grupo">
+                                        <MoreVertical className="h-4 w-4" aria-hidden="true" />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-48 rounded-2xl">
                                     {isOwner && (
-                                        <DropdownMenuItem
-                                            onClick={() => setEditOpen(true)}
-                                            className="gap-2 rounded-xl font-medium cursor-pointer"
-                                        >
+                                        <DropdownMenuItem onClick={() => setEditOpen(true)} className="gap-2 rounded-xl font-medium cursor-pointer">
                                             <Pencil className="h-4 w-4 opacity-60" aria-hidden="true" />
                                             Editar Grupo
                                         </DropdownMenuItem>
                                     )}
-                                    <DropdownMenuItem
-                                        onClick={() => setConfirmLeave(true)}
-                                        className="gap-2 rounded-xl font-medium cursor-pointer"
-                                    >
+                                    <DropdownMenuItem onClick={() => setConfirmLeave(true)} className="gap-2 rounded-xl font-medium cursor-pointer">
                                         <LogOut className="h-4 w-4 opacity-60" aria-hidden="true" />
                                         Sair do Grupo
                                     </DropdownMenuItem>
                                     {isOwner && (
                                         <>
                                             <DropdownMenuSeparator />
-                                            <DropdownMenuItem
-                                                onClick={() => setConfirmDelete(true)}
-                                                className="gap-2 rounded-xl font-medium cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
-                                            >
+                                            <DropdownMenuItem onClick={() => setConfirmDelete(true)} className="gap-2 rounded-xl font-medium cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10">
                                                 <Trash2 className="h-4 w-4" aria-hidden="true" />
                                                 Excluir Grupo
                                             </DropdownMenuItem>
@@ -199,6 +179,78 @@ export function GroupDetailsPage() {
                                     )}
                                 </DropdownMenuContent>
                             </DropdownMenu>
+                        </div>
+
+                        {/* Linha 2: nome + descrição */}
+                        <div className="space-y-2">
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-foreground leading-tight">
+                                {group.name}
+                            </h1>
+                            {group.description && (
+                                <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-2xl">
+                                    {group.description}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Separador */}
+                        <div className="h-px bg-border/50" />
+
+                        {/* Linha 3: stats */}
+                        <div className="flex flex-wrap items-center gap-4">
+                            {/* Membros */}
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+                                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                    <Users className="h-4 w-4 text-primary" aria-hidden="true" />
+                                </div>
+                                <div>
+                                    <span className="font-black text-foreground">{group.members.length}</span>
+                                    <span className="ml-1">{group.members.length === 1 ? 'membro' : 'membros'}</span>
+                                </div>
+                            </div>
+
+                            <div className="h-4 w-px bg-border/60 hidden sm:block" aria-hidden="true" />
+
+                            {/* Tarefas */}
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+                                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                                    <CheckSquare className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                                </div>
+                                <div>
+                                    <span className="font-black text-foreground">{completedTasks}</span>
+                                    <span>/{totalTasks}</span>
+                                    <span className="ml-1">tarefas concluídas</span>
+                                </div>
+                            </div>
+
+                            {/* Barra de progresso inline */}
+                            {totalTasks > 0 && (
+                                <>
+                                    <div className="h-4 w-px bg-border/60 hidden sm:block" aria-hidden="true" />
+                                    <div className="flex items-center gap-2 flex-1 min-w-[120px] max-w-xs">
+                                        <Progress value={progressPercent} className="h-2 flex-1" />
+                                        <span className={cn(
+                                            'text-xs font-black tabular-nums shrink-0',
+                                            progressPercent === 100 ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'
+                                        )}>
+                                            {progressPercent}%
+                                        </span>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Data de criação */}
+                            {group.createdAt && (
+                                <>
+                                    <div className="h-4 w-px bg-border/60 hidden sm:block" aria-hidden="true" />
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+                                        <CalendarDays className="h-3.5 w-3.5 shrink-0 opacity-50" aria-hidden="true" />
+                                        <span>
+                                            {new Date(group.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        </span>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
