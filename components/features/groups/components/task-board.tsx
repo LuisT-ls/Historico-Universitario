@@ -92,6 +92,17 @@ const CARD_COLORS: { id: string; label: string; hex: string | null }[] = [
     { id: 'pink',   label: 'Rosa',      hex: '#ec4899' },
 ]
 
+const TASK_LABELS: { id: string; name: string; color: string }[] = [
+    { id: 'green',  name: 'Concluído',          color: '#22c55e' },
+    { id: 'yellow', name: 'Em revisão',          color: '#eab308' },
+    { id: 'orange', name: 'Bloqueado',           color: '#f97316' },
+    { id: 'red',    name: 'Prioridade',          color: '#ef4444' },
+    { id: 'blue',   name: 'Em andamento',        color: '#3b82f6' },
+    { id: 'purple', name: 'Design',              color: '#a855f7' },
+    { id: 'pink',   name: 'Marketing',           color: '#ec4899' },
+    { id: 'gray',   name: 'Informativo',         color: '#94a3b8' },
+]
+
 const DEFAULT_COLUMNS: ColumnDef[] = [
     { id: 'pending',     label: 'A fazer',      icon: Circle,       color: 'text-slate-500',   bg: 'bg-slate-100 dark:bg-slate-800',        dot: 'bg-slate-400' },
     { id: 'in_progress', label: 'Em andamento', icon: Clock,        color: 'text-blue-600',    bg: 'bg-blue-50 dark:bg-blue-950/40',         dot: 'bg-blue-500' },
@@ -422,7 +433,7 @@ function KanbanColumn({
         try {
             await onAdd(title.trim(), undefined, undefined, undefined, col.id)
             setTitle('')
-            inputRef.current?.focus()
+            setAdding(false)
         } finally {
             setSubmitting(false)
         }
@@ -584,6 +595,24 @@ function TaskCard({
                             aria-hidden="true"
                         />
                     )}
+                    {/* Etiquetas */}
+                    {task.labels && task.labels.length > 0 && (
+                        <div className="flex flex-wrap gap-1 px-3 pt-2.5">
+                            {task.labels.map((labelId) => {
+                                const label = TASK_LABELS.find((l) => l.id === labelId)
+                                if (!label) return null
+                                return (
+                                    <span
+                                        key={labelId}
+                                        className="h-2 w-10 rounded-full"
+                                        style={{ backgroundColor: label.color }}
+                                        title={label.name}
+                                        aria-label={label.name}
+                                    />
+                                )
+                            })}
+                        </div>
+                    )}
                     <div className="p-3 space-y-2.5">
                         {/* Título + botão de conclusão */}
                         <div className="flex items-start gap-2">
@@ -608,21 +637,33 @@ function TaskCard({
                             </p>
                         </div>
 
-                        {/* Description preview */}
-                        {task.description && (
-                            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                                {stripHtml(task.description)}
-                            </p>
-                        )}
-
-
-
-                        {/* Links preview */}
-                        {task.links && task.links.length > 0 && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
-                                <Paperclip className="h-3 w-3" aria-hidden="true" />
-                                {task.links.length} {task.links.length === 1 ? 'link' : 'links'}
-                            </span>
+                        {/* Indicators row */}
+                        {(
+                            (task.description && stripHtml(task.description)) ||
+                            (task.checklists && task.checklists.length > 0) ||
+                            (task.links && task.links.length > 0)
+                        ) && (
+                            <div className="flex items-center gap-2 flex-wrap">
+                                {task.description && stripHtml(task.description) && (
+                                    <AlignLeft className="h-3.5 w-3.5 text-muted-foreground" aria-label="Contém descrição" />
+                                )}
+                                {task.checklists && task.checklists.length > 0 && (() => {
+                                    const allItems = task.checklists.flatMap((l) => l.items)
+                                    const doneItems = allItems.filter((i) => i.done).length
+                                    return (
+                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
+                                            <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                                            {doneItems}/{allItems.length}
+                                        </span>
+                                    )
+                                })()}
+                                {task.links && task.links.length > 0 && (
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
+                                        <Paperclip className="h-3 w-3" aria-hidden="true" />
+                                        {task.links.length}
+                                    </span>
+                                )}
+                            </div>
                         )}
 
                         {/* Footer: due date + assignee */}
@@ -799,7 +840,7 @@ function TaskDetailDialog({
     members: string[]
     getUserName: (id: string) => string
     currentUserId: string
-    onUpdate: (data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'checklists' | 'links'>>) => Promise<void>
+    onUpdate: (data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'checklists' | 'links' | 'labels'>>) => Promise<void>
     onAddComment: (text: string) => Promise<void>
     onDelete: () => void
     onClose: () => void
@@ -824,14 +865,27 @@ function TaskDetailDialog({
     const [newLinkLabel, setNewLinkLabel] = useState('')
     const [linkUrlError, setLinkUrlError] = useState(false)
     const [cardColor, setCardColor] = useState(task.color ?? '')
+    const [selectedLabels, setSelectedLabels] = useState<string[]>(task.labels ?? [])
+    const [showLabels, setShowLabels] = useState(false)
     const newLinkRef = useRef<HTMLInputElement>(null)
     const [saving, setSaving] = useState(false)
     const titleRef = useRef<HTMLInputElement>(null)
 
+    // Checklists
+    const [checklists, setChecklists] = useState<import('@/types').Checklist[]>(
+        task.checklists && task.checklists.length > 0 ? task.checklists : []
+    )
+    const [addingItemFor, setAddingItemFor] = useState<string | null>(null)
+    const [newItemText, setNewItemText] = useState('')
+    const [addingList, setAddingList] = useState(false)
+    const [newListTitle, setNewListTitle] = useState('')
+    const newItemRef = useRef<HTMLInputElement>(null)
+    const newListRef = useRef<HTMLInputElement>(null)
+
     useEffect(() => { if (editingTitle) titleRef.current?.focus() }, [editingTitle])
     useEffect(() => { if (addingLink) newLinkRef.current?.focus() }, [addingLink])
 
-    const save = async (patch: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'checklists' | 'links'>>) => {
+    const save = async (patch: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'checklists' | 'links' | 'labels'>>) => {
         setSaving(true)
         try { await onUpdate(patch) } finally { setSaving(false) }
     }
@@ -912,6 +966,58 @@ function TaskDetailDialog({
 
     const deleteLink = (id: string) => {
         saveLinks(links.filter((l) => l.id !== id))
+    }
+
+    // ── Checklist helpers ──
+    useEffect(() => { if (addingItemFor) newItemRef.current?.focus() }, [addingItemFor])
+    useEffect(() => { if (addingList) newListRef.current?.focus() }, [addingList])
+
+    const saveChecklists = async (updated: import('@/types').Checklist[]) => {
+        setChecklists(updated)
+        await save({ checklists: updated })
+    }
+
+    const toggleChecklistItem = (listId: string, itemId: string) => {
+        const updated = checklists.map((l) =>
+            l.id !== listId ? l : {
+                ...l,
+                items: l.items.map((i) => i.id === itemId ? { ...i, done: !i.done } : i),
+            }
+        )
+        saveChecklists(updated)
+    }
+
+    const addChecklistItem = (listId: string) => {
+        const text = newItemText.trim()
+        if (!text) { setAddingItemFor(null); return }
+        const updated = checklists.map((l) =>
+            l.id !== listId ? l : {
+                ...l,
+                items: [...l.items, { id: `${Date.now()}-${Math.random()}`, text, done: false }],
+            }
+        )
+        setNewItemText('')
+        saveChecklists(updated)
+    }
+
+    const deleteChecklistItem = (listId: string, itemId: string) => {
+        const updated = checklists.map((l) =>
+            l.id !== listId ? l : { ...l, items: l.items.filter((i) => i.id !== itemId) }
+        )
+        saveChecklists(updated)
+    }
+
+    const addChecklist = () => {
+        const title = newListTitle.trim()
+        if (!title) { setAddingList(false); return }
+        const updated = [...checklists, { id: `${Date.now()}-${Math.random()}`, title, items: [] }]
+        setNewListTitle('')
+        setAddingList(false)
+        saveChecklists(updated)
+    }
+
+    const deleteChecklist = (listId: string) => {
+        saveChecklists(checklists.filter((l) => l.id !== listId))
     }
 
     const currentCol = columns.find((c) => c.id === task.status) ?? DEFAULT_COLUMNS[0]
@@ -1055,6 +1161,70 @@ function TaskDetailDialog({
                         </div>
                     </div>
 
+                    {/* Etiquetas */}
+                    <div className="space-y-2">
+                        <button
+                            type="button"
+                            onClick={() => setShowLabels((v) => !v)}
+                            className="flex items-center justify-between w-full group"
+                        >
+                            <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60 cursor-pointer flex items-center gap-1.5">
+                                Etiquetas
+                                {selectedLabels.length > 0 && (
+                                    <span className="flex gap-1 ml-1">
+                                        {selectedLabels.map((id) => {
+                                            const l = TASK_LABELS.find((x) => x.id === id)
+                                            return l ? (
+                                                <span key={id} className="w-3 h-3 rounded-full inline-block" style={{ backgroundColor: l.color }} />
+                                            ) : null
+                                        })}
+                                    </span>
+                                )}
+                            </Label>
+                            <span className="text-[10px] font-semibold text-muted-foreground/50 group-hover:text-muted-foreground transition-colors">
+                                {showLabels ? 'Fechar' : 'Editar'}
+                            </span>
+                        </button>
+
+                        {showLabels && (
+                            <div className="space-y-1">
+                                {TASK_LABELS.map((label) => {
+                                    const active = selectedLabels.includes(label.id)
+                                    return (
+                                        <button
+                                            key={label.id}
+                                            type="button"
+                                            onClick={async () => {
+                                                const updated = active
+                                                    ? selectedLabels.filter((id) => id !== label.id)
+                                                    : [...selectedLabels, label.id]
+                                                setSelectedLabels(updated)
+                                                await save({ labels: updated.length > 0 ? updated : undefined })
+                                            }}
+                                            className={cn(
+                                                'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-colors text-left',
+                                                active ? 'bg-muted' : 'hover:bg-muted/60'
+                                            )}
+                                            aria-pressed={active}
+                                        >
+                                            <span
+                                                className="w-10 h-4 rounded shrink-0"
+                                                style={{ backgroundColor: label.color }}
+                                                aria-hidden="true"
+                                            />
+                                            <span className="flex-1 text-sm font-medium">{label.name}</span>
+                                            {active && (
+                                                <svg className="w-4 h-4 text-foreground shrink-0" fill="none" viewBox="0 0 16 16">
+                                                    <path d="M3 8l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                </svg>
+                                            )}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        )}
+                    </div>
+
                     {/* Cor do card */}
                     <div className="space-y-2">
                         <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60">
@@ -1133,8 +1303,182 @@ function TaskDetailDialog({
                         )}
                     </div>
 
+                    {/* Checklists */}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60">
+                                <CheckCircle2 className="h-3 w-3 inline-block mr-1" aria-hidden="true" />
+                                Listas de verificação
+                            </Label>
+                            {!addingList && (
+                                <button
+                                    type="button"
+                                    onClick={() => setAddingList(true)}
+                                    className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground hover:text-primary transition-colors"
+                                >
+                                    <Plus className="h-3 w-3" aria-hidden="true" />
+                                    Nova lista
+                                </button>
+                            )}
+                        </div>
 
-                                        {/* Links / Anexos */}
+                        {checklists.map((list) => {
+                            const total = list.items.length
+                            const done = list.items.filter((i) => i.done).length
+                            const pct = total > 0 ? Math.round((done / total) * 100) : 0
+                            return (
+                                <div key={list.id} className="rounded-xl border border-border/50 bg-muted/20 p-3 space-y-2">
+                                    {/* Header da lista */}
+                                    <div className="flex items-center gap-2">
+                                        <span className="flex-1 text-sm font-bold truncate">{list.title}</span>
+                                        {total > 0 && (
+                                            <span className="text-[10px] font-bold text-muted-foreground shrink-0">
+                                                {done}/{total}
+                                            </span>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => deleteChecklist(list.id)}
+                                            className="text-muted-foreground/40 hover:text-destructive transition-colors p-0.5 rounded"
+                                            aria-label="Remover lista"
+                                        >
+                                            <X className="h-3.5 w-3.5" aria-hidden="true" />
+                                        </button>
+                                    </div>
+
+                                    {/* Barra de progresso */}
+                                    {total > 0 && (
+                                        <div className="w-full h-1.5 rounded-full bg-border/60 overflow-hidden">
+                                            <div
+                                                className="h-full rounded-full bg-emerald-500 transition-all duration-300"
+                                                style={{ width: `${pct}%` }}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* Itens */}
+                                    <ul className="space-y-1">
+                                        {list.items.map((item) => (
+                                            <li key={item.id} className="group flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => toggleChecklistItem(list.id, item.id)}
+                                                    className={cn(
+                                                        'w-4 h-4 rounded shrink-0 border-2 flex items-center justify-center transition-colors',
+                                                        item.done
+                                                            ? 'bg-emerald-500 border-emerald-500'
+                                                            : 'border-border hover:border-emerald-500'
+                                                    )}
+                                                    aria-label={item.done ? 'Desmarcar item' : 'Marcar item como concluído'}
+                                                >
+                                                    {item.done && (
+                                                        <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 8">
+                                                            <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                    )}
+                                                </button>
+                                                <span className={cn(
+                                                    'flex-1 text-sm leading-snug',
+                                                    item.done && 'line-through text-muted-foreground'
+                                                )}>
+                                                    {item.text}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => deleteChecklistItem(list.id, item.id)}
+                                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground/40 hover:text-destructive p-0.5 rounded"
+                                                    aria-label="Remover item"
+                                                >
+                                                    <X className="h-3 w-3" aria-hidden="true" />
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+
+                                    {/* Adicionar item */}
+                                    {addingItemFor === list.id ? (
+                                        <div className="flex gap-1.5 pt-1">
+                                            <Input
+                                                ref={newItemRef}
+                                                value={newItemText}
+                                                onChange={(e) => setNewItemText(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') addChecklistItem(list.id)
+                                                    if (e.key === 'Escape') { setNewItemText(''); setAddingItemFor(null) }
+                                                }}
+                                                placeholder="Novo item..."
+                                                className="h-7 text-xs rounded-lg flex-1"
+                                            />
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                onClick={() => addChecklistItem(list.id)}
+                                                disabled={!newItemText.trim()}
+                                                className="h-7 px-2.5 rounded-lg text-xs font-bold"
+                                            >
+                                                Adicionar
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="ghost"
+                                                onClick={() => { setNewItemText(''); setAddingItemFor(null) }}
+                                                className="h-7 w-7 p-0 rounded-lg"
+                                            >
+                                                <X className="h-3.5 w-3.5" />
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => setAddingItemFor(list.id)}
+                                            className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors pt-0.5"
+                                        >
+                                            <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                                            Adicionar item
+                                        </button>
+                                    )}
+                                </div>
+                            )
+                        })}
+
+                        {/* Formulário de nova lista */}
+                        {addingList && (
+                            <div className="flex gap-1.5">
+                                <Input
+                                    ref={newListRef}
+                                    value={newListTitle}
+                                    onChange={(e) => setNewListTitle(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') addChecklist()
+                                        if (e.key === 'Escape') { setNewListTitle(''); setAddingList(false) }
+                                    }}
+                                    placeholder="Nome da lista..."
+                                    className="h-8 text-sm rounded-xl flex-1"
+                                />
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    onClick={addChecklist}
+                                    disabled={!newListTitle.trim()}
+                                    className="h-8 px-3 rounded-xl text-xs font-bold"
+                                >
+                                    Criar
+                                </Button>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => { setNewListTitle(''); setAddingList(false) }}
+                                    className="h-8 w-8 p-0 rounded-xl"
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Links / Anexos */}
                     <div className="space-y-2">
                         <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60">
                             <Paperclip className="h-3 w-3 inline-block mr-1" aria-hidden="true" />

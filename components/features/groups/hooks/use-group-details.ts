@@ -216,7 +216,7 @@ export function useGroupDetails() {
         }
     }
 
-    const handleUpdateTask = async (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'checklists' | 'links'>>) => {
+    const handleUpdateTask = async (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'checklists' | 'links' | 'labels'>>) => {
         if (!group?.id) return
         const currentTask = tasks.find((t) => t.id === taskId)
         const snapshot = [...tasks]
@@ -259,6 +259,7 @@ export function useGroupDetails() {
                     else if (newLen < oldLen) changes.push('removeu um link')
                     else                      changes.push('alterou um link')
                 }
+                if ('labels' in data) changes.push('alterou as etiquetas')
                 detail = changes.length > 0 ? changes.join(', ') : 'editou o cartão'
             }
 

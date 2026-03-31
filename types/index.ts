@@ -247,6 +247,7 @@ export interface GroupTask {
   assignedTo?: UserId // Para quem a tarefa está atribuída
   dueDate?: Date
   checklist?: ChecklistItem[] // Legado — mantido para compatibilidade com dados antigos
+  labels?: string[] // IDs das etiquetas fixas selecionadas
   links?: TaskLink[]
   comments?: TaskComment[]
   createdBy: UserId
