@@ -4,6 +4,7 @@ import {
     getDocs,
     getDoc,
     addDoc,
+    setDoc,
     updateDoc,
     deleteDoc,
     deleteField,
@@ -12,6 +13,7 @@ import {
     orderBy,
     arrayUnion,
     arrayRemove,
+    serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { deleteFile } from '@/services/storage.service'
@@ -408,5 +410,40 @@ export async function deleteGroupTask(groupId: string, taskId: string): Promise<
     } catch (error) {
         logger.error('Erro ao remover tarefa do grupo:', error)
         throw error
+    }
+}
+
+// ===== PRESENÇA =====
+
+export interface PresenceEntry {
+    userId: string
+    displayName: string
+    lastSeen: Date
+}
+
+/**
+ * Registra ou atualiza a presença do usuário no grupo
+ */
+export async function setPresence(groupId: string, userId: string, displayName: string): Promise<void> {
+    if (!db) return
+    try {
+        await setDoc(doc(db, 'groups', groupId, 'presence', userId), {
+            displayName,
+            lastSeen: serverTimestamp(),
+        })
+    } catch (error) {
+        logger.error('Erro ao registrar presença:', error)
+    }
+}
+
+/**
+ * Remove a presença do usuário do grupo
+ */
+export async function removePresence(groupId: string, userId: string): Promise<void> {
+    if (!db) return
+    try {
+        await deleteDoc(doc(db, 'groups', groupId, 'presence', userId))
+    } catch (error) {
+        logger.error('Erro ao remover presença:', error)
     }
 }

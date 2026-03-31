@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -33,6 +33,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MaterialList } from './material-list'
 import { TaskBoard } from './task-board'
 import { EditGroupDialog } from './edit-group-dialog'
+import { usePresence } from '@/components/features/groups/hooks/use-presence'
 
 /**
  * Página de Detalhes do Grupo (Painel).
@@ -60,6 +61,12 @@ export function GroupDetailsPage() {
     } = useGroupDetails()
 
     const getUserName = useUserProfiles(group?.members ?? [])
+
+    const displayName = useMemo(
+        () => user?.displayName || user?.email?.split('@')[0] || user?.uid?.substring(0, 6) || 'Usuário',
+        [user]
+    )
+    const onlineMembers = usePresence(group?.id, user?.uid, displayName)
 
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -204,6 +211,35 @@ export function GroupDetailsPage() {
                                 </p>
                             )}
                         </div>
+
+                        {/* Membros online */}
+                        {onlineMembers.length > 0 && (
+                            <div className="flex items-center gap-2">
+                                <span className="relative flex h-2 w-2 shrink-0">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                                </span>
+                                <span className="text-xs font-semibold text-muted-foreground">
+                                    {onlineMembers.length === 1 ? 'também está aqui:' : 'também estão aqui:'}
+                                </span>
+                                <div className="flex items-center -space-x-2">
+                                    {onlineMembers.slice(0, 4).map((m) => (
+                                        <div
+                                            key={m.userId}
+                                            title={m.displayName}
+                                            className="w-7 h-7 rounded-full bg-primary/15 border-2 border-background flex items-center justify-center text-[10px] font-black text-primary uppercase shrink-0"
+                                        >
+                                            {m.displayName.substring(0, 2)}
+                                        </div>
+                                    ))}
+                                    {onlineMembers.length > 4 && (
+                                        <div className="w-7 h-7 rounded-full bg-muted border-2 border-background flex items-center justify-center text-[10px] font-bold text-muted-foreground shrink-0">
+                                            +{onlineMembers.length - 4}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Separador */}
                         <div className="h-px bg-border/50" />
