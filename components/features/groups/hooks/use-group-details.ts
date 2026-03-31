@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase/config'
 import {
     addGroupMaterial,
     addGroupTask,
+    addTaskComment,
     updateGroupTask,
     deleteGroupTask,
     deleteGroupMaterial,
@@ -13,7 +14,7 @@ import {
     updateGroup,
     deleteGroup,
 } from '@/services/group.service'
-import type { Group, GroupMaterial, GroupTask, GroupTaskStatus, UserId } from '@/types'
+import type { Group, GroupMaterial, GroupTask, GroupTaskStatus, TaskComment, UserId } from '@/types'
 import { createGroupId, createGroupMaterialId, createGroupTaskId } from '@/lib/type-constants'
 import { logger } from '@/lib/logger'
 import { toast } from 'sonner'
@@ -166,6 +167,28 @@ export function useGroupDetails() {
         }
     }
 
+    const handleAddTaskComment = async (taskId: string, text: string) => {
+        if (!group?.id || !user?.uid) return
+        const comment: TaskComment = {
+            id: `${Date.now()}-${Math.random()}`,
+            text: text.trim(),
+            authorId: user.uid as UserId,
+            createdAt: new Date(),
+        }
+        // Atualização otimista
+        setTasks((prev) => prev.map((t) =>
+            t.id === taskId ? { ...t, comments: [...(t.comments ?? []), comment] } : t
+        ))
+        try {
+            await addTaskComment(group.id, taskId, comment)
+        } catch {
+            setTasks((prev) => prev.map((t) =>
+                t.id === taskId ? { ...t, comments: (t.comments ?? []).filter((c) => c.id !== comment.id) } : t
+            ))
+            toast.error('Erro ao adicionar comentário.')
+        }
+    }
+
     const handleUpdateTaskStatus = async (taskId: string, status: GroupTaskStatus) => {
         if (!group?.id) return
         // Atualização otimista para resposta visual imediata
@@ -186,7 +209,7 @@ export function useGroupDetails() {
         }
     }
 
-    const handleUpdateTask = async (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status'>>) => {
+    const handleUpdateTask = async (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'checklist' | 'links'>>) => {
         if (!group?.id) return
         const snapshot = [...tasks]
         setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, ...data, updatedAt: new Date() } : t)))
@@ -295,6 +318,7 @@ export function useGroupDetails() {
         user,
         handleAddTask,
         handleUpdateTask,
+        handleAddTaskComment,
         handleUpdateTaskStatus,
         handleDeleteTask,
         handleAddMaterial,

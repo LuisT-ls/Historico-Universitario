@@ -86,7 +86,7 @@ export function CreateGroupDialog({ open, onOpenChange, onSuccess, userId }: Cre
                             <Label htmlFor="name" className="font-semibold">Nome do Grupo *</Label>
                             <Input
                                 id="name"
-                                placeholder="E.g. Projeto de Álgebra Linear"
+                                placeholder="Ex. Introdução à Computação"
                                 {...form.register('name')}
                                 className={form.formState.errors.name ? 'border-destructive focus-visible:ring-destructive' : ''}
                             />
@@ -98,7 +98,7 @@ export function CreateGroupDialog({ open, onOpenChange, onSuccess, userId }: Cre
                             <Label htmlFor="subjectCode" className="font-semibold">Código da Disciplina (Opcional)</Label>
                             <Input
                                 id="subjectCode"
-                                placeholder="E.g. MATA01"
+                                placeholder="Ex. CTIA01"
                                 {...form.register('subjectCode')}
                             />
                         </div>

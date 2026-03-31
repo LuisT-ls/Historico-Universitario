@@ -1,6 +1,8 @@
 'use client'
 
-import { GroupTask, GroupTaskStatus } from '@/types'
+import { ChecklistItem, GroupTask, GroupTaskStatus, TaskLink } from '@/types'
+import { isSafeExternalUrl } from '@/lib/utils/text'
+import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -9,9 +11,12 @@ import { Select } from '@/components/ui/select'
 import {
     Dialog,
     DialogContent,
+    DialogPortal,
+    DialogOverlay,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
 import {
     DragDropContext,
     Droppable,
@@ -30,6 +35,15 @@ import {
     ListTodo,
     X,
     AlignLeft,
+    CheckSquare,
+    Paperclip,
+    ExternalLink,
+    Bold,
+    Italic,
+    Strikethrough,
+    Code,
+    List,
+    ListOrdered,
 } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
@@ -38,8 +52,10 @@ interface TaskBoardProps {
     groupId: string
     tasks: GroupTask[]
     isLoading: boolean
+    currentUserId: string
     onAdd: (title: string, description?: string, assignedTo?: string, dueDate?: Date, status?: GroupTaskStatus) => Promise<void>
-    onUpdate: (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status'>>) => Promise<void>
+    onUpdate: (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'checklist' | 'links'>>) => Promise<void>
+    onAddComment: (taskId: string, text: string) => Promise<void>
     onUpdateStatus: (id: string, status: GroupTaskStatus) => Promise<void>
     onDelete: (id: string) => Promise<void>
     members: string[]
@@ -65,7 +81,7 @@ function formatDueDate(date: Date): { label: string; overdue: boolean; soon: boo
 /**
  * Quadro Kanban estilo Trello — colunas com add inline, cards clicáveis com modal de edição.
  */
-export function TaskBoard({ tasks, isLoading, onAdd, onUpdate, onUpdateStatus, onDelete, members, getUserName }: TaskBoardProps) {
+export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, onAddComment, onUpdateStatus, onDelete, members, getUserName }: TaskBoardProps) {
     const [detailTask, setDetailTask] = useState<GroupTask | null>(null)
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
@@ -139,9 +155,22 @@ export function TaskBoard({ tasks, isLoading, onAdd, onUpdate, onUpdateStatus, o
                     task={detailTask}
                     members={members}
                     getUserName={getUserName}
+                    currentUserId={currentUserId}
                     onUpdate={async (data) => {
                         await onUpdate(detailTask.id!, data)
                         setDetailTask((prev) => prev ? { ...prev, ...data } : prev)
+                    }}
+                    onAddComment={async (text) => {
+                        await onAddComment(detailTask.id!, text)
+                        setDetailTask((prev) => prev ? {
+                            ...prev,
+                            comments: [...(prev.comments ?? []), {
+                                id: `${Date.now()}`,
+                                text,
+                                authorId: currentUserId,
+                                createdAt: new Date(),
+                            }],
+                        } : prev)
                     }}
                     onDelete={() => setConfirmDeleteId(detailTask.id!)}
                     onClose={() => setDetailTask(null)}
@@ -356,6 +385,38 @@ function TaskCard({
                             </p>
                         )}
 
+                        {/* Checklist preview */}
+                        {task.checklist && task.checklist.length > 0 && (() => {
+                            const done = task.checklist.filter((i) => i.done).length
+                            const total = task.checklist.length
+                            const pct = Math.round((done / total) * 100)
+                            return (
+                                <div className="space-y-1">
+                                    <div className="flex items-center justify-between">
+                                        <span className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
+                                            <CheckSquare className="h-3 w-3" aria-hidden="true" />
+                                            {done}/{total}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-muted-foreground">{pct}%</span>
+                                    </div>
+                                    <div className="h-1 rounded-full bg-muted overflow-hidden">
+                                        <div
+                                            className={cn('h-full rounded-full transition-all', pct === 100 ? 'bg-emerald-500' : 'bg-primary')}
+                                            style={{ width: `${pct}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            )
+                        })()}
+
+                        {/* Links preview */}
+                        {task.links && task.links.length > 0 && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
+                                <Paperclip className="h-3 w-3" aria-hidden="true" />
+                                {task.links.length} {task.links.length === 1 ? 'link' : 'links'}
+                            </span>
+                        )}
+
                         {/* Footer: due date + assignee */}
                         {(due || task.assignedTo) && (
                             <div className="flex items-center justify-between gap-2 pt-0.5">
@@ -393,20 +454,101 @@ function TaskCard({
     )
 }
 
+// ─── Formatação de descrição ──────────────────────────────────────────────────
+
+type FormatType = 'bold' | 'italic' | 'strike' | 'code' | 'ul' | 'ol'
+
+function applyFormat(
+    textarea: HTMLTextAreaElement,
+    type: FormatType,
+    setValue: (v: string) => void
+) {
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const sel = textarea.value.substring(start, end)
+    const before = textarea.value.substring(0, start)
+    const after = textarea.value.substring(end)
+
+    let replacement: string
+    let innerLen: number
+
+    switch (type) {
+        case 'bold':    replacement = `**${sel || 'texto'}**`;     innerLen = (sel || 'texto').length; break
+        case 'italic':  replacement = `*${sel || 'texto'}*`;       innerLen = (sel || 'texto').length; break
+        case 'strike':  replacement = `~~${sel || 'texto'}~~`;     innerLen = (sel || 'texto').length; break
+        case 'code':    replacement = `\`${sel || 'código'}\``;    innerLen = (sel || 'código').length; break
+        case 'ul': {
+            const lines = (sel || 'item').split('\n')
+            replacement = lines.map((l) => `- ${l}`).join('\n')
+            innerLen = replacement.length
+            break
+        }
+        case 'ol': {
+            const lines = (sel || 'item').split('\n')
+            replacement = lines.map((l, i) => `${i + 1}. ${l}`).join('\n')
+            innerLen = replacement.length
+            break
+        }
+    }
+
+    setValue(before + replacement + after)
+
+    const prefixLen = { bold: 2, italic: 1, strike: 2, code: 1, ul: 0, ol: 0 }[type]
+    const selStart = start + prefixLen
+    const selEnd = selStart + innerLen
+
+    requestAnimationFrame(() => {
+        textarea.focus()
+        textarea.setSelectionRange(selStart, selEnd)
+    })
+}
+
+const FORMAT_BUTTONS: { type: FormatType; icon: React.ElementType; label: string; group: number }[] = [
+    { type: 'bold',   icon: Bold,          label: 'Negrito (Ctrl+B)',      group: 1 },
+    { type: 'italic', icon: Italic,        label: 'Itálico (Ctrl+I)',      group: 1 },
+    { type: 'strike', icon: Strikethrough, label: 'Tachado',               group: 1 },
+    { type: 'code',   icon: Code,          label: 'Código inline',         group: 2 },
+    { type: 'ul',     icon: List,          label: 'Lista não ordenada',    group: 3 },
+    { type: 'ol',     icon: ListOrdered,   label: 'Lista ordenada',        group: 3 },
+]
+
+function MarkdownContent({ children }: { children: string }) {
+    return (
+        <ReactMarkdown
+            components={{
+                p:      ({ children }) => <p className="mb-1.5 last:mb-0 leading-relaxed">{children}</p>,
+                strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                em:     ({ children }) => <em className="italic">{children}</em>,
+                del:    ({ children }) => <del className="line-through text-muted-foreground">{children}</del>,
+                code:   ({ children }) => <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono border border-border/40">{children}</code>,
+                ul:     ({ children }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5">{children}</ul>,
+                ol:     ({ children }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5">{children}</ol>,
+                li:     ({ children }) => <li className="leading-relaxed">{children}</li>,
+            }}
+        >
+            {children}
+        </ReactMarkdown>
+    )
+}
+
 // ─── Modal de Detalhe ─────────────────────────────────────────────────────────
 
 function TaskDetailDialog({
     task,
     members,
     getUserName,
+    currentUserId,
     onUpdate,
+    onAddComment,
     onDelete,
     onClose,
 }: {
     task: GroupTask
     members: string[]
     getUserName: (id: string) => string
-    onUpdate: (data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status'>>) => Promise<void>
+    currentUserId: string
+    onUpdate: (data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'checklist' | 'links'>>) => Promise<void>
+    onAddComment: (text: string) => Promise<void>
     onDelete: () => void
     onClose: () => void
 }) {
@@ -418,14 +560,42 @@ function TaskDetailDialog({
     const [dueDate, setDueDate] = useState(
         task.dueDate ? task.dueDate.toISOString().split('T')[0] : ''
     )
+    const [mobilePanel, setMobilePanel] = useState<'details' | 'comments'>('details')
+    const [descMode, setDescMode] = useState<'write' | 'preview'>('write')
+    const [comments, setComments] = useState<import('@/types').TaskComment[]>(task.comments ?? [])
+    const [commentText, setCommentText] = useState('')
+    const [submittingComment, setSubmittingComment] = useState(false)
+    const commentsEndRef = useRef<HTMLDivElement>(null)
+    const [checklist, setChecklist] = useState<ChecklistItem[]>(task.checklist ?? [])
+    const [newItemText, setNewItemText] = useState('')
+    const [addingItem, setAddingItem] = useState(false)
+    const newItemRef = useRef<HTMLInputElement>(null)
+    const [links, setLinks] = useState<TaskLink[]>(task.links ?? [])
+    const [addingLink, setAddingLink] = useState(false)
+    const [newLinkUrl, setNewLinkUrl] = useState('')
+    const [newLinkLabel, setNewLinkLabel] = useState('')
+    const [linkUrlError, setLinkUrlError] = useState(false)
+    const newLinkRef = useRef<HTMLInputElement>(null)
     const [saving, setSaving] = useState(false)
     const titleRef = useRef<HTMLInputElement>(null)
     const descRef = useRef<HTMLTextAreaElement>(null)
 
-    useEffect(() => { if (editingTitle) titleRef.current?.focus() }, [editingTitle])
-    useEffect(() => { if (editingDesc) descRef.current?.focus() }, [editingDesc])
+    const autoResize = (el: HTMLTextAreaElement) => {
+        el.style.height = 'auto'
+        el.style.height = `${Math.max(el.scrollHeight, 120)}px`
+    }
 
-    const save = async (patch: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status'>>) => {
+    useEffect(() => { if (editingTitle) titleRef.current?.focus() }, [editingTitle])
+    useEffect(() => {
+        if (editingDesc && descMode === 'write') {
+            const el = descRef.current
+            if (el) { autoResize(el); el.focus(); el.setSelectionRange(el.value.length, el.value.length) }
+        }
+    }, [editingDesc, descMode])
+    useEffect(() => { if (addingItem) newItemRef.current?.focus() }, [addingItem])
+    useEffect(() => { if (addingLink) newLinkRef.current?.focus() }, [addingLink])
+
+    const save = async (patch: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'checklist' | 'links'>>) => {
         setSaving(true)
         try { await onUpdate(patch) } finally { setSaving(false) }
     }
@@ -436,10 +606,17 @@ function TaskDetailDialog({
         else setTitle(task.title)
     }
 
-    const commitDesc = async () => {
-        setEditingDesc(false)
+    const saveDesc = async () => {
         const val = description.trim() || undefined
         if (val !== (task.description?.trim() || undefined)) await save({ description: val })
+        setEditingDesc(false)
+        setDescMode('write')
+    }
+
+    const cancelDesc = () => {
+        setDescription(task.description ?? '')
+        setEditingDesc(false)
+        setDescMode('write')
     }
 
     const handleAssigneeChange = async (val: string) => {
@@ -452,15 +629,144 @@ function TaskDetailDialog({
         await save({ dueDate: val ? new Date(val + 'T00:00:00') : undefined })
     }
 
+    useEffect(() => {
+        commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [comments])
+
+    const submitComment = async () => {
+        const text = commentText.trim()
+        if (!text) return
+        setSubmittingComment(true)
+        const optimistic: import('@/types').TaskComment = {
+            id: `${Date.now()}`,
+            text,
+            authorId: currentUserId,
+            createdAt: new Date(),
+        }
+        setComments((prev) => [...prev, optimistic])
+        setCommentText('')
+        try {
+            await onAddComment(text)
+        } catch {
+            setComments((prev) => prev.filter((c) => c.id !== optimistic.id))
+            setCommentText(text)
+        } finally {
+            setSubmittingComment(false)
+        }
+    }
+
+    const saveChecklist = async (updated: ChecklistItem[]) => {
+        setChecklist(updated)
+        await save({ checklist: updated })
+    }
+
+    const toggleItem = (id: string) => {
+        const updated = checklist.map((item) => item.id === id ? { ...item, done: !item.done } : item)
+        saveChecklist(updated)
+    }
+
+    const addItem = async () => {
+        if (!newItemText.trim()) { setAddingItem(false); return }
+        const updated: ChecklistItem[] = [...checklist, { id: `${Date.now()}-${Math.random()}`, text: newItemText.trim(), done: false }]
+        setNewItemText('')
+        await saveChecklist(updated)
+        newItemRef.current?.focus()
+    }
+
+    const deleteItem = (id: string) => {
+        saveChecklist(checklist.filter((item) => item.id !== id))
+    }
+
+    const saveLinks = async (updated: TaskLink[]) => {
+        setLinks(updated)
+        await save({ links: updated })
+    }
+
+    const addLink = async () => {
+        const url = newLinkUrl.trim()
+        if (!url) { setAddingLink(false); return }
+        if (!isSafeExternalUrl(url)) { setLinkUrlError(true); return }
+        const updated: TaskLink[] = [...links, { id: `${Date.now()}-${Math.random()}`, url, label: newLinkLabel.trim() || undefined }]
+        setNewLinkUrl('')
+        setNewLinkLabel('')
+        setLinkUrlError(false)
+        await saveLinks(updated)
+        newLinkRef.current?.focus()
+    }
+
+    const deleteLink = (id: string) => {
+        saveLinks(links.filter((l) => l.id !== id))
+    }
+
     const currentCol = COLUMNS.find((c) => c.id === task.status)!
 
     return (
         <Dialog open onOpenChange={(o) => !o && onClose()}>
-            <DialogContent className="sm:max-w-[540px] rounded-[1.5rem] p-0 overflow-hidden gap-0">
-                {/* Faixa de cor da coluna atual */}
-                <div className={cn('h-1.5 w-full', currentCol.dot)} />
+            <DialogPortal>
+                <DialogOverlay />
+                <DialogPrimitive.Content
+                    className={cn(
+                        // Sempre centralizado
+                        'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 focus:outline-none',
+                        // Animações
+                        'data-[state=open]:animate-in data-[state=closed]:animate-out',
+                        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+                        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+                        'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
+                        'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
+                        // Visual
+                        'bg-background border border-border/50 rounded-[1.5rem] shadow-2xl overflow-hidden',
+                        // Tamanho responsivo
+                        'w-[calc(100vw-1rem)] max-h-[calc(100vh-1rem)] flex flex-col',
+                        'md:w-full md:max-w-[900px] md:max-h-[82vh] md:flex-row',
+                    )}
+                >
+                    {/* Faixa de cor — topo (mobile) / escondida no desktop pois cada painel tem a sua */}
+                    <div className={cn('h-1 w-full shrink-0 md:hidden', currentCol.dot)} />
 
-                <div className="p-6 space-y-5">
+                    {/* Abas — mobile only */}
+                    <div className="flex shrink-0 border-b border-border/60 md:hidden">
+                        <button
+                            type="button"
+                            onClick={() => setMobilePanel('details')}
+                            className={cn(
+                                'flex-1 py-2.5 text-xs font-bold transition-colors border-b-2 -mb-px',
+                                mobilePanel === 'details'
+                                    ? 'text-foreground border-primary'
+                                    : 'text-muted-foreground border-transparent hover:text-foreground'
+                            )}
+                        >
+                            Detalhes
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setMobilePanel('comments')}
+                            className={cn(
+                                'flex-1 py-2.5 text-xs font-bold transition-colors border-b-2 -mb-px',
+                                mobilePanel === 'comments'
+                                    ? 'text-foreground border-primary'
+                                    : 'text-muted-foreground border-transparent hover:text-foreground'
+                            )}
+                        >
+                            Comentários{comments.length > 0 ? ` (${comments.length})` : ''}
+                        </button>
+                    </div>
+
+                    {/* Botão fechar */}
+                    <DialogPrimitive.Close className="absolute right-3 top-3 z-20 rounded-md opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:bg-muted p-1">
+                        <X className="h-4 w-4" />
+                        <span className="sr-only">Fechar</span>
+                    </DialogPrimitive.Close>
+
+                {/* ── Painel de detalhes ── */}
+                <div className={cn(
+                    'flex-col flex-1 min-h-0 overflow-hidden',
+                    mobilePanel === 'details' ? 'flex' : 'hidden',
+                    'md:flex md:flex-1 md:min-h-0',
+                )}>
+                    {/* Faixa de cor — desktop */}
+                    <div className={cn('h-1.5 w-full shrink-0 hidden md:block', currentCol.dot)} />
+                <div className="flex-1 overflow-y-auto p-5 space-y-5">
                     <DialogHeader className="space-y-1">
                         {/* Título editável */}
                         {editingTitle ? (
@@ -509,7 +815,7 @@ function TaskDetailDialog({
                                 className="h-9 rounded-xl text-sm"
                                 aria-label="Responsável"
                             >
-                                <option value="">Ninguém</option>
+                                <option value="">Todos</option>
                                 {members.map((id) => (
                                     <option key={id} value={id}>{getUserName(id)}</option>
                                 ))}
@@ -538,23 +844,125 @@ function TaskDetailDialog({
                             <AlignLeft className="h-3 w-3 inline-block mr-1" aria-hidden="true" />
                             Descrição
                         </Label>
+
                         {editingDesc ? (
-                            <Textarea
-                                ref={descRef}
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                onBlur={commitDesc}
-                                onKeyDown={(e) => { if (e.key === 'Escape') { setDescription(task.description ?? ''); setEditingDesc(false) } }}
-                                placeholder="Adicione uma descrição..."
-                                className="min-h-[100px] resize-none rounded-xl text-sm"
-                                aria-label="Descrição da tarefa"
-                            />
+                            <div className="rounded-xl border border-border overflow-hidden ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-0">
+                                {/* Abas Escrever / Visualizar */}
+                                <div className="flex items-center justify-between border-b border-border bg-muted/30 px-1 pt-1">
+                                    <div className="flex">
+                                        <button
+                                            type="button"
+                                            onMouseDown={(e) => { e.preventDefault(); setDescMode('write') }}
+                                            className={cn(
+                                                'px-3 py-1.5 text-xs font-bold rounded-t-md transition-colors',
+                                                descMode === 'write'
+                                                    ? 'bg-background text-foreground border border-b-background border-border -mb-px'
+                                                    : 'text-muted-foreground hover:text-foreground'
+                                            )}
+                                        >
+                                            Escrever
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onMouseDown={(e) => { e.preventDefault(); setDescMode('preview') }}
+                                            className={cn(
+                                                'px-3 py-1.5 text-xs font-bold rounded-t-md transition-colors',
+                                                descMode === 'preview'
+                                                    ? 'bg-background text-foreground border border-b-background border-border -mb-px'
+                                                    : 'text-muted-foreground hover:text-foreground'
+                                            )}
+                                        >
+                                            Visualizar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {descMode === 'write' && (
+                                    <>
+                                        {/* Toolbar */}
+                                        <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-border bg-muted/20">
+                                            {FORMAT_BUTTONS.map(({ type, icon: Icon, label, group }, idx, arr) => (
+                                                <span key={type} className="contents">
+                                                    {idx > 0 && arr[idx - 1].group !== group && (
+                                                        <span className="w-px h-4 bg-border mx-1 shrink-0" aria-hidden="true" />
+                                                    )}
+                                                    <button
+                                                        type="button"
+                                                        title={label}
+                                                        aria-label={label}
+                                                        onMouseDown={(e) => {
+                                                            e.preventDefault()
+                                                            if (descRef.current) applyFormat(descRef.current, type, setDescription)
+                                                        }}
+                                                        className="w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted/80 transition-colors"
+                                                    >
+                                                        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                                                    </button>
+                                                </span>
+                                            ))}
+                                        </div>
+
+                                        {/* Textarea auto-crescente */}
+                                        <Textarea
+                                            ref={descRef}
+                                            value={description}
+                                            onChange={(e) => { setDescription(e.target.value); autoResize(e.target) }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Escape') cancelDesc()
+                                                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveDesc() }
+                                                if (e.key === 'b' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (descRef.current) applyFormat(descRef.current, 'bold', setDescription) }
+                                                if (e.key === 'i' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (descRef.current) applyFormat(descRef.current, 'italic', setDescription) }
+                                            }}
+                                            placeholder="Escreva a descrição aqui... Suporta **negrito**, *itálico*, `código`, listas e mais."
+                                            className="resize-none rounded-none border-none shadow-none focus-visible:ring-0 text-sm font-mono leading-relaxed min-h-[120px] overflow-hidden"
+                                            aria-label="Descrição da tarefa"
+                                        />
+                                    </>
+                                )}
+
+                                {descMode === 'preview' && (
+                                    <div className="min-h-[120px] px-3 py-2.5 text-sm bg-background">
+                                        {description.trim() ? (
+                                            <MarkdownContent>{description}</MarkdownContent>
+                                        ) : (
+                                            <span className="text-muted-foreground/50 italic">Nada para visualizar.</span>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Rodapé com botões */}
+                                <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-muted/20">
+                                    <span className="text-[10px] text-muted-foreground/60 font-medium">
+                                        Ctrl+Enter para salvar · Esc para cancelar
+                                    </span>
+                                    <div className="flex gap-1.5">
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={cancelDesc}
+                                            className="h-7 px-3 rounded-lg text-xs"
+                                        >
+                                            Cancelar
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            onClick={saveDesc}
+                                            disabled={saving}
+                                            className="h-7 px-3 rounded-lg text-xs font-bold"
+                                        >
+                                            {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Salvar'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
                         ) : (
                             <div
                                 onClick={() => setEditingDesc(true)}
                                 className={cn(
-                                    'min-h-[72px] px-3 py-2.5 rounded-xl text-sm cursor-text transition-colors',
-                                    'bg-muted/50 hover:bg-muted border border-transparent hover:border-border',
+                                    'group min-h-[56px] px-3 py-2.5 rounded-xl text-sm cursor-text transition-colors relative',
+                                    'bg-muted/40 hover:bg-muted border border-transparent hover:border-border/60',
                                     description ? 'text-foreground' : 'text-muted-foreground/50'
                                 )}
                                 role="button"
@@ -562,8 +970,191 @@ function TaskDetailDialog({
                                 onKeyDown={(e) => e.key === 'Enter' && setEditingDesc(true)}
                                 aria-label="Editar descrição"
                             >
-                                {description || 'Clique para adicionar uma descrição...'}
+                                {description ? (
+                                    <>
+                                        <MarkdownContent>{description}</MarkdownContent>
+                                        <span className="absolute top-2 right-2 text-[10px] font-semibold text-muted-foreground/0 group-hover:text-muted-foreground/60 transition-colors">
+                                            Clique para editar
+                                        </span>
+                                    </>
+                                ) : (
+                                    <span className="text-muted-foreground/50">Clique para adicionar uma descrição...</span>
+                                )}
                             </div>
+                        )}
+                    </div>
+
+                    {/* Checklist */}
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60">
+                                <CheckSquare className="h-3 w-3 inline-block mr-1" aria-hidden="true" />
+                                Lista de verificação
+                                {checklist.length > 0 && (
+                                    <span className="ml-1.5 font-bold normal-case tracking-normal opacity-80">
+                                        {checklist.filter((i) => i.done).length}/{checklist.length}
+                                    </span>
+                                )}
+                            </Label>
+                        </div>
+
+                        {/* Barra de progresso */}
+                        {checklist.length > 0 && (
+                            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                                <div
+                                    className={cn(
+                                        'h-full rounded-full transition-all duration-300',
+                                        checklist.every((i) => i.done) ? 'bg-emerald-500' : 'bg-primary'
+                                    )}
+                                    style={{ width: `${Math.round((checklist.filter((i) => i.done).length / checklist.length) * 100)}%` }}
+                                />
+                            </div>
+                        )}
+
+                        {/* Itens */}
+                        {checklist.length > 0 && (
+                            <ul className="space-y-1">
+                                {checklist.map((item) => (
+                                    <li key={item.id} className="group flex items-center gap-2 py-1 px-1 rounded-lg hover:bg-muted/50 transition-colors">
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleItem(item.id)}
+                                            className={cn(
+                                                'w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors',
+                                                item.done
+                                                    ? 'bg-emerald-500 border-emerald-500 text-white'
+                                                    : 'border-border hover:border-primary'
+                                            )}
+                                            aria-label={item.done ? 'Marcar como não feito' : 'Marcar como feito'}
+                                        >
+                                            {item.done && <CheckCircle2 className="h-3 w-3" aria-hidden="true" />}
+                                        </button>
+                                        <span className={cn('text-sm flex-1 leading-normal', item.done && 'line-through text-muted-foreground')}>
+                                            {item.text}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => deleteItem(item.id)}
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                                            aria-label="Remover item"
+                                        >
+                                            <X className="h-3.5 w-3.5" aria-hidden="true" />
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+
+                        {/* Adicionar item */}
+                        {addingItem ? (
+                            <div className="flex gap-1.5">
+                                <Input
+                                    ref={newItemRef}
+                                    value={newItemText}
+                                    onChange={(e) => setNewItemText(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') addItem(); if (e.key === 'Escape') { setNewItemText(''); setAddingItem(false) } }}
+                                    placeholder="Item da lista..."
+                                    className="h-8 text-sm rounded-xl flex-1"
+                                />
+                                <Button type="button" size="sm" onClick={addItem} disabled={!newItemText.trim()} className="h-8 px-3 rounded-xl text-xs font-bold">
+                                    Adicionar
+                                </Button>
+                                <Button type="button" size="sm" variant="ghost" onClick={() => { setNewItemText(''); setAddingItem(false) }} className="h-8 w-8 p-0 rounded-xl">
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => setAddingItem(true)}
+                                className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
+                            >
+                                <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                                Adicionar item
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Links / Anexos */}
+                    <div className="space-y-2">
+                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60">
+                            <Paperclip className="h-3 w-3 inline-block mr-1" aria-hidden="true" />
+                            Anexos
+                            {links.length > 0 && (
+                                <span className="ml-1.5 font-bold normal-case tracking-normal opacity-80">
+                                    {links.length} {links.length === 1 ? 'link' : 'links'}
+                                </span>
+                            )}
+                        </Label>
+
+                        {links.length > 0 && (
+                            <ul className="space-y-1">
+                                {links.map((link) => (
+                                    <li key={link.id} className="group flex items-center gap-2 py-1 px-1 rounded-lg hover:bg-muted/50 transition-colors">
+                                        <Paperclip className="h-3.5 w-3.5 text-muted-foreground shrink-0" aria-hidden="true" />
+                                        <a
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex-1 text-sm text-primary hover:underline truncate"
+                                            title={link.url}
+                                        >
+                                            {link.label || link.url}
+                                        </a>
+                                        <ExternalLink className="h-3 w-3 text-muted-foreground/40 shrink-0 group-hover:text-muted-foreground transition-colors" aria-hidden="true" />
+                                        <button
+                                            type="button"
+                                            onClick={() => deleteLink(link.id)}
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                                            aria-label="Remover link"
+                                        >
+                                            <X className="h-3.5 w-3.5" aria-hidden="true" />
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+
+                        {addingLink ? (
+                            <div className="space-y-1.5">
+                                <Input
+                                    ref={newLinkRef}
+                                    value={newLinkUrl}
+                                    onChange={(e) => { setNewLinkUrl(e.target.value); setLinkUrlError(false) }}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') addLink(); if (e.key === 'Escape') { setNewLinkUrl(''); setNewLinkLabel(''); setLinkUrlError(false); setAddingLink(false) } }}
+                                    placeholder="https://..."
+                                    className={cn('h-8 text-sm rounded-xl', linkUrlError && 'border-destructive focus-visible:ring-destructive')}
+                                    aria-label="URL do link"
+                                />
+                                {linkUrlError && (
+                                    <p className="text-xs text-destructive font-medium px-1">URL inválida. Use https:// ou http://</p>
+                                )}
+                                <Input
+                                    value={newLinkLabel}
+                                    onChange={(e) => setNewLinkLabel(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') addLink(); if (e.key === 'Escape') { setNewLinkUrl(''); setNewLinkLabel(''); setLinkUrlError(false); setAddingLink(false) } }}
+                                    placeholder="Nome do link (opcional)"
+                                    className="h-8 text-sm rounded-xl"
+                                    aria-label="Nome do link"
+                                />
+                                <div className="flex gap-1.5">
+                                    <Button type="button" size="sm" onClick={addLink} disabled={!newLinkUrl.trim()} className="h-8 px-3 rounded-xl text-xs font-bold">
+                                        Adicionar
+                                    </Button>
+                                    <Button type="button" size="sm" variant="ghost" onClick={() => { setNewLinkUrl(''); setNewLinkLabel(''); setLinkUrlError(false); setAddingLink(false) }} className="h-8 w-8 p-0 rounded-xl">
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => setAddingLink(true)}
+                                className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
+                            >
+                                <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                                Adicionar link
+                            </button>
                         )}
                     </div>
 
@@ -584,8 +1175,104 @@ function TaskDetailDialog({
                             </span>
                         )}
                     </div>
-                </div>
-            </DialogContent>
+                </div>{/* fim scroll detalhes */}
+                </div>{/* fim painel detalhes */}
+
+                {/* Linha divisória vertical */}
+                <div className="hidden md:block w-px bg-border shrink-0 self-stretch" aria-hidden="true" />
+
+                {/* ── Painel de comentários ── */}
+                <div className={cn(
+                    'flex-col min-h-0 overflow-hidden',
+                    mobilePanel === 'comments' ? 'flex flex-1' : 'hidden',
+                    'md:flex md:flex-col md:w-72 md:shrink-0',
+                )}>
+                    {/* Cabeçalho */}
+                    <div className="px-4 py-3 border-b border-border/60 shrink-0">
+                        <span className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60">
+                            Comentários
+                            {comments.length > 0 && (
+                                <span className="ml-1.5 normal-case tracking-normal opacity-80 font-bold">
+                                    ({comments.length})
+                                </span>
+                            )}
+                        </span>
+                    </div>
+
+                    {/* Lista de comentários */}
+                    <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 min-h-[120px]">
+                        {comments.length === 0 ? (
+                            <p className="text-xs text-muted-foreground/50 text-center py-6 font-medium">
+                                Nenhum comentário ainda.<br />Seja o primeiro a comentar!
+                            </p>
+                        ) : (
+                            comments.map((c) => {
+                                const name = getUserName(c.authorId)
+                                const initial = name?.[0]?.toUpperCase() ?? '?'
+                                const isMe = c.authorId === currentUserId
+                                const date = c.createdAt instanceof Date ? c.createdAt : new Date((c.createdAt as { seconds: number }).seconds * 1000)
+                                const timeAgo = (() => {
+                                    const diff = Date.now() - date.getTime()
+                                    const mins = Math.floor(diff / 60000)
+                                    if (mins < 1) return 'agora'
+                                    if (mins < 60) return `há ${mins}min`
+                                    const hrs = Math.floor(mins / 60)
+                                    if (hrs < 24) return `há ${hrs}h`
+                                    const days = Math.floor(hrs / 24)
+                                    return `há ${days}d`
+                                })()
+                                return (
+                                    <div key={c.id} className="flex gap-2.5">
+                                        <div className={cn(
+                                            'w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs font-bold text-white',
+                                            isMe ? 'bg-primary' : 'bg-slate-400 dark:bg-slate-600'
+                                        )}>
+                                            {initial}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-baseline gap-1.5 mb-0.5">
+                                                <span className="text-xs font-bold truncate">{isMe ? 'Você' : name}</span>
+                                                <span className="text-[10px] text-muted-foreground/50 shrink-0">{timeAgo}</span>
+                                            </div>
+                                            <p className="text-xs leading-relaxed text-foreground/80 break-words whitespace-pre-wrap">{c.text}</p>
+                                        </div>
+                                    </div>
+                                )
+                            })
+                        )}
+                        <div ref={commentsEndRef} />
+                    </div>
+
+                    {/* Caixa de novo comentário */}
+                    <div className="px-4 py-3 border-t border-border/60 space-y-2 shrink-0">
+                        <Textarea
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); submitComment() }
+                            }}
+                            placeholder="Escreva um comentário..."
+                            className="resize-none text-xs rounded-xl min-h-[72px] max-h-[140px] leading-relaxed"
+                            aria-label="Novo comentário"
+                        />
+                        <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-muted-foreground/50">Ctrl+Enter para enviar</span>
+                            <Button
+                                type="button"
+                                size="sm"
+                                onClick={submitComment}
+                                disabled={!commentText.trim() || submittingComment}
+                                className="h-7 px-3 rounded-xl text-xs font-bold"
+                            >
+                                {submittingComment ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Comentar'}
+                            </Button>
+                        </div>
+                    </div>
+                </div>{/* fim card comentários */}
+
+                </DialogPrimitive.Content>
+            </DialogPortal>
         </Dialog>
+
     )
 }

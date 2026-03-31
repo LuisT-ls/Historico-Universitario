@@ -193,6 +193,25 @@ export interface GroupMaterial {
 
 export type GroupTaskStatus = 'pending' | 'in_progress' | 'completed'
 
+export interface ChecklistItem {
+  id: string
+  text: string
+  done: boolean
+}
+
+export interface TaskLink {
+  id: string
+  url: string
+  label?: string
+}
+
+export interface TaskComment {
+  id: string
+  text: string
+  authorId: string
+  createdAt: Date
+}
+
 export interface GroupTask {
   id?: GroupTaskId
   groupId: GroupId
@@ -201,6 +220,9 @@ export interface GroupTask {
   status: GroupTaskStatus
   assignedTo?: UserId // Para quem a tarefa está atribuída
   dueDate?: Date
+  checklist?: ChecklistItem[]
+  links?: TaskLink[]
+  comments?: TaskComment[]
   createdBy: UserId
   createdAt?: Date
   updatedAt?: Date

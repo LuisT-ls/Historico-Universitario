@@ -15,7 +15,7 @@ import {
 import { db } from '@/lib/firebase/config'
 import { deleteFile } from '@/services/storage.service'
 import { logger } from '@/lib/logger'
-import type { Group, GroupId, GroupMaterial, GroupMaterialId, GroupTask, GroupTaskId, UserId } from '@/types'
+import type { Group, GroupId, GroupMaterial, GroupMaterialId, GroupTask, GroupTaskId, TaskComment, UserId } from '@/types'
 import { createGroupId, createGroupMaterialId, createGroupTaskId } from '@/lib/type-constants'
 
 /**
@@ -346,6 +346,23 @@ export async function updateGroupTask(groupId: string, taskId: string, data: Par
         })
     } catch (error) {
         logger.error('Erro ao atualizar tarefa do grupo:', error)
+        throw error
+    }
+}
+
+/**
+ * Adiciona um comentário a uma tarefa via arrayUnion (atômico)
+ */
+export async function addTaskComment(groupId: string, taskId: string, comment: TaskComment): Promise<void> {
+    if (!db) throw new Error('Firestore não inicializado')
+    try {
+        const taskRef = doc(db, 'groups', groupId, 'tasks', taskId)
+        await updateDoc(taskRef, {
+            comments: arrayUnion({ ...comment, createdAt: comment.createdAt }),
+            updatedAt: new Date(),
+        })
+    } catch (error) {
+        logger.error('Erro ao adicionar comentário:', error)
         throw error
     }
 }

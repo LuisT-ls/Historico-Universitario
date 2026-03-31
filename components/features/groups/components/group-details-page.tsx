@@ -48,6 +48,7 @@ export function GroupDetailsPage() {
         user,
         handleAddTask,
         handleUpdateTask,
+        handleAddTaskComment,
         handleUpdateTaskStatus,
         handleDeleteTask,
         handleAddMaterial,
@@ -359,10 +360,12 @@ export function GroupDetailsPage() {
                                 isLoading={isTasksLoading}
                                 onAdd={handleAddTask}
                                 onUpdate={handleUpdateTask}
+                                onAddComment={handleAddTaskComment}
                                 onUpdateStatus={handleUpdateTaskStatus}
                                 onDelete={handleDeleteTask}
                                 members={group.members}
                                 getUserName={getUserName}
+                                currentUserId={user?.uid ?? ''}
                              />
                         )}
                     </motion.div>
