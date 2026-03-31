@@ -352,7 +352,8 @@ export async function updateGroupTask(
     data: Partial<GroupTask>,
     actorId?: string,
     action?: TaskActivityAction,
-    detail?: string
+    detail?: string,
+    actorDisplayName?: string
 ): Promise<void> {
     if (!db) throw new Error('Firestore não inicializado')
 
@@ -367,6 +368,7 @@ export async function updateGroupTask(
         if (actorId && action) {
             const entry: TaskActivity = {
                 userId: actorId,
+                ...(actorDisplayName ? { displayName: actorDisplayName } : {}),
                 action,
                 ...(detail ? { detail } : {}),
                 timestamp: new Date(),

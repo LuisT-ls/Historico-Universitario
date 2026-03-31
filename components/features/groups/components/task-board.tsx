@@ -20,6 +20,16 @@ import {
 } from '@/components/ui/dialog'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
+} from '@/components/ui/dropdown-menu'
+import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
+import {
     DragDropContext,
     Droppable,
     Draggable,
@@ -49,6 +59,15 @@ import {
     ListOrdered,
     Undo,
     Redo,
+    MoreHorizontal,
+    ArrowLeft,
+    ArrowRight,
+    Copy,
+    SortAsc,
+    SortDesc,
+    ArrowUpAZ,
+    ArrowDownAZ,
+    ChevronRight,
 } from 'lucide-react'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { cn } from '@/lib/utils'
@@ -139,6 +158,31 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
     const [addingColumn, setAddingColumn] = useState(false)
     const [newColumnName, setNewColumnName] = useState('')
     const newColumnRef = useRef<HTMLInputElement>(null)
+
+    // Filtros
+    const [searchQuery, setSearchQuery] = useState('')
+    const [filterLabel, setFilterLabel] = useState<string | null>(null)
+    const [filterAssignee, setFilterAssignee] = useState<string | null>(null)
+    const [filterDue, setFilterDue] = useState<'overdue' | 'soon' | null>(null)
+
+    const hasFilters = searchQuery.trim() !== '' || filterLabel !== null || filterAssignee !== null || filterDue !== null
+
+    const filteredTasks = useMemo(() => {
+        if (!hasFilters) return tasks
+        const q = searchQuery.trim().toLowerCase()
+        return tasks.filter((t) => {
+            if (q && !t.title.toLowerCase().includes(q)) return false
+            if (filterLabel && !(t.labels ?? []).includes(filterLabel)) return false
+            if (filterAssignee && t.assignedTo !== filterAssignee) return false
+            if (filterDue) {
+                if (!t.dueDate) return false
+                const due = formatDueDate(t.dueDate)
+                if (filterDue === 'overdue' && !due.overdue) return false
+                if (filterDue === 'soon' && (!due.soon || due.overdue)) return false
+            }
+            return true
+        })
+    }, [tasks, searchQuery, filterLabel, filterAssignee, filterDue, hasFilters])
 
     useEffect(() => { if (addingColumn) newColumnRef.current?.focus() }, [addingColumn])
 
@@ -232,6 +276,94 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
 
     return (
         <>
+            {/* Barra de busca e filtros */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+                {/* Busca por texto */}
+                <div className="relative flex-1 min-w-[160px] max-w-xs">
+                    <ListTodo className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" aria-hidden="true" />
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Buscar cartão..."
+                        className="w-full h-9 pl-8 pr-3 text-sm rounded-xl border border-border/60 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                    {searchQuery && (
+                        <button type="button" onClick={() => setSearchQuery('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                            <X className="h-3.5 w-3.5" />
+                        </button>
+                    )}
+                </div>
+
+                {/* Filtro por etiqueta */}
+                <div className="flex items-center gap-1 flex-wrap">
+                    {TASK_LABELS.map((label) => (
+                        <button
+                            key={label.id}
+                            type="button"
+                            onClick={() => setFilterLabel(filterLabel === label.id ? null : label.id)}
+                            title={label.name}
+                            className={cn(
+                                'h-5 w-8 rounded-full border-2 transition-all duration-150',
+                                filterLabel === label.id ? 'border-foreground scale-110' : 'border-transparent opacity-50 hover:opacity-80'
+                            )}
+                            style={{ backgroundColor: label.color }}
+                            aria-pressed={filterLabel === label.id}
+                            aria-label={label.name}
+                        />
+                    ))}
+                </div>
+
+                {/* Filtro por responsável */}
+                {members.length > 0 && (
+                    <select
+                        value={filterAssignee ?? ''}
+                        onChange={(e) => setFilterAssignee(e.target.value || null)}
+                        className="h-9 px-3 text-sm rounded-xl border border-border/60 bg-white dark:bg-slate-900 text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        aria-label="Filtrar por responsável"
+                    >
+                        <option value="">Responsável</option>
+                        {members.map((id) => (
+                            <option key={id} value={id}>{getUserName(id)}</option>
+                        ))}
+                    </select>
+                )}
+
+                {/* Filtro por prazo */}
+                <div className="flex items-center gap-1">
+                    {(['overdue', 'soon'] as const).map((type) => (
+                        <button
+                            key={type}
+                            type="button"
+                            onClick={() => setFilterDue(filterDue === type ? null : type)}
+                            className={cn(
+                                'h-9 px-3 text-xs font-bold rounded-xl border transition-all duration-150',
+                                filterDue === type
+                                    ? type === 'overdue'
+                                        ? 'bg-red-500 text-white border-red-500'
+                                        : 'bg-amber-500 text-white border-amber-500'
+                                    : 'border-border/60 text-muted-foreground hover:border-primary/40 hover:text-primary bg-white dark:bg-slate-900'
+                            )}
+                            aria-pressed={filterDue === type}
+                        >
+                            {type === 'overdue' ? 'Atrasados' : 'Próximos'}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Limpar filtros */}
+                {hasFilters && (
+                    <button
+                        type="button"
+                        onClick={() => { setSearchQuery(''); setFilterLabel(null); setFilterAssignee(null); setFilterDue(null) }}
+                        className="h-9 px-3 text-xs font-bold rounded-xl border border-border/60 text-muted-foreground hover:text-destructive hover:border-destructive/40 transition-colors bg-white dark:bg-slate-900 flex items-center gap-1.5"
+                    >
+                        <X className="h-3.5 w-3.5" />
+                        Limpar
+                    </button>
+                )}
+            </div>
+
             <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="board-columns" direction="horizontal" type="COLUMN">
                     {(boardProvided) => (
@@ -241,7 +373,7 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
                             className="flex gap-4 overflow-x-auto pb-6 -mx-1 px-1 items-start"
                         >
                             {columns.map((col, colIndex) => {
-                                const colTasks = tasks.filter((t) => t.status === col.id)
+                                const colTasks = filteredTasks.filter((t) => t.status === col.id)
                                 return (
                                     <Draggable key={col.id} draggableId={`col-${col.id}`} index={colIndex}>
                                         {(dragProvided, dragSnapshot) => (
@@ -263,6 +395,18 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
                                                     onCardClick={setDetailTask}
                                                     onToggleDone={handleToggleDone}
                                                     onDeleteColumn={col.isCustom ? () => handleDeleteColumn(col.id) : undefined}
+                                                    onMoveLeft={colIndex > 0 ? () => {
+                                                        const newOrder = columns.map(c => c.id)
+                                                        const [moved] = newOrder.splice(colIndex, 1)
+                                                        newOrder.splice(colIndex - 1, 0, moved)
+                                                        onUpdateGroup?.({ columnOrder: newOrder })
+                                                    } : undefined}
+                                                    onMoveRight={colIndex < columns.length - 1 ? () => {
+                                                        const newOrder = columns.map(c => c.id)
+                                                        const [moved] = newOrder.splice(colIndex, 1)
+                                                        newOrder.splice(colIndex + 1, 0, moved)
+                                                        onUpdateGroup?.({ columnOrder: newOrder })
+                                                    } : undefined}
                                                     dragHandleProps={dragProvided.dragHandleProps}
                                                 />
                                             </div>
@@ -394,6 +538,8 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
 
 // ─── Coluna Kanban ────────────────────────────────────────────────────────────
 
+type SortOption = 'default' | 'date-desc' | 'date-asc' | 'name-asc' | 'name-desc'
+
 function KanbanColumn({
     col,
     tasks,
@@ -404,6 +550,8 @@ function KanbanColumn({
     onCardClick,
     onToggleDone,
     onDeleteColumn,
+    onMoveLeft,
+    onMoveRight,
     dragHandleProps,
 }: {
     col: ColumnDef
@@ -415,11 +563,15 @@ function KanbanColumn({
     onCardClick: (task: GroupTask) => void
     onToggleDone: (task: GroupTask) => void
     onDeleteColumn?: () => void
+    onMoveLeft?: () => void
+    onMoveRight?: () => void
     dragHandleProps?: DraggableProvidedDragHandleProps | null
 }) {
     const [adding, setAdding] = useState(false)
     const [title, setTitle] = useState('')
+    const [newDueDate, setNewDueDate] = useState('')
     const [submitting, setSubmitting] = useState(false)
+    const [sortBy, setSortBy] = useState<SortOption>('default')
     const inputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
@@ -431,15 +583,33 @@ function KanbanColumn({
         if (!title.trim()) { setAdding(false); return }
         setSubmitting(true)
         try {
-            await onAdd(title.trim(), undefined, undefined, undefined, col.id)
+            const due = newDueDate ? new Date(newDueDate + 'T00:00:00') : undefined
+            await onAdd(title.trim(), undefined, undefined, due, col.id)
             setTitle('')
+            setNewDueDate('')
             setAdding(false)
         } finally {
             setSubmitting(false)
         }
     }
 
-    const cancel = () => { setTitle(''); setAdding(false) }
+    const cancel = () => { setTitle(''); setNewDueDate(''); setAdding(false) }
+
+    const sortedTasks = useMemo(() => {
+        if (sortBy === 'default') return tasks
+        return [...tasks].sort((a, b) => {
+            if (sortBy === 'date-desc') return (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0)
+            if (sortBy === 'date-asc')  return (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0)
+            if (sortBy === 'name-asc')  return a.title.localeCompare(b.title, 'pt-BR')
+            if (sortBy === 'name-desc') return b.title.localeCompare(a.title, 'pt-BR')
+            return 0
+        })
+    }, [tasks, sortBy])
+
+    const copyList = () => {
+        const text = tasks.map((t) => `• ${t.title}`).join('\n')
+        navigator.clipboard.writeText(`${col.label}\n${text}`)
+    }
 
     const Icon = col.icon
 
@@ -452,17 +622,116 @@ function KanbanColumn({
                 <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-full tabular-nums">
                     {tasks.length}
                 </span>
-                {onDeleteColumn && (
-                    <button
-                        type="button"
-                        onClick={onDeleteColumn}
-                        className="text-muted-foreground/40 hover:text-destructive transition-colors p-0.5 rounded-md hover:bg-destructive/10"
-                        aria-label={`Remover lista ${col.label}`}
-                        title="Remover lista"
-                    >
-                        <X className="h-3.5 w-3.5" aria-hidden="true" />
-                    </button>
-                )}
+
+                {/* Menu de 3 pontinhos */}
+                <DropdownMenu>
+                    <DropdownMenuPrimitive.Trigger asChild>
+                        <button
+                            type="button"
+                            onClick={(e) => e.stopPropagation()}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            className="text-muted-foreground/50 hover:text-foreground transition-colors p-0.5 rounded-md hover:bg-muted"
+                            aria-label="Opções da lista"
+                        >
+                            <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                    </DropdownMenuPrimitive.Trigger>
+                    <DropdownMenuContent align="end" className="w-52 rounded-2xl" onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenuItem
+                            onClick={() => setAdding(true)}
+                            className="gap-2 rounded-xl cursor-pointer"
+                        >
+                            <Plus className="h-4 w-4 opacity-60" />
+                            Adicionar cartão
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+
+                        {/* Ordenar por */}
+                        <DropdownMenuSub>
+                            <DropdownMenuSubTrigger className="gap-2 rounded-xl cursor-pointer">
+                                <SortAsc className="h-4 w-4 opacity-60" />
+                                Ordenar por
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent className="w-52 rounded-2xl">
+                                {([
+                                    { value: 'date-desc', label: 'Mais recentes primeiro', icon: SortDesc },
+                                    { value: 'date-asc',  label: 'Mais antigos primeiro',  icon: SortAsc  },
+                                    { value: 'name-asc',  label: 'Nome (A → Z)',            icon: ArrowUpAZ },
+                                    { value: 'name-desc', label: 'Nome (Z → A)',            icon: ArrowDownAZ },
+                                ] as const).map(({ value, label, icon: Icon }) => (
+                                    <DropdownMenuItem
+                                        key={value}
+                                        onClick={() => setSortBy(value)}
+                                        className="gap-2 rounded-xl cursor-pointer"
+                                    >
+                                        <Icon className="h-4 w-4 opacity-60" />
+                                        <span className="flex-1">{label}</span>
+                                        {sortBy === value && <CheckCircle2 className="h-3.5 w-3.5 text-primary" />}
+                                    </DropdownMenuItem>
+                                ))}
+                                {sortBy !== 'default' && (
+                                    <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            onClick={() => setSortBy('default')}
+                                            className="gap-2 rounded-xl cursor-pointer text-muted-foreground"
+                                        >
+                                            <X className="h-4 w-4 opacity-60" />
+                                            Remover ordenação
+                                        </DropdownMenuItem>
+                                    </>
+                                )}
+                            </DropdownMenuSubContent>
+                        </DropdownMenuSub>
+
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem
+                            onClick={copyList}
+                            className="gap-2 rounded-xl cursor-pointer"
+                        >
+                            <Copy className="h-4 w-4 opacity-60" />
+                            Copiar lista
+                        </DropdownMenuItem>
+
+                        {(onMoveLeft || onMoveRight) && (
+                            <>
+                                {onMoveLeft && (
+                                    <DropdownMenuItem
+                                        onClick={onMoveLeft}
+                                        className="gap-2 rounded-xl cursor-pointer"
+                                    >
+                                        <ArrowLeft className="h-4 w-4 opacity-60" />
+                                        Mover para esquerda
+                                    </DropdownMenuItem>
+                                )}
+                                {onMoveRight && (
+                                    <DropdownMenuItem
+                                        onClick={onMoveRight}
+                                        className="gap-2 rounded-xl cursor-pointer"
+                                    >
+                                        <ArrowRight className="h-4 w-4 opacity-60" />
+                                        Mover para direita
+                                    </DropdownMenuItem>
+                                )}
+                            </>
+                        )}
+
+                        {onDeleteColumn && (
+                            <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onClick={onDeleteColumn}
+                                    className="gap-2 rounded-xl cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                    Remover lista
+                                </DropdownMenuItem>
+                            </>
+                        )}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
 
             {/* Cards */}
@@ -480,7 +749,7 @@ function KanbanColumn({
                         )}
                         aria-label={`Coluna ${col.label}`}
                     >
-                        {tasks.map((task, index) => (
+                        {sortedTasks.map((task, index) => (
                             <TaskCard
                                 key={task.id!}
                                 task={task}
@@ -507,6 +776,16 @@ function KanbanColumn({
                             onKeyDown={(e) => e.key === 'Escape' && cancel()}
                             className="h-9 text-sm rounded-xl bg-white dark:bg-slate-800 shadow-sm"
                         />
+                        <div className="flex items-center gap-1.5">
+                            <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" aria-hidden="true" />
+                            <input
+                                type="date"
+                                value={newDueDate}
+                                onChange={(e) => setNewDueDate(e.target.value)}
+                                className="flex-1 h-7 text-xs rounded-lg border border-border/60 bg-white dark:bg-slate-800 px-2 text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                                aria-label="Prazo (opcional)"
+                            />
+                        </div>
                         <div className="flex gap-1.5">
                             <Button
                                 type="submit"

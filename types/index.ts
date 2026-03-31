@@ -229,6 +229,7 @@ export type TaskActivityAction = 'created' | 'edited' | 'status_changed' | 'done
 
 export interface TaskActivity {
   userId: string
+  displayName?: string
   action: TaskActivityAction
   detail?: string // ex: "→ Em andamento", "título alterado"
   timestamp: Date

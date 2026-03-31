@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { collection, doc, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import {
@@ -39,6 +39,8 @@ export function useGroupDetails() {
     const [isLoading, setIsLoading] = useState(true)
     const [isMaterialsLoading, setIsMaterialsLoading] = useState(true)
     const [isTasksLoading, setIsTasksLoading] = useState(true)
+    const prevTasksRef = useRef<GroupTask[]>([])
+    const initialLoadRef = useRef(true)
 
     // Listeners em tempo real para grupo, tarefas e materiais
     useEffect(() => {
@@ -94,15 +96,34 @@ export function useGroupDetails() {
         const unsubTasks = onSnapshot(
             tasksQuery,
             (snapshot) => {
-                setTasks(
-                    snapshot.docs.map((d) => ({
-                        id: createGroupTaskId(d.id),
-                        ...d.data(),
-                        createdAt: d.data().createdAt?.toDate?.() || new Date(),
-                        updatedAt: d.data().updatedAt?.toDate?.() || new Date(),
-                        dueDate: d.data().dueDate?.toDate?.(),
-                    } as GroupTask))
-                )
+                const newTasks = snapshot.docs.map((d) => ({
+                    id: createGroupTaskId(d.id),
+                    ...d.data(),
+                    createdAt: d.data().createdAt?.toDate?.() || new Date(),
+                    updatedAt: d.data().updatedAt?.toDate?.() || new Date(),
+                    dueDate: d.data().dueDate?.toDate?.(),
+                } as GroupTask))
+
+                // Notificações de atividade — ignora carga inicial
+                if (!initialLoadRef.current && user) {
+                    newTasks.forEach((newTask) => {
+                        const oldTask = prevTasksRef.current.find((t) => t.id === newTask.id)
+                        const newActivity = newTask.activity ?? []
+                        const oldActivity = oldTask?.activity ?? []
+                        if (newActivity.length > oldActivity.length) {
+                            const latest = newActivity[newActivity.length - 1]
+                            if (latest.userId !== user.uid) {
+                                const name = latest.displayName || latest.userId.substring(0, 6)
+                                const detail = latest.detail ?? 'editou o cartão'
+                                toast(`✏️ ${name} ${detail} em "${newTask.title}"`, { duration: 4000 })
+                            }
+                        }
+                    })
+                }
+
+                prevTasksRef.current = newTasks
+                initialLoadRef.current = false
+                setTasks(newTasks)
                 setIsTasksLoading(false)
             },
             (err) => {
@@ -204,7 +225,8 @@ export function useGroupDetails() {
             }
             // Adiciona labels das colunas customizadas
             group.customColumns?.forEach(col => { statusLabels[col.id] = col.label })
-            await updateGroupTask(group.id, taskId, { status }, user?.uid as string, 'status_changed', `→ ${statusLabels[status] ?? status}`)
+            const actorName = user?.displayName || user?.email?.split('@')[0] || user?.uid?.substring(0, 6)
+            await updateGroupTask(group.id, taskId, { status }, user?.uid as string, 'status_changed', `→ ${statusLabels[status] ?? status}`, actorName)
         } catch {
             // Rollback: restaura status anterior se o Firestore falhar
             if (previousStatus !== undefined) {
@@ -263,7 +285,8 @@ export function useGroupDetails() {
                 detail = changes.length > 0 ? changes.join(', ') : 'editou o cartão'
             }
 
-            await updateGroupTask(group.id, taskId, data, user?.uid as string, action, detail)
+            const actorName = user?.displayName || user?.email?.split('@')[0] || user?.uid?.substring(0, 6)
+            await updateGroupTask(group.id, taskId, data, user?.uid as string, action, detail, actorName)
         } catch {
             setTasks(snapshot)
             toast.error('Erro ao atualizar tarefa.')
