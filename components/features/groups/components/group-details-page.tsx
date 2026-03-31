@@ -25,7 +25,8 @@ import {
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -60,7 +61,18 @@ export function GroupDetailsPage() {
 
     const getUserName = useUserProfiles(group?.members ?? [])
 
-    const [activeTab, setActiveTab] = useState<'overview' | 'materials' | 'tasks'>('overview')
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const rawTab = searchParams.get('tab')
+    const activeTab: 'overview' | 'materials' | 'tasks' =
+        rawTab === 'materials' || rawTab === 'tasks' ? rawTab : 'overview'
+
+    const setActiveTab = useCallback((tab: 'overview' | 'materials' | 'tasks') => {
+        const params = new URLSearchParams(searchParams.toString())
+        if (tab === 'overview') params.delete('tab')
+        else params.set('tab', tab)
+        router.replace(`?${params.toString()}`, { scroll: false })
+    }, [router, searchParams])
     const [editOpen, setEditOpen] = useState(false)
     const [confirmLeave, setConfirmLeave] = useState(false)
     const [confirmDelete, setConfirmDelete] = useState(false)

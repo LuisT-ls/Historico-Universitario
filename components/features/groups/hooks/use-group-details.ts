@@ -209,7 +209,7 @@ export function useGroupDetails() {
         }
     }
 
-    const handleUpdateTask = async (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'checklist' | 'links'>>) => {
+    const handleUpdateTask = async (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'links'>>) => {
         if (!group?.id) return
         const snapshot = [...tasks]
         setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, ...data, updatedAt: new Date() } : t)))

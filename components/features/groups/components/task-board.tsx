@@ -58,7 +58,7 @@ interface TaskBoardProps {
     isLoading: boolean
     currentUserId: string
     onAdd: (title: string, description?: string, assignedTo?: string, dueDate?: Date, status?: GroupTaskStatus) => Promise<void>
-    onUpdate: (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'checklist' | 'links'>>) => Promise<void>
+    onUpdate: (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'links'>>) => Promise<void>
     onAddComment: (taskId: string, text: string) => Promise<void>
     onUpdateStatus: (id: string, status: GroupTaskStatus) => Promise<void>
     onDelete: (id: string) => Promise<void>
@@ -100,6 +100,10 @@ function formatDueDate(date: Date): { label: string; overdue: boolean; soon: boo
 export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, onAddComment, onUpdateStatus, onDelete, members, getUserName }: TaskBoardProps) {
     const [detailTask, setDetailTask] = useState<GroupTask | null>(null)
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+
+    const handleToggleDone = (task: GroupTask) => {
+        onUpdate(task.id!, { done: !task.done })
+    }
 
     const handleDragEnd = (result: DropResult) => {
         if (!result.destination) return
@@ -147,6 +151,7 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
                                 getUserName={getUserName}
                                 onAdd={onAdd}
                                 onCardClick={setDetailTask}
+                                onToggleDone={handleToggleDone}
                             />
                         )
                     })}
@@ -222,6 +227,7 @@ function KanbanColumn({
     getUserName,
     onAdd,
     onCardClick,
+    onToggleDone,
 }: {
     col: typeof COLUMNS[number]
     tasks: GroupTask[]
@@ -230,6 +236,7 @@ function KanbanColumn({
     getUserName: (id: string) => string
     onAdd: TaskBoardProps['onAdd']
     onCardClick: (task: GroupTask) => void
+    onToggleDone: (task: GroupTask) => void
 }) {
     const [adding, setAdding] = useState(false)
     const [title, setTitle] = useState('')
@@ -290,6 +297,7 @@ function KanbanColumn({
                                 index={index}
                                 getUserName={getUserName}
                                 onClick={() => onCardClick(task)}
+                                onToggleDone={() => onToggleDone(task)}
                             />
                         ))}
                         {provided.placeholder}
@@ -358,13 +366,15 @@ function TaskCard({
     index,
     getUserName,
     onClick,
+    onToggleDone,
 }: {
     task: GroupTask
     index: number
     getUserName: (id: string) => string
     onClick: () => void
+    onToggleDone: () => void
 }) {
-    const isDone = task.status === 'completed'
+    const isDone = task.done === true
     const due = task.dueDate ? formatDueDate(task.dueDate) : null
 
     return (
@@ -375,12 +385,14 @@ function TaskCard({
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
                     className={cn(
-                        'bg-white dark:bg-slate-800/80 rounded-xl border border-border/40 shadow-sm',
+                        'bg-white dark:bg-slate-800/80 rounded-xl border shadow-sm',
                         'transition-all duration-150 select-none',
                         snapshot.isDragging
                             ? 'cursor-grabbing shadow-2xl ring-2 ring-primary/40 rotate-2 scale-[1.03] opacity-95'
-                            : 'cursor-grab hover:border-border/70 hover:shadow-md',
-                        isDone && 'opacity-60'
+                            : 'cursor-grab hover:shadow-md',
+                        isDone
+                            ? 'border-emerald-400/60 dark:border-emerald-600/50 hover:border-emerald-400/80'
+                            : 'border-border/40 hover:border-border/70'
                     )}
                     onClick={onClick}
                     aria-label={`Tarefa: ${task.title}. Segure e arraste para mover de coluna, ou clique para editar.`}
@@ -394,13 +406,28 @@ function TaskCard({
                         />
                     )}
                     <div className="p-3 space-y-2.5">
-                        {/* Título */}
-                        <p className={cn(
-                            'text-sm font-semibold leading-normal',
-                            isDone && 'line-through text-muted-foreground'
-                        )}>
-                            {task.title}
-                        </p>
+                        {/* Título + botão de conclusão */}
+                        <div className="flex items-start gap-2">
+                            <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); onToggleDone() }}
+                                aria-label={isDone ? 'Desmarcar como concluída' : 'Marcar como concluída'}
+                                className={cn(
+                                    'mt-0.5 w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all duration-150',
+                                    isDone
+                                        ? 'bg-emerald-500 border-emerald-500 text-white scale-110 shadow shadow-emerald-400/50 dark:shadow-emerald-500/40'
+                                        : 'border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-700 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:scale-110'
+                                )}
+                            >
+                                {isDone && <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />}
+                            </button>
+                            <p className={cn(
+                                'text-sm font-semibold leading-normal flex-1',
+                                isDone && 'line-through text-muted-foreground'
+                            )}>
+                                {task.title}
+                            </p>
+                        </div>
 
                         {/* Description preview */}
                         {task.description && (
@@ -613,7 +640,7 @@ function TaskDetailDialog({
     members: string[]
     getUserName: (id: string) => string
     currentUserId: string
-    onUpdate: (data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'checklist' | 'links'>>) => Promise<void>
+    onUpdate: (data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'links'>>) => Promise<void>
     onAddComment: (text: string) => Promise<void>
     onDelete: () => void
     onClose: () => void
@@ -649,7 +676,7 @@ function TaskDetailDialog({
     useEffect(() => { if (addingItem) newItemRef.current?.focus() }, [addingItem])
     useEffect(() => { if (addingLink) newLinkRef.current?.focus() }, [addingLink])
 
-    const save = async (patch: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'checklist' | 'links'>>) => {
+    const save = async (patch: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'links'>>) => {
         setSaving(true)
         try { await onUpdate(patch) } finally { setSaving(false) }
     }
@@ -1151,7 +1178,7 @@ function TaskDetailDialog({
                     <div className="flex items-center justify-between pt-1 border-t border-border/40">
                         <button
                             onClick={onDelete}
-                            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors font-bold"
+                            className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg text-destructive bg-destructive/8 hover:bg-destructive/15 transition-colors"
                             aria-label="Remover tarefa"
                         >
                             <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
