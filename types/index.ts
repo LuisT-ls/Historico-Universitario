@@ -173,6 +173,8 @@ export interface Group {
   ownerId: UserId
   members: UserId[] // Array rápido para consultas no Firestore
   inviteCode: string // Código de 6 caracteres para entrar no grupo
+  customColumns?: KanbanColumn[] // Colunas personalizadas do quadro Kanban
+  columnOrder?: string[] // Ordem de todas as colunas (IDs)
   createdAt?: Date
   updatedAt?: Date
 }
@@ -191,12 +193,23 @@ export interface GroupMaterial {
   createdAt?: Date
 }
 
-export type GroupTaskStatus = 'pending' | 'in_progress' | 'completed'
+export type GroupTaskStatus = 'pending' | 'in_progress' | 'completed' | (string & {})
+
+export interface KanbanColumn {
+  id: string
+  label: string
+}
 
 export interface ChecklistItem {
   id: string
   text: string
   done: boolean
+}
+
+export interface Checklist {
+  id: string
+  title: string
+  items: ChecklistItem[]
 }
 
 export interface TaskLink {
@@ -212,6 +225,15 @@ export interface TaskComment {
   createdAt: Date
 }
 
+export type TaskActivityAction = 'created' | 'edited' | 'status_changed' | 'done_toggled'
+
+export interface TaskActivity {
+  userId: string
+  action: TaskActivityAction
+  detail?: string // ex: "→ Em andamento", "título alterado"
+  timestamp: Date
+}
+
 export interface GroupTask {
   id?: GroupTaskId
   groupId: GroupId
@@ -220,9 +242,11 @@ export interface GroupTask {
   status: GroupTaskStatus
   color?: string // Cor do card no kanban (hex)
   done?: boolean // Marcado como concluído pelo usuário (independente da coluna)
+  checklists?: Checklist[] // Múltiplas listas de verificação nomeadas
+  activity?: TaskActivity[] // Histórico de edições
   assignedTo?: UserId // Para quem a tarefa está atribuída
   dueDate?: Date
-  checklist?: ChecklistItem[]
+  checklist?: ChecklistItem[] // Legado — mantido para compatibilidade com dados antigos
   links?: TaskLink[]
   comments?: TaskComment[]
   createdBy: UserId

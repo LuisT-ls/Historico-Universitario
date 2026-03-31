@@ -197,7 +197,14 @@ export function useGroupDetails() {
             prev.map((t) => (t.id === taskId ? { ...t, status, updatedAt: new Date() } : t))
         )
         try {
-            await updateGroupTask(group.id, taskId, { status })
+            const statusLabels: Record<string, string> = {
+                pending: 'A fazer',
+                in_progress: 'Em andamento',
+                completed: 'Concluído',
+            }
+            // Adiciona labels das colunas customizadas
+            group.customColumns?.forEach(col => { statusLabels[col.id] = col.label })
+            await updateGroupTask(group.id, taskId, { status }, user?.uid as string, 'status_changed', `→ ${statusLabels[status] ?? status}`)
         } catch {
             // Rollback: restaura status anterior se o Firestore falhar
             if (previousStatus !== undefined) {
@@ -209,12 +216,53 @@ export function useGroupDetails() {
         }
     }
 
-    const handleUpdateTask = async (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'links'>>) => {
+    const handleUpdateTask = async (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'checklists' | 'links'>>) => {
         if (!group?.id) return
+        const currentTask = tasks.find((t) => t.id === taskId)
         const snapshot = [...tasks]
         setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, ...data, updatedAt: new Date() } : t)))
         try {
-            await updateGroupTask(group.id, taskId, data)
+            let action: import('@/types').TaskActivityAction = 'edited'
+            let detail: string
+
+            if ('done' in data) {
+                action = 'done_toggled'
+                detail = data.done ? 'marcou como concluída' : 'desmarcou como concluída'
+            } else {
+                const changes: string[] = []
+                if ('title' in data)       changes.push('alterou o título')
+                if ('description' in data) changes.push('alterou a descrição')
+                if ('color' in data)       changes.push(data.color ? 'alterou a cor' : 'removeu a cor')
+                if ('dueDate' in data)     changes.push(data.dueDate ? 'definiu o prazo' : 'removeu o prazo')
+                if ('assignedTo' in data)  changes.push(data.assignedTo ? 'alterou o responsável' : 'removeu o responsável')
+                if ('checklists' in data) {
+                    const oldTotal = (currentTask?.checklists ?? []).reduce((s, l) => s + l.items.length, 0)
+                    const newTotal = (data.checklists ?? []).reduce((s, l) => s + l.items.length, 0)
+                    const oldListLen = currentTask?.checklists?.length ?? 0
+                    const newListLen = data.checklists?.length ?? 0
+                    if (newListLen > oldListLen)      changes.push('adicionou uma lista')
+                    else if (newListLen < oldListLen) changes.push('removeu uma lista')
+                    else if (newTotal > oldTotal)     changes.push('adicionou um item à lista')
+                    else if (newTotal < oldTotal)     changes.push('removeu um item da lista')
+                    else                              changes.push('alterou a lista de verificação')
+                } else if ('checklist' in data) {
+                    const oldLen = currentTask?.checklist?.length ?? 0
+                    const newLen = data.checklist?.length ?? 0
+                    if (newLen > oldLen)      changes.push('adicionou um item à lista')
+                    else if (newLen < oldLen) changes.push('removeu um item da lista')
+                    else                      changes.push('alterou a lista de verificação')
+                }
+                if ('links' in data) {
+                    const oldLen = currentTask?.links?.length ?? 0
+                    const newLen = data.links?.length ?? 0
+                    if (newLen > oldLen)      changes.push('adicionou um link')
+                    else if (newLen < oldLen) changes.push('removeu um link')
+                    else                      changes.push('alterou um link')
+                }
+                detail = changes.length > 0 ? changes.join(', ') : 'editou o cartão'
+            }
+
+            await updateGroupTask(group.id, taskId, data, user?.uid as string, action, detail)
         } catch {
             setTasks(snapshot)
             toast.error('Erro ao atualizar tarefa.')
@@ -286,7 +334,7 @@ export function useGroupDetails() {
     }
 
     const handleUpdateGroup = async (
-        data: Partial<Pick<Group, 'name' | 'description' | 'subjectCode'>>
+        data: Partial<Pick<Group, 'name' | 'description' | 'subjectCode' | 'customColumns' | 'columnOrder'>>
     ) => {
         if (!group?.id) return
         try {

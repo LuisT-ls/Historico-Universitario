@@ -16,7 +16,7 @@ import {
 import { db } from '@/lib/firebase/config'
 import { deleteFile } from '@/services/storage.service'
 import { logger } from '@/lib/logger'
-import type { Group, GroupId, GroupMaterial, GroupMaterialId, GroupTask, GroupTaskId, TaskComment, UserId } from '@/types'
+import type { Group, GroupId, GroupMaterial, GroupMaterialId, GroupTask, GroupTaskId, TaskActivity, TaskActivityAction, TaskComment, UserId } from '@/types'
 import { createGroupId, createGroupMaterialId, createGroupTaskId } from '@/lib/type-constants'
 
 /**
@@ -166,7 +166,7 @@ export async function leaveGroup(groupId: string, userId: UserId): Promise<void>
  */
 export async function updateGroup(
     groupId: string,
-    data: Partial<Pick<Group, 'name' | 'description' | 'subjectCode'>>
+    data: Partial<Pick<Group, 'name' | 'description' | 'subjectCode' | 'customColumns' | 'columnOrder'>>
 ): Promise<void> {
     if (!db) throw new Error('Firestore não inicializado')
     try {
@@ -287,9 +287,17 @@ export async function addGroupTask(task: Omit<GroupTask, 'id' | 'createdAt' | 'u
 
     try {
         // Firestore não aceita campos undefined — filtra antes de persistir
+        const createdActivity: TaskActivity = {
+            userId: task.createdBy,
+            action: 'created',
+            detail: 'adicionou este cartão',
+            timestamp: new Date(),
+        }
+
         const taskData = Object.fromEntries(
             Object.entries({
                 ...task,
+                activity: [createdActivity],
                 createdAt: new Date(),
                 updatedAt: new Date(),
             }).filter(([, v]) => v !== undefined)
@@ -336,7 +344,14 @@ export async function getGroupTasks(groupId: string): Promise<GroupTask[]> {
 /**
  * Atualiza uma tarefa (status, atribuição, etc)
  */
-export async function updateGroupTask(groupId: string, taskId: string, data: Partial<GroupTask>): Promise<void> {
+export async function updateGroupTask(
+    groupId: string,
+    taskId: string,
+    data: Partial<GroupTask>,
+    actorId?: string,
+    action?: TaskActivityAction,
+    detail?: string
+): Promise<void> {
     if (!db) throw new Error('Firestore não inicializado')
 
     try {
@@ -346,6 +361,17 @@ export async function updateGroupTask(groupId: string, taskId: string, data: Par
             Object.entries({ ...data, updatedAt: new Date() })
                 .map(([k, v]) => [k, v === undefined ? deleteField() : v])
         )
+
+        if (actorId && action) {
+            const entry: TaskActivity = {
+                userId: actorId,
+                action,
+                ...(detail ? { detail } : {}),
+                timestamp: new Date(),
+            }
+            payload.activity = arrayUnion(entry)
+        }
+
         await updateDoc(taskRef, payload)
     } catch (error) {
         logger.error('Erro ao atualizar tarefa do grupo:', error)

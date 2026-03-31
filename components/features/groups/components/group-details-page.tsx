@@ -430,6 +430,9 @@ export function GroupDetailsPage() {
                                 members={group.members}
                                 getUserName={getUserName}
                                 currentUserId={user?.uid ?? ''}
+                                customColumns={group.customColumns ?? []}
+                                columnOrder={group.columnOrder}
+                                onUpdateGroup={handleUpdateGroup}
                              />
                         )}
                     </motion.div>

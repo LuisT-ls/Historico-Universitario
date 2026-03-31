@@ -1,6 +1,6 @@
 'use client'
 
-import { ChecklistItem, GroupTask, GroupTaskStatus, TaskLink } from '@/types'
+import { GroupTask, GroupTaskStatus, Group, KanbanColumn as KanbanColumnType, TaskActivity, TaskLink } from '@/types'
 import { isSafeExternalUrl } from '@/lib/utils/text'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -24,6 +24,7 @@ import {
     Droppable,
     Draggable,
     type DropResult,
+    type DraggableProvidedDragHandleProps,
 } from '@hello-pangea/dnd'
 import {
     Plus,
@@ -37,7 +38,7 @@ import {
     ListTodo,
     X,
     AlignLeft,
-    CheckSquare,
+    LayoutList,
     Paperclip,
     ExternalLink,
     Bold,
@@ -49,7 +50,7 @@ import {
     Undo,
     Redo,
 } from 'lucide-react'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 
 interface TaskBoardProps {
@@ -58,12 +59,25 @@ interface TaskBoardProps {
     isLoading: boolean
     currentUserId: string
     onAdd: (title: string, description?: string, assignedTo?: string, dueDate?: Date, status?: GroupTaskStatus) => Promise<void>
-    onUpdate: (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'links'>>) => Promise<void>
+    onUpdate: (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'checklists' | 'links'>>) => Promise<void>
     onAddComment: (taskId: string, text: string) => Promise<void>
     onUpdateStatus: (id: string, status: GroupTaskStatus) => Promise<void>
     onDelete: (id: string) => Promise<void>
     members: string[]
     getUserName: (userId: string) => string
+    customColumns?: KanbanColumnType[]
+    columnOrder?: string[]
+    onUpdateGroup?: (data: Partial<Pick<Group, 'name' | 'description' | 'subjectCode' | 'customColumns' | 'columnOrder'>>) => Promise<void>
+}
+
+interface ColumnDef {
+    id: string
+    label: string
+    icon: React.ElementType
+    color: string
+    bg: string
+    dot: string
+    isCustom?: boolean
 }
 
 const CARD_COLORS: { id: string; label: string; hex: string | null }[] = [
@@ -78,10 +92,21 @@ const CARD_COLORS: { id: string; label: string; hex: string | null }[] = [
     { id: 'pink',   label: 'Rosa',      hex: '#ec4899' },
 ]
 
-const COLUMNS: { id: GroupTaskStatus; label: string; icon: React.ElementType; color: string; bg: string; dot: string }[] = [
+const DEFAULT_COLUMNS: ColumnDef[] = [
     { id: 'pending',     label: 'A fazer',      icon: Circle,       color: 'text-slate-500',   bg: 'bg-slate-100 dark:bg-slate-800',        dot: 'bg-slate-400' },
     { id: 'in_progress', label: 'Em andamento', icon: Clock,        color: 'text-blue-600',    bg: 'bg-blue-50 dark:bg-blue-950/40',         dot: 'bg-blue-500' },
     { id: 'completed',   label: 'Concluído',    icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/40',   dot: 'bg-emerald-500' },
+]
+
+const CUSTOM_COLUMN_STYLES: { color: string; bg: string; dot: string }[] = [
+    { color: 'text-violet-600',  bg: 'bg-violet-50 dark:bg-violet-950/40',  dot: 'bg-violet-500' },
+    { color: 'text-amber-600',   bg: 'bg-amber-50 dark:bg-amber-950/40',    dot: 'bg-amber-500' },
+    { color: 'text-rose-600',    bg: 'bg-rose-50 dark:bg-rose-950/40',      dot: 'bg-rose-500' },
+    { color: 'text-cyan-600',    bg: 'bg-cyan-50 dark:bg-cyan-950/40',      dot: 'bg-cyan-500' },
+    { color: 'text-orange-600',  bg: 'bg-orange-50 dark:bg-orange-950/40',  dot: 'bg-orange-500' },
+    { color: 'text-teal-600',    bg: 'bg-teal-50 dark:bg-teal-950/40',      dot: 'bg-teal-500' },
+    { color: 'text-pink-600',    bg: 'bg-pink-50 dark:bg-pink-950/40',      dot: 'bg-pink-500' },
+    { color: 'text-indigo-600',  bg: 'bg-indigo-50 dark:bg-indigo-950/40',  dot: 'bg-indigo-500' },
 ]
 
 function formatDueDate(date: Date): { label: string; overdue: boolean; soon: boolean } {
@@ -97,9 +122,39 @@ function formatDueDate(date: Date): { label: string; overdue: boolean; soon: boo
 /**
  * Quadro Kanban estilo Trello — colunas com add inline, cards clicáveis com modal de edição.
  */
-export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, onAddComment, onUpdateStatus, onDelete, members, getUserName }: TaskBoardProps) {
+export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, onAddComment, onUpdateStatus, onDelete, members, getUserName, customColumns = [], columnOrder, onUpdateGroup }: TaskBoardProps) {
     const [detailTask, setDetailTask] = useState<GroupTask | null>(null)
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+    const [addingColumn, setAddingColumn] = useState(false)
+    const [newColumnName, setNewColumnName] = useState('')
+    const newColumnRef = useRef<HTMLInputElement>(null)
+
+    useEffect(() => { if (addingColumn) newColumnRef.current?.focus() }, [addingColumn])
+
+    // Build all column definitions (unordered map)
+    const allColumnDefs = useMemo<Record<string, ColumnDef>>(() => {
+        const map: Record<string, ColumnDef> = {}
+        DEFAULT_COLUMNS.forEach(c => { map[c.id] = c })
+        customColumns.forEach((c, i) => {
+            const style = CUSTOM_COLUMN_STYLES[i % CUSTOM_COLUMN_STYLES.length]
+            map[c.id] = { id: c.id, label: c.label, icon: LayoutList, isCustom: true, ...style }
+        })
+        return map
+    }, [customColumns])
+
+    // Build ordered columns list: use columnOrder if available, else default order
+    const columns = useMemo<ColumnDef[]>(() => {
+        const defaultOrder = [...DEFAULT_COLUMNS.map(c => c.id), ...customColumns.map(c => c.id)]
+        const order = columnOrder ?? defaultOrder
+        // Map ordered IDs to ColumnDef, filter out any stale IDs
+        const ordered = order
+            .filter(id => allColumnDefs[id])
+            .map(id => allColumnDefs[id])
+        // Add any new columns not yet in the order (e.g. just created)
+        const inOrder = new Set(order)
+        defaultOrder.forEach(id => { if (!inOrder.has(id) && allColumnDefs[id]) ordered.push(allColumnDefs[id]) })
+        return ordered
+    }, [columnOrder, allColumnDefs, customColumns])
 
     const handleToggleDone = (task: GroupTask) => {
         onUpdate(task.id!, { done: !task.done })
@@ -107,6 +162,17 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
 
     const handleDragEnd = (result: DropResult) => {
         if (!result.destination) return
+
+        // Column reordering
+        if (result.type === 'COLUMN') {
+            const newOrder = columns.map(c => c.id)
+            const [moved] = newOrder.splice(result.source.index, 1)
+            newOrder.splice(result.destination.index, 0, moved)
+            onUpdateGroup?.({ columnOrder: newOrder })
+            return
+        }
+
+        // Card reordering (between columns)
         const newStatus = result.destination.droppableId as GroupTaskStatus
         const task = tasks.find((t) => t.id === result.draggableId)
         if (!task || task.status === newStatus) return
@@ -120,10 +186,28 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
         setDetailTask(null)
     }
 
+    const handleAddColumn = async () => {
+        const label = newColumnName.trim()
+        if (!label || !onUpdateGroup) { setAddingColumn(false); return }
+        const id = `custom-${Date.now()}`
+        const updatedCols = [...customColumns, { id, label }]
+        const updatedOrder = [...columns.map(c => c.id), id]
+        setNewColumnName('')
+        setAddingColumn(false)
+        await onUpdateGroup({ customColumns: updatedCols, columnOrder: updatedOrder })
+    }
+
+    const handleDeleteColumn = async (colId: string) => {
+        if (!onUpdateGroup) return
+        const updatedCols = customColumns.filter(c => c.id !== colId)
+        const updatedOrder = columns.filter(c => c.id !== colId).map(c => c.id)
+        await onUpdateGroup({ customColumns: updatedCols, columnOrder: updatedOrder })
+    }
+
     if (isLoading) {
         return (
             <div className="flex gap-4 overflow-x-auto pb-4">
-                {COLUMNS.map((col) => (
+                {DEFAULT_COLUMNS.map((col) => (
                     <div key={col.id} className="w-72 shrink-0 space-y-3">
                         <div className="h-8 w-32 bg-muted/40 rounded-xl animate-pulse" />
                         {[1, 2, 3].map((i) => (
@@ -138,24 +222,103 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
     return (
         <>
             <DragDropContext onDragEnd={handleDragEnd}>
-                <div className="flex gap-4 overflow-x-auto pb-6 -mx-1 px-1 items-start">
-                    {COLUMNS.map((col) => {
-                        const colTasks = tasks.filter((t) => t.status === col.id)
-                        return (
-                            <KanbanColumn
-                                key={col.id}
-                                col={col}
-                                tasks={colTasks}
-                                allTasks={tasks}
-                                members={members}
-                                getUserName={getUserName}
-                                onAdd={onAdd}
-                                onCardClick={setDetailTask}
-                                onToggleDone={handleToggleDone}
-                            />
-                        )
-                    })}
-                </div>
+                <Droppable droppableId="board-columns" direction="horizontal" type="COLUMN">
+                    {(boardProvided) => (
+                        <div
+                            ref={boardProvided.innerRef}
+                            {...boardProvided.droppableProps}
+                            className="flex gap-4 overflow-x-auto pb-6 -mx-1 px-1 items-start"
+                        >
+                            {columns.map((col, colIndex) => {
+                                const colTasks = tasks.filter((t) => t.status === col.id)
+                                return (
+                                    <Draggable key={col.id} draggableId={`col-${col.id}`} index={colIndex}>
+                                        {(dragProvided, dragSnapshot) => (
+                                            <div
+                                                ref={dragProvided.innerRef}
+                                                {...dragProvided.draggableProps}
+                                                className={cn(
+                                                    'w-72 shrink-0 transition-shadow',
+                                                    dragSnapshot.isDragging && 'shadow-2xl opacity-90 rotate-[2deg]'
+                                                )}
+                                            >
+                                                <KanbanColumn
+                                                    col={col}
+                                                    tasks={colTasks}
+                                                    allTasks={tasks}
+                                                    members={members}
+                                                    getUserName={getUserName}
+                                                    onAdd={onAdd}
+                                                    onCardClick={setDetailTask}
+                                                    onToggleDone={handleToggleDone}
+                                                    onDeleteColumn={col.isCustom ? () => handleDeleteColumn(col.id) : undefined}
+                                                    dragHandleProps={dragProvided.dragHandleProps}
+                                                />
+                                            </div>
+                                        )}
+                                    </Draggable>
+                                )
+                            })}
+                            {boardProvided.placeholder}
+
+                            {/* Botão para adicionar nova coluna */}
+                            <div className="w-72 shrink-0">
+                                {addingColumn ? (
+                                    <div className="bg-slate-50 dark:bg-slate-900/60 border border-border/50 rounded-2xl p-3 space-y-2">
+                                        <Input
+                                            ref={newColumnRef}
+                                            value={newColumnName}
+                                            onChange={(e) => setNewColumnName(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') handleAddColumn()
+                                                if (e.key === 'Escape') { setNewColumnName(''); setAddingColumn(false) }
+                                            }}
+                                            placeholder="Nome da lista..."
+                                            className="h-9 text-sm rounded-xl bg-white dark:bg-slate-800 shadow-sm"
+                                        />
+                                        <div className="flex gap-1.5">
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                onClick={handleAddColumn}
+                                                disabled={!newColumnName.trim()}
+                                                className="h-8 px-4 rounded-xl text-xs font-bold flex-1 shadow-sm"
+                                            >
+                                                Criar lista
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="ghost"
+                                                onClick={() => { setNewColumnName(''); setAddingColumn(false) }}
+                                                className="h-8 w-8 p-0 rounded-xl"
+                                                aria-label="Cancelar"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => setAddingColumn(true)}
+                                        className={cn(
+                                            'w-full flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200',
+                                            'border-2 border-dashed border-border/40 text-muted-foreground',
+                                            'hover:border-primary/40 hover:text-primary hover:bg-primary/5 hover:border-solid',
+                                            'active:scale-[0.98]'
+                                        )}
+                                        aria-label="Adicionar nova lista"
+                                    >
+                                        <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-muted/60 shrink-0">
+                                            <Plus className="h-4 w-4" aria-hidden="true" />
+                                        </span>
+                                        <span>Nova lista</span>
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </Droppable>
             </DragDropContext>
 
             {tasks.length === 0 && (
@@ -174,6 +337,7 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
             {detailTask && (
                 <TaskDetailDialog
                     task={detailTask}
+                    columns={columns}
                     members={members}
                     getUserName={getUserName}
                     currentUserId={currentUserId}
@@ -228,8 +392,10 @@ function KanbanColumn({
     onAdd,
     onCardClick,
     onToggleDone,
+    onDeleteColumn,
+    dragHandleProps,
 }: {
-    col: typeof COLUMNS[number]
+    col: ColumnDef
     tasks: GroupTask[]
     allTasks: GroupTask[]
     members: string[]
@@ -237,6 +403,8 @@ function KanbanColumn({
     onAdd: TaskBoardProps['onAdd']
     onCardClick: (task: GroupTask) => void
     onToggleDone: (task: GroupTask) => void
+    onDeleteColumn?: () => void
+    dragHandleProps?: DraggableProvidedDragHandleProps | null
 }) {
     const [adding, setAdding] = useState(false)
     const [title, setTitle] = useState('')
@@ -266,17 +434,28 @@ function KanbanColumn({
 
     return (
         <div className="w-72 shrink-0 flex flex-col rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-border/50">
-            {/* Cabeçalho da coluna */}
-            <div className="flex items-center gap-2 px-3 pt-3 pb-2">
+            {/* Cabeçalho da coluna — serve como drag handle */}
+            <div {...(dragHandleProps ?? {})} className="flex items-center gap-2 px-3 pt-3 pb-2 cursor-grab active:cursor-grabbing select-none">
                 <span className={cn('w-2.5 h-2.5 rounded-full shrink-0', col.dot)} />
                 <span className="text-sm font-black text-foreground flex-1">{col.label}</span>
                 <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-full tabular-nums">
                     {tasks.length}
                 </span>
+                {onDeleteColumn && (
+                    <button
+                        type="button"
+                        onClick={onDeleteColumn}
+                        className="text-muted-foreground/40 hover:text-destructive transition-colors p-0.5 rounded-md hover:bg-destructive/10"
+                        aria-label={`Remover lista ${col.label}`}
+                        title="Remover lista"
+                    >
+                        <X className="h-3.5 w-3.5" aria-hidden="true" />
+                    </button>
+                )}
             </div>
 
             {/* Cards */}
-            <Droppable droppableId={col.id}>
+            <Droppable droppableId={col.id} type="CARD">
                 {(provided, snapshot) => (
                     <div
                         ref={provided.innerRef}
@@ -436,29 +615,7 @@ function TaskCard({
                             </p>
                         )}
 
-                        {/* Checklist preview */}
-                        {task.checklist && task.checklist.length > 0 && (() => {
-                            const done = task.checklist.filter((i) => i.done).length
-                            const total = task.checklist.length
-                            const pct = Math.round((done / total) * 100)
-                            return (
-                                <div className="space-y-1">
-                                    <div className="flex items-center justify-between">
-                                        <span className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
-                                            <CheckSquare className="h-3 w-3" aria-hidden="true" />
-                                            {done}/{total}
-                                        </span>
-                                        <span className="text-[10px] font-bold text-muted-foreground">{pct}%</span>
-                                    </div>
-                                    <div className="h-1 rounded-full bg-muted overflow-hidden">
-                                        <div
-                                            className={cn('h-full rounded-full transition-all', pct === 100 ? 'bg-emerald-500' : 'bg-primary')}
-                                            style={{ width: `${pct}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            )
-                        })()}
+
 
                         {/* Links preview */}
                         {task.links && task.links.length > 0 && (
@@ -628,6 +785,7 @@ function DescriptionEditor({ initialContent, editable, onChange, onClickEdit }: 
 
 function TaskDetailDialog({
     task,
+    columns,
     members,
     getUserName,
     currentUserId,
@@ -637,10 +795,11 @@ function TaskDetailDialog({
     onClose,
 }: {
     task: GroupTask
+    columns: ColumnDef[]
     members: string[]
     getUserName: (id: string) => string
     currentUserId: string
-    onUpdate: (data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'links'>>) => Promise<void>
+    onUpdate: (data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'checklists' | 'links'>>) => Promise<void>
     onAddComment: (text: string) => Promise<void>
     onDelete: () => void
     onClose: () => void
@@ -658,10 +817,7 @@ function TaskDetailDialog({
     const [commentText, setCommentText] = useState('')
     const [submittingComment, setSubmittingComment] = useState(false)
     const commentsEndRef = useRef<HTMLDivElement>(null)
-    const [checklist, setChecklist] = useState<ChecklistItem[]>(task.checklist ?? [])
-    const [newItemText, setNewItemText] = useState('')
-    const [addingItem, setAddingItem] = useState(false)
-    const newItemRef = useRef<HTMLInputElement>(null)
+
     const [links, setLinks] = useState<TaskLink[]>(task.links ?? [])
     const [addingLink, setAddingLink] = useState(false)
     const [newLinkUrl, setNewLinkUrl] = useState('')
@@ -673,10 +829,9 @@ function TaskDetailDialog({
     const titleRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => { if (editingTitle) titleRef.current?.focus() }, [editingTitle])
-    useEffect(() => { if (addingItem) newItemRef.current?.focus() }, [addingItem])
     useEffect(() => { if (addingLink) newLinkRef.current?.focus() }, [addingLink])
 
-    const save = async (patch: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'links'>>) => {
+    const save = async (patch: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'done' | 'checklist' | 'checklists' | 'links'>>) => {
         setSaving(true)
         try { await onUpdate(patch) } finally { setSaving(false) }
     }
@@ -737,27 +892,6 @@ function TaskDetailDialog({
         }
     }
 
-    const saveChecklist = async (updated: ChecklistItem[]) => {
-        setChecklist(updated)
-        await save({ checklist: updated })
-    }
-
-    const toggleItem = (id: string) => {
-        const updated = checklist.map((item) => item.id === id ? { ...item, done: !item.done } : item)
-        saveChecklist(updated)
-    }
-
-    const addItem = async () => {
-        if (!newItemText.trim()) { setAddingItem(false); return }
-        const updated: ChecklistItem[] = [...checklist, { id: `${Date.now()}-${Math.random()}`, text: newItemText.trim(), done: false }]
-        setNewItemText('')
-        await saveChecklist(updated)
-        newItemRef.current?.focus()
-    }
-
-    const deleteItem = (id: string) => {
-        saveChecklist(checklist.filter((item) => item.id !== id))
-    }
 
     const saveLinks = async (updated: TaskLink[]) => {
         setLinks(updated)
@@ -780,7 +914,7 @@ function TaskDetailDialog({
         saveLinks(links.filter((l) => l.id !== id))
     }
 
-    const currentCol = COLUMNS.find((c) => c.id === task.status)!
+    const currentCol = columns.find((c) => c.id === task.status) ?? DEFAULT_COLUMNS[0]
 
     return (
         <Dialog open onOpenChange={(o) => !o && onClose()}>
@@ -1000,98 +1134,7 @@ function TaskDetailDialog({
                     </div>
 
 
-                    {/* Checklist */}
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60">
-                                <CheckSquare className="h-3 w-3 inline-block mr-1" aria-hidden="true" />
-                                Lista de verificação
-                                {checklist.length > 0 && (
-                                    <span className="ml-1.5 font-bold normal-case tracking-normal opacity-80">
-                                        {checklist.filter((i) => i.done).length}/{checklist.length}
-                                    </span>
-                                )}
-                            </Label>
-                        </div>
-
-                        {/* Barra de progresso */}
-                        {checklist.length > 0 && (
-                            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                                <div
-                                    className={cn(
-                                        'h-full rounded-full transition-all duration-300',
-                                        checklist.every((i) => i.done) ? 'bg-emerald-500' : 'bg-primary'
-                                    )}
-                                    style={{ width: `${Math.round((checklist.filter((i) => i.done).length / checklist.length) * 100)}%` }}
-                                />
-                            </div>
-                        )}
-
-                        {/* Itens */}
-                        {checklist.length > 0 && (
-                            <ul className="space-y-1">
-                                {checklist.map((item) => (
-                                    <li key={item.id} className="group flex items-center gap-2 py-1 px-1 rounded-lg hover:bg-muted/50 transition-colors">
-                                        <button
-                                            type="button"
-                                            onClick={() => toggleItem(item.id)}
-                                            className={cn(
-                                                'w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors',
-                                                item.done
-                                                    ? 'bg-emerald-500 border-emerald-500 text-white'
-                                                    : 'border-border hover:border-primary'
-                                            )}
-                                            aria-label={item.done ? 'Marcar como não feito' : 'Marcar como feito'}
-                                        >
-                                            {item.done && <CheckCircle2 className="h-3 w-3" aria-hidden="true" />}
-                                        </button>
-                                        <span className={cn('text-sm flex-1 leading-normal', item.done && 'line-through text-muted-foreground')}>
-                                            {item.text}
-                                        </span>
-                                        <button
-                                            type="button"
-                                            onClick={() => deleteItem(item.id)}
-                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                                            aria-label="Remover item"
-                                        >
-                                            <X className="h-3.5 w-3.5" aria-hidden="true" />
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-
-                        {/* Adicionar item */}
-                        {addingItem ? (
-                            <div className="flex gap-1.5">
-                                <Input
-                                    ref={newItemRef}
-                                    value={newItemText}
-                                    onChange={(e) => setNewItemText(e.target.value)}
-                                    onKeyDown={(e) => { if (e.key === 'Enter') addItem(); if (e.key === 'Escape') { setNewItemText(''); setAddingItem(false) } }}
-                                    placeholder="Item da lista..."
-                                    className="h-8 text-sm rounded-xl flex-1"
-                                />
-                                <Button type="button" size="sm" onClick={addItem} disabled={!newItemText.trim()} className="h-8 px-3 rounded-xl text-xs font-bold">
-                                    Adicionar
-                                </Button>
-                                <Button type="button" size="sm" variant="ghost" onClick={() => { setNewItemText(''); setAddingItem(false) }} className="h-8 w-8 p-0 rounded-xl">
-                                    <X className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        ) : (
-                            <button
-                                type="button"
-                                onClick={() => setAddingItem(true)}
-                                className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
-                            >
-                                <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-                                Adicionar item
-                            </button>
-                        )}
-                    </div>
-
-                    {/* Links / Anexos */}
+                                        {/* Links / Anexos */}
                     <div className="space-y-2">
                         <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60">
                             <Paperclip className="h-3 w-3 inline-block mr-1" aria-hidden="true" />
@@ -1258,6 +1301,65 @@ function TaskDetailDialog({
                         )}
                         <div ref={commentsEndRef} />
                     </div>
+
+                    {/* Histórico de atividade */}
+                    {task.activity && task.activity.length > 0 && (
+                        <div className="px-4 pb-3 border-t border-border/40 pt-3">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mb-3">
+                                Histórico
+                            </p>
+                            <div className="space-y-3 max-h-[176px] overflow-y-auto pr-1">
+                                {[...task.activity]
+                                    .sort((a, b) => {
+                                        const ta = a.timestamp instanceof Date ? a.timestamp.getTime() : (a.timestamp as { seconds: number }).seconds * 1000
+                                        const tb = b.timestamp instanceof Date ? b.timestamp.getTime() : (b.timestamp as { seconds: number }).seconds * 1000
+                                        return tb - ta
+                                    })
+                                    .slice(0, 15)
+                                    .map((entry, i) => {
+                                        const name = getUserName(entry.userId)
+                                        const isMe = entry.userId === currentUserId
+                                        const date = entry.timestamp instanceof Date ? entry.timestamp : new Date((entry.timestamp as { seconds: number }).seconds * 1000)
+
+                                        // Data e hora formatadas
+                                        const now = new Date()
+                                        const isToday = date.toDateString() === now.toDateString()
+                                        const isYesterday = date.toDateString() === new Date(now.getTime() - 86400000).toDateString()
+                                        const timeStr = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+                                        const dateStr = isToday
+                                            ? `hoje às ${timeStr}`
+                                            : isYesterday
+                                                ? `ontem às ${timeStr}`
+                                                : `${date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined })} às ${timeStr}`
+
+                                        const label = entry.detail ?? (
+                                            entry.action === 'created' ? 'adicionou este cartão' :
+                                            entry.action === 'status_changed' ? `moveu ${entry.detail}` :
+                                            'editou o cartão'
+                                        )
+
+                                        return (
+                                            <div key={i} className="flex items-start gap-2">
+                                                <div className={cn(
+                                                    'w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-[10px] font-bold text-white mt-0.5',
+                                                    isMe ? 'bg-primary' : 'bg-slate-400 dark:bg-slate-600'
+                                                )}>
+                                                    {name?.[0]?.toUpperCase() ?? '?'}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-[11px] leading-snug">
+                                                        <span className="font-bold text-foreground">{isMe ? 'Você' : name}</span>
+                                                        {' '}
+                                                        <span className="text-muted-foreground">{label}</span>
+                                                    </p>
+                                                    <p className="text-[10px] text-muted-foreground/50 mt-0.5">{dateStr}</p>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Caixa de novo comentário */}
                     <div className="px-4 py-3 border-t border-border/60 space-y-2 shrink-0">
