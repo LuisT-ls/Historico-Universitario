@@ -285,3 +285,17 @@ html:not(.dark-mode) footer a:not([class*="bg-"]) {
 html:not(.dark-mode) footer a:hover:not([class*="bg-"]) {
   color: hsl(var(--foreground));
 }
+
+/* ─── TipTap WYSIWYG editor styles ──────────────────────────────────────────── */
+.tiptap-content p { @apply mb-1.5 last:mb-0 leading-relaxed; }
+.tiptap-content strong { @apply font-bold; }
+.tiptap-content em { @apply italic; }
+.tiptap-content s { @apply line-through text-muted-foreground; }
+.tiptap-content code { @apply bg-muted px-1 py-0.5 rounded text-xs font-mono border border-border/40; }
+.tiptap-content ul { @apply list-disc pl-4 mb-1.5 space-y-0.5; }
+.tiptap-content ol { @apply list-decimal pl-4 mb-1.5 space-y-0.5; }
+.tiptap-content li { @apply leading-relaxed; }
+.tiptap-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply text-muted-foreground/50 pointer-events-none float-left h-0;
+}

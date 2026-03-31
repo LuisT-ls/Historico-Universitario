@@ -2,7 +2,8 @@
 
 import { ChecklistItem, GroupTask, GroupTaskStatus, TaskLink } from '@/types'
 import { isSafeExternalUrl } from '@/lib/utils/text'
-import ReactMarkdown from 'react-markdown'
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -44,6 +45,8 @@ import {
     Code,
     List,
     ListOrdered,
+    Undo,
+    Redo,
 } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
@@ -381,7 +384,7 @@ function TaskCard({
                         {/* Description preview */}
                         {task.description && (
                             <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                                {task.description}
+                                {stripHtml(task.description)}
                             </p>
                         )}
 
@@ -454,80 +457,115 @@ function TaskCard({
     )
 }
 
-// ─── Formatação de descrição ──────────────────────────────────────────────────
+// ─── Editor WYSIWYG de Descrição ─────────────────────────────────────────────
 
-type FormatType = 'bold' | 'italic' | 'strike' | 'code' | 'ul' | 'ol'
-
-function applyFormat(
-    textarea: HTMLTextAreaElement,
-    type: FormatType,
-    setValue: (v: string) => void
-) {
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const sel = textarea.value.substring(start, end)
-    const before = textarea.value.substring(0, start)
-    const after = textarea.value.substring(end)
-
-    let replacement: string
-    let innerLen: number
-
-    switch (type) {
-        case 'bold':    replacement = `**${sel || 'texto'}**`;     innerLen = (sel || 'texto').length; break
-        case 'italic':  replacement = `*${sel || 'texto'}*`;       innerLen = (sel || 'texto').length; break
-        case 'strike':  replacement = `~~${sel || 'texto'}~~`;     innerLen = (sel || 'texto').length; break
-        case 'code':    replacement = `\`${sel || 'código'}\``;    innerLen = (sel || 'código').length; break
-        case 'ul': {
-            const lines = (sel || 'item').split('\n')
-            replacement = lines.map((l) => `- ${l}`).join('\n')
-            innerLen = replacement.length
-            break
-        }
-        case 'ol': {
-            const lines = (sel || 'item').split('\n')
-            replacement = lines.map((l, i) => `${i + 1}. ${l}`).join('\n')
-            innerLen = replacement.length
-            break
-        }
-    }
-
-    setValue(before + replacement + after)
-
-    const prefixLen = { bold: 2, italic: 1, strike: 2, code: 1, ul: 0, ol: 0 }[type]
-    const selStart = start + prefixLen
-    const selEnd = selStart + innerLen
-
-    requestAnimationFrame(() => {
-        textarea.focus()
-        textarea.setSelectionRange(selStart, selEnd)
-    })
+function stripHtml(html: string): string {
+    return html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim()
 }
 
-const FORMAT_BUTTONS: { type: FormatType; icon: React.ElementType; label: string; group: number }[] = [
-    { type: 'bold',   icon: Bold,          label: 'Negrito (Ctrl+B)',      group: 1 },
-    { type: 'italic', icon: Italic,        label: 'Itálico (Ctrl+I)',      group: 1 },
-    { type: 'strike', icon: Strikethrough, label: 'Tachado',               group: 1 },
-    { type: 'code',   icon: Code,          label: 'Código inline',         group: 2 },
-    { type: 'ul',     icon: List,          label: 'Lista não ordenada',    group: 3 },
-    { type: 'ol',     icon: ListOrdered,   label: 'Lista ordenada',        group: 3 },
-]
+interface DescriptionEditorProps {
+    initialContent: string
+    editable: boolean
+    onChange: (html: string) => void
+    onClickEdit: () => void
+}
 
-function MarkdownContent({ children }: { children: string }) {
-    return (
-        <ReactMarkdown
-            components={{
-                p:      ({ children }) => <p className="mb-1.5 last:mb-0 leading-relaxed">{children}</p>,
-                strong: ({ children }) => <strong className="font-bold">{children}</strong>,
-                em:     ({ children }) => <em className="italic">{children}</em>,
-                del:    ({ children }) => <del className="line-through text-muted-foreground">{children}</del>,
-                code:   ({ children }) => <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono border border-border/40">{children}</code>,
-                ul:     ({ children }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5">{children}</ul>,
-                ol:     ({ children }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5">{children}</ol>,
-                li:     ({ children }) => <li className="leading-relaxed">{children}</li>,
-            }}
+function DescriptionEditor({ initialContent, editable, onChange, onClickEdit }: DescriptionEditorProps) {
+    const editor = useEditor({
+        extensions: [
+            StarterKit.configure({ heading: false }),
+        ],
+        content: initialContent || '',
+        editable,
+        immediatelyRender: false,
+        onUpdate: ({ editor }) => {
+            onChange(editor.getHTML())
+        },
+        editorProps: {
+            attributes: {
+                class: 'tiptap-content min-h-[80px] px-3 py-2.5 text-sm leading-relaxed focus:outline-none',
+                'data-placeholder': 'Clique para adicionar uma descrição...',
+            },
+        },
+    })
+
+    // Sync editable state when it changes
+    useEffect(() => {
+        if (!editor) return
+        editor.setEditable(editable)
+        if (editable) {
+            requestAnimationFrame(() => {
+                editor.commands.focus('end')
+            })
+        }
+    }, [editor, editable])
+
+    // Reset content when task changes (cancel)
+    useEffect(() => {
+        if (!editor || editable) return
+        const current = editor.getHTML()
+        if (current !== initialContent) {
+            editor.commands.setContent(initialContent || '')
+        }
+    }, [editor, initialContent, editable])
+
+    const toolbarBtn = (
+        active: boolean,
+        onClick: () => void,
+        icon: React.ReactNode,
+        label: string
+    ) => (
+        <button
+            type="button"
+            title={label}
+            aria-label={label}
+            onMouseDown={(e) => { e.preventDefault(); onClick() }}
+            className={cn(
+                'w-7 h-7 flex items-center justify-center rounded-md transition-colors',
+                active
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted/80'
+            )}
         >
-            {children}
-        </ReactMarkdown>
+            {icon}
+        </button>
+    )
+
+    return (
+        <div className="rounded-xl border border-border overflow-hidden ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-0">
+            {/* Toolbar — só aparece no modo de edição */}
+            {editable && editor && (
+                <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-border bg-muted/20">
+                    {toolbarBtn(editor.isActive('bold'),   () => editor.chain().focus().toggleBold().run(),          <Bold className="h-3.5 w-3.5" />,          'Negrito (Ctrl+B)')}
+                    {toolbarBtn(editor.isActive('italic'), () => editor.chain().focus().toggleItalic().run(),        <Italic className="h-3.5 w-3.5" />,        'Itálico (Ctrl+I)')}
+                    {toolbarBtn(editor.isActive('strike'), () => editor.chain().focus().toggleStrike().run(),        <Strikethrough className="h-3.5 w-3.5" />, 'Tachado')}
+                    <span className="w-px h-4 bg-border mx-1 shrink-0" aria-hidden="true" />
+                    {toolbarBtn(editor.isActive('code'),   () => editor.chain().focus().toggleCode().run(),          <Code className="h-3.5 w-3.5" />,          'Código inline')}
+                    <span className="w-px h-4 bg-border mx-1 shrink-0" aria-hidden="true" />
+                    {toolbarBtn(editor.isActive('bulletList'), () => editor.chain().focus().toggleBulletList().run(),  <List className="h-3.5 w-3.5" />,          'Lista não ordenada')}
+                    {toolbarBtn(editor.isActive('orderedList'), () => editor.chain().focus().toggleOrderedList().run(), <ListOrdered className="h-3.5 w-3.5" />,   'Lista ordenada')}
+                    <span className="w-px h-4 bg-border mx-1 shrink-0" aria-hidden="true" />
+                    {toolbarBtn(false, () => editor.chain().focus().undo().run(), <Undo className="h-3.5 w-3.5" />, 'Desfazer (Ctrl+Z)')}
+                    {toolbarBtn(false, () => editor.chain().focus().redo().run(), <Redo className="h-3.5 w-3.5" />, 'Refazer (Ctrl+Y)')}
+                </div>
+            )}
+
+            {/* Área do editor */}
+            <div
+                onClick={!editable ? onClickEdit : undefined}
+                className={cn(
+                    'relative',
+                    !editable && 'cursor-text group'
+                )}
+            >
+                <EditorContent editor={editor} />
+                {!editable && (
+                    <span className="absolute top-2 right-2 text-[10px] font-semibold text-muted-foreground/0 group-hover:text-muted-foreground/60 transition-colors pointer-events-none">
+                        Clique para editar
+                    </span>
+                )}
+            </div>
+        </div>
     )
 }
 
@@ -561,7 +599,6 @@ function TaskDetailDialog({
         task.dueDate ? task.dueDate.toISOString().split('T')[0] : ''
     )
     const [mobilePanel, setMobilePanel] = useState<'details' | 'comments'>('details')
-    const [descMode, setDescMode] = useState<'write' | 'preview'>('write')
     const [comments, setComments] = useState<import('@/types').TaskComment[]>(task.comments ?? [])
     const [commentText, setCommentText] = useState('')
     const [submittingComment, setSubmittingComment] = useState(false)
@@ -578,20 +615,8 @@ function TaskDetailDialog({
     const newLinkRef = useRef<HTMLInputElement>(null)
     const [saving, setSaving] = useState(false)
     const titleRef = useRef<HTMLInputElement>(null)
-    const descRef = useRef<HTMLTextAreaElement>(null)
-
-    const autoResize = (el: HTMLTextAreaElement) => {
-        el.style.height = 'auto'
-        el.style.height = `${Math.max(el.scrollHeight, 120)}px`
-    }
 
     useEffect(() => { if (editingTitle) titleRef.current?.focus() }, [editingTitle])
-    useEffect(() => {
-        if (editingDesc && descMode === 'write') {
-            const el = descRef.current
-            if (el) { autoResize(el); el.focus(); el.setSelectionRange(el.value.length, el.value.length) }
-        }
-    }, [editingDesc, descMode])
     useEffect(() => { if (addingItem) newItemRef.current?.focus() }, [addingItem])
     useEffect(() => { if (addingLink) newLinkRef.current?.focus() }, [addingLink])
 
@@ -607,16 +632,17 @@ function TaskDetailDialog({
     }
 
     const saveDesc = async () => {
-        const val = description.trim() || undefined
-        if (val !== (task.description?.trim() || undefined)) await save({ description: val })
+        const html = description
+        // Trata conteúdo vazio do editor (<p></p>) como ausência de descrição
+        const isEmpty = !html || html === '<p></p>'
+        const val = isEmpty ? undefined : html
+        if (val !== task.description) await save({ description: val })
         setEditingDesc(false)
-        setDescMode('write')
     }
 
     const cancelDesc = () => {
         setDescription(task.description ?? '')
         setEditingDesc(false)
-        setDescMode('write')
     }
 
     const handleAssigneeChange = async (val: string) => {
@@ -705,6 +731,7 @@ function TaskDetailDialog({
             <DialogPortal>
                 <DialogOverlay />
                 <DialogPrimitive.Content
+                    aria-describedby={undefined}
                     className={cn(
                         // Sempre centralizado
                         'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 focus:outline-none',
@@ -845,144 +872,42 @@ function TaskDetailDialog({
                             Descrição
                         </Label>
 
-                        {editingDesc ? (
-                            <div className="rounded-xl border border-border overflow-hidden ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-0">
-                                {/* Abas Escrever / Visualizar */}
-                                <div className="flex items-center justify-between border-b border-border bg-muted/30 px-1 pt-1">
-                                    <div className="flex">
-                                        <button
-                                            type="button"
-                                            onMouseDown={(e) => { e.preventDefault(); setDescMode('write') }}
-                                            className={cn(
-                                                'px-3 py-1.5 text-xs font-bold rounded-t-md transition-colors',
-                                                descMode === 'write'
-                                                    ? 'bg-background text-foreground border border-b-background border-border -mb-px'
-                                                    : 'text-muted-foreground hover:text-foreground'
-                                            )}
-                                        >
-                                            Escrever
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onMouseDown={(e) => { e.preventDefault(); setDescMode('preview') }}
-                                            className={cn(
-                                                'px-3 py-1.5 text-xs font-bold rounded-t-md transition-colors',
-                                                descMode === 'preview'
-                                                    ? 'bg-background text-foreground border border-b-background border-border -mb-px'
-                                                    : 'text-muted-foreground hover:text-foreground'
-                                            )}
-                                        >
-                                            Visualizar
-                                        </button>
-                                    </div>
+                        <DescriptionEditor
+                            initialContent={task.description ?? ''}
+                            editable={editingDesc}
+                            onChange={setDescription}
+                            onClickEdit={() => setEditingDesc(true)}
+                        />
+
+                        {editingDesc && (
+                            <div className="flex items-center justify-between pt-1">
+                                <span className="text-[10px] text-muted-foreground/60 font-medium">
+                                    Ctrl+Enter para salvar · Esc para cancelar
+                                </span>
+                                <div className="flex gap-1.5">
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={cancelDesc}
+                                        className="h-7 px-3 rounded-lg text-xs"
+                                    >
+                                        Cancelar
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        onClick={saveDesc}
+                                        disabled={saving}
+                                        className="h-7 px-3 rounded-lg text-xs font-bold"
+                                    >
+                                        {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Salvar'}
+                                    </Button>
                                 </div>
-
-                                {descMode === 'write' && (
-                                    <>
-                                        {/* Toolbar */}
-                                        <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-border bg-muted/20">
-                                            {FORMAT_BUTTONS.map(({ type, icon: Icon, label, group }, idx, arr) => (
-                                                <span key={type} className="contents">
-                                                    {idx > 0 && arr[idx - 1].group !== group && (
-                                                        <span className="w-px h-4 bg-border mx-1 shrink-0" aria-hidden="true" />
-                                                    )}
-                                                    <button
-                                                        type="button"
-                                                        title={label}
-                                                        aria-label={label}
-                                                        onMouseDown={(e) => {
-                                                            e.preventDefault()
-                                                            if (descRef.current) applyFormat(descRef.current, type, setDescription)
-                                                        }}
-                                                        className="w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted/80 transition-colors"
-                                                    >
-                                                        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-                                                    </button>
-                                                </span>
-                                            ))}
-                                        </div>
-
-                                        {/* Textarea auto-crescente */}
-                                        <Textarea
-                                            ref={descRef}
-                                            value={description}
-                                            onChange={(e) => { setDescription(e.target.value); autoResize(e.target) }}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Escape') cancelDesc()
-                                                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveDesc() }
-                                                if (e.key === 'b' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (descRef.current) applyFormat(descRef.current, 'bold', setDescription) }
-                                                if (e.key === 'i' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (descRef.current) applyFormat(descRef.current, 'italic', setDescription) }
-                                            }}
-                                            placeholder="Escreva a descrição aqui... Suporta **negrito**, *itálico*, `código`, listas e mais."
-                                            className="resize-none rounded-none border-none shadow-none focus-visible:ring-0 text-sm font-mono leading-relaxed min-h-[120px] overflow-hidden"
-                                            aria-label="Descrição da tarefa"
-                                        />
-                                    </>
-                                )}
-
-                                {descMode === 'preview' && (
-                                    <div className="min-h-[120px] px-3 py-2.5 text-sm bg-background">
-                                        {description.trim() ? (
-                                            <MarkdownContent>{description}</MarkdownContent>
-                                        ) : (
-                                            <span className="text-muted-foreground/50 italic">Nada para visualizar.</span>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Rodapé com botões */}
-                                <div className="flex items-center justify-between px-3 py-2 border-t border-border bg-muted/20">
-                                    <span className="text-[10px] text-muted-foreground/60 font-medium">
-                                        Ctrl+Enter para salvar · Esc para cancelar
-                                    </span>
-                                    <div className="flex gap-1.5">
-                                        <Button
-                                            type="button"
-                                            size="sm"
-                                            variant="ghost"
-                                            onClick={cancelDesc}
-                                            className="h-7 px-3 rounded-lg text-xs"
-                                        >
-                                            Cancelar
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            size="sm"
-                                            onClick={saveDesc}
-                                            disabled={saving}
-                                            className="h-7 px-3 rounded-lg text-xs font-bold"
-                                        >
-                                            {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Salvar'}
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div
-                                onClick={() => setEditingDesc(true)}
-                                className={cn(
-                                    'group min-h-[56px] px-3 py-2.5 rounded-xl text-sm cursor-text transition-colors relative',
-                                    'bg-muted/40 hover:bg-muted border border-transparent hover:border-border/60',
-                                    description ? 'text-foreground' : 'text-muted-foreground/50'
-                                )}
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(e) => e.key === 'Enter' && setEditingDesc(true)}
-                                aria-label="Editar descrição"
-                            >
-                                {description ? (
-                                    <>
-                                        <MarkdownContent>{description}</MarkdownContent>
-                                        <span className="absolute top-2 right-2 text-[10px] font-semibold text-muted-foreground/0 group-hover:text-muted-foreground/60 transition-colors">
-                                            Clique para editar
-                                        </span>
-                                    </>
-                                ) : (
-                                    <span className="text-muted-foreground/50">Clique para adicionar uma descrição...</span>
-                                )}
                             </div>
                         )}
                     </div>
+
 
                     {/* Checklist */}
                     <div className="space-y-2">
