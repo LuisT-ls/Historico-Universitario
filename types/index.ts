@@ -218,6 +218,7 @@ export interface GroupTask {
   title: string
   description?: string
   status: GroupTaskStatus
+  color?: string // Cor do card no kanban (hex)
   assignedTo?: UserId // Para quem a tarefa está atribuída
   dueDate?: Date
   checklist?: ChecklistItem[]

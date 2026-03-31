@@ -57,13 +57,25 @@ interface TaskBoardProps {
     isLoading: boolean
     currentUserId: string
     onAdd: (title: string, description?: string, assignedTo?: string, dueDate?: Date, status?: GroupTaskStatus) => Promise<void>
-    onUpdate: (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'checklist' | 'links'>>) => Promise<void>
+    onUpdate: (taskId: string, data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'checklist' | 'links'>>) => Promise<void>
     onAddComment: (taskId: string, text: string) => Promise<void>
     onUpdateStatus: (id: string, status: GroupTaskStatus) => Promise<void>
     onDelete: (id: string) => Promise<void>
     members: string[]
     getUserName: (userId: string) => string
 }
+
+const CARD_COLORS: { id: string; label: string; hex: string | null }[] = [
+    { id: 'none',   label: 'Sem cor',   hex: null },
+    { id: 'red',    label: 'Vermelho',  hex: '#ef4444' },
+    { id: 'orange', label: 'Laranja',   hex: '#f97316' },
+    { id: 'yellow', label: 'Amarelo',   hex: '#eab308' },
+    { id: 'green',  label: 'Verde',     hex: '#22c55e' },
+    { id: 'teal',   label: 'Ciano',     hex: '#14b8a6' },
+    { id: 'blue',   label: 'Azul',      hex: '#3b82f6' },
+    { id: 'purple', label: 'Roxo',      hex: '#a855f7' },
+    { id: 'pink',   label: 'Rosa',      hex: '#ec4899' },
+]
 
 const COLUMNS: { id: GroupTaskStatus; label: string; icon: React.ElementType; color: string; bg: string; dot: string }[] = [
     { id: 'pending',     label: 'A fazer',      icon: Circle,       color: 'text-slate-500',   bg: 'bg-slate-100 dark:bg-slate-800',        dot: 'bg-slate-400' },
@@ -372,6 +384,14 @@ function TaskCard({
                     onClick={onClick}
                     aria-label={`Tarefa: ${task.title}. Segure e arraste para mover de coluna, ou clique para editar.`}
                 >
+                    {/* Faixa de cor */}
+                    {task.color && (
+                        <div
+                            className="h-2 w-full rounded-t-xl"
+                            style={{ backgroundColor: task.color }}
+                            aria-hidden="true"
+                        />
+                    )}
                     <div className="p-3 space-y-2.5">
                         {/* Título */}
                         <p className={cn(
@@ -585,7 +605,7 @@ function TaskDetailDialog({
     members: string[]
     getUserName: (id: string) => string
     currentUserId: string
-    onUpdate: (data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'checklist' | 'links'>>) => Promise<void>
+    onUpdate: (data: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'checklist' | 'links'>>) => Promise<void>
     onAddComment: (text: string) => Promise<void>
     onDelete: () => void
     onClose: () => void
@@ -612,6 +632,7 @@ function TaskDetailDialog({
     const [newLinkUrl, setNewLinkUrl] = useState('')
     const [newLinkLabel, setNewLinkLabel] = useState('')
     const [linkUrlError, setLinkUrlError] = useState(false)
+    const [cardColor, setCardColor] = useState(task.color ?? '')
     const newLinkRef = useRef<HTMLInputElement>(null)
     const [saving, setSaving] = useState(false)
     const titleRef = useRef<HTMLInputElement>(null)
@@ -620,7 +641,7 @@ function TaskDetailDialog({
     useEffect(() => { if (addingItem) newItemRef.current?.focus() }, [addingItem])
     useEffect(() => { if (addingLink) newLinkRef.current?.focus() }, [addingLink])
 
-    const save = async (patch: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'checklist' | 'links'>>) => {
+    const save = async (patch: Partial<Pick<GroupTask, 'title' | 'description' | 'assignedTo' | 'dueDate' | 'status' | 'color' | 'checklist' | 'links'>>) => {
         setSaving(true)
         try { await onUpdate(patch) } finally { setSaving(false) }
     }
@@ -862,6 +883,41 @@ function TaskDetailDialog({
                                 onChange={(e) => handleDueDateChange(e.target.value)}
                                 className="h-9 rounded-xl text-sm"
                             />
+                        </div>
+                    </div>
+
+                    {/* Cor do card */}
+                    <div className="space-y-2">
+                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60">
+                            Cor do card
+                        </Label>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                            {CARD_COLORS.map(({ id, label, hex }) => (
+                                <button
+                                    key={id}
+                                    type="button"
+                                    title={label}
+                                    aria-label={label}
+                                    onClick={async () => {
+                                        const newColor = hex ?? ''
+                                        setCardColor(newColor)
+                                        await save({ color: newColor || undefined })
+                                    }}
+                                    className={cn(
+                                        'w-6 h-6 rounded-full border-2 transition-all duration-150',
+                                        cardColor === (hex ?? '')
+                                            ? 'border-foreground scale-110 shadow-md'
+                                            : 'border-transparent hover:scale-110 hover:border-muted-foreground/40'
+                                    )}
+                                    style={hex ? { backgroundColor: hex } : undefined}
+                                >
+                                    {!hex && (
+                                        <span className="w-full h-full rounded-full border border-border/60 flex items-center justify-center bg-muted">
+                                            <span className="w-4 border-t border-muted-foreground/40 rotate-45 block" />
+                                        </span>
+                                    )}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
