@@ -20,16 +20,17 @@ export const metadata: Metadata = {
     'grade curricular online',
   ],
   openGraph: {
-    title: 'Histórico Acadêmico Online Gratuito - Sistema Acadêmico Completo',
+    title: 'Histórico Acadêmico Online Gratuito - Gerencie seu Histórico Acadêmico',
     description: 'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, controle disciplinas e acompanhe seu progresso em BICTI e Engenharias.',
     url: 'https://historicoacademico.vercel.app',
-    siteName: 'Histórico Acadêmico',
+    siteName: 'Histórico Acadêmico - Sistema Acadêmico Gratuito',
     images: [
       {
         url: 'https://historicoacademico.vercel.app/assets/img/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'Histórico Acadêmico Online - Sistema gratuito para gerenciar histórico acadêmico',
+        type: 'image/jpeg',
       },
     ],
     locale: 'pt_BR',
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Histórico Acadêmico Online Gratuito',
+    title: 'Histórico Acadêmico Online Gratuito - Sistema para BICTI e Engenharias',
     description: 'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, controle disciplinas e acompanhe seu progresso.',
     images: ['https://historicoacademico.vercel.app/assets/img/og-image.jpg'],
   },

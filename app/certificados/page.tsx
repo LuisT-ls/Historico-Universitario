@@ -13,10 +13,21 @@ export const metadata: Metadata = {
     'gestão certificados universitários',
   ],
   openGraph: {
-    title: 'Certificados Acadêmicos - Histórico Acadêmico',
-    description: 'Visualize, gerencie e valide seus certificados acadêmicos e atividades complementares.',
+    title: 'Certificados Acadêmicos - Gerencie suas Atividades Complementares',
+    description: 'Visualize, gerencie e valide seus certificados acadêmicos e atividades complementares. Controle sua carga horária de AC.',
     url: 'https://historicoacademico.vercel.app/certificados',
+    siteName: 'Histórico Acadêmico - Sistema Acadêmico Gratuito',
+    locale: 'pt_BR',
     type: 'website',
+    images: [
+      {
+        url: 'https://historicoacademico.vercel.app/assets/img/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Certificados Acadêmicos - Gerencie suas Atividades Complementares',
+        type: 'image/jpeg',
+      },
+    ],
   },
   alternates: {
     canonical: 'https://historicoacademico.vercel.app/certificados',
