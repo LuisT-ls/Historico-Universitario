@@ -105,9 +105,9 @@ export function Header() {
                   priority
                 />
               </div>
-              <h1 className="text-base font-bold tracking-tight text-foreground dark:text-slate-100">
+              <span className="text-base font-bold tracking-tight text-foreground dark:text-slate-100">
                 Histórico Acadêmico
-              </h1>
+              </span>
             </Link>
           </div>
 

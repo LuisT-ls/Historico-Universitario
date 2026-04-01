@@ -7,7 +7,7 @@ export function Footer() {
       <div className="container py-12 px-4 sm:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <section>
-            <h3 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight">Sobre o Projeto</h3>
+            <h2 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight">Sobre o Projeto</h2>
             <p className="text-sm text-muted-foreground dark:text-slate-400 leading-relaxed">
               O Histórico Acadêmico é uma ferramenta desenvolvida para auxiliar estudantes dos
               cursos de BICTI, Engenharia de Produção e Engenharia Elétrica no acompanhamento do
@@ -16,7 +16,7 @@ export function Footer() {
           </section>
 
           <section>
-            <h3 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight">Desenvolvedor</h3>
+            <h2 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight">Desenvolvedor</h2>
             <p className="text-sm text-muted-foreground dark:text-slate-400 mb-6">
               Desenvolvido com carinho por <strong className="text-foreground dark:text-slate-200">Luís Teixeira</strong>
             </p>
@@ -52,7 +52,7 @@ export function Footer() {
           </section>
 
           <section>
-            <h3 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight">Recursos Úteis</h3>
+            <h2 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight">Recursos Úteis</h2>
             <ul className="space-y-4">
               <li>
                 <a
@@ -86,10 +86,10 @@ export function Footer() {
           </section>
 
           <section>
-            <h3 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight flex items-center gap-2">
+            <h2 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight flex items-center gap-2">
               <Heart className="h-5 w-5 text-red-500 fill-red-500/20" />
               Apoie o Projeto
-            </h3>
+            </h2>
             <p className="text-sm text-muted-foreground dark:text-slate-400 mb-6 leading-relaxed">
               Este projeto é totalmente gratuito e open source. Se ele te ajudou, considere dar uma
               estrela no GitHub!
