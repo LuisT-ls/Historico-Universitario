@@ -28,10 +28,15 @@ interface InfoSection {
 
 const SECTIONS: InfoSection[] = [
   {
-    title: 'Contatos',
+    title: 'Emails importantes ✨',
     icon: Mail,
     items: [
-      { label: 'Email do Colegiado', value: 'colicti@ufba.br', href: 'mailto:colicti@ufba.br', copyable: true },
+      { label: 'Colegiado BICTI (Prof. Carina)', value: 'colicti@ufba.br', href: 'mailto:colicti@ufba.br', copyable: true },
+      { label: 'Colegiado Eng. Produção (Prof. Renato)', value: 'renato.vivas@ufba.br', href: 'mailto:renato.vivas@ufba.br', copyable: true },
+      { label: 'Secretaria acadêmica', value: 'seacicti@ufba.br', href: 'mailto:seacicti@ufba.br', copyable: true },
+      { label: 'Secretaria acadêmica', value: 'italo.caiana@ufba.br', href: 'mailto:italo.caiana@ufba.br', copyable: true },
+      { label: 'Direção (Prof. Maiana)', value: 'icti@ufba.br', href: 'mailto:icti@ufba.br', copyable: true },
+      { label: 'NOAE', value: 'noae.icti@ufba.br', href: 'mailto:noae.icti@ufba.br', copyable: true },
     ],
   },
   {
