@@ -10,6 +10,7 @@ export const TIPOS_CERTIFICADO: { value: TipoCertificado; label: string }[] = [
     { value: 'pesquisa', label: 'Projeto de Pesquisa' },
     { value: 'monitoria', label: 'Monitoria' },
     { value: 'estagio', label: 'Estágio' },
+    { value: 'visita_tecnica', label: 'Visita Técnica' },
     { value: 'outro', label: 'Outro' },
 ]
 

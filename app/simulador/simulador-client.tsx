@@ -380,7 +380,7 @@ export function SimuladorPageClient() {
                       <select
                         id="sim-natureza"
                         {...register('natureza')}
-                        className="flex h-10 w-full rounded-xl border border-border dark:border-slate-700 bg-background dark:bg-slate-800/50 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
+                        className="flex h-10 w-full rounded-xl border border-border dark:border-slate-700 bg-background dark:bg-slate-800 dark:text-slate-100 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
                       >
                         <option value="">Selecione...</option>
                         {naturezasDisponiveis.map(n => <option key={n} value={n}>{NATUREZA_LABELS[n] || n}</option>)}

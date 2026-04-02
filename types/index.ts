@@ -133,6 +133,7 @@ export type TipoCertificado =
   | 'pesquisa'
   | 'monitoria'
   | 'estagio'
+  | 'visita_tecnica'
   | 'outro'
 
 export type StatusCertificado = 'pendente' | 'aprovado' | 'reprovado'

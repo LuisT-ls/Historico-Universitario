@@ -68,7 +68,7 @@ export function GradePage() {
         <Select
           value={curso}
           onChange={(e) => setCurso(e.target.value as Curso)}
-          className="w-56 shrink-0 h-10 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+          className="w-56 shrink-0 h-10 rounded-lg border border-input bg-background dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
           aria-label="Selecionar curso"
         >
           {(Object.keys(CURSOS) as Curso[]).map((key) => (

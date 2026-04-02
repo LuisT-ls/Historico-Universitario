@@ -80,7 +80,7 @@ export function ActionBar({ cursoAtual, onCursoChange, onImport }: ActionBarProp
           id="curso-select"
           value={cursoAtual}
           onChange={(e) => onCursoChange(e.target.value as Curso)}
-          className="flex h-9 w-full sm:w-[280px] rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="flex h-9 w-full sm:w-[280px] rounded-md border border-input bg-background dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           <option value="BICTI">BICTI</option>
           <option value="ENG_PROD">Engenharia de Produção</option>

@@ -28,7 +28,7 @@ export const CertificadoFilters = memo<CertificadoFiltersProps>(
                     aria-label="Filtrar por categoria"
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
-                    className="h-10 w-full sm:w-[200px] rounded-xl border-none bg-muted/30 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/20"
+                    className="h-10 w-full sm:w-[200px] rounded-xl border-none bg-muted/30 dark:bg-slate-800 dark:text-slate-100 px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/20"
                 >
                     <option value="todos">Todas as categorias</option>
                     {TIPOS_CERTIFICADO.map((tipo) => (

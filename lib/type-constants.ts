@@ -32,6 +32,7 @@ export const TIPO_CERTIFICADO_LABELS: Record<TipoCertificado, string> = {
     pesquisa: 'Projeto de Pesquisa',
     monitoria: 'Monitoria',
     estagio: 'Estágio',
+    visita_tecnica: 'Visita Técnica',
     outro: 'Outro',
 } as const
 

@@ -345,7 +345,7 @@ export function TaskBoard({ tasks, isLoading, currentUserId, onAdd, onUpdate, on
                     <select
                         value={filterAssignee ?? ''}
                         onChange={(e) => setFilterAssignee(e.target.value || null)}
-                        className="h-9 px-3 text-sm rounded-xl border border-border/60 bg-white dark:bg-slate-900 text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        className="h-9 px-3 text-sm rounded-xl border border-border/60 bg-white dark:bg-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/30"
                         aria-label="Filtrar por responsável"
                     >
                         <option value="">Responsável</option>
