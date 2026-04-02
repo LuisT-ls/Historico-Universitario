@@ -6,7 +6,9 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/components/auth-provider'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { GraduationCap, User, LogOut, LogIn, Menu, Home, Clock, Calculator, CalendarRange, LayoutGrid, Users, ChevronDown } from 'lucide-react'
+import { GraduationCap, User, LogOut, LogIn, Menu, Home, Clock, Calculator, CalendarRange, LayoutGrid, Users, ChevronDown, BookOpen, Upload, ShieldCheck } from 'lucide-react'
+import { getUserRole } from '@/services/firestore.service'
+import type { UserRole } from '@/types'
 import { signOut } from '@/services/auth.service'
 import { getProfile } from '@/services/firestore.service'
 import Image from 'next/image'
@@ -33,14 +35,16 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [currentDateTime, setCurrentDateTime] = useState('')
   const [profilePhotoURL, setProfilePhotoURL] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<UserRole>('usuario')
   const isHomePage = pathname === '/'
 
   // Carrega a foto de perfil personalizada do Firestore
   useEffect(() => {
-    if (!user) { setProfilePhotoURL(null); return }
+    if (!user) { setProfilePhotoURL(null); setUserRole('usuario'); return }
     getProfile(user.uid).then((profile) => {
       setProfilePhotoURL(profile?.photoURL || null)
     }).catch(() => {})
+    getUserRole(user.uid).then(setUserRole).catch(() => {})
   }, [user])
 
   useEffect(() => {
@@ -80,12 +84,16 @@ export function Header() {
     { href: '/simulador', label: 'Simulador', icon: Calculator, show: true },
     { href: '/horarios', label: 'Horários', icon: CalendarRange, show: true },
     { href: '/grade', label: 'Grade Curricular', icon: LayoutGrid, show: true },
+    { href: '/materiais', label: 'Materiais', icon: BookOpen, show: true },
     { href: '/grupos', label: 'Grupos', icon: Users, show: !!user },
   ]
 
   const userMenuItems = [
     { href: '/profile', label: 'Perfil', icon: User },
     { href: '/certificados', label: 'Certificados', icon: GraduationCap },
+    { href: '/materiais/meus', label: 'Meus Materiais', icon: BookOpen },
+    { href: '/materiais/upload', label: 'Enviar Material', icon: Upload },
+    ...(userRole === 'admin' ? [{ href: '/admin/materiais', label: 'Admin', icon: ShieldCheck }] : []),
   ]
 
   return (

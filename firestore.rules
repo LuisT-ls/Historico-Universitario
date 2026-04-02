@@ -95,6 +95,46 @@ service cloud.firestore {
       }
     }
 
+    // Helper para verificar se o usuário autenticado é admin
+    function isAdmin() {
+      return request.auth != null
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Regras para a coleção 'materiais'
+    match /materiais/{materialId} {
+      // Leitura:
+      //   - qualquer pessoa pode ler materiais aprovados
+      //   - o próprio dono pode ler seus materiais (qualquer status)
+      //   - admin pode ler tudo
+      allow read: if resource.data.status == 'approved'
+                  || (request.auth != null && request.auth.uid == resource.data.uploadedBy)
+                  || isAdmin();
+
+      // Criação: usuário autenticado, status obrigatoriamente 'pending', downloadsCount = 0
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.uploadedBy
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.downloadsCount == 0
+                    && isValidString(request.resource.data.titulo, 3, 100)
+                    && isValidString(request.resource.data.disciplina, 2, 100)
+                    && isValidString(request.resource.data.curso, 1, 20)
+                    && isValidString(request.resource.data.semestre, 5, 10)
+                    && isValidString(request.resource.data.tipo, 1, 20);
+
+      // Update:
+      //   - admin pode alterar status (approved / rejected)
+      //   - qualquer autenticado pode apenas incrementar downloadsCount em +1
+      allow update: if isAdmin()
+                    || (request.auth != null
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloadsCount'])
+                        && request.resource.data.downloadsCount == resource.data.downloadsCount + 1);
+
+      // Delete: o próprio dono ou admin
+      allow delete: if (request.auth != null && request.auth.uid == resource.data.uploadedBy)
+                    || isAdmin();
+    }
+
     // Bloqueio Global
     match /{document=**} {
       allow read, write: if false;

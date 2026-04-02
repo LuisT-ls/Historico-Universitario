@@ -257,6 +257,42 @@ export interface GroupTask {
   updatedAt?: Date
 }
 
+// ─── Materiais types ──────────────────────────────────────────────────────────
+
+export type MaterialId = string & { readonly __brand: 'MaterialId' }
+
+export type TipoMaterial =
+  | 'lista'
+  | 'apostila'
+  | 'prova'
+  | 'resumo'
+  | 'slides'
+  | 'outro'
+
+export type StatusMaterial = 'pending' | 'approved' | 'rejected'
+
+export type UserRole = 'usuario' | 'admin'
+
+export interface Material {
+  id?: MaterialId
+  titulo: string
+  descricao?: string
+  curso: Curso
+  disciplina: string
+  semestre: string
+  tipo: TipoMaterial
+  status: StatusMaterial
+  uploadedBy: UserId
+  uploaderName?: string
+  arquivoURL: string
+  storagePath: string
+  nomeArquivo: string
+  sizeBytes?: number
+  downloadsCount: number
+  createdAt?: Date
+  updatedAt?: Date
+}
+
 // ─── Catalog JSON data types ─────────────────────────────────────────────────
 
 /** Entry in assets/data/disciplinas.json > catalogo */

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Github, Linkedin, Instagram, Heart, ExternalLink, Share2, Terminal } from 'lucide-react'
+import { Github, Linkedin, Instagram, Heart, ExternalLink, Share2, Terminal, BookOpen } from 'lucide-react'
 
 export function Footer() {
   return (
@@ -55,18 +55,15 @@ export function Footer() {
             <h2 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight">Recursos Úteis</h2>
             <ul className="space-y-4">
               <li>
-                <a
-                  href="https://icti-share.vercel.app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href="/materiais"
                   className="flex items-center gap-2 text-sm text-muted-foreground dark:text-slate-400 hover:text-foreground dark:hover:text-white transition-all duration-300 group"
                 >
                   <div className="p-1.5 rounded-md bg-muted dark:bg-slate-800/50 group-hover:bg-primary/10 dark:group-hover:bg-blue-500/20 group-hover:text-primary dark:group-hover:text-blue-400 transition-all">
-                    <Share2 className="h-4 w-4" />
+                    <BookOpen className="h-4 w-4" />
                   </div>
-                  <span>ICTI Share</span>
-                  <ExternalLink className="h-3 w-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                </a>
+                  <span>Materiais Acadêmicos</span>
+                </Link>
               </li>
               <li>
                 <a

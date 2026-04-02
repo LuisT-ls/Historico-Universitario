@@ -325,6 +325,25 @@ export async function saveScheduleCodes(userId: string, codes: Record<string, st
     }
 }
 
+// ===== ROLES =====
+
+/**
+ * Retorna o papel (role) do usuário. Padrão: 'usuario'.
+ */
+export async function getUserRole(userId: string): Promise<import('@/types').UserRole> {
+    if (!db) throw new Error('Firestore não inicializado')
+
+    try {
+        const userRef = doc(db, 'users', userId)
+        const snap = await getDoc(userRef)
+        if (!snap.exists()) return 'usuario'
+        return (snap.data().role as import('@/types').UserRole) ?? 'usuario'
+    } catch (error) {
+        logger.error('Erro ao buscar role do usuário:', error)
+        return 'usuario'
+    }
+}
+
 export async function updateProfile(userId: string, data: Partial<Profile>): Promise<void> {
     if (!db) throw new Error('Firestore não inicializado')
 
