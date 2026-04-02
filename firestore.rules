@@ -123,9 +123,17 @@ service cloud.firestore {
                     && isValidString(request.resource.data.tipo, 1, 20);
 
       // Update:
-      //   - admin pode alterar status (approved / rejected)
+      //   - admin pode alterar qualquer campo
+      //   - dono pode editar apenas metadados (não pode mudar status, uploadedBy nem downloadsCount)
       //   - qualquer autenticado pode apenas incrementar downloadsCount em +1
       allow update: if isAdmin()
+                    || (request.auth != null
+                        && request.auth.uid == resource.data.uploadedBy
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['titulo', 'descricao', 'curso', 'disciplina', 'semestre', 'tipo', 'updatedAt'])
+                        && request.resource.data.status == resource.data.status
+                        && request.resource.data.uploadedBy == resource.data.uploadedBy
+                        && request.resource.data.downloadsCount == resource.data.downloadsCount)
                     || (request.auth != null
                         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloadsCount'])
                         && request.resource.data.downloadsCount == resource.data.downloadsCount + 1);

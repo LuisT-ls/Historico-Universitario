@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Download, FileText, Loader2, Trash2, BookOpen, Calendar, User } from 'lucide-react'
+import { ArrowLeft, Download, FileText, Loader2, Trash2, BookOpen, Calendar, User, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getMaterialById, incrementDownloads, deleteMaterial } from '@/services/materials.service'
+import { getUserRole } from '@/services/firestore.service'
 import { useAuth } from '@/components/auth-provider'
+import { EditMaterialDialog } from '@/components/features/materiais/edit-material-dialog'
 import { toast } from '@/lib/toast'
-import type { Material } from '@/types'
+import type { Material, UserRole } from '@/types'
 import { TIPO_MATERIAL_LABELS, CURSO_LABELS } from '@/lib/materiais-constants'
 import Link from 'next/link'
 
@@ -20,12 +22,18 @@ export function MaterialDetailPage() {
   const [material, setMaterial] = useState<Material | null>(null)
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const [userRole, setUserRole] = useState<UserRole>('usuario')
 
   useEffect(() => {
     getMaterialById(id)
       .then(setMaterial)
       .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => {
+    if (user) getUserRole(user.uid).then(setUserRole).catch(() => {})
+  }, [user])
 
   async function handleDownload() {
     if (!material?.arquivoURL) return
@@ -40,7 +48,7 @@ export function MaterialDetailPage() {
     try {
       await deleteMaterial(id, material.storagePath)
       toast.success('Material excluído.')
-      router.push('/materiais/meus')
+      router.push('/materiais')
     } catch {
       toast.error('Erro ao excluir material.')
       setDeleting(false)
@@ -67,6 +75,9 @@ export function MaterialDetailPage() {
   }
 
   const isOwner = user?.uid === material.uploadedBy
+  const isAdmin = userRole === 'admin'
+  const canManage = isOwner || isAdmin
+
   const formattedDate = material.createdAt
     ? new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(
         material.createdAt instanceof Date ? material.createdAt : new Date(material.createdAt)
@@ -139,21 +150,41 @@ export function MaterialDetailPage() {
               <Download className="h-4 w-4" />
               Baixar PDF
             </Button>
-            {isOwner && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleDelete}
-                disabled={deleting}
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                aria-label="Excluir material"
-              >
-                {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-              </Button>
+            {canManage && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setEditOpen(true)}
+                  className="text-muted-foreground hover:text-foreground hover:bg-accent"
+                  aria-label="Editar material"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  aria-label="Excluir material"
+                >
+                  {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                </Button>
+              </>
             )}
           </div>
         </CardContent>
       </Card>
+
+      {material && (
+        <EditMaterialDialog
+          material={material}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          onSaved={(updated) => setMaterial(prev => prev ? { ...prev, ...updated } : prev)}
+        />
+      )}
     </main>
   )
 }

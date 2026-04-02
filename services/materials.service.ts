@@ -8,7 +8,6 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
   increment,
   type QueryDocumentSnapshot,
   type DocumentSnapshot,
@@ -68,10 +67,13 @@ export async function getMateriais(filters: MaterialFilters = {}): Promise<Mater
 
   try {
     const ref = collection(db, 'materiais')
-    let q = query(ref, where('status', '==', 'approved'), orderBy('createdAt', 'desc'))
+    const q = query(ref, where('status', '==', 'approved'))
 
     const snapshot = await getDocs(q)
     let materiais: Material[] = snapshot.docs.map(docToMaterial)
+
+    // ordenação client-side (mais recentes primeiro)
+    materiais.sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
 
     // filtros client-side
     if (filters.curso) {
@@ -123,9 +125,10 @@ export async function getMeusMateriais(userId: string): Promise<Material[]> {
 
   try {
     const ref = collection(db, 'materiais')
-    const q = query(ref, where('uploadedBy', '==', userId), orderBy('createdAt', 'desc'))
+    const q = query(ref, where('uploadedBy', '==', userId))
     const snapshot = await getDocs(q)
-    return snapshot.docs.map(docToMaterial)
+    const materiais = snapshot.docs.map(docToMaterial)
+    return materiais.sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
   } catch (error) {
     logger.error('Erro ao buscar meus materiais:', error)
     throw error
@@ -154,6 +157,21 @@ export async function addMaterial(
     return docRef.id
   } catch (error) {
     logger.error('Erro ao adicionar material:', error)
+    throw error
+  }
+}
+
+export async function updateMaterial(
+  id: string,
+  data: Pick<Material, 'titulo' | 'descricao' | 'curso' | 'disciplina' | 'semestre' | 'tipo'>
+): Promise<void> {
+  if (!db) throw new Error('Firestore não inicializado')
+
+  try {
+    await updateDoc(doc(db, 'materiais', id), { ...data, updatedAt: new Date() })
+    logger.info('Material atualizado', { id })
+  } catch (error) {
+    logger.error('Erro ao atualizar material:', error)
     throw error
   }
 }
@@ -188,9 +206,10 @@ export async function getMateriaisPendentes(): Promise<Material[]> {
 
   try {
     const ref = collection(db, 'materiais')
-    const q = query(ref, where('status', '==', 'pending'), orderBy('createdAt', 'desc'))
+    const q = query(ref, where('status', '==', 'pending'))
     const snapshot = await getDocs(q)
-    return snapshot.docs.map(docToMaterial)
+    const materiais = snapshot.docs.map(docToMaterial)
+    return materiais.sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
   } catch (error) {
     logger.error('Erro ao buscar materiais pendentes:', error)
     throw error
