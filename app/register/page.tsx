@@ -11,10 +11,16 @@ export const metadata: Metadata = {
     'cadastro estudante',
     'conta acadêmica gratuita',
   ],
+  robots: {
+    index: false,
+    follow: true,
+  },
   openGraph: {
     title: 'Criar Conta Gratuita - Histórico Acadêmico',
     description: 'Crie sua conta gratuita para gerenciar seu progresso universitário de forma simples e eficiente.',
     url: 'https://historicoacademico.vercel.app/register',
+    siteName: 'Histórico Acadêmico - Sistema Acadêmico Gratuito',
+    locale: 'pt_BR',
     type: 'website',
   },
   alternates: {

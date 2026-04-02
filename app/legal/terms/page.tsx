@@ -14,7 +14,18 @@ export const metadata: Metadata = {
     title: 'Termos de Uso - Histórico Acadêmico',
     description: 'Conheça as regras e responsabilidades do uso do Histórico Acadêmico.',
     url: 'https://historicoacademico.vercel.app/legal/terms',
+    siteName: 'Histórico Acadêmico - Sistema Acadêmico Gratuito',
+    locale: 'pt_BR',
     type: 'website',
+    images: [
+      {
+        url: 'https://historicoacademico.vercel.app/assets/img/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Termos de Uso - Histórico Acadêmico',
+        type: 'image/jpeg',
+      },
+    ],
   },
   alternates: {
     canonical: 'https://historicoacademico.vercel.app/legal/terms',
