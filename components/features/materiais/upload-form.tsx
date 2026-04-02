@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+
+
 import { Progress } from '@/components/ui/progress'
 import { addMaterial } from '@/services/materials.service'
 import { uploadFileWithProgress } from '@/services/storage.service'
@@ -35,7 +37,13 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>
 
-export function UploadMaterialForm() {
+interface UploadMaterialFormProps {
+  onSuccess?: () => void
+  /** Quando true, omite o Card wrapper (ex: dentro de um Sheet) */
+  bare?: boolean
+}
+
+export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFormProps = {}) {
   const { user } = useAuth()
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -110,7 +118,11 @@ export function UploadMaterialForm() {
       )
 
       toast.success('Material enviado! Aguarde aprovação.')
-      router.push('/materiais/meus')
+      if (onSuccess) {
+        onSuccess()
+      } else {
+        router.push('/materiais/meus')
+      }
     } catch {
       toast.error('Erro ao enviar material. Tente novamente.')
     } finally {
@@ -119,19 +131,7 @@ export function UploadMaterialForm() {
     }
   }
 
-  return (
-    <Card className="max-w-2xl mx-auto dark:border-slate-700 dark:bg-slate-800/50">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Upload className="h-5 w-5 text-primary dark:text-blue-400" />
-          Enviar Material
-        </CardTitle>
-        <CardDescription>
-          O material passará por aprovação antes de ficar visível para todos.
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent>
+  const formContent = (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
           {/* Título */}
@@ -253,7 +253,22 @@ export function UploadMaterialForm() {
             )}
           </Button>
         </form>
-      </CardContent>
+  )
+
+  if (bare) return formContent
+
+  return (
+    <Card className="max-w-2xl mx-auto dark:border-slate-700 dark:bg-slate-800/50">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Upload className="h-5 w-5 text-primary dark:text-blue-400" />
+          Enviar Material
+        </CardTitle>
+        <CardDescription>
+          O material passará por aprovação antes de ficar visível para todos.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>{formContent}</CardContent>
     </Card>
   )
 }

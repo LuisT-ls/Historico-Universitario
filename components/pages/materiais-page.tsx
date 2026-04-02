@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { BookOpen, Loader2 } from 'lucide-react'
 import { MaterialCard } from '@/components/features/materiais/material-card'
 import { MaterialFiltersBar } from '@/components/features/materiais/material-filters'
+import { AddMaterialSheet } from '@/components/features/materiais/add-material-sheet'
 import { getMateriais, type MaterialFilters } from '@/services/materials.service'
 import type { Material } from '@/types'
 
@@ -13,7 +14,7 @@ export function MateriaisPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const loadMateriais = useCallback(() => {
     setLoading(true)
     setError(null)
     getMateriais(filters)
@@ -21,6 +22,10 @@ export function MateriaisPage() {
       .catch(() => setError('Erro ao carregar materiais.'))
       .finally(() => setLoading(false))
   }, [filters])
+
+  useEffect(() => {
+    loadMateriais()
+  }, [loadMateriais])
 
   return (
     <main className="container py-8 px-4">
@@ -71,6 +76,8 @@ export function MateriaisPage() {
           </div>
         </>
       )}
+
+      <AddMaterialSheet onSuccess={loadMateriais} />
     </main>
   )
 }
