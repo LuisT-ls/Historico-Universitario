@@ -10,6 +10,7 @@ import { getUserRole } from '@/services/firestore.service'
 import { useAuth } from '@/components/auth-provider'
 import { EditMaterialDialog } from '@/components/features/materiais/edit-material-dialog'
 import dynamic from 'next/dynamic'
+import { ShareMaterial } from '@/components/features/materiais/share-material'
 import { toast } from '@/lib/toast'
 import type { Material, UserRole } from '@/types'
 import { TIPO_MATERIAL_LABELS, CURSO_LABELS } from '@/lib/materiais-constants'
@@ -161,6 +162,14 @@ export function MaterialDetailPage() {
               {previewOpen ? 'Ocultar preview' : 'Visualizar documento'}
             </button>
             {previewOpen && <PdfPreview url={material.arquivoURL} />}
+          </div>
+
+          {/* Compartilhar */}
+          <div className="pt-2 border-t border-border/50 dark:border-slate-700/50">
+            <ShareMaterial
+              title={material.titulo}
+              materialUrl={`${typeof window !== 'undefined' ? window.location.origin : 'https://historicoacademico.vercel.app'}/materiais/${material.id}`}
+            />
           </div>
 
           {/* Ações */}
