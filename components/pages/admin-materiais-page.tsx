@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ShieldCheck, Loader2, FileText, Trash2, Pencil, BookOpen } from 'lucide-react'
+import { ShieldCheck, Loader2, FileText, Trash2, Pencil, BookOpen, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import Link from 'next/link'
 import { getAllMateriais, deleteMaterial } from '@/services/materials.service'
 import { getUserRole } from '@/services/firestore.service'
 import { EditMaterialDialog } from '@/components/features/materiais/edit-material-dialog'
@@ -57,6 +58,13 @@ export function AdminMateriaisPage() {
 
   return (
     <main className="container py-8 px-4">
+      <Link href="/materiais">
+        <Button variant="ghost" size="sm" className="gap-2 mb-6 -ml-2 text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" />
+          Voltar para materiais
+        </Button>
+      </Link>
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
         <div className="p-2 rounded-xl bg-primary/10 dark:bg-blue-500/10">

@@ -2,17 +2,23 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Download, FileText, Loader2, Trash2, BookOpen, Calendar, User, Pencil } from 'lucide-react'
+import { ArrowLeft, Download, FileText, Loader2, Trash2, BookOpen, Calendar, User, Pencil, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getMaterialById, incrementDownloads, deleteMaterial } from '@/services/materials.service'
 import { getUserRole } from '@/services/firestore.service'
 import { useAuth } from '@/components/auth-provider'
 import { EditMaterialDialog } from '@/components/features/materiais/edit-material-dialog'
+import dynamic from 'next/dynamic'
 import { toast } from '@/lib/toast'
 import type { Material, UserRole } from '@/types'
 import { TIPO_MATERIAL_LABELS, CURSO_LABELS } from '@/lib/materiais-constants'
 import Link from 'next/link'
+
+const PdfPreview = dynamic(
+  () => import('@/components/features/materiais/pdf-preview').then(m => m.PdfPreview),
+  { ssr: false, loading: () => <div className="h-48 animate-pulse rounded-lg bg-muted/30" /> }
+)
 
 export function MaterialDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -24,6 +30,7 @@ export function MaterialDetailPage() {
   const [deleting, setDeleting] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [userRole, setUserRole] = useState<UserRole>('usuario')
+  const [previewOpen, setPreviewOpen] = useState(true)
 
   useEffect(() => {
     getMaterialById(id)
@@ -142,6 +149,18 @@ export function MaterialDetailPage() {
               <Calendar className="h-4 w-4 shrink-0" />
               <span>{formattedDate}</span>
             </div>
+          </div>
+
+          {/* Preview */}
+          <div className="space-y-2">
+            <button
+              onClick={() => setPreviewOpen(v => !v)}
+              className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {previewOpen ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+              {previewOpen ? 'Ocultar preview' : 'Visualizar documento'}
+            </button>
+            {previewOpen && <PdfPreview url={material.arquivoURL} />}
           </div>
 
           {/* Ações */}
