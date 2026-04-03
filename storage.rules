@@ -26,6 +26,19 @@ service firebase.storage {
         && request.auth.uid in firestore.get(/databases/(default)/documents/groups/$(groupId)).data.members;
     }
 
+    // Regras para materiais acadêmicos
+    match /materiais/{userId}/{fileName} {
+      // Leitura pública — qualquer pessoa pode baixar materiais aprovados
+      allow read: if true;
+      // Upload: apenas o próprio usuário autenticado, PDF, máx 10MB
+      allow write: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.contentType == 'application/pdf'
+        && request.resource.size <= 10 * 1024 * 1024;
+      // Delete: apenas o próprio usuário autenticado
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
     // Negar acesso a todos os outros arquivos
     match /{allPaths=**} {
       allow read, write: if false;
