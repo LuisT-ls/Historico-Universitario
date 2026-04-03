@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { BookOpen, Loader2, Plus } from 'lucide-react'
+import { BookOpen, Loader2, Plus, FileText, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { MaterialCard } from '@/components/features/materiais/material-card'
 import { getMeusMateriais } from '@/services/materials.service'
@@ -33,38 +33,66 @@ export function MeusMateriaisPage() {
     )
   }
 
+  const totalDownloads = materiais.reduce((sum, m) => sum + m.downloadsCount, 0)
+
   return (
-    <main className="container py-8 px-4">
+    <main className="container py-8 px-4 max-w-6xl">
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-primary/10 dark:bg-blue-500/10">
-            <BookOpen className="h-6 w-6 text-primary dark:text-blue-400" />
-          </div>
+      <div className="relative rounded-2xl overflow-hidden mb-8 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-border/50 dark:border-slate-700/50 p-6 sm:p-8">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-slate-100">
-              Meus Materiais
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {materiais.length} {materiais.length === 1 ? 'material enviado' : 'materiais enviados'}
-            </p>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2.5 rounded-xl bg-primary/10 dark:bg-blue-500/15">
+                <BookOpen className="h-6 w-6 text-primary dark:text-blue-400" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-slate-100">
+                  Meus Materiais
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Gerencie os materiais que você enviou
+                </p>
+              </div>
+            </div>
+
+            {materiais.length > 0 && (
+              <div className="flex flex-wrap gap-3">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/70 dark:bg-slate-800/70 border border-border/50 dark:border-slate-700 text-xs text-muted-foreground backdrop-blur-sm">
+                  <FileText className="h-3 w-3" />
+                  <span className="font-medium text-foreground dark:text-slate-200">{materiais.length}</span>
+                  {materiais.length === 1 ? 'material enviado' : 'materiais enviados'}
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/70 dark:bg-slate-800/70 border border-border/50 dark:border-slate-700 text-xs text-muted-foreground backdrop-blur-sm">
+                  <Download className="h-3 w-3" />
+                  <span className="font-medium text-foreground dark:text-slate-200">{totalDownloads}</span>
+                  downloads no total
+                </div>
+              </div>
+            )}
           </div>
+
+          <Link href="/materiais" className="shrink-0">
+            <Button size="sm" className="gap-2">
+              <Plus className="h-4 w-4" />
+              Enviar novo
+            </Button>
+          </Link>
         </div>
-        <Link href="/materiais/upload">
-          <Button size="sm" className="gap-2">
-            <Plus className="h-4 w-4" />
-            Enviar
-          </Button>
-        </Link>
       </div>
 
       {/* Lista */}
       {materiais.length === 0 ? (
         <div className="text-center py-24">
-          <BookOpen className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
-          <p className="text-muted-foreground font-medium">Você ainda não enviou nenhum material.</p>
-          <Link href="/materiais/upload">
-            <Button variant="ghost" className="mt-4 gap-2">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted mb-4">
+            <BookOpen className="h-8 w-8 text-muted-foreground/40" />
+          </div>
+          <p className="text-foreground font-semibold">Nenhum material enviado ainda</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Compartilhe seus resumos, provas e apostilas com a comunidade.
+          </p>
+          <Link href="/materiais">
+            <Button variant="outline" className="mt-5 gap-2">
               <Plus className="h-4 w-4" />
               Enviar primeiro material
             </Button>

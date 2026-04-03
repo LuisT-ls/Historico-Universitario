@@ -57,7 +57,7 @@ export function AdminMateriaisPage() {
   }
 
   return (
-    <main className="container py-8 px-4">
+    <main className="container py-8 px-4 max-w-4xl">
       <Link href="/materiais">
         <Button variant="ghost" size="sm" className="gap-2 mb-6 -ml-2 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" />
@@ -66,30 +66,34 @@ export function AdminMateriaisPage() {
       </Link>
 
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="p-2 rounded-xl bg-primary/10 dark:bg-blue-500/10">
-          <ShieldCheck className="h-6 w-6 text-primary dark:text-blue-400" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-slate-100">
-            Gerenciar Materiais
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {materiais.length} {materiais.length === 1 ? 'material' : 'materiais'} no total
-          </p>
+      <div className="relative rounded-2xl overflow-hidden mb-8 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-border/50 dark:border-slate-700/50 p-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-primary/10 dark:bg-blue-500/15">
+            <ShieldCheck className="h-6 w-6 text-primary dark:text-blue-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-slate-100">
+              Gerenciar Materiais
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {materiais.length} {materiais.length === 1 ? 'material' : 'materiais'} no total
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Lista */}
       {materiais.length === 0 ? (
         <div className="text-center py-24">
-          <BookOpen className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
-          <p className="text-muted-foreground font-medium">Nenhum material cadastrado ainda.</p>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted mb-4">
+            <BookOpen className="h-8 w-8 text-muted-foreground/40" />
+          </div>
+          <p className="text-foreground font-semibold">Nenhum material cadastrado ainda.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {materiais.map(m => (
-            <Card key={m.id} className="dark:border-slate-700 dark:bg-slate-800/50">
+            <Card key={m.id} className="dark:border-slate-700 dark:bg-slate-800/50 transition-all duration-150 hover:shadow-md">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3 min-w-0">

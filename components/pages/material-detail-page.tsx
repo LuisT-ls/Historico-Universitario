@@ -101,7 +101,9 @@ export function MaterialDetailPage() {
         </Button>
       </Link>
 
-      <Card className="dark:border-slate-700 dark:bg-slate-800/50">
+      <Card className="dark:border-slate-700 dark:bg-slate-800/50 overflow-hidden">
+        {/* Accent strip */}
+        <div className="h-1 w-full bg-gradient-to-r from-primary/60 via-primary/30 to-transparent dark:from-blue-500/60 dark:via-blue-500/30" />
         <CardContent className="p-6 space-y-6">
           {/* Ícone + Título */}
           <div className="flex items-start gap-4">
