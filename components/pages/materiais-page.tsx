@@ -6,25 +6,29 @@ import { MaterialCard } from '@/components/features/materiais/material-card'
 import { MaterialFiltersBar } from '@/components/features/materiais/material-filters'
 import { AddMaterialSheet } from '@/components/features/materiais/add-material-sheet'
 import { Select } from '@/components/ui/select'
-import { getMateriais, type MaterialFilters } from '@/services/materials.service'
+import { getMateriais, getDisciplinas, type MaterialFilters } from '@/services/materials.service'
 import type { Material } from '@/types'
 
-type SortOption = 'recent' | 'oldest' | 'most_downloaded' | 'most_liked'
+type SortOption = 'recent' | 'oldest' | 'most_downloaded' | 'most_liked' | 'most_rated' | 'most_viewed'
 
 const SORT_LABELS: Record<SortOption, string> = {
-  recent: 'Mais recentes',
-  oldest: 'Mais antigos',
+  recent:          'Mais recentes',
+  oldest:          'Mais antigos',
   most_downloaded: 'Mais baixados',
-  most_liked: 'Mais curtidos',
+  most_liked:      'Mais curtidos',
+  most_rated:      'Melhor avaliados',
+  most_viewed:     'Mais visualizados',
 }
 
 function sortMateriais(list: Material[], sort: SortOption): Material[] {
   return [...list].sort((a, b) => {
     switch (sort) {
-      case 'oldest':        return (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0)
+      case 'oldest':          return (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0)
       case 'most_downloaded': return (b.downloadsCount ?? 0) - (a.downloadsCount ?? 0)
-      case 'most_liked':    return (b.likesCount ?? 0) - (a.likesCount ?? 0)
-      default:              return (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0)
+      case 'most_liked':      return (b.likesCount ?? 0) - (a.likesCount ?? 0)
+      case 'most_rated':      return (b.ratingAvg ?? 0) - (a.ratingAvg ?? 0) || (b.ratingCount ?? 0) - (a.ratingCount ?? 0)
+      case 'most_viewed':     return (b.viewsCount ?? 0) - (a.viewsCount ?? 0)
+      default:                return (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0)
     }
   })
 }
@@ -58,8 +62,13 @@ export function MateriaisPage() {
   const [sort, setSort] = useState<SortOption>('recent')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [disciplinas, setDisciplinas] = useState<string[]>([])
 
   const sorted = useMemo(() => sortMateriais(materiais, sort), [materiais, sort])
+
+  useEffect(() => {
+    getDisciplinas().then(setDisciplinas)
+  }, [])
 
   const loadMateriais = useCallback(() => {
     setLoading(true)
@@ -120,6 +129,7 @@ export function MateriaisPage() {
           filters={filters}
           onChange={setFilters}
           total={loading ? undefined : materiais.length}
+          disciplinas={disciplinas}
         />
         <div className="flex justify-end">
           <Select

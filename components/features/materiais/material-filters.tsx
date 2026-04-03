@@ -13,9 +13,10 @@ interface MaterialFiltersProps {
   filters: MaterialFilters
   onChange: (filters: MaterialFilters) => void
   total?: number
+  disciplinas?: string[]
 }
 
-export function MaterialFiltersBar({ filters, onChange, total }: MaterialFiltersProps) {
+export function MaterialFiltersBar({ filters, onChange, total, disciplinas = [] }: MaterialFiltersProps) {
   const hasActiveFilters = !!(filters.curso || filters.tipo || filters.search)
 
   function set(key: keyof MaterialFilters, value: string) {
@@ -27,9 +28,10 @@ export function MaterialFiltersBar({ filters, onChange, total }: MaterialFilters
   }
 
   const activeChips = [
-    filters.search   && { key: 'search',   label: `"${filters.search}"` },
-    filters.curso    && { key: 'curso',    label: CURSO_LABELS[filters.curso as Curso] ?? filters.curso },
-    filters.tipo     && { key: 'tipo',     label: TIPO_MATERIAL_LABELS[filters.tipo as keyof typeof TIPO_MATERIAL_LABELS] },
+    filters.search      && { key: 'search',      label: `"${filters.search}"` },
+    filters.curso       && { key: 'curso',       label: CURSO_LABELS[filters.curso as Curso] ?? filters.curso },
+    filters.tipo        && { key: 'tipo',        label: TIPO_MATERIAL_LABELS[filters.tipo as keyof typeof TIPO_MATERIAL_LABELS] },
+    filters.disciplina  && { key: 'disciplina',  label: filters.disciplina },
   ].filter(Boolean) as { key: keyof MaterialFilters; label: string }[]
 
   return (
@@ -76,6 +78,20 @@ export function MaterialFiltersBar({ filters, onChange, total }: MaterialFilters
               </option>
             ))}
           </Select>
+
+          {disciplinas.length > 0 && (
+            <Select
+              value={filters.disciplina ?? ''}
+              onChange={e => set('disciplina', e.target.value)}
+              className="sm:w-48 h-9 text-sm"
+              aria-label="Filtrar por disciplina"
+            >
+              <option value="">Todas as disciplinas</option>
+              {disciplinas.map(d => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </Select>
+          )}
 
         </div>
       </div>

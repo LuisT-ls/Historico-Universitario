@@ -167,14 +167,21 @@ export function Header() {
                       className="h-9 gap-1.5 px-2 rounded-lg text-muted-foreground dark:text-slate-400 hover:text-foreground dark:hover:text-slate-100 hover:bg-accent dark:hover:bg-slate-800 transition-colors"
                       aria-label="Menu do usuário"
                     >
-                      <div className="w-6 h-6 rounded-full bg-primary/10 dark:bg-blue-500/10 border border-primary/20 dark:border-blue-500/20 flex items-center justify-center text-[10px] font-black text-primary dark:text-blue-400 uppercase overflow-hidden shrink-0">
-                        {profilePhotoURL ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={profilePhotoURL} alt="Foto de perfil" className="object-cover w-full h-full" />
-                        ) : user.photoURL && user.providerData?.[0]?.providerId === 'google.com' ? (
-                          <Image src={user.photoURL} alt="Foto de perfil" width={24} height={24} className="object-cover w-full h-full" />
-                        ) : (
-                          user.displayName?.[0] ?? user.email?.[0] ?? 'U'
+                      <div className="relative w-6 h-6 shrink-0">
+                        <div className="w-6 h-6 rounded-full bg-primary/10 dark:bg-blue-500/10 border border-primary/20 dark:border-blue-500/20 flex items-center justify-center text-[10px] font-black text-primary dark:text-blue-400 uppercase overflow-hidden">
+                          {profilePhotoURL ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={profilePhotoURL} alt="Foto de perfil" className="object-cover w-full h-full" />
+                          ) : user.photoURL && user.providerData?.[0]?.providerId === 'google.com' ? (
+                            <Image src={user.photoURL} alt="Foto de perfil" width={24} height={24} className="object-cover w-full h-full" />
+                          ) : (
+                            user.displayName?.[0] ?? user.email?.[0] ?? 'U'
+                          )}
+                        </div>
+                        {userRole === 'admin' && (
+                          <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-3 h-3 rounded-full bg-amber-400 dark:bg-amber-500 border border-background dark:border-slate-900" aria-label="Admin">
+                            <ShieldCheck className="w-2 h-2 text-white" />
+                          </span>
                         )}
                       </div>
                       <ChevronDown className="h-3 w-3 opacity-50" aria-hidden="true" />
