@@ -1,6 +1,6 @@
 'use client'
 
-import { Download, FileText, Calendar, BookOpen } from 'lucide-react'
+import { Download, FileText, Calendar, BookOpen, Star } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import type { Material } from '@/types'
 import { TIPO_MATERIAL_LABELS, CURSO_LABELS, STATUS_MATERIAL_LABELS } from '@/lib/materiais-constants'
@@ -98,10 +98,18 @@ export function MaterialCard({ material, showStatus = false }: MaterialCardProps
                 <Download className="h-3 w-3" />
                 {material.downloadsCount}
               </span>
-              <span className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                {formattedDate}
-              </span>
+              {(material.ratingCount ?? 0) > 0 ? (
+                <span className="flex items-center gap-0.5">
+                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                  <span className="tabular-nums">{(material.ratingAvg ?? 0).toFixed(1)}</span>
+                  <span className="text-muted-foreground/60">({material.ratingCount})</span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {formattedDate}
+                </span>
+              )}
             </div>
             <span className="text-xs font-medium text-primary dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
               Ver →

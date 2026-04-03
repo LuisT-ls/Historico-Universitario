@@ -12,6 +12,7 @@ import { getUserRole } from '@/services/firestore.service'
 import { useAuth } from '@/components/auth-provider'
 import { EditMaterialDialog } from '@/components/features/materiais/edit-material-dialog'
 import { LikeButton } from '@/components/features/materiais/like-button'
+import { StarRating } from '@/components/features/materiais/star-rating'
 import { FavoriteButton } from '@/components/features/materiais/favorite-button'
 import { ReportMaterial } from '@/components/features/materiais/report-material'
 import { MaterialComments } from '@/components/features/materiais/material-comments'
@@ -211,6 +212,18 @@ export function MaterialDetailPage() {
                 <span>{material.downloadsCount} downloads · {material.viewsCount ?? 0} visualizações</span>
               </div>
             </div>
+          </div>
+
+          {/* Avaliação */}
+          <div className="space-y-1.5">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Avaliação
+            </h2>
+            <StarRating
+              materialId={id}
+              initialAvg={material.ratingAvg ?? 0}
+              initialCount={material.ratingCount ?? 0}
+            />
           </div>
 
           <div className="border-t border-border/50 dark:border-slate-700/50" />

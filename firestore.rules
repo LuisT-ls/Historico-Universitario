@@ -121,6 +121,7 @@ service cloud.firestore {
       //   - dono pode editar apenas metadados
       //   - qualquer pessoa pode incrementar downloadsCount ou viewsCount em +1
       //   - usuário autenticado pode incrementar/decrementar likesCount em ±1
+      //   - usuário autenticado pode atualizar ratingSum, ratingCount, ratingAvg (via transação)
       allow update: if isAdmin()
                     || (request.auth != null
                         && request.auth.uid == resource.data.uploadedBy
@@ -135,7 +136,10 @@ service cloud.firestore {
                     || (request.auth != null
                         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount'])
                         && (request.resource.data.likesCount == resource.data.likesCount + 1
-                            || request.resource.data.likesCount == resource.data.likesCount - 1));
+                            || request.resource.data.likesCount == resource.data.likesCount - 1))
+                    || (request.auth != null
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['ratingSum', 'ratingCount', 'ratingAvg']));
 
       // Delete: apenas o próprio dono ou admin
       allow delete: if (request.auth != null && request.auth.uid == resource.data.uploadedBy)
@@ -145,6 +149,17 @@ service cloud.firestore {
       match /likes/{userId} {
         allow read: if true;
         allow create, delete: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Avaliações (1-5 estrelas) — uma por usuário
+      match /ratings/{userId} {
+        allow read: if true;
+        allow create, update: if request.auth != null
+                              && request.auth.uid == userId
+                              && request.resource.data.value is number
+                              && request.resource.data.value >= 1
+                              && request.resource.data.value <= 5;
+        allow delete: if request.auth != null && request.auth.uid == userId;
       }
 
       // Comentários

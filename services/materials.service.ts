@@ -44,6 +44,9 @@ function docToMaterial(docSnap: QueryDocumentSnapshot<DocumentData> | DocumentSn
     downloadsCount: data.downloadsCount ?? 0,
     viewsCount: data.viewsCount ?? 0,
     likesCount: data.likesCount ?? 0,
+    ratingAvg: data.ratingAvg ?? 0,
+    ratingCount: data.ratingCount ?? 0,
+    ratingSum: data.ratingSum ?? 0,
     createdAt: data.createdAt?.toDate?.() ?? new Date(),
     updatedAt: data.updatedAt?.toDate?.() ?? new Date(),
   } as Material

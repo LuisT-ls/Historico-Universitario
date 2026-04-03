@@ -291,6 +291,9 @@ export interface Material {
   downloadsCount: number
   viewsCount?: number
   likesCount?: number
+  ratingAvg?: number
+  ratingCount?: number
+  ratingSum?: number
   createdAt?: Date
   updatedAt?: Date
 }
