@@ -241,7 +241,9 @@ export function AdminMateriaisPage() {
                       {r.details && (
                         <p className="text-xs text-muted-foreground line-clamp-2">{r.details}</p>
                       )}
-                      <p className="text-[11px] text-muted-foreground/60">uid: {r.reportedBy}</p>
+                      <p className="text-[11px] text-muted-foreground/60">
+                        Por: {r.reporterName ?? r.reportedBy.slice(0, 12) + '…'}
+                      </p>
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">

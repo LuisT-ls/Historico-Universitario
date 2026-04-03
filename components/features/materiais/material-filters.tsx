@@ -50,11 +50,11 @@ export function MaterialFiltersBar({ filters, onChange, total, disciplinas = [] 
         </div>
 
         {/* Selects */}
-        <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:flex-nowrap">
           <Select
             value={filters.curso ?? ''}
             onChange={e => set('curso', e.target.value)}
-            className="sm:w-48 h-9 text-sm"
+            className="h-9 text-sm sm:w-48"
             aria-label="Filtrar por curso"
           >
             <option value="">Todos os cursos</option>
@@ -68,7 +68,7 @@ export function MaterialFiltersBar({ filters, onChange, total, disciplinas = [] 
           <Select
             value={filters.tipo ?? ''}
             onChange={e => set('tipo', e.target.value)}
-            className="sm:w-40 h-9 text-sm"
+            className="h-9 text-sm sm:w-40"
             aria-label="Filtrar por tipo"
           >
             <option value="">Todos os tipos</option>
@@ -83,7 +83,7 @@ export function MaterialFiltersBar({ filters, onChange, total, disciplinas = [] 
             <Select
               value={filters.disciplina ?? ''}
               onChange={e => set('disciplina', e.target.value)}
-              className="sm:w-48 h-9 text-sm"
+              className="col-span-2 h-9 text-sm sm:w-48 sm:col-span-1"
               aria-label="Filtrar por disciplina"
             >
               <option value="">Todas as disciplinas</option>

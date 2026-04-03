@@ -42,6 +42,7 @@ export function ReportMaterial({ materialId, materialTitle }: ReportMaterialProp
         materialId,
         materialTitle,
         reportedBy: user.uid,
+        reporterName: user.displayName || user.email || 'Anônimo',
         reason,
         details: details.trim() || null,
         createdAt: new Date(),
