@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ShieldCheck, Loader2, CheckCircle2, XCircle, FileText, Clock } from 'lucide-react'
+import { ShieldCheck, Loader2, FileText, Trash2, Pencil, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { getMateriaisPendentes, updateMaterialStatus } from '@/services/materials.service'
+import { getAllMateriais, deleteMaterial } from '@/services/materials.service'
 import { getUserRole } from '@/services/firestore.service'
+import { EditMaterialDialog } from '@/components/features/materiais/edit-material-dialog'
 import { useAuth } from '@/components/auth-provider'
 import { toast } from '@/lib/toast'
 import type { Material } from '@/types'
@@ -17,7 +18,8 @@ export function AdminMateriaisPage() {
   const router = useRouter()
   const [materiais, setMateriais] = useState<Material[]>([])
   const [loading, setLoading] = useState(true)
-  const [actionId, setActionId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [editingMaterial, setEditingMaterial] = useState<Material | null>(null)
 
   useEffect(() => {
     if (authLoading) return
@@ -25,22 +27,23 @@ export function AdminMateriaisPage() {
 
     getUserRole(user.uid).then(role => {
       if (role !== 'admin') { router.replace('/'); return }
-      return getMateriaisPendentes()
+      return getAllMateriais()
     }).then(data => {
       if (data) setMateriais(data)
     }).finally(() => setLoading(false))
   }, [user, authLoading, router])
 
-  async function handleAction(id: string, status: 'approved' | 'rejected') {
-    setActionId(id)
+  async function handleDelete(material: Material) {
+    if (!window.confirm(`Excluir "${material.titulo}"?`)) return
+    setDeletingId(material.id!)
     try {
-      await updateMaterialStatus(id, status)
-      setMateriais(prev => prev.filter(m => m.id !== id))
-      toast.success(status === 'approved' ? 'Material aprovado!' : 'Material rejeitado.')
+      await deleteMaterial(material.id!, material.storagePath)
+      setMateriais(prev => prev.filter(m => m.id !== material.id))
+      toast.success('Material excluído.')
     } catch {
-      toast.error('Erro ao processar ação.')
+      toast.error('Erro ao excluir material.')
     } finally {
-      setActionId(null)
+      setDeletingId(null)
     }
   }
 
@@ -61,10 +64,10 @@ export function AdminMateriaisPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground dark:text-slate-100">
-            Aprovação de Materiais
+            Gerenciar Materiais
           </h1>
           <p className="text-sm text-muted-foreground">
-            {materiais.length} {materiais.length === 1 ? 'material pendente' : 'materiais pendentes'}
+            {materiais.length} {materiais.length === 1 ? 'material' : 'materiais'} no total
           </p>
         </div>
       </div>
@@ -72,8 +75,8 @@ export function AdminMateriaisPage() {
       {/* Lista */}
       {materiais.length === 0 ? (
         <div className="text-center py-24">
-          <CheckCircle2 className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
-          <p className="text-muted-foreground font-medium">Nenhum material aguardando aprovação.</p>
+          <BookOpen className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+          <p className="text-muted-foreground font-medium">Nenhum material cadastrado ainda.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -92,34 +95,36 @@ export function AdminMateriaisPage() {
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {CURSO_LABELS[m.curso] ?? m.curso} · {m.disciplina} · {m.semestre} · {TIPO_MATERIAL_LABELS[m.tipo]}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         Enviado por {m.uploaderName ?? 'Anônimo'}
-                        {m.createdAt && ` em ${new Intl.DateTimeFormat('pt-BR').format(m.createdAt instanceof Date ? m.createdAt : new Date(m.createdAt))}`}
+                        {m.createdAt && ` · ${new Intl.DateTimeFormat('pt-BR').format(m.createdAt instanceof Date ? m.createdAt : new Date(m.createdAt))}`}
+                        {' · '}{m.downloadsCount} downloads
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1 shrink-0">
                     <Button
-                      size="sm"
+                      size="icon"
                       variant="ghost"
-                      disabled={actionId === m.id}
-                      onClick={() => handleAction(m.id!, 'approved')}
-                      className="gap-1.5 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700"
+                      onClick={() => setEditingMaterial(m)}
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                      aria-label="Editar"
                     >
-                      {actionId === m.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                      Aprovar
+                      <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
-                      size="sm"
+                      size="icon"
                       variant="ghost"
-                      disabled={actionId === m.id}
-                      onClick={() => handleAction(m.id!, 'rejected')}
-                      className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      disabled={deletingId === m.id}
+                      onClick={() => handleDelete(m)}
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      aria-label="Excluir"
                     >
-                      <XCircle className="h-4 w-4" />
-                      Rejeitar
+                      {deletingId === m.id
+                        ? <Loader2 className="h-4 w-4 animate-spin" />
+                        : <Trash2 className="h-4 w-4" />
+                      }
                     </Button>
                   </div>
                 </div>
@@ -127,6 +132,20 @@ export function AdminMateriaisPage() {
             </Card>
           ))}
         </div>
+      )}
+
+      {editingMaterial && (
+        <EditMaterialDialog
+          material={editingMaterial}
+          open={!!editingMaterial}
+          onOpenChange={(open) => { if (!open) setEditingMaterial(null) }}
+          onSaved={(updated) => {
+            setMateriais(prev =>
+              prev.map(m => m.id === editingMaterial.id ? { ...m, ...updated } : m)
+            )
+            setEditingMaterial(null)
+          }}
+        />
       )}
     </main>
   )

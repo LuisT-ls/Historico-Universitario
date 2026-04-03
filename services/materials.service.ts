@@ -201,29 +201,16 @@ export async function incrementDownloads(id: string): Promise<void> {
 
 // ─── admin ────────────────────────────────────────────────────────────────────
 
-export async function getMateriaisPendentes(): Promise<Material[]> {
+/** Retorna todos os materiais sem filtro de status — uso exclusivo do admin. */
+export async function getAllMateriais(): Promise<Material[]> {
   if (!db) throw new Error('Firestore não inicializado')
 
   try {
-    const ref = collection(db, 'materiais')
-    const q = query(ref, where('status', '==', 'pending'))
-    const snapshot = await getDocs(q)
+    const snapshot = await getDocs(collection(db, 'materiais'))
     const materiais = snapshot.docs.map(docToMaterial)
     return materiais.sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
   } catch (error) {
-    logger.error('Erro ao buscar materiais pendentes:', error)
-    throw error
-  }
-}
-
-export async function updateMaterialStatus(id: string, status: StatusMaterial): Promise<void> {
-  if (!db) throw new Error('Firestore não inicializado')
-
-  try {
-    await updateDoc(doc(db, 'materiais', id), { status, updatedAt: new Date() })
-    logger.info('Status atualizado', { id, status })
-  } catch (error) {
-    logger.error('Erro ao atualizar status:', error)
+    logger.error('Erro ao buscar todos os materiais:', error)
     throw error
   }
 }

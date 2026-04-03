@@ -103,18 +103,12 @@ service cloud.firestore {
 
     // Regras para a coleção 'materiais'
     match /materiais/{materialId} {
-      // Leitura:
-      //   - qualquer pessoa pode ler materiais aprovados
-      //   - o próprio dono pode ler seus materiais (qualquer status)
-      //   - admin pode ler tudo
-      allow read: if resource.data.status == 'approved'
-                  || (request.auth != null && request.auth.uid == resource.data.uploadedBy)
-                  || isAdmin();
+      // Leitura pública — qualquer pessoa pode ver todos os materiais
+      allow read: if true;
 
-      // Criação: usuário autenticado, status 'approved' direto, downloadsCount = 0
+      // Criação: apenas usuários autenticados, downloadsCount = 0, campos obrigatórios válidos
       allow create: if request.auth != null
                     && request.auth.uid == request.resource.data.uploadedBy
-                    && request.resource.data.status == 'approved'
                     && request.resource.data.downloadsCount == 0
                     && isValidString(request.resource.data.titulo, 3, 100)
                     && isValidString(request.resource.data.disciplina, 2, 100)
@@ -124,21 +118,19 @@ service cloud.firestore {
 
       // Update:
       //   - admin pode alterar qualquer campo
-      //   - dono pode editar apenas metadados (não pode mudar status, uploadedBy nem downloadsCount)
-      //   - qualquer autenticado pode apenas incrementar downloadsCount em +1
+      //   - dono pode editar apenas metadados (não pode mudar uploadedBy nem downloadsCount)
+      //   - qualquer pessoa pode incrementar downloadsCount em +1
       allow update: if isAdmin()
                     || (request.auth != null
                         && request.auth.uid == resource.data.uploadedBy
                         && request.resource.data.diff(resource.data).affectedKeys()
                              .hasOnly(['titulo', 'descricao', 'curso', 'disciplina', 'semestre', 'tipo', 'updatedAt'])
-                        && request.resource.data.status == resource.data.status
                         && request.resource.data.uploadedBy == resource.data.uploadedBy
                         && request.resource.data.downloadsCount == resource.data.downloadsCount)
-                    || (request.auth != null
-                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloadsCount'])
+                    || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloadsCount'])
                         && request.resource.data.downloadsCount == resource.data.downloadsCount + 1);
 
-      // Delete: o próprio dono ou admin
+      // Delete: apenas o próprio dono ou admin
       allow delete: if (request.auth != null && request.auth.uid == resource.data.uploadedBy)
                     || isAdmin();
     }
