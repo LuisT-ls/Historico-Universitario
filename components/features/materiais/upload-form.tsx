@@ -117,7 +117,7 @@ export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFo
         user.uid as UserId
       )
 
-      toast.success('Material enviado! Aguarde aprovação.')
+      toast.success('Material enviado com sucesso!')
       if (onSuccess) {
         onSuccess()
       } else {
@@ -265,7 +265,7 @@ export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFo
           Enviar Material
         </CardTitle>
         <CardDescription>
-          O material passará por aprovação antes de ficar visível para todos.
+          Preencha os dados e selecione o PDF. O material ficará visível imediatamente.
         </CardDescription>
       </CardHeader>
       <CardContent>{formContent}</CardContent>

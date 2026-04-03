@@ -111,10 +111,10 @@ service cloud.firestore {
                   || (request.auth != null && request.auth.uid == resource.data.uploadedBy)
                   || isAdmin();
 
-      // Criação: usuário autenticado, status obrigatoriamente 'pending', downloadsCount = 0
+      // Criação: usuário autenticado, status 'approved' direto, downloadsCount = 0
       allow create: if request.auth != null
                     && request.auth.uid == request.resource.data.uploadedBy
-                    && request.resource.data.status == 'pending'
+                    && request.resource.data.status == 'approved'
                     && request.resource.data.downloadsCount == 0
                     && isValidString(request.resource.data.titulo, 3, 100)
                     && isValidString(request.resource.data.disciplina, 2, 100)

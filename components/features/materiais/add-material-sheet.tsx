@@ -66,7 +66,7 @@ export function AddMaterialSheet({ onSuccess }: AddMaterialSheetProps) {
             Enviar Material
           </SheetTitle>
           <SheetDescription>
-            Preencha os dados e selecione o PDF. O material será publicado após aprovação.
+            Preencha os dados e selecione o PDF. O material ficará visível imediatamente.
           </SheetDescription>
         </SheetHeader>
 

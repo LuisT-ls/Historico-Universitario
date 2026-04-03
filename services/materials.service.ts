@@ -147,7 +147,7 @@ export async function addMaterial(
     const data = {
       ...material,
       uploadedBy: userId,
-      status: 'pending' as StatusMaterial,
+      status: 'approved' as StatusMaterial,
       downloadsCount: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
