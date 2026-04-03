@@ -1,9 +1,25 @@
 import { test, expect } from '@playwright/test'
 
+/**
+ * Aguarda a página de materiais terminar o carregamento assíncrono.
+ * A página mostra skeletons (.animate-pulse) enquanto busca dados do Firebase;
+ * esperamos que eles desapareçam OU que conteúdo real (cards ou empty state) apareça.
+ */
+async function waitForMateriaisLoaded(page: import('@playwright/test').Page) {
+  await page.waitForLoadState('load')
+
+  // Espera o skeleton sumir ou o conteúdo aparecer
+  await expect(
+    page.locator('.animate-pulse').first()
+  ).not.toBeVisible({ timeout: 15000 }).catch(() => {
+    // Se não havia skeleton (já carregou), está OK
+  })
+}
+
 test.describe('Página de Materiais', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/materiais')
-    await page.waitForLoadState('load')
+    await waitForMateriaisLoaded(page)
   })
 
   test('carrega a página com o título correto', async ({ page }) => {
@@ -25,14 +41,13 @@ test.describe('Página de Materiais', () => {
   })
 
   test('filtro de busca filtra os resultados', async ({ page }) => {
-    // Aguarda qualquer estado inicial (cards ou empty state)
     const searchInput = page.getByPlaceholder(/buscar/i)
     await searchInput.fill('xyzimpossível123')
 
-    // Após busca sem resultados, mostra empty state
+    // Aguarda o refetch (loading → empty state)
     await expect(
       page.getByText(/nenhum material encontrado/i)
-    ).toBeVisible({ timeout: 5000 })
+    ).toBeVisible({ timeout: 10000 })
   })
 
   test('limpar filtros reseta a busca', async ({ page }) => {
@@ -57,7 +72,7 @@ test.describe('Página de Materiais', () => {
 test.describe('Filtros de Materiais', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/materiais')
-    await page.waitForLoadState('load')
+    await waitForMateriaisLoaded(page)
   })
 
   test('dropdown de curso contém as opções esperadas', async ({ page }) => {
@@ -89,7 +104,7 @@ test.describe('Filtros de Materiais', () => {
 test.describe('Navegação para Detalhe', () => {
   test('clicar em um card navega para a página de detalhe', async ({ page }) => {
     await page.goto('/materiais')
-    await page.waitForLoadState('load')
+    await waitForMateriaisLoaded(page)
 
     // Verifica se há cards de material
     const cards = page.locator('a[href^="/materiais/"]').filter({ hasNot: page.locator('[href="/materiais"]') })
@@ -101,8 +116,8 @@ test.describe('Navegação para Detalhe', () => {
       await page.waitForLoadState('load')
       await expect(page).toHaveURL(new RegExp(href!))
     } else {
-      // Repositório vazio — verifica o empty state
-      await expect(page.getByText(/nenhum material/i)).toBeVisible()
+      // Repositório vazio — verifica o empty state (já carregado)
+      await expect(page.getByText(/nenhum material encontrado/i)).toBeVisible({ timeout: 5000 })
     }
   })
 })
@@ -115,6 +130,6 @@ test.describe('Página de Detalhe do Material', () => {
     // Deve exibir mensagem de não encontrado ou redirecionar
     await expect(
       page.getByText(/não encontrado|not found/i)
-    ).toBeVisible({ timeout: 8000 })
+    ).toBeVisible({ timeout: 15000 })
   })
 })
