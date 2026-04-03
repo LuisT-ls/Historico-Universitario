@@ -46,16 +46,13 @@ export function FavoriteButton({ materialId, variant = 'icon' }: FavoriteButtonP
     return (
       <Button
         variant="outline"
-        size="sm"
+        size="icon"
         onClick={toggle}
         disabled={loading}
-        className={`gap-2 transition-colors ${saved ? 'text-amber-500 border-amber-300 hover:bg-amber-50 dark:border-amber-700 dark:hover:bg-amber-900/20' : ''}`}
+        aria-label={saved ? 'Remover dos favoritos' : 'Salvar nos favoritos'}
+        className={`transition-colors ${saved ? 'text-amber-500 border-amber-300 hover:bg-amber-50 dark:border-amber-700 dark:hover:bg-amber-900/20' : ''}`}
       >
-        {saved
-          ? <BookmarkCheck className="h-4 w-4" />
-          : <Bookmark className="h-4 w-4" />
-        }
-        {saved ? 'Salvo' : 'Salvar'}
+        {saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
       </Button>
     )
   }

@@ -52,7 +52,7 @@ export function LikeButton({ materialId, initialCount }: LikeButtonProps) {
       className={`gap-2 transition-colors ${liked ? 'text-blue-600 border-blue-300 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:border-blue-700 dark:bg-blue-900/20 dark:hover:bg-blue-900/30' : ''}`}
     >
       <ThumbsUp className="h-4 w-4" />
-      <span>{count > 0 ? count : ''} {count === 1 ? 'curtida' : 'curtidas'}</span>
+      {count > 0 && <span>{count}</span>}
     </Button>
   )
 }

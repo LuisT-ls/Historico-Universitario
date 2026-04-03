@@ -99,6 +99,38 @@ const customJestConfig = {
       lines: 90,
       statements: 90,
     },
+    // services — materiais
+    'services/materials.service.ts': {
+      branches: 60,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+    'services/favorites.service.ts': {
+      branches: 60,
+      functions: 100,
+      lines: 85,
+      statements: 85,
+    },
+    'services/likes.service.ts': {
+      branches: 60,
+      functions: 100,
+      lines: 85,
+      statements: 85,
+    },
+    'services/comments.service.ts': {
+      branches: 60,
+      functions: 100,
+      lines: 85,
+      statements: 85,
+    },
+    // lib — constantes de materiais
+    'lib/materiais-constants.ts': {
+      branches: 80,
+      functions: 100,
+      lines: 90,
+      statements: 90,
+    },
   },
   transformIgnorePatterns: [
     'node_modules/(?!(lucide-react)/)',
