@@ -28,7 +28,7 @@ test.describe('Navegação', () => {
       if (href && href !== '#') {
         await firstLink.click()
         // Aguardar navegação
-        await page.waitForLoadState('networkidle')
+        await page.waitForLoadState('load')
       }
     }
   })

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Página de Materiais', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/materiais')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('carrega a página com o título correto', async ({ page }) => {
@@ -57,7 +57,7 @@ test.describe('Página de Materiais', () => {
 test.describe('Filtros de Materiais', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/materiais')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('dropdown de curso contém as opções esperadas', async ({ page }) => {
@@ -89,7 +89,7 @@ test.describe('Filtros de Materiais', () => {
 test.describe('Navegação para Detalhe', () => {
   test('clicar em um card navega para a página de detalhe', async ({ page }) => {
     await page.goto('/materiais')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Verifica se há cards de material
     const cards = page.locator('a[href^="/materiais/"]').filter({ hasNot: page.locator('[href="/materiais"]') })
@@ -98,7 +98,7 @@ test.describe('Navegação para Detalhe', () => {
     if (count > 0) {
       const href = await cards.first().getAttribute('href')
       await cards.first().click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
       await expect(page).toHaveURL(new RegExp(href!))
     } else {
       // Repositório vazio — verifica o empty state
@@ -110,7 +110,7 @@ test.describe('Navegação para Detalhe', () => {
 test.describe('Página de Detalhe do Material', () => {
   test('redireciona para 404 para ID inválido', async ({ page }) => {
     await page.goto('/materiais/id-que-nao-existe-abc123')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Deve exibir mensagem de não encontrado ou redirecionar
     await expect(
