@@ -15,8 +15,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:all": "npm run test && npm run test:e2e",
-    "test:materials": "jest --testPathPattern=\"(materials|favorites|likes|comments|materiais-constants)\" --forceExit",
-    "test:materials:watch": "jest --testPathPattern=\"(materials|favorites|likes|comments|materiais-constants)\" --watch"
+    "test:materials": "jest --config jest.materials.config.js --forceExit",
+    "test:materials:watch": "jest --config jest.materials.config.js --watch"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",

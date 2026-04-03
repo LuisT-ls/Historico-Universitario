@@ -92,7 +92,7 @@ jobs:
       - name: Run materials unit tests
         run: |
           npx jest \
-            --testPathPattern='(materials|favorites|likes|comments|materiais-constants)' \
+            --config jest.materials.config.js \
             --coverage \
             --coverageDirectory=coverage-materials \
             --forceExit
