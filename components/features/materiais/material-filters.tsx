@@ -52,7 +52,7 @@ export function MaterialFiltersBar({ filters, onChange, total }: MaterialFilters
           <Select
             value={filters.curso ?? ''}
             onChange={e => set('curso', e.target.value)}
-            className="sm:w-40 h-9 text-sm"
+            className="sm:w-48 h-9 text-sm"
             aria-label="Filtrar por curso"
           >
             <option value="">Todos os cursos</option>

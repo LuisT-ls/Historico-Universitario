@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Download, FileText, Loader2, Trash2, BookOpen, Calendar, User, Pencil, Eye, EyeOff } from 'lucide-react'
+import {
+  ArrowLeft, Download, FileText, Loader2, Trash2,
+  BookOpen, Calendar, User, Pencil, Eye, EyeOff,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { getMaterialById, incrementDownloads, incrementViews, deleteMaterial, getRelatedMateriais } from '@/services/materials.service'
 import { getUserRole } from '@/services/firestore.service'
 import { useAuth } from '@/components/auth-provider'
@@ -23,8 +25,17 @@ import Link from 'next/link'
 
 const PdfPreview = dynamic(
   () => import('@/components/features/materiais/pdf-preview').then(m => m.PdfPreview),
-  { ssr: false, loading: () => <div className="h-48 animate-pulse rounded-lg bg-muted/30" /> }
+  { ssr: false, loading: () => <div className="h-64 animate-pulse rounded-xl bg-muted/30" /> }
 )
+
+const TIPO_BADGE: Record<string, string> = {
+  lista:    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  apostila: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  prova:    'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  resumo:   'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+  slides:   'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  outro:    'bg-muted text-muted-foreground',
+}
 
 export function MaterialDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -88,7 +99,9 @@ export function MaterialDetailPage() {
       <div className="container py-12 px-4 text-center">
         <p className="text-muted-foreground">Material não encontrado.</p>
         <Link href="/materiais">
-          <Button variant="ghost" className="mt-4 gap-2"><ArrowLeft className="h-4 w-4" />Voltar</Button>
+          <Button variant="ghost" className="mt-4 gap-2">
+            <ArrowLeft className="h-4 w-4" />Voltar
+          </Button>
         </Link>
       </div>
     )
@@ -104,149 +117,176 @@ export function MaterialDetailPage() {
       )
     : '—'
 
+  const materialUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://historicoacademico.vercel.app'}/materiais/${material.id}`
+
   return (
-    <main className="container py-8 px-4 max-w-2xl">
+    <main className="container py-8 px-4 max-w-6xl space-y-10">
+
+      {/* Breadcrumb / voltar */}
       <Link href="/materiais">
-        <Button variant="ghost" size="sm" className="gap-2 mb-6 -ml-2 text-muted-foreground hover:text-foreground">
+        <Button variant="ghost" size="sm" className="gap-2 -ml-2 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" />
           Voltar para materiais
         </Button>
       </Link>
 
-      <Card className="dark:border-slate-700 dark:bg-slate-800/50 overflow-hidden">
-        {/* Accent strip */}
-        <div className="h-1 w-full bg-gradient-to-r from-primary/60 via-primary/30 to-transparent dark:from-blue-500/60 dark:via-blue-500/30" />
-        <CardContent className="p-6 space-y-6">
-          {/* Ícone + Título */}
-          <div className="flex items-start gap-4">
-            <div className="p-3 rounded-xl bg-primary/10 dark:bg-blue-500/10 shrink-0">
-              <FileText className="h-7 w-7 text-primary dark:text-blue-400" />
+      {/* Cabeçalho — título e badges */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={`text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full ${TIPO_BADGE[material.tipo] ?? TIPO_BADGE.outro}`}>
+            {TIPO_MATERIAL_LABELS[material.tipo]}
+          </span>
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
+            {CURSO_LABELS[material.curso] ?? material.curso}
+          </span>
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
+            {material.semestre}
+          </span>
+        </div>
+
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground dark:text-slate-100 leading-snug">
+          {material.titulo}
+        </h1>
+
+        {material.descricao && (
+          <p className="text-base text-muted-foreground leading-relaxed max-w-2xl">
+            {material.descricao}
+          </p>
+        )}
+      </div>
+
+      {/* Layout principal: preview + sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 items-start">
+
+        {/* Coluna esquerda — preview */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-foreground dark:text-slate-200 flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              Pré-visualização
+            </span>
+            <button
+              onClick={() => setPreviewOpen(v => !v)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {previewOpen ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+              {previewOpen ? 'Ocultar' : 'Mostrar'}
+            </button>
+          </div>
+
+          {previewOpen
+            ? <PdfPreview url={material.arquivoURL} />
+            : (
+              <div className="flex flex-col items-center justify-center gap-3 py-16 rounded-xl border border-dashed border-border dark:border-slate-700 text-muted-foreground/50">
+                <FileText className="h-10 w-10" />
+                <span className="text-sm">Preview oculto</span>
+              </div>
+            )
+          }
+        </div>
+
+        {/* Coluna direita — sidebar */}
+        <aside className="space-y-6 lg:sticky lg:top-6">
+
+          {/* Informações */}
+          <div className="space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Informações
+            </h2>
+            <div className="space-y-2.5 text-sm">
+              <div className="flex items-center gap-2.5 text-foreground/80 dark:text-slate-300">
+                <BookOpen className="h-4 w-4 text-muted-foreground shrink-0" />
+                <span>{material.disciplina}</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-foreground/80 dark:text-slate-300">
+                <User className="h-4 w-4 text-muted-foreground shrink-0" />
+                <span>{material.uploaderName ?? 'Anônimo'}</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-foreground/80 dark:text-slate-300">
+                <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+                <span>{formattedDate}</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-muted-foreground pt-1">
+                <Download className="h-3.5 w-3.5 shrink-0" />
+                <span>{material.downloadsCount} downloads · {material.viewsCount ?? 0} visualizações</span>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground dark:text-slate-100 leading-snug">
-                {material.titulo}
-              </h1>
-              {material.descricao && (
-                <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                  {material.descricao}
-                </p>
+          </div>
+
+          <div className="border-t border-border/50 dark:border-slate-700/50" />
+
+          {/* Ações */}
+          <div className="space-y-2.5">
+            <Button onClick={handleDownload} className="w-full gap-2">
+              <Download className="h-4 w-4" />
+              Baixar PDF
+            </Button>
+
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <LikeButton materialId={id} initialCount={material.likesCount ?? 0} />
+              </div>
+              <FavoriteButton materialId={id} variant="full" />
+              {canManage && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setEditOpen(true)}
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label="Editar material"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    aria-label="Excluir material"
+                  >
+                    {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  </Button>
+                </>
               )}
             </div>
           </div>
 
-          {/* Metadados */}
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <BookOpen className="h-4 w-4 shrink-0" />
-              <span>{material.disciplina}</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <span className="font-medium text-foreground dark:text-slate-200">
-                {TIPO_MATERIAL_LABELS[material.tipo]}
-              </span>
-            </div>
-            <div className="text-muted-foreground">
-              <span className="font-medium text-foreground dark:text-slate-200">
-                {CURSO_LABELS[material.curso] ?? material.curso}
-              </span>
-              {' · '}
-              {material.semestre}
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <User className="h-4 w-4 shrink-0" />
-              <span>{material.uploaderName ?? 'Anônimo'}</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Download className="h-4 w-4 shrink-0" />
-              <span>{material.downloadsCount} downloads · {material.viewsCount ?? 0} visualizações</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="h-4 w-4 shrink-0" />
-              <span>{formattedDate}</span>
-            </div>
-          </div>
-
-          {/* Preview */}
-          <div className="space-y-2">
-            <button
-              onClick={() => setPreviewOpen(v => !v)}
-              className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {previewOpen ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-              {previewOpen ? 'Ocultar preview' : 'Visualizar documento'}
-            </button>
-            {previewOpen && <PdfPreview url={material.arquivoURL} />}
-          </div>
+          <div className="border-t border-border/50 dark:border-slate-700/50" />
 
           {/* Compartilhar */}
-          <div className="pt-2 border-t border-border/50 dark:border-slate-700/50">
-            <ShareMaterial
-              title={material.titulo}
-              materialUrl={`${typeof window !== 'undefined' ? window.location.origin : 'https://historicoacademico.vercel.app'}/materiais/${material.id}`}
-            />
-          </div>
+          <ShareMaterial title={material.titulo} materialUrl={materialUrl} />
 
-          {/* Ações */}
-          <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border/50 dark:border-slate-700/50">
-            <Button onClick={handleDownload} className="flex-1 gap-2 min-w-[120px]">
-              <Download className="h-4 w-4" />
-              Baixar PDF
-            </Button>
-            <LikeButton materialId={id} initialCount={material.likesCount ?? 0} />
-            <FavoriteButton materialId={id} variant="full" />
-            {canManage && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setEditOpen(true)}
-                  className="text-muted-foreground hover:text-foreground hover:bg-accent"
-                  aria-label="Editar material"
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                  aria-label="Excluir material"
-                >
-                  {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                </Button>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          {/* Materiais relacionados */}
+          {related.length > 0 && (
+            <>
+              <div className="border-t border-border/50 dark:border-slate-700/50" />
+              <div className="space-y-3">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Mesma disciplina
+                </h2>
+                <div className="space-y-2">
+                  {related.map(m => <MaterialCard key={m.id} material={m} />)}
+                </div>
+              </div>
+            </>
+          )}
 
-      {/* Comentários */}
-      <Card className="dark:border-slate-700 dark:bg-slate-800/50">
-        <CardContent className="p-6">
-          <MaterialComments
-            materialId={id}
-            uploadedBy={material.uploadedBy}
-            isAdmin={isAdmin}
-          />
-        </CardContent>
-      </Card>
+        </aside>
+      </div>
 
-      {/* Materiais relacionados */}
-      {related.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-foreground dark:text-slate-200 flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-            Outros materiais de {material.disciplina}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {related.map(m => <MaterialCard key={m.id} material={m} />)}
-          </div>
-        </div>
-      )}
+      {/* Comentários — largura total */}
+      <div className="border-t border-border/50 dark:border-slate-700/50 pt-8">
+        <MaterialComments
+          materialId={id}
+          uploadedBy={material.uploadedBy}
+          isAdmin={isAdmin}
+        />
+      </div>
 
       {/* Denúncia */}
-      <div className="flex justify-center pb-2">
+      <div className="flex justify-center pb-4">
         <ReportMaterial materialId={id} materialTitle={material.titulo} />
       </div>
 
