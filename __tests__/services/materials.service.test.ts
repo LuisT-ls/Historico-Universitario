@@ -154,9 +154,11 @@ describe('getMateriais', () => {
   })
 
   it('ordena por mais recentes por padrão', async () => {
+    const createdAtOld: any = { toDate: () => new Date('2023-01-01') }
+    const createdAtNew: any = { toDate: () => new Date('2024-06-01') }
     const docs = [
-      makeDocSnap('m1', { titulo: 'Antigo', createdAt: { toDate: () => new Date('2023-01-01') } as any }),
-      makeDocSnap('m2', { titulo: 'Recente', createdAt: { toDate: () => new Date('2024-06-01') } as any }),
+      makeDocSnap('m1', { titulo: 'Antigo', createdAt: createdAtOld }),
+      makeDocSnap('m2', { titulo: 'Recente', createdAt: createdAtNew }),
     ]
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 
