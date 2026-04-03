@@ -118,8 +118,9 @@ service cloud.firestore {
 
       // Update:
       //   - admin pode alterar qualquer campo
-      //   - dono pode editar apenas metadados (não pode mudar uploadedBy nem downloadsCount)
-      //   - qualquer pessoa pode incrementar downloadsCount em +1
+      //   - dono pode editar apenas metadados
+      //   - qualquer pessoa pode incrementar downloadsCount ou viewsCount em +1
+      //   - usuário autenticado pode incrementar/decrementar likesCount em ±1
       allow update: if isAdmin()
                     || (request.auth != null
                         && request.auth.uid == resource.data.uploadedBy
@@ -128,11 +129,46 @@ service cloud.firestore {
                         && request.resource.data.uploadedBy == resource.data.uploadedBy
                         && request.resource.data.downloadsCount == resource.data.downloadsCount)
                     || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloadsCount'])
-                        && request.resource.data.downloadsCount == resource.data.downloadsCount + 1);
+                        && request.resource.data.downloadsCount == resource.data.downloadsCount + 1)
+                    || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewsCount'])
+                        && request.resource.data.viewsCount == resource.data.viewsCount + 1)
+                    || (request.auth != null
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount'])
+                        && (request.resource.data.likesCount == resource.data.likesCount + 1
+                            || request.resource.data.likesCount == resource.data.likesCount - 1));
 
       // Delete: apenas o próprio dono ou admin
       allow delete: if (request.auth != null && request.auth.uid == resource.data.uploadedBy)
                     || isAdmin();
+
+      // Likes — cada usuário tem um documento com seu próprio uid
+      match /likes/{userId} {
+        allow read: if true;
+        allow create, delete: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Comentários
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if request.auth != null
+                      && request.auth.uid == request.resource.data.authorId
+                      && isValidString(request.resource.data.text, 1, 1000);
+        allow delete: if request.auth != null
+                      && (request.auth.uid == resource.data.authorId
+                          || request.auth.uid == get(/databases/$(database)/documents/materiais/$(materialId)).data.uploadedBy
+                          || isAdmin());
+      }
+    }
+
+    // Favoritos por usuário
+    match /users/{userId}/favorites/{materialId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Denúncias — criação pública para autenticados, leitura apenas admin
+    match /reports/{reportId} {
+      allow create: if request.auth != null;
+      allow read, delete: if isAdmin();
     }
 
     // Bloqueio Global

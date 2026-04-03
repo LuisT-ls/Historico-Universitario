@@ -1,12 +1,33 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { BookOpen, Upload, Users, TrendingUp } from 'lucide-react'
 import { MaterialCard } from '@/components/features/materiais/material-card'
 import { MaterialFiltersBar } from '@/components/features/materiais/material-filters'
 import { AddMaterialSheet } from '@/components/features/materiais/add-material-sheet'
+import { Select } from '@/components/ui/select'
 import { getMateriais, type MaterialFilters } from '@/services/materials.service'
 import type { Material } from '@/types'
+
+type SortOption = 'recent' | 'oldest' | 'most_downloaded' | 'most_liked'
+
+const SORT_LABELS: Record<SortOption, string> = {
+  recent: 'Mais recentes',
+  oldest: 'Mais antigos',
+  most_downloaded: 'Mais baixados',
+  most_liked: 'Mais curtidos',
+}
+
+function sortMateriais(list: Material[], sort: SortOption): Material[] {
+  return [...list].sort((a, b) => {
+    switch (sort) {
+      case 'oldest':        return (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0)
+      case 'most_downloaded': return (b.downloadsCount ?? 0) - (a.downloadsCount ?? 0)
+      case 'most_liked':    return (b.likesCount ?? 0) - (a.likesCount ?? 0)
+      default:              return (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0)
+    }
+  })
+}
 
 function CardSkeleton() {
   return (
@@ -34,8 +55,11 @@ function CardSkeleton() {
 export function MateriaisPage() {
   const [materiais, setMateriais] = useState<Material[]>([])
   const [filters, setFilters] = useState<MaterialFilters>({})
+  const [sort, setSort] = useState<SortOption>('recent')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const sorted = useMemo(() => sortMateriais(materiais, sort), [materiais, sort])
 
   const loadMateriais = useCallback(() => {
     setLoading(true)
@@ -90,13 +114,25 @@ export function MateriaisPage() {
         </div>
       </div>
 
-      {/* Filtros */}
-      <div className="mb-6">
+      {/* Filtros + Ordenação */}
+      <div className="mb-6 space-y-3">
         <MaterialFiltersBar
           filters={filters}
           onChange={setFilters}
           total={loading ? undefined : materiais.length}
         />
+        <div className="flex justify-end">
+          <Select
+            value={sort}
+            onChange={e => setSort(e.target.value as SortOption)}
+            className="w-48 h-8 text-xs"
+            aria-label="Ordenar por"
+          >
+            {(Object.keys(SORT_LABELS) as SortOption[]).map(k => (
+              <option key={k} value={k}>{SORT_LABELS[k]}</option>
+            ))}
+          </Select>
+        </div>
       </div>
 
       {/* Conteúdo */}
@@ -127,7 +163,7 @@ export function MateriaisPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {materiais.map(m => (
+          {sorted.map(m => (
             <MaterialCard key={m.id} material={m} />
           ))}
         </div>

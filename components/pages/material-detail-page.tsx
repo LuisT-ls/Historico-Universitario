@@ -5,10 +5,15 @@ import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Download, FileText, Loader2, Trash2, BookOpen, Calendar, User, Pencil, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { getMaterialById, incrementDownloads, deleteMaterial } from '@/services/materials.service'
+import { getMaterialById, incrementDownloads, incrementViews, deleteMaterial, getRelatedMateriais } from '@/services/materials.service'
 import { getUserRole } from '@/services/firestore.service'
 import { useAuth } from '@/components/auth-provider'
 import { EditMaterialDialog } from '@/components/features/materiais/edit-material-dialog'
+import { LikeButton } from '@/components/features/materiais/like-button'
+import { FavoriteButton } from '@/components/features/materiais/favorite-button'
+import { ReportMaterial } from '@/components/features/materiais/report-material'
+import { MaterialComments } from '@/components/features/materiais/material-comments'
+import { MaterialCard } from '@/components/features/materiais/material-card'
 import dynamic from 'next/dynamic'
 import { ShareMaterial } from '@/components/features/materiais/share-material'
 import { toast } from '@/lib/toast'
@@ -27,6 +32,7 @@ export function MaterialDetailPage() {
   const { user } = useAuth()
 
   const [material, setMaterial] = useState<Material | null>(null)
+  const [related, setRelated] = useState<Material[]>([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
@@ -35,7 +41,13 @@ export function MaterialDetailPage() {
 
   useEffect(() => {
     getMaterialById(id)
-      .then(setMaterial)
+      .then(m => {
+        setMaterial(m)
+        if (m) {
+          incrementViews(id)
+          getRelatedMateriais(m.disciplina, id).then(setRelated)
+        }
+      })
       .finally(() => setLoading(false))
   }, [id])
 
@@ -146,7 +158,7 @@ export function MaterialDetailPage() {
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Download className="h-4 w-4 shrink-0" />
-              <span>{material.downloadsCount} downloads</span>
+              <span>{material.downloadsCount} downloads · {material.viewsCount ?? 0} visualizações</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="h-4 w-4 shrink-0" />
@@ -175,11 +187,13 @@ export function MaterialDetailPage() {
           </div>
 
           {/* Ações */}
-          <div className="flex items-center gap-3 pt-2 border-t border-border/50 dark:border-slate-700/50">
-            <Button onClick={handleDownload} className="flex-1 gap-2">
+          <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border/50 dark:border-slate-700/50">
+            <Button onClick={handleDownload} className="flex-1 gap-2 min-w-[120px]">
               <Download className="h-4 w-4" />
               Baixar PDF
             </Button>
+            <LikeButton materialId={id} initialCount={material.likesCount ?? 0} />
+            <FavoriteButton materialId={id} variant="full" />
             {canManage && (
               <>
                 <Button
@@ -206,6 +220,35 @@ export function MaterialDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Comentários */}
+      <Card className="dark:border-slate-700 dark:bg-slate-800/50">
+        <CardContent className="p-6">
+          <MaterialComments
+            materialId={id}
+            uploadedBy={material.uploadedBy}
+            isAdmin={isAdmin}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Materiais relacionados */}
+      {related.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold text-foreground dark:text-slate-200 flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
+            Outros materiais de {material.disciplina}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {related.map(m => <MaterialCard key={m.id} material={m} />)}
+          </div>
+        </div>
+      )}
+
+      {/* Denúncia */}
+      <div className="flex justify-center pb-2">
+        <ReportMaterial materialId={id} materialTitle={material.titulo} />
+      </div>
 
       {material && (
         <EditMaterialDialog

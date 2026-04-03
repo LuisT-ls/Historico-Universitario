@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { updateMaterial } from '@/services/materials.service'
+import { updateMaterial, getDisciplinas } from '@/services/materials.service'
 import { toast } from '@/lib/toast'
 import { CURSOS } from '@/lib/constants'
 import { TIPO_MATERIAL_LABELS, TIPOS_MATERIAL, CURSO_LABELS, getSemestres } from '@/lib/materiais-constants'
@@ -42,12 +42,17 @@ interface EditMaterialDialogProps {
 }
 
 export function EditMaterialDialog({ material, open, onOpenChange, onSaved }: EditMaterialDialogProps) {
+  const [disciplinas, setDisciplinas] = useState<string[]>([])
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
+
+  useEffect(() => {
+    if (open) getDisciplinas().then(setDisciplinas)
+  }, [open])
 
   useEffect(() => {
     if (open) {
@@ -124,7 +129,17 @@ export function EditMaterialDialog({ material, open, onOpenChange, onSaved }: Ed
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="edit-disciplina">Disciplina *</Label>
-              <Input id="edit-disciplina" {...register('disciplina')} />
+              <Input
+                id="edit-disciplina"
+                {...register('disciplina')}
+                list="edit-disciplinas-list"
+                autoComplete="off"
+              />
+              {disciplinas.length > 0 && (
+                <datalist id="edit-disciplinas-list">
+                  {disciplinas.map(d => <option key={d} value={d} />)}
+                </datalist>
+              )}
               {errors.disciplina && <p className="text-xs text-destructive">{errors.disciplina.message}</p>}
             </div>
             <div className="space-y-1.5">

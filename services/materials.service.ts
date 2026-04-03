@@ -42,6 +42,8 @@ function docToMaterial(docSnap: QueryDocumentSnapshot<DocumentData> | DocumentSn
     nomeArquivo: data.nomeArquivo,
     sizeBytes: data.sizeBytes,
     downloadsCount: data.downloadsCount ?? 0,
+    viewsCount: data.viewsCount ?? 0,
+    likesCount: data.likesCount ?? 0,
     createdAt: data.createdAt?.toDate?.() ?? new Date(),
     updatedAt: data.updatedAt?.toDate?.() ?? new Date(),
   } as Material
@@ -190,12 +192,48 @@ export async function deleteMaterial(id: string, storagePath: string): Promise<v
 }
 
 export async function incrementDownloads(id: string): Promise<void> {
-  if (!db) return // falha silenciosa — não crítico
-
+  if (!db) return
   try {
     await updateDoc(doc(db, 'materiais', id), { downloadsCount: increment(1) })
   } catch (error) {
     logger.warn('Falha ao incrementar downloads:', { error })
+  }
+}
+
+export async function incrementViews(id: string): Promise<void> {
+  if (!db) return
+  try {
+    await updateDoc(doc(db, 'materiais', id), { viewsCount: increment(1) })
+  } catch {
+    // falha silenciosa
+  }
+}
+
+export async function getRelatedMateriais(disciplina: string, excludeId: string): Promise<Material[]> {
+  if (!db) return []
+  try {
+    const ref = collection(db, 'materiais')
+    const q = query(ref, where('status', '==', 'approved'), where('disciplina', '==', disciplina))
+    const snapshot = await getDocs(q)
+    return snapshot.docs
+      .map(docToMaterial)
+      .filter(m => m.id !== excludeId)
+      .sort((a, b) => (b.downloadsCount ?? 0) - (a.downloadsCount ?? 0))
+      .slice(0, 4)
+  } catch {
+    return []
+  }
+}
+
+export async function getDisciplinas(): Promise<string[]> {
+  if (!db) return []
+  try {
+    const q = query(collection(db, 'materiais'), where('status', '==', 'approved'))
+    const snapshot = await getDocs(q)
+    const unique = new Set(snapshot.docs.map(d => d.data().disciplina as string).filter(Boolean))
+    return Array.from(unique).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  } catch {
+    return []
   }
 }
 

@@ -289,8 +289,20 @@ export interface Material {
   nomeArquivo: string
   sizeBytes?: number
   downloadsCount: number
+  viewsCount?: number
+  likesCount?: number
   createdAt?: Date
   updatedAt?: Date
+}
+
+export interface MaterialComment {
+  id?: string
+  materialId: string
+  authorId: string
+  authorName: string
+  authorPhotoURL?: string
+  text: string
+  createdAt?: Date
 }
 
 // ─── Catalog JSON data types ─────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 
 
 import { Progress } from '@/components/ui/progress'
-import { addMaterial } from '@/services/materials.service'
+import { addMaterial, getDisciplinas } from '@/services/materials.service'
 import { uploadFileWithProgress } from '@/services/storage.service'
 import { toast } from '@/lib/toast'
 import { useAuth } from '@/components/auth-provider'
@@ -50,8 +50,14 @@ export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFo
 
   const [file, setFile] = useState<File | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [disciplinas, setDisciplinas] = useState<string[]>([])
+
+  useEffect(() => {
+    getDisciplinas().then(setDisciplinas)
+  }, [])
 
   const {
     register,
@@ -59,13 +65,10 @@ export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFo
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const selected = e.target.files?.[0]
+  function validateAndSetFile(selected: File | undefined) {
     setFileError(null)
     setFile(null)
-
     if (!selected) return
-
     if (selected.type !== 'application/pdf' && !selected.name.toLowerCase().endsWith('.pdf')) {
       setFileError('Apenas arquivos PDF são aceitos.')
       return
@@ -74,8 +77,26 @@ export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFo
       setFileError(`Arquivo muito grande. Máximo: ${MAX_FILE_SIZE_MB} MB.`)
       return
     }
-
     setFile(selected)
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    validateAndSetFile(e.target.files?.[0])
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setIsDragging(false)
+    validateAndSetFile(e.dataTransfer.files?.[0])
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  function handleDragLeave() {
+    setIsDragging(false)
   }
 
   function removeFile() {
@@ -182,7 +203,18 @@ export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFo
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="disciplina">Disciplina *</Label>
-              <Input id="disciplina" {...register('disciplina')} placeholder="Ex: Cálculo A" />
+              <Input
+                id="disciplina"
+                {...register('disciplina')}
+                placeholder="Ex: Cálculo A"
+                list="disciplinas-list"
+                autoComplete="off"
+              />
+              {disciplinas.length > 0 && (
+                <datalist id="disciplinas-list">
+                  {disciplinas.map(d => <option key={d} value={d} />)}
+                </datalist>
+              )}
               {errors.disciplina && <p className="text-xs text-destructive">{errors.disciplina.message}</p>}
             </div>
             <div className="space-y-1.5">
@@ -220,11 +252,22 @@ export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFo
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full flex flex-col items-center gap-2 p-6 rounded-lg border-2 border-dashed border-border dark:border-slate-700 hover:border-primary/50 dark:hover:border-blue-500/50 hover:bg-primary/5 dark:hover:bg-blue-500/5 transition-colors text-muted-foreground"
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                className={`w-full flex flex-col items-center gap-2 p-8 rounded-lg border-2 border-dashed transition-all text-muted-foreground ${
+                  isDragging
+                    ? 'border-primary dark:border-blue-400 bg-primary/10 dark:bg-blue-500/10 scale-[1.01]'
+                    : 'border-border dark:border-slate-700 hover:border-primary/50 dark:hover:border-blue-500/50 hover:bg-primary/5 dark:hover:bg-blue-500/5'
+                }`}
               >
-                <Upload className="h-8 w-8 opacity-40" />
-                <span className="text-sm font-medium">Clique para selecionar um PDF</span>
-                <span className="text-xs">Máximo {MAX_FILE_SIZE_MB} MB</span>
+                <Upload className={`h-8 w-8 transition-transform ${isDragging ? 'scale-110 text-primary dark:text-blue-400' : 'opacity-40'}`} />
+                <div className="text-center">
+                  <span className="text-sm font-medium block">
+                    {isDragging ? 'Solte o arquivo aqui' : 'Arraste um PDF ou clique para selecionar'}
+                  </span>
+                  <span className="text-xs mt-0.5 block">Máximo {MAX_FILE_SIZE_MB} MB</span>
+                </div>
               </button>
             )}
             <input
