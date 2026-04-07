@@ -34,10 +34,26 @@ const ALLOWED_FILE_TYPES = [
     'image/png',
     'image/gif',
     'application/zip',
+    'application/x-zip-compressed',
     'text/plain',
+    'text/javascript',
+    'application/javascript',
+    'application/x-ipynb+json',
+    'application/json',
+    'text/x-python',
+    'text/html',
+    'text/css'
 ]
 
-const ALLOWED_FILE_ACCEPT = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.zip,.txt'
+const ALLOWED_EXTENSIONS = ['.pdf','.doc','.docx','.xls','.xlsx','.ppt','.pptx','.jpg','.jpeg','.png','.gif','.zip','.txt','.py','.ipynb','.js','.ts','.java','.c','.cpp','.html','.css']
+
+const ALLOWED_FILE_ACCEPT = ALLOWED_EXTENSIONS.join(',')
+
+const isAllowedFile = (file: File) => {
+    if (ALLOWED_FILE_TYPES.includes(file.type)) return true
+    const ext = '.' + file.name.split('.').pop()?.toLowerCase()
+    return ALLOWED_EXTENSIONS.includes(ext)
+}
 
 const linkSchema = z.object({
     title: z.string().min(1, 'Título obrigatório').max(100, 'Máximo 100 caracteres'),
@@ -81,8 +97,8 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
 
     const handleFileChange = (selected: File | undefined) => {
         if (!selected) return setFile(null)
-        if (!ALLOWED_FILE_TYPES.includes(selected.type)) {
-            toast.error('Tipo de arquivo não permitido. Use PDF, Word, Excel, PowerPoint, imagens, ZIP ou TXT.')
+        if (!isAllowedFile(selected)) {
+            toast.error('Tipo de arquivo não permitido. Use PDF, Docs, Imagens, ZIP ou Códigos (.py, .js, .ipynb, etc).')
             return
         }
         setFile(selected)
@@ -102,7 +118,7 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
             } else {
                 if (!title.trim()) throw new Error('Dê um título ao material')
                 if (!file) throw new Error('Selecione um arquivo para upload')
-                if (!ALLOWED_FILE_TYPES.includes(file.type)) throw new Error('Tipo de arquivo não permitido.')
+                if (!isAllowedFile(file)) throw new Error('Tipo de arquivo não permitido.')
 
                 const path = `groups/${groupId}/${Date.now()}-${file.name}`
                 const downloadUrl = await uploadFileWithProgress(file, path, (pct) => {
@@ -332,7 +348,7 @@ export function MaterialList({ groupId, materials, isLoading, onAdd, onDelete }:
                                                 {file ? file.name : 'Clique para selecionar ou arraste'}
                                             </p>
                                             <p className="text-[10px] text-muted-foreground mt-1 uppercase font-bold tracking-widest opacity-60">
-                                                Max 5MB • PDF, Word, Excel, PPT, Imagens, ZIP
+                                                Max 5MB • PDF, Office, Imagens, ZIP, Códigos (.py, .ipynb)
                                             </p>
                                         </label>
                                     </div>
