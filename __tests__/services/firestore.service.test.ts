@@ -1,7 +1,7 @@
 import {
     getDisciplines, addDiscipline, updateDiscipline, deleteDiscipline,
     getCertificates, addCertificate, updateCertificate, deleteCertificate,
-    getProfile, updateProfile, getScheduleCodes, saveScheduleCodes,
+    getProfile, updateProfile, getScheduleCodes, saveScheduleCodes, getUserRole,
 } from '@/services/firestore.service'
 
 jest.mock('@/lib/logger', () => ({
@@ -448,5 +448,97 @@ describe('saveScheduleCodes', () => {
     it('throws and propagates Firestore errors', async () => {
         mockSetDoc.mockRejectedValue(new Error('Save codes failed'))
         await expect(saveScheduleCodes('user123', {})).rejects.toThrow('Save codes failed')
+    })
+})
+
+// ===== getUserRole =====
+
+describe('getUserRole', () => {
+    it('returns the role when user document exists with a role', async () => {
+        mockGetDoc.mockResolvedValue({
+            exists: () => true,
+            data: () => ({ role: 'admin' }),
+        })
+        const result = await getUserRole('user123')
+        expect(result).toBe('admin')
+    })
+
+    it('returns "usuario" when user document does not exist', async () => {
+        mockGetDoc.mockResolvedValue({ exists: () => false })
+        const result = await getUserRole('user123')
+        expect(result).toBe('usuario')
+    })
+
+    it('returns "usuario" when role field is absent', async () => {
+        mockGetDoc.mockResolvedValue({
+            exists: () => true,
+            data: () => ({ name: 'João' }),
+        })
+        const result = await getUserRole('user123')
+        expect(result).toBe('usuario')
+    })
+
+    it('returns "usuario" on Firestore errors (swallows error)', async () => {
+        mockGetDoc.mockRejectedValue(new Error('Get role failed'))
+        const result = await getUserRole('user123')
+        expect(result).toBe('usuario')
+    })
+})
+
+// ===== updateProfile — cursos branch =====
+
+describe('updateProfile — cursos array', () => {
+    beforeEach(() => {
+        mockUpdateDoc.mockResolvedValue(undefined)
+    })
+
+    it('maps cursos array to profile.courses and sets profile.course to last element', async () => {
+        await updateProfile('user123', { cursos: ['BICTI', 'CPL'] as any[] })
+        expect(mockUpdateDoc).toHaveBeenCalledWith('docRef', expect.objectContaining({
+            'profile.courses': ['BICTI', 'CPL'],
+            'profile.course': 'CPL',
+        }))
+    })
+
+    it('falls back profile.course to "BICTI" when cursos array is empty', async () => {
+        await updateProfile('user123', { cursos: [] as any[] })
+        expect(mockUpdateDoc).toHaveBeenCalledWith('docRef', expect.objectContaining({
+            'profile.courses': [],
+            'profile.course': 'BICTI',
+        }))
+    })
+
+    it('maps cplStartYear and cplStartSemester fields', async () => {
+        await updateProfile('user123', { cplStartYear: 2023, cplStartSemester: '2' })
+        expect(mockUpdateDoc).toHaveBeenCalledWith('docRef', expect.objectContaining({
+            'profile.cplStartYear': 2023,
+            'profile.cplStartSemester': '2',
+        }))
+    })
+})
+
+// ===== getProfile — cursos array branch =====
+
+describe('getProfile — cursos array normalization', () => {
+    it('uses profile.courses array when it exists and is non-empty', async () => {
+        mockGetDoc.mockResolvedValue({
+            exists: () => true,
+            data: () => ({
+                name: 'Ana',
+                email: 'ana@example.com',
+                profile: {
+                    courses: ['BICTI', 'CPL'],
+                    course: 'BICTI',
+                    enrollment: '2022001',
+                    institution: 'UFBA',
+                    suspensions: 0,
+                },
+                createdAt: null,
+                updatedAt: null,
+            }),
+        })
+        const result = await getProfile('user123')
+        expect(result?.cursos).toEqual(['BICTI', 'CPL'])
+        expect(result?.curso).toBe('CPL')
     })
 })
