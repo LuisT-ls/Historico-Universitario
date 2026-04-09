@@ -97,7 +97,14 @@ export interface Profile {
   nome?: string
   email?: string
   photoURL?: string
+  /** Curso ativo atual (legado — mantido para leitura retrocompatível). Use `cursos` para novos dados. */
   curso?: Curso
+  /** Lista de cursos em ordem cronológica. O último é o curso ativo atual. */
+  cursos?: Curso[]
+  /** Ano de início do CPL (progressão linear após BICTI). Ex: 2026 */
+  cplStartYear?: string | number
+  /** Semestre de início do CPL. '1' ou '2' */
+  cplStartSemester?: '1' | '2'
   matricula?: string
   institution?: string
   startYear?: string | number

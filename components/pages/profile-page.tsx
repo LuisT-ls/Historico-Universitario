@@ -32,9 +32,11 @@ import {
   Camera,
   Calendar,
   Building,
-  GraduationCap
+  GraduationCap,
+  PlusCircle,
+  X
 } from 'lucide-react'
-import { getProfile, getDisciplines, updateProfile } from '@/services/firestore.service'
+import { getProfile, getDisciplines, getCertificates, updateProfile } from '@/services/firestore.service'
 import {
   updatePassword,
   deleteAccount,
@@ -62,7 +64,9 @@ const isProfileDirty = (current: Profile | null, initial: Profile | null): boole
   if (!current || !initial) return false
   return (
     current.nome !== initial.nome ||
-    current.curso !== initial.curso ||
+    JSON.stringify(current.cursos) !== JSON.stringify(initial.cursos) ||
+    current.cplStartYear !== initial.cplStartYear ||
+    current.cplStartSemester !== initial.cplStartSemester ||
     current.matricula !== initial.matricula ||
     current.institution !== initial.institution ||
     current.startYear !== initial.startYear ||
@@ -104,6 +108,9 @@ export function ProfilePage() {
   const [exportFormat, setExportFormat] = useState<'json' | 'xlsx' | 'pdf'>('json')
   const [uploading, setUploading] = useState(false)
   const [entryInput, setEntryInput] = useState('')
+  const [addCursoVisible, setAddCursoVisible] = useState(false)
+  const [addCursoValue, setAddCursoValue] = useState<string>('')
+  const [bictiProgresso, setBictiProgresso] = useState<number>(0)
 
   // ... (Image helper functions remain same)
   const compressImage = (file: File): Promise<string> => {
@@ -174,6 +181,7 @@ export function ProfilePage() {
             nome: user.displayName || '',
             email: user.email || '',
             curso: 'BICTI',
+            cursos: ['BICTI'] as Curso[],
             matricula: '',
             institution: '',
             startYear: new Date().getFullYear(),
@@ -191,10 +199,17 @@ export function ProfilePage() {
   const loadStatistics = async (overrideProfile?: Profile) => {
     if (!user) return
     try {
-      const discs = await getDisciplines(user.uid)
+      const [discs, certs] = await Promise.all([getDisciplines(user.uid), getCertificates(user.uid)])
       const p = overrideProfile || profile
       const periodoLetivo = p?.currentSemester || getCurrentSemester()
-      setStatistics(calcularEstatisticas(discs, [], p?.curso || 'BICTI', p || undefined, periodoLetivo))
+      const cursoAtivo = (p?.cursos && p.cursos.length > 0 ? p.cursos[p.cursos.length - 1] : p?.curso) || 'BICTI'
+      setStatistics(calcularEstatisticas(discs, certs, cursoAtivo, p || undefined, periodoLetivo))
+
+      // Calcula progresso do BICTI com certificados (AC) — fiel ao status geral
+      const discsBicti = discs.filter(d => d.curso === 'BICTI')
+      const statsBicti = calcularEstatisticas(discsBicti, certs, 'BICTI')
+      const totalHorasBicti = CURSOS['BICTI']?.totalHoras ?? 2401
+      setBictiProgresso(Math.min(((statsBicti.totalCH ?? 0) / totalHorasBicti) * 100, 100))
     } catch (error) { logger.error('Erro ao carregar estatísticas:', error) }
   }
 
@@ -204,11 +219,13 @@ export function ProfilePage() {
     try {
       await updateProfile(user.uid, {
         nome: sanitizeInput(profile.nome || ''),
-        curso: profile.curso,
+        cursos: profile.cursos,
         matricula: profile.matricula,
         institution: profile.institution,
         startYear: profile.startYear,
         startSemester: profile.startSemester,
+        cplStartYear: profile.cplStartYear,
+        cplStartSemester: profile.cplStartSemester,
         suspensions: profile.suspensions,
         currentSemester: profile.currentSemester,
       })
@@ -283,6 +300,10 @@ export function ProfilePage() {
   }
 
   if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>
+
+  const cursoAtivo: Curso = (profile?.cursos && profile.cursos.length > 0
+    ? profile.cursos[profile.cursos.length - 1]
+    : profile?.curso) ?? 'BICTI'
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -381,11 +402,161 @@ export function ProfilePage() {
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <Label htmlFor="profile-curso" className="text-xs font-bold uppercase tracking-wider text-slate-400">Curso</Label>
-                      <Select id="profile-curso" value={profile?.curso || ''} onChange={e => setProfile(prev => prev ? ({ ...prev, curso: e.target.value as Curso }) : null)} className="w-full h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-w-[200px]">
-                        {Object.entries(CURSOS).map(([k, v]) => <option key={k} value={k}>{v.nome}</option>)}
-                      </Select>
+                    <div className="space-y-1.5 col-span-1 md:col-span-2">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Trajetória Acadêmica</Label>
+                      <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+                        {(profile?.cursos ?? []).map((curso, i, arr) => {
+                          const isAtual = i === arr.length - 1
+                          return (
+                            <div key={curso} className="flex items-center justify-between gap-3 px-4 py-3.5 bg-slate-50 dark:bg-slate-900">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className={cn(
+                                  'h-2 w-2 rounded-full shrink-0',
+                                  isAtual ? 'bg-primary ring-4 ring-primary/20' : 'bg-slate-300 dark:bg-slate-600'
+                                )} />
+                                <span className="text-sm font-medium truncate">{CURSOS[curso]?.nome || curso}</span>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className={cn(
+                                  'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full',
+                                  isAtual
+                                    ? 'text-primary bg-primary/10'
+                                    : 'text-slate-400 bg-slate-100 dark:bg-slate-800'
+                                )}>
+                                  {isAtual ? 'Atual' : 'Concluído'}
+                                </span>
+                                {isAtual && arr.length > 1 && (
+                                  <button
+                                    type="button"
+                                    title="Remover curso atual"
+                                    onClick={() => setProfile(prev => {
+                                      if (!prev?.cursos) return prev
+                                      const novos = prev.cursos.filter((_, idx) => idx !== i)
+                                      return { ...prev, cursos: novos, curso: novos[novos.length - 1], cplStartYear: undefined, cplStartSemester: undefined }
+                                    })}
+                                    className="p-1 text-slate-300 hover:text-destructive transition-colors rounded"
+                                  >
+                                    <X className="h-3.5 w-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
+
+                        {/* Linha de adicionar CPL */}
+                        {(() => {
+                          const adicionados = new Set(profile?.cursos ?? [])
+                          const disponiveis = (Object.keys(CURSOS) as Curso[]).filter(k => !adicionados.has(k))
+                          if (disponiveis.length === 0) return null
+
+                          const bictiConcluido = bictiProgresso >= 100
+
+                          if (!addCursoVisible) {
+                            return (
+                              <div className="relative">
+                                <button
+                                  type="button"
+                                  onClick={() => bictiConcluido && setAddCursoVisible(true)}
+                                  disabled={!bictiConcluido}
+                                  title={bictiConcluido ? undefined : `Conclua o BICTI antes de migrar para CPL (${bictiProgresso.toFixed(1)}% concluído)`}
+                                  className={cn(
+                                    'w-full flex items-center gap-2 px-4 py-3 text-sm transition-colors bg-white dark:bg-slate-950 group',
+                                    bictiConcluido
+                                      ? 'text-slate-400 hover:text-primary hover:bg-primary/5 cursor-pointer'
+                                      : 'text-slate-300 dark:text-slate-600 cursor-not-allowed'
+                                  )}
+                                >
+                                  <PlusCircle className={cn('h-3.5 w-3.5', bictiConcluido && 'group-hover:scale-110 transition-transform')} />
+                                  <span>Adicionar progressão CPL...</span>
+                                  {!bictiConcluido && (
+                                    <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                                      {bictiProgresso.toFixed(1)}% BICTI
+                                    </span>
+                                  )}
+                                </button>
+                              </div>
+                            )
+                          }
+
+                          return (
+                            <div className="flex flex-col gap-2 px-4 py-3 bg-white dark:bg-slate-950">
+                              <div className="flex items-center gap-2">
+                                <Select
+                                  value={addCursoValue}
+                                  onChange={e => setAddCursoValue(e.target.value)}
+                                  className="flex-1 h-9 px-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                >
+                                  <option value="">Selecione o curso...</option>
+                                  {disponiveis.map(k => (
+                                    <option key={k} value={k}>{CURSOS[k]?.nome || k}</option>
+                                  ))}
+                                </Select>
+                                <button
+                                  type="button"
+                                  onClick={() => { setAddCursoVisible(false); setAddCursoValue('') }}
+                                  className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors rounded shrink-0"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 space-y-1">
+                                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ingresso no CPL (ex: 2026.1)</label>
+                                  <Input
+                                    type="text"
+                                    placeholder="2026.1"
+                                    value={profile?.cplStartYear ? `${profile.cplStartYear}.${profile.cplStartSemester ?? '1'}` : ''}
+                                    onChange={e => {
+                                      const val = e.target.value
+                                      if (!/^[0-9.]*$/.test(val)) return
+                                      const parts = val.split('.')
+                                      if (parts.length > 2) return
+                                      const year = parts[0]
+                                      const sem = parts[1]
+                                      if (year.length > 4) return
+                                      if (sem && !['1', '2'].includes(sem)) return
+                                      if (year.length === 4) {
+                                        setProfile(prev => prev ? ({
+                                          ...prev,
+                                          cplStartYear: year,
+                                          cplStartSemester: (sem === '1' || sem === '2') ? sem : (prev.cplStartSemester ?? '1'),
+                                        }) : null)
+                                      }
+                                    }}
+                                    className="h-9 px-3 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-sm w-full"
+                                  />
+                                </div>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  className="mt-5 shrink-0"
+                                  disabled={!addCursoValue || !profile?.cplStartYear}
+                                  onClick={() => {
+                                    if (!addCursoValue) return
+                                    setProfile(prev => {
+                                      if (!prev) return prev
+                                      const novos = [...(prev.cursos ?? []), addCursoValue as Curso]
+                                      return { ...prev, cursos: novos, curso: addCursoValue as Curso }
+                                    })
+                                    setAddCursoValue('')
+                                    setAddCursoVisible(false)
+                                  }}
+                                >
+                                  Confirmar
+                                </Button>
+                              </div>
+                            </div>
+                          )
+                        })()}
+                      </div>
+                      {(profile?.cursos?.length ?? 0) <= 1 && (
+                        <p className="text-xs text-slate-400 pt-0.5">
+                          {bictiProgresso >= 100
+                            ? 'Concluiu o BICTI? Adicione sua progressão CPL para acompanhar as disciplinas da nova graduação separadamente.'
+                            : `Disponível ao concluir o BICTI. Progresso atual: ${bictiProgresso.toFixed(1)}%.`}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -465,9 +636,9 @@ export function ProfilePage() {
             </Card>
 
             {/* Curriculum - Dashboard Feel */}
-            {profile?.curso && (
+            {profile && (
               <div className="h-full">
-                {CURSOS[profile.curso]?.metadata ? (
+                {CURSOS[cursoAtivo]?.metadata ? (
                   <Card className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-8 shadow-sm h-full flex flex-col">
                     <div className="flex items-center gap-3 mb-8">
                       <div className="p-3 bg-violet-500/10 rounded-xl"><GraduationCap className="h-6 w-6 text-violet-500" /></div>
@@ -483,7 +654,7 @@ export function ProfilePage() {
                             <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm"><Book className="h-4 w-4 text-slate-400" /></div>
                             <div>
                               <p className="text-[10px] font-bold text-slate-400 uppercase">Matriz Curricular</p>
-                              <p className="text-sm font-semibold text-foreground line-clamp-1">{CURSOS[profile.curso].metadata?.matrizCurricular}</p>
+                              <p className="text-sm font-semibold text-foreground line-clamp-1">{CURSOS[cursoAtivo].metadata?.matrizCurricular}</p>
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-3">
@@ -491,14 +662,14 @@ export function ProfilePage() {
                               <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm"><Calendar className="h-4 w-4 text-slate-400" /></div>
                               <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase">Vigor</p>
-                                <p className="text-sm font-semibold text-foreground">{CURSOS[profile.curso].metadata?.entradaVigor}</p>
+                                <p className="text-sm font-semibold text-foreground">{CURSOS[cursoAtivo].metadata?.entradaVigor}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
                               <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm"><Building className="h-4 w-4 text-slate-400" /></div>
                               <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase">Código</p>
-                                <p className="text-sm font-semibold text-foreground">{CURSOS[profile.curso].metadata?.codigo}</p>
+                                <p className="text-sm font-semibold text-foreground">{CURSOS[cursoAtivo].metadata?.codigo}</p>
                               </div>
                             </div>
                           </div>
@@ -513,13 +684,13 @@ export function ProfilePage() {
                         <div className="space-y-2">
                           <div className="flex justify-between text-xs">
                             <span className="font-medium">Integralização do Curso</span>
-                            <span className="text-slate-500">{CURSOS[profile.curso].metadata?.prazos?.medio} semestres (médio)</span>
+                            <span className="text-slate-500">{CURSOS[cursoAtivo].metadata?.prazos?.medio} semestres (médio)</span>
                           </div>
                           <div className="relative pt-1">
                             {/* Only visual representation for now as we don't have current term easily accessible here without calculation */}
                             <div className="flex justify-between text-[10px] text-slate-300 dark:text-slate-700 mb-1 px-1">
-                              <span>Min: {CURSOS[profile.curso].metadata?.prazos?.minimo}</span>
-                              <span>Max: {CURSOS[profile.curso].metadata?.prazos?.maximo}</span>
+                              <span>Min: {CURSOS[cursoAtivo].metadata?.prazos?.minimo}</span>
+                              <span>Max: {CURSOS[cursoAtivo].metadata?.prazos?.maximo}</span>
                             </div>
                             <Progress value={50} className="h-2.5 bg-slate-100 dark:bg-slate-800" />
                           </div>
@@ -531,22 +702,22 @@ export function ProfilePage() {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
                             <p className="text-[10px] uppercase font-bold text-slate-400">Obrigatórias</p>
-                            <p className="text-lg font-bold">{CURSOS[profile.curso].metadata?.limites?.chObrigatoriaAula}h</p>
+                            <p className="text-lg font-bold">{CURSOS[cursoAtivo].metadata?.limites?.chObrigatoriaAula}h</p>
                             <Progress value={100} className="h-1.5 bg-slate-100 dark:bg-slate-800 [&>div]:bg-blue-500" />
                           </div>
                           <div className="space-y-1">
                             <p className="text-[10px] uppercase font-bold text-slate-400">Optativas (Min)</p>
-                            <p className="text-lg font-bold">{CURSOS[profile.curso].metadata?.limites?.chOptativaMinima}h</p>
+                            <p className="text-lg font-bold">{CURSOS[cursoAtivo].metadata?.limites?.chOptativaMinima}h</p>
                             <Progress value={40} className="h-1.5 bg-slate-100 dark:bg-slate-800 [&>div]:bg-purple-500" />
                           </div>
                           <div className="space-y-1">
                             <p className="text-[10px] uppercase font-bold text-slate-400">Complementar (Min)</p>
-                            <p className="text-lg font-bold">{CURSOS[profile.curso].metadata?.limites?.chComplementarMinima}h</p>
+                            <p className="text-lg font-bold">{CURSOS[cursoAtivo].metadata?.limites?.chComplementarMinima}h</p>
                             <Progress value={30} className="h-1.5 bg-slate-100 dark:bg-slate-800 [&>div]:bg-amber-500" />
                           </div>
                           <div className="space-y-1 text-slate-400">
                             <p className="text-[10px] uppercase font-bold">Max. Período</p>
-                            <p className="text-lg font-bold">{CURSOS[profile.curso].metadata?.limites?.chPeriodoMaxima}h</p>
+                            <p className="text-lg font-bold">{CURSOS[cursoAtivo].metadata?.limites?.chPeriodoMaxima}h</p>
                           </div>
                         </div>
                       </div>

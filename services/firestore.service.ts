@@ -11,7 +11,7 @@ import {
     setDoc,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
-import type { Disciplina, Certificado, Profile } from '@/types'
+import type { Disciplina, Certificado, Profile, Curso } from '@/types'
 import { createDisciplinaId, createCertificadoId, createUserId } from '@/lib/constants'
 import { logger } from '@/lib/logger'
 import { calcularResultado } from '@/lib/utils'
@@ -248,16 +248,25 @@ export async function getProfile(userId: string): Promise<Profile | null> {
         }
 
         const data = userSnap.data()
+        const cursosRaw: Curso[] | undefined = data.profile?.courses
+        const cursoLegado: Curso = data.profile?.course || 'BICTI'
+        // Normaliza: se `courses` array existir usa ele; senão monta a partir do campo legado `course`
+        const cursos: Curso[] = Array.isArray(cursosRaw) && cursosRaw.length > 0
+            ? cursosRaw
+            : [cursoLegado]
         return {
             uid: createUserId(userId),
             nome: data.name || '',
             email: data.email || '',
             photoURL: data.photoURL || '',
-            curso: data.profile?.course || 'BICTI',
+            curso: cursos[cursos.length - 1],
+            cursos,
             matricula: data.profile?.enrollment || '',
             institution: data.profile?.institution || '',
             startYear: data.profile?.startYear,
             startSemester: data.profile?.startSemester,
+            cplStartYear: data.profile?.cplStartYear,
+            cplStartSemester: data.profile?.cplStartSemester,
             suspensions: data.profile?.suspensions || 0,
             currentSemester: data.profile?.currentSemester,
             settings: data.settings,
@@ -360,11 +369,19 @@ export async function updateProfile(userId: string, data: Partial<Profile>): Pro
         if (data.settings !== undefined) firestoreData['settings'] = data.settings
 
         // Campos aninhados em `profile` — dot-notation atualiza sem sobrescrever os demais
-        if (data.curso !== undefined) firestoreData['profile.course'] = data.curso
+        if (data.cursos !== undefined) {
+            firestoreData['profile.courses'] = data.cursos
+            // Mantém `profile.course` em sincronia com o curso ativo (último da lista)
+            firestoreData['profile.course'] = data.cursos[data.cursos.length - 1] ?? 'BICTI'
+        } else if (data.curso !== undefined) {
+            firestoreData['profile.course'] = data.curso
+        }
         if (data.matricula !== undefined) firestoreData['profile.enrollment'] = data.matricula
         if (data.institution !== undefined) firestoreData['profile.institution'] = data.institution
         if (data.startYear !== undefined) firestoreData['profile.startYear'] = data.startYear
         if (data.startSemester !== undefined) firestoreData['profile.startSemester'] = data.startSemester
+        if (data.cplStartYear !== undefined) firestoreData['profile.cplStartYear'] = data.cplStartYear
+        if (data.cplStartSemester !== undefined) firestoreData['profile.cplStartSemester'] = data.cplStartSemester
         if (data.suspensions !== undefined) firestoreData['profile.suspensions'] = data.suspensions
         if (data.currentSemester !== undefined) firestoreData['profile.currentSemester'] = data.currentSemester
 

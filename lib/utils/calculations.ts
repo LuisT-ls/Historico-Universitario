@@ -323,7 +323,22 @@ export function calcularSemestralizacao(
   disciplinas: Disciplina[],
   periodoAtual: string
 ): number {
-  if (!profile.startYear || !profile.startSemester || !periodoAtual) return 0
+  if (!periodoAtual) return 0
+
+  const estaNoCPL = (profile.cursos?.length ?? 0) > 1
+
+  if (estaNoCPL) {
+    // Em CPL: conta semestres a partir do ingresso no novo curso
+    if (!profile.cplStartYear || !profile.cplStartSemester) return 0
+    const totalSemestres = calcularTotalSemestresCursados(
+      `${profile.cplStartYear}.${profile.cplStartSemester}`,
+      periodoAtual
+    )
+    return Math.max(1, totalSemestres)
+  }
+
+  // BICTI: lógica original
+  if (!profile.startYear || !profile.startSemester) return 0
 
   const totalSemestres = calcularTotalSemestresCursados(
     `${profile.startYear}.${profile.startSemester}`,
@@ -333,6 +348,5 @@ export function calcularSemestralizacao(
   const suspensões = profile.suspensions || 0
   const perfilInicial = calcularPerfilInicial(disciplinas, profile.curso || 'BICTI')
 
-  // O resultado deve ser pelo menos 1
   return Math.max(1, totalSemestres - suspensões + perfilInicial)
 }

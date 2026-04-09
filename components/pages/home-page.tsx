@@ -49,6 +49,7 @@ const PrintView = dynamic(() => import('@/components/features/print-view').then(
 export function HomePage() {
   const { user, loading: authLoading } = useAuth()
   const [cursoAtual, setCursoAtual] = useState<Curso>('BICTI')
+  const [cursosDisponiveis, setCursosDisponiveis] = useState<Curso[] | undefined>(undefined)
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
   const [certificados, setCertificados] = useState<Certificado[]>([])
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -56,22 +57,31 @@ export function HomePage() {
   const formRef = useRef<DisciplineFormRef>(null)
   const profileCourseInitialized = useRef(false)
 
-  // Inicializa o curso a partir do perfil uma única vez por sessão de login
+  // Inicializa o curso e os cursos disponíveis a partir do perfil uma única vez por sessão de login
   useEffect(() => {
     if (authLoading || !user || profileCourseInitialized.current) return
     getProfile(user.uid)
       .then((profileData) => {
         profileCourseInitialized.current = true
-        if (profileData?.curso) setCursoAtual(profileData.curso)
+        if (profileData?.cursos && profileData.cursos.length > 0) {
+          setCursosDisponiveis(profileData.cursos)
+          setCursoAtual(profileData.cursos[profileData.cursos.length - 1])
+        } else if (profileData?.curso) {
+          setCursosDisponiveis([profileData.curso])
+          setCursoAtual(profileData.curso)
+        }
       })
       .catch(() => {
         profileCourseInitialized.current = true
       })
   }, [user, authLoading])
 
-  // Reseta a flag quando o usuário desloga para que o próximo login re-inicialize
+  // Reseta a flag e os cursos disponíveis quando o usuário desloga
   useEffect(() => {
-    if (!user) profileCourseInitialized.current = false
+    if (!user) {
+      profileCourseInitialized.current = false
+      setCursosDisponiveis(undefined)
+    }
   }, [user])
 
   const loadDisciplinas = useCallback(async () => {
@@ -322,7 +332,7 @@ export function HomePage() {
         </div>
       )}
 
-      <ActionBar cursoAtual={cursoAtual} onCursoChange={handleCursoChange} onImport={handleImportDisciplinas} />
+      <ActionBar cursoAtual={cursoAtual} onCursoChange={handleCursoChange} onImport={handleImportDisciplinas} cursosDisponiveis={cursosDisponiveis} />
 
       <div className="space-y-1">
         <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground/60 px-1">Busca Rápida</h2>

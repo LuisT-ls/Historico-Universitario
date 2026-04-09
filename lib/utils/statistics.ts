@@ -103,17 +103,12 @@ export function calcularEstatisticas(
     }
   })
 
-  // Add all excesses to LV
+  // Add all excesses to LV, then cap LV (alinhado com o Summary)
   horasPorNatureza.LV += totalExcessoLV
-
-  // 4. Final Caps based on curriculum requirements
-  Object.keys(horasPorNatureza).forEach((nat) => {
-    const natureza = nat as Natureza
-    const requisito = cursoConfig?.requisitos?.[natureza] as number
-    if (requisito !== undefined && horasPorNatureza[natureza] > requisito) {
-      horasPorNatureza[natureza] = requisito
-    }
-  })
+  const reqLV = cursoConfig?.requisitos?.LV
+  if (reqLV !== undefined && horasPorNatureza.LV > reqLV) {
+    horasPorNatureza.LV = reqLV
+  }
 
   // Calculate total capped hours (only approved/dispensada)
   const totalCH = Object.values(horasPorNatureza).reduce((sum, h) => sum + h, 0)

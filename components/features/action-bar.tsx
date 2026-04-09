@@ -23,9 +23,11 @@ interface ActionBarProps {
   cursoAtual: Curso
   onCursoChange: (curso: Curso) => void
   onImport: (disciplinas: Disciplina[], avisos?: string[]) => Promise<void>
+  /** Cursos disponíveis para o select. Se não informado, exibe todos os cursos. */
+  cursosDisponiveis?: Curso[]
 }
 
-export function ActionBar({ cursoAtual, onCursoChange, onImport }: ActionBarProps) {
+export function ActionBar({ cursoAtual, onCursoChange, onImport, cursosDisponiveis }: ActionBarProps) {
   const [isParsing, setIsParsing] = useState(false)
   const [infoOpen, setInfoOpen] = useState(false)
 
@@ -82,9 +84,19 @@ export function ActionBar({ cursoAtual, onCursoChange, onImport }: ActionBarProp
           onChange={(e) => onCursoChange(e.target.value as Curso)}
           className="flex h-9 w-full sm:w-[280px] rounded-md border border-input bg-background dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
-          <option value="BICTI">BICTI</option>
-          <option value="ENG_PROD">Engenharia de Produção</option>
-          <option value="ENG_ELET">Engenharia Elétrica</option>
+          {cursosDisponiveis ? (
+            cursosDisponiveis.map((curso) => (
+              <option key={curso} value={curso}>
+                {curso === 'BICTI' ? 'BICTI' : curso === 'ENG_PROD' ? 'Engenharia de Produção' : 'Engenharia Elétrica'}
+              </option>
+            ))
+          ) : (
+            <>
+              <option value="BICTI">BICTI</option>
+              <option value="ENG_PROD">Engenharia de Produção</option>
+              <option value="ENG_ELET">Engenharia Elétrica</option>
+            </>
+          )}
         </select>
       </div>
 
