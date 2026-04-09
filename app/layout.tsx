@@ -58,7 +58,13 @@ export const metadata: Metadata = {
         url: 'https://historicoacademico.vercel.app/assets/img/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Histórico Acadêmico Online - Sistema gratuito para gerenciar histórico acadêmico',
+        alt: 'Histórico Acadêmico Online - Modo Claro',
+      },
+      {
+        url: 'https://historicoacademico.vercel.app/assets/img/og-image.1.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Histórico Acadêmico Online - Modo Escuro',
       },
     ],
   },
@@ -67,7 +73,10 @@ export const metadata: Metadata = {
     title: 'Histórico Acadêmico Online Gratuito - Sistema Acadêmico',
     description:
       'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, acompanhe disciplinas e controle seu progresso. Para todos os cursos!',
-    images: ['https://historicoacademico.vercel.app/assets/img/og-image.jpg'],
+    images: [
+      'https://historicoacademico.vercel.app/assets/img/og-image.jpg',
+      'https://historicoacademico.vercel.app/assets/img/og-image.1.jpg'
+    ],
   },
   alternates: {
     canonical: 'https://historicoacademico.vercel.app',
