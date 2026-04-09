@@ -54,6 +54,25 @@ export function HomePage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const formRef = useRef<DisciplineFormRef>(null)
+  const profileCourseInitialized = useRef(false)
+
+  // Inicializa o curso a partir do perfil uma única vez por sessão de login
+  useEffect(() => {
+    if (authLoading || !user || profileCourseInitialized.current) return
+    getProfile(user.uid)
+      .then((profileData) => {
+        profileCourseInitialized.current = true
+        if (profileData?.curso) setCursoAtual(profileData.curso)
+      })
+      .catch(() => {
+        profileCourseInitialized.current = true
+      })
+  }, [user, authLoading])
+
+  // Reseta a flag quando o usuário desloga para que o próximo login re-inicialize
+  useEffect(() => {
+    if (!user) profileCourseInitialized.current = false
+  }, [user])
 
   const loadDisciplinas = useCallback(async () => {
     if (!user) return
