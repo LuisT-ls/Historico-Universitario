@@ -55,6 +55,12 @@ export const metadata: Metadata = {
       'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, controle disciplinas e acompanhe seu progresso em BICTI e Engenharias. Acesse agora!',
     images: [
       {
+        url: 'https://historicoacademico.vercel.app/assets/img/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Histórico Acadêmico Online - Logo',
+      },
+      {
         url: 'https://historicoacademico.vercel.app/assets/img/og-image.jpg',
         width: 1200,
         height: 630,
@@ -74,6 +80,7 @@ export const metadata: Metadata = {
     description:
       'Gerencie seu histórico acadêmico GRATUITAMENTE! Calcule CR, acompanhe disciplinas e controle seu progresso. Para todos os cursos!',
     images: [
+      'https://historicoacademico.vercel.app/assets/img/logo.png',
       'https://historicoacademico.vercel.app/assets/img/og-image.jpg',
       'https://historicoacademico.vercel.app/assets/img/og-image.1.jpg'
     ],
