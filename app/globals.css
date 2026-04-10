@@ -308,6 +308,23 @@ html:not(.dark-mode) footer a:hover:not([class*="bg-"]) {
   100% { transform: scale(1) rotate(0deg); }
 }
 
+/* ─── Mind Map — fullscreen ─────────────────────────────────────────────────── */
+
+/* Garante fundo sólido e altura total quando o container entra em fullscreen.
+   O seletor :fullscreen é mais confiável que o estado React para a altura real. */
+.mind-map-container:fullscreen {
+    height: 100vh !important;
+    border-radius: 0 !important;
+    background-color: hsl(var(--background)) !important;
+}
+
+/* Prefixo webkit para compatibilidade com Safari/iOS */
+.mind-map-container:-webkit-full-screen {
+    height: 100vh !important;
+    border-radius: 0 !important;
+    background-color: hsl(var(--background)) !important;
+}
+
 /* ─── React Flow — controles dark mode ──────────────────────────────────────── */
 
 /* Light mode: deixa os controles seguirem o design system */

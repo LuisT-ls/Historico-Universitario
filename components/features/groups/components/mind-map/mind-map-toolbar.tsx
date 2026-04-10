@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Loader2, Plus, Trash2, ZoomIn, ZoomOut, Maximize2, Save } from 'lucide-react'
+import { memo, useState } from 'react'
+import { Loader2, Plus, Trash2, ZoomIn, ZoomOut, Maximize2, Save, Maximize, Minimize } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
     Dialog,
@@ -16,27 +16,32 @@ import { cn } from '@/lib/utils'
 interface MindMapToolbarProps {
     isSaving: boolean
     hasNodes: boolean
+    isFullscreen: boolean
     onAddNode: () => void
     onClearAll: () => void
     onZoomIn: () => void
     onZoomOut: () => void
     onFitView: () => void
+    onToggleFullscreen: () => void
 }
 
-export function MindMapToolbar({
+function MindMapToolbarInner({
     isSaving,
     hasNodes,
+    isFullscreen,
     onAddNode,
     onClearAll,
     onZoomIn,
     onZoomOut,
     onFitView,
+    onToggleFullscreen,
 }: MindMapToolbarProps) {
     const [confirmClear, setConfirmClear] = useState(false)
 
     return (
         <>
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 px-2 py-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-border/60 rounded-[1.5rem] shadow-xl shadow-slate-200/50 dark:shadow-none">
+
                 {/* Adicionar nó */}
                 <Button
                     variant="ghost"
@@ -51,7 +56,7 @@ export function MindMapToolbar({
 
                 <div className="w-px h-5 bg-border/60 mx-1" aria-hidden="true" />
 
-                {/* Zoom controls */}
+                {/* Zoom */}
                 <Button
                     variant="ghost"
                     size="icon"
@@ -78,7 +83,7 @@ export function MindMapToolbar({
                     onClick={onFitView}
                     className="h-9 w-9 rounded-xl"
                     aria-label="Ajustar tela"
-                    title="Ajustar tela"
+                    title="Ajustar ao canvas"
                 >
                     <Maximize2 className="h-4 w-4" aria-hidden="true" />
                 </Button>
@@ -102,6 +107,28 @@ export function MindMapToolbar({
                     }
                     <span className="hidden sm:inline">{isSaving ? 'Salvando...' : 'Salvo'}</span>
                 </div>
+
+                <div className="w-px h-5 bg-border/60 mx-1" aria-hidden="true" />
+
+                {/* Fullscreen */}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onToggleFullscreen}
+                    className={cn(
+                        'h-9 w-9 rounded-xl transition-colors',
+                        isFullscreen
+                            ? 'text-primary bg-primary/10 hover:bg-primary/20'
+                            : 'text-muted-foreground hover:text-foreground'
+                    )}
+                    aria-label={isFullscreen ? 'Sair da tela cheia' : 'Tela cheia'}
+                    title={isFullscreen ? 'Sair da tela cheia' : 'Tela cheia'}
+                >
+                    {isFullscreen
+                        ? <Minimize className="h-4 w-4" aria-hidden="true" />
+                        : <Maximize className="h-4 w-4" aria-hidden="true" />
+                    }
+                </Button>
 
                 {/* Limpar tudo */}
                 {hasNodes && (
@@ -147,3 +174,7 @@ export function MindMapToolbar({
         </>
     )
 }
+
+// memo() garante que o toolbar não re-renderiza durante o drag dos nós.
+// Como todos os handlers vêm de useCallback no board, as referências são estáveis.
+export const MindMapToolbar = memo(MindMapToolbarInner)

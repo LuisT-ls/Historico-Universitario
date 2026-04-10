@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
     ReactFlow,
     Background,
@@ -22,11 +22,12 @@ import { MindMapToolbar } from './mind-map-toolbar'
 import { MindMapEmptyState } from './mind-map-empty-state'
 import { MindMapContext } from './mind-map-context'
 import { Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import type { MindMapNodeData } from '@/types'
 
-// NodeTypes estático fora do componente — evita re-registros a cada render.
-// O cast é necessário porque `memo()` retorna `MemoExoticComponent` e o React Flow
-// espera `ComponentType`, que são estruturalmente equivalentes mas não idênticos para o TS.
+// ─── NodeTypes DEVE estar fora do componente ────────────────────────────────
+// Se declarado dentro, o React Flow recria todos os nós a cada render,
+// causando lag perceptível durante o drag (o maior culpado de jank no RF).
 const nodeTypes: NodeTypes = {
     mindMapNode: MindMapNodeComponent as unknown as NodeTypes[string],
 }
@@ -36,7 +37,7 @@ interface MindMapBoardProps {
     currentUserId: string
 }
 
-// Componente interno — precisa estar dentro do ReactFlowProvider para usar useReactFlow
+// ─── Canvas interno (precisa estar dentro do ReactFlowProvider) ──────────────
 function MindMapCanvas({ groupId, currentUserId }: MindMapBoardProps) {
     const {
         nodes,
@@ -59,37 +60,63 @@ function MindMapCanvas({ groupId, currentUserId }: MindMapBoardProps) {
     const { zoomIn, zoomOut, fitView, screenToFlowPosition } = useReactFlow()
     const containerRef = useRef<HTMLDivElement>(null)
 
-    // Fornece callbacks para os nós via Context (evita prop drilling pelo nodeTypes)
+    // ── Fullscreen ──────────────────────────────────────────────────────────
+    const [isFullscreen, setIsFullscreen] = useState(false)
+
+    useEffect(() => {
+        const onFsChange = () => setIsFullscreen(!!document.fullscreenElement)
+        document.addEventListener('fullscreenchange', onFsChange)
+        return () => document.removeEventListener('fullscreenchange', onFsChange)
+    }, [])
+
+    const toggleFullscreen = useCallback(async () => {
+        try {
+            if (!document.fullscreenElement) {
+                await containerRef.current?.requestFullscreen()
+            } else {
+                await document.exitFullscreen()
+            }
+        } catch {
+            // Navegadores que não suportam Fullscreen API (ex: iOS Safari) falham silenciosamente
+        }
+    }, [])
+
+    // ── Context value — estável enquanto as funções não mudarem ────────────
+    // useMemo garante que o Provider não force re-render em todos os nós
+    // a cada mudança de `nodes`/`edges` (que ocorre a cada frame do drag).
     const contextValue = useMemo(
         () => ({ updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode }),
         [updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode]
     )
 
-    // Adiciona um nó no centro visível do canvas com leve offset aleatório
+    // ── Handlers do toolbar — useCallback para referências estáveis ────────
+    // Sem isso, o MindMapToolbar (mesmo com memo) re-renderizaria a cada frame
+    // pois receberia novas referências de função como props.
     const handleAddNode = useCallback(() => {
         const container = containerRef.current
         if (!container) { addNode({ x: 200, y: 200 }); return }
 
         const rect = container.getBoundingClientRect()
         const position: XYPosition = {
-            x: rect.width / 2 - 60 + (Math.random() - 0.5) * 80,
+            x: rect.width  / 2 - 60 + (Math.random() - 0.5) * 80,
             y: rect.height / 2 - 20 + (Math.random() - 0.5) * 80,
         }
         addNode(position)
     }, [addNode])
 
-    // Soltar a linha de conexão no canvas vazio cria um novo nó conectado
+    const handleZoomIn  = useCallback(() => zoomIn({ duration: 300 }),  [zoomIn])
+    const handleZoomOut = useCallback(() => zoomOut({ duration: 300 }), [zoomOut])
+    const handleFitView = useCallback(() => fitView({ duration: 400, padding: 0.2 }), [fitView])
+
+    // ── Drop to Create ──────────────────────────────────────────────────────
     const onConnectEnd: OnConnectEnd = useCallback((event, connectionState: FinalConnectionState) => {
-        // Só age se a conexão foi solta no canvas (sem nó de destino)
         if (connectionState.toNode !== null) return
-        // Precisa ter um nó de origem válido
         const sourceId = connectionState.fromNode?.id
         if (!sourceId) return
 
-        // Extrai coordenadas de tela (suporte a touch e mouse)
         let clientX: number
         let clientY: number
-        if ('touches' in event || 'changedTouches' in event) {
+        if ('changedTouches' in event) {
             const touch = (event as TouchEvent).changedTouches?.[0]
             if (!touch) return
             clientX = touch.clientX
@@ -99,12 +126,11 @@ function MindMapCanvas({ groupId, currentUserId }: MindMapBoardProps) {
             clientY = (event as MouseEvent).clientY
         }
 
-        // Converte coordenadas de tela para coordenadas do canvas (respeitando zoom e pan)
         const position = screenToFlowPosition({ x: clientX, y: clientY })
         addNodeFromDrop(sourceId, position)
     }, [screenToFlowPosition, addNodeFromDrop])
 
-    // Duplo-clique no canvas vazio cria um nó naquela posição
+    // ── Duplo-clique no canvas vazio ────────────────────────────────────────
     const handleCanvasDoubleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         const target = e.target as HTMLElement
         if (target.closest('.react-flow__node')) return
@@ -137,18 +163,27 @@ function MindMapCanvas({ groupId, currentUserId }: MindMapBoardProps) {
         <MindMapContext.Provider value={contextValue}>
             <div
                 ref={containerRef}
-                className="relative w-full rounded-[2rem] border border-border/50 overflow-hidden bg-[#fafafa] dark:bg-slate-950"
-                style={{ height: 'calc(100vh - 380px)', minHeight: '500px' }}
                 onDoubleClick={handleCanvasDoubleClick}
+                className={cn(
+                    // Classe `mind-map-container` usada pelo CSS :fullscreen em globals.css
+                    'mind-map-container relative w-full overflow-hidden bg-[#fafafa] dark:bg-slate-950',
+                    // Border-radius e altura normais; removidos em tela cheia
+                    isFullscreen
+                        ? 'rounded-none border-0 h-screen'
+                        : 'rounded-[2rem] border border-border/50'
+                )}
+                style={isFullscreen ? undefined : { height: 'calc(100vh - 380px)', minHeight: '500px' }}
             >
                 <MindMapToolbar
                     isSaving={isSaving}
                     hasNodes={nodes.length > 0}
+                    isFullscreen={isFullscreen}
                     onAddNode={handleAddNode}
                     onClearAll={clearAll}
-                    onZoomIn={() => zoomIn({ duration: 300 })}
-                    onZoomOut={() => zoomOut({ duration: 300 })}
-                    onFitView={() => fitView({ duration: 400, padding: 0.2 })}
+                    onZoomIn={handleZoomIn}
+                    onZoomOut={handleZoomOut}
+                    onFitView={handleFitView}
+                    onToggleFullscreen={toggleFullscreen}
                 />
 
                 <ReactFlow
@@ -201,7 +236,7 @@ function MindMapCanvas({ groupId, currentUserId }: MindMapBoardProps) {
     )
 }
 
-// Wrapper público — envolve com ReactFlowProvider obrigatório
+// ─── Wrapper público ─────────────────────────────────────────────────────────
 export function MindMapBoard({ groupId, currentUserId }: MindMapBoardProps) {
     return (
         <ReactFlowProvider>
