@@ -459,6 +459,7 @@ export function GroupDetailsPage() {
                             <MindMapBoard
                                 groupId={group.id!}
                                 currentUserId={user?.uid ?? ''}
+                                groupName={group.name}
                             />
                         )}
 

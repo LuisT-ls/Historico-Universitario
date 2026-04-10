@@ -12,6 +12,7 @@ import {
     Check,
     Copy,
     Plus,
+    CheckSquare,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -87,7 +88,7 @@ function MindMapNodeInner({
     positionAbsoluteX,
     positionAbsoluteY,
 }: NodeProps<MindMapNode>) {
-    const { updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode } =
+    const { updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode, convertToTask } =
         useContext(MindMapContext)
 
     const [isEditing, setIsEditing] = useState(false)
@@ -134,6 +135,15 @@ function MindMapNodeInner({
             toast.error('Não foi possível copiar o texto.')
         }
     }, [data.label])
+
+    const handleConvertToTask = useCallback(async () => {
+        try {
+            await convertToTask(data.label)
+            toast.success(`Tarefa "${data.label}" criada no Kanban!`, { duration: 3000 })
+        } catch {
+            toast.error('Não foi possível criar a tarefa.')
+        }
+    }, [data.label, convertToTask])
 
     // ── Conteúdo interno do nó ────────────────────────────────────────────────
     const innerContent = (
@@ -331,7 +341,19 @@ function MindMapNodeInner({
 
                 <ContextMenuSeparator />
 
-                {/* ── Grupo 4: Ação destrutiva ── */}
+                {/* ── Grupo 4: Integração Kanban ── */}
+                <ContextMenuItem
+                    onClick={handleConvertToTask}
+                    className="gap-2.5 rounded-xl font-semibold cursor-pointer text-emerald-700 dark:text-emerald-400 focus:text-emerald-700 dark:focus:text-emerald-400 focus:bg-emerald-50 dark:focus:bg-emerald-950/30"
+                >
+                    <CheckSquare className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    Converter em tarefa
+                    <span className="ml-auto text-[10px] font-medium text-muted-foreground opacity-60">Kanban</span>
+                </ContextMenuItem>
+
+                <ContextMenuSeparator />
+
+                {/* ── Grupo 5: Ação destrutiva ── */}
                 <ContextMenuItem
                     onClick={() => deleteNode(id)}
                     className="gap-2.5 rounded-xl font-semibold cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"

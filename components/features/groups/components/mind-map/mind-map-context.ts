@@ -8,12 +8,14 @@ interface MindMapContextValue {
     addChildNode: (sourceId: string, sourcePosition: XYPosition) => void
     addSiblingNode: (sourcePosition: XYPosition) => void
     duplicateNode: (sourcePosition: XYPosition, data: MindMapNodeData) => void
+    convertToTask: (label: string) => Promise<void>
 }
 
 export const MindMapContext = createContext<MindMapContextValue>({
-    updateNodeData: () => {},
-    deleteNode: () => {},
-    addChildNode: () => {},
-    addSiblingNode: () => {},
-    duplicateNode: () => {},
+    updateNodeData:  () => {},
+    deleteNode:      () => {},
+    addChildNode:    () => {},
+    addSiblingNode:  () => {},
+    duplicateNode:   () => {},
+    convertToTask:   async () => {},
 })

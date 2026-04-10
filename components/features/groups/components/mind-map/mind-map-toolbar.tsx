@@ -1,7 +1,7 @@
 'use client'
 
 import { memo, useState } from 'react'
-import { Loader2, Plus, Trash2, ZoomIn, ZoomOut, Maximize2, Save, Maximize, Minimize } from 'lucide-react'
+import { Loader2, Plus, Trash2, ZoomIn, ZoomOut, Maximize2, Save, Maximize, Minimize, ImageDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
     Dialog,
@@ -23,6 +23,7 @@ interface MindMapToolbarProps {
     onZoomOut: () => void
     onFitView: () => void
     onToggleFullscreen: () => void
+    onExport: () => void
 }
 
 function MindMapToolbarInner({
@@ -35,6 +36,7 @@ function MindMapToolbarInner({
     onZoomOut,
     onFitView,
     onToggleFullscreen,
+    onExport,
 }: MindMapToolbarProps) {
     const [confirmClear, setConfirmClear] = useState(false)
 
@@ -107,6 +109,20 @@ function MindMapToolbarInner({
                     }
                     <span className="hidden sm:inline">{isSaving ? 'Salvando...' : 'Salvo'}</span>
                 </div>
+
+                <div className="w-px h-5 bg-border/60 mx-1" aria-hidden="true" />
+
+                {/* Exportar como PNG */}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onExport}
+                    className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground"
+                    aria-label="Exportar como imagem"
+                    title="Exportar como imagem PNG"
+                >
+                    <ImageDown className="h-4 w-4" aria-hidden="true" />
+                </Button>
 
                 <div className="w-px h-5 bg-border/60 mx-1" aria-hidden="true" />
 
