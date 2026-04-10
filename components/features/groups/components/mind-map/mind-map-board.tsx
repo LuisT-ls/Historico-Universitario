@@ -11,6 +11,8 @@ import {
     ReactFlowProvider,
     type NodeTypes,
     type XYPosition,
+    type OnConnectEnd,
+    type FinalConnectionState,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 
@@ -45,18 +47,22 @@ function MindMapCanvas({ groupId, currentUserId }: MindMapBoardProps) {
         onEdgesChange,
         onConnect,
         addNode,
-        deleteNode: _deleteNode,
+        addNodeFromDrop,
+        addChildNode,
+        addSiblingNode,
+        duplicateNode,
+        deleteNode,
         updateNodeData,
         clearAll,
     } = useMindMap({ groupId, currentUserId })
 
-    const { zoomIn, zoomOut, fitView } = useReactFlow()
+    const { zoomIn, zoomOut, fitView, screenToFlowPosition } = useReactFlow()
     const containerRef = useRef<HTMLDivElement>(null)
 
-    // Fornece updateNodeData para os nós via Context (evita prop drilling pelo nodeTypes)
+    // Fornece callbacks para os nós via Context (evita prop drilling pelo nodeTypes)
     const contextValue = useMemo(
-        () => ({ updateNodeData }),
-        [updateNodeData]
+        () => ({ updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode }),
+        [updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode]
     )
 
     // Adiciona um nó no centro visível do canvas com leve offset aleatório
@@ -71,6 +77,32 @@ function MindMapCanvas({ groupId, currentUserId }: MindMapBoardProps) {
         }
         addNode(position)
     }, [addNode])
+
+    // Soltar a linha de conexão no canvas vazio cria um novo nó conectado
+    const onConnectEnd: OnConnectEnd = useCallback((event, connectionState: FinalConnectionState) => {
+        // Só age se a conexão foi solta no canvas (sem nó de destino)
+        if (connectionState.toNode !== null) return
+        // Precisa ter um nó de origem válido
+        const sourceId = connectionState.fromNode?.id
+        if (!sourceId) return
+
+        // Extrai coordenadas de tela (suporte a touch e mouse)
+        let clientX: number
+        let clientY: number
+        if ('touches' in event || 'changedTouches' in event) {
+            const touch = (event as TouchEvent).changedTouches?.[0]
+            if (!touch) return
+            clientX = touch.clientX
+            clientY = touch.clientY
+        } else {
+            clientX = (event as MouseEvent).clientX
+            clientY = (event as MouseEvent).clientY
+        }
+
+        // Converte coordenadas de tela para coordenadas do canvas (respeitando zoom e pan)
+        const position = screenToFlowPosition({ x: clientX, y: clientY })
+        addNodeFromDrop(sourceId, position)
+    }, [screenToFlowPosition, addNodeFromDrop])
 
     // Duplo-clique no canvas vazio cria um nó naquela posição
     const handleCanvasDoubleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -125,6 +157,7 @@ function MindMapCanvas({ groupId, currentUserId }: MindMapBoardProps) {
                     onNodesChange={onNodesChange}
                     onEdgesChange={onEdgesChange}
                     onConnect={onConnect}
+                    onConnectEnd={onConnectEnd}
                     nodeTypes={nodeTypes}
                     fitView
                     fitViewOptions={{ padding: 0.3 }}

@@ -1,10 +1,19 @@
 import { createContext } from 'react'
 import type { MindMapNodeData } from '@/types'
+import type { XYPosition } from '@xyflow/react'
 
 interface MindMapContextValue {
     updateNodeData: (nodeId: string, data: Partial<MindMapNodeData>) => void
+    deleteNode: (nodeId: string) => void
+    addChildNode: (sourceId: string, sourcePosition: XYPosition) => void
+    addSiblingNode: (sourcePosition: XYPosition) => void
+    duplicateNode: (sourcePosition: XYPosition, data: MindMapNodeData) => void
 }
 
 export const MindMapContext = createContext<MindMapContextValue>({
     updateNodeData: () => {},
+    deleteNode: () => {},
+    addChildNode: () => {},
+    addSiblingNode: () => {},
+    duplicateNode: () => {},
 })

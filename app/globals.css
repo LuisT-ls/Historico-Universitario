@@ -307,3 +307,37 @@ html:not(.dark-mode) footer a:hover:not([class*="bg-"]) {
   70%  { transform: scale(1.01) rotate(0.3deg); }
   100% { transform: scale(1) rotate(0deg); }
 }
+
+/* ─── React Flow — controles dark mode ──────────────────────────────────────── */
+
+/* Light mode: deixa os controles seguirem o design system */
+.react-flow__controls-button {
+  background-color: hsl(var(--background));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+  fill: hsl(var(--foreground));
+}
+
+.react-flow__controls-button:hover {
+  background-color: hsl(var(--muted));
+}
+
+.react-flow__controls-button svg {
+  fill: hsl(var(--foreground));
+}
+
+/* Dark mode: sobrepõe o CSS padrão do React Flow */
+.dark-mode .react-flow__controls-button {
+  background-color: hsl(217.2 32.6% 12%);
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+  fill: hsl(var(--foreground));
+}
+
+.dark-mode .react-flow__controls-button:hover {
+  background-color: hsl(217.2 32.6% 20%);
+}
+
+.dark-mode .react-flow__controls-button svg {
+  fill: hsl(var(--foreground));
+}

@@ -33,6 +33,10 @@ interface UseMindMapReturn {
     onEdgesChange: OnEdgesChange<MindMapEdge>
     onConnect: OnConnect
     addNode: (position: XYPosition, label?: string) => void
+    addNodeFromDrop: (sourceId: string, position: XYPosition) => string
+    addChildNode: (sourceId: string, sourcePosition: XYPosition) => void
+    addSiblingNode: (sourcePosition: XYPosition) => void
+    duplicateNode: (sourcePosition: XYPosition, data: MindMapNodeData) => void
     deleteNode: (nodeId: string) => void
     updateNodeData: (nodeId: string, data: Partial<MindMapNodeData>) => void
     clearAll: () => void
@@ -149,6 +153,74 @@ export function useMindMap({ groupId, currentUserId }: UseMindMapOptions): UseMi
         scheduleSave()
     }, [scheduleSave])
 
+    // Cria um nó no ponto de soltura do drag e conecta ao nó de origem.
+    // Retorna o ID do novo nó para permitir focar/editar após a criação.
+    const addNodeFromDrop = useCallback((sourceId: string, position: XYPosition): string => {
+        const newId = `node-${Date.now()}`
+        const newNode: MindMapNode = {
+            id: newId,
+            type: 'mindMapNode',
+            position,
+            data: { label: 'Nova ideia' },
+        }
+        const newEdge: MindMapEdge = {
+            id: `e-${sourceId}-${newId}`,
+            source: sourceId,
+            target: newId,
+            type: 'smoothstep',
+            animated: false,
+        }
+        setNodes((nds) => [...nds, newNode])
+        setEdges((eds) => [...eds, newEdge])
+        scheduleSave()
+        return newId
+    }, [scheduleSave])
+
+    // Cria um nó filho à direita do nó fonte e conecta com uma aresta
+    const addChildNode = useCallback((sourceId: string, sourcePosition: XYPosition) => {
+        const childId = `node-${Date.now()}`
+        const newNode: MindMapNode = {
+            id: childId,
+            type: 'mindMapNode',
+            position: { x: sourcePosition.x + 250, y: sourcePosition.y },
+            data: { label: 'Novo nó' },
+        }
+        const newEdge: MindMapEdge = {
+            id: `e-${sourceId}-${childId}`,
+            source: sourceId,
+            target: childId,
+            type: 'smoothstep',
+            animated: false,
+        }
+        setNodes((nds) => [...nds, newNode])
+        setEdges((eds) => [...eds, newEdge])
+        scheduleSave()
+    }, [scheduleSave])
+
+    // Cria um nó irmão abaixo sem conectar
+    const addSiblingNode = useCallback((sourcePosition: XYPosition) => {
+        const newNode: MindMapNode = {
+            id: `node-${Date.now()}`,
+            type: 'mindMapNode',
+            position: { x: sourcePosition.x, y: sourcePosition.y + 100 },
+            data: { label: 'Novo nó' },
+        }
+        setNodes((nds) => [...nds, newNode])
+        scheduleSave()
+    }, [scheduleSave])
+
+    // Duplica um nó com offset de (50, 50)
+    const duplicateNode = useCallback((sourcePosition: XYPosition, data: MindMapNodeData) => {
+        const newNode: MindMapNode = {
+            id: `node-${Date.now()}`,
+            type: 'mindMapNode',
+            position: { x: sourcePosition.x + 50, y: sourcePosition.y + 50 },
+            data: { ...data },
+        }
+        setNodes((nds) => [...nds, newNode])
+        scheduleSave()
+    }, [scheduleSave])
+
     const deleteNode = useCallback((nodeId: string) => {
         setNodes((nds) => nds.filter((n) => n.id !== nodeId))
         // Remove também as arestas conectadas ao nó deletado
@@ -180,6 +252,10 @@ export function useMindMap({ groupId, currentUserId }: UseMindMapOptions): UseMi
         onEdgesChange,
         onConnect,
         addNode,
+        addNodeFromDrop,
+        addChildNode,
+        addSiblingNode,
+        duplicateNode,
         deleteNode,
         updateNodeData,
         clearAll,
