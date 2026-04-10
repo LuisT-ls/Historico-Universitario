@@ -1,4 +1,4 @@
-# 📚 Histórico Acadêmico UFBA v2.6
+# 📚 Histórico Acadêmico UFBA v2.7
 
 > [!IMPORTANT]
 > **Aviso Legal:** Este é um projeto **independente** desenvolvido para auxiliar os estudantes do **ICTI/UFBA (Campus de Camaçari)**. Este software **não possui vínculo oficial** com a Universidade Federal da Bahia (UFBA) ou com a administração do SIGAA.
@@ -82,6 +82,78 @@ Uma plataforma moderna e intuitiva para estudantes da UFBA gerenciarem sua traje
 - **Progresso do grupo:** Barra de progresso com percentual de tarefas concluídas na página do grupo.
 - **Gerenciamento de membros:** Lista de membros com destaque para o criador; controles de dono para editar/excluir o grupo. Membros podem sair a qualquer momento.
 
+### 🧠 Mapa Mental Colaborativo
+Canvas interativo de mapas mentais integrado à aba "Mapa Mental" de cada grupo de estudo, construído sobre `@xyflow/react` v12 com persistência em Firestore e suporte a múltiplos usuários simultâneos.
+
+**Canvas e nós:**
+- **CRUD completo:** Adicionar, editar (duplo clique / toque duplo), duplicar e excluir nós via menu de contexto ou atalhos.
+- **Formas:** `rounded` (padrão), `pill` e `diamond` por nó.
+- **Temas WCAG:** 5 temas pré-definidos com combinações bg + texto de alto contraste (Padrão, Destaque Escuro, Alerta, Sucesso, Atenção). Preview com texto "Aa" no menu.
+- **Emoji prefix:** Campo emoji opcional exibido à esquerda do rótulo.
+- **Drop to Create:** Arraste a handle de saída de um nó e solte no canvas — cria novo nó conectado automaticamente no ponto de soltura.
+
+**Conexões:**
+- **Smoothstep edges** com cor `#64748b` (slate-500) e espessura 2px — visíveis em fundos claros e escuros.
+- **`defaultEdgeOptions`** garante estilo consistente para todas as arestas, incluindo mapas legados sem `style` gravado.
+- **Conexão manual:** Arraste entre handles para criar arestas customizadas.
+
+**Histórico local (Undo/Redo):**
+- **Pilhas `pastRef`/`futureRef`** com até 30 snapshots shallow-copied.
+- **`Ctrl+Z` / `Cmd+Z`** desfaz; **`Ctrl+Y` / `Cmd+Shift+Z`** refaz.
+- Botões na toolbar com feedback visual reativo (`canUndo`/`canRedo` como `useState`).
+- Snapshots capturados no início de cada CRUD, drag-start e exclusão por teclado.
+- **`isOwnSaveRef`**: distingue o bounce do próprio save do Firestore de updates remotos — preserva histórico após salvar, limpa apenas em updates de outros usuários.
+
+**Multi-seleção:**
+- **`Shift+Click`** seleciona múltiplos nós; **`Shift+Drag`** seleciona por área.
+- Menu de contexto detecta se o nó está selecionado: aplica cor ou exclusão em todos os nós selecionados com `deleteNodes(ids)` / `updateNodesData(ids, data)`.
+- Label do botão destrutivo exibe contagem: "Excluir 3 nós".
+
+**Auto-layout:**
+- Botão **"Organizar"** (ícone varinha) na toolbar aplica layout direcional esquerda→direita via **Dagre**.
+- Após o layout, `fitView` é acionado automaticamente (350ms) para encaixar o grafo na tela.
+
+**Exportar como PNG:**
+- `html-to-image` captura `.react-flow__viewport` (não o container externo) para incluir nós + arestas SVG.
+- `getNodesBounds` + `getViewportForBounds` calculam dimensões exatas: `imageWidth = bounds.width + 200px`, `imageHeight = bounds.height + 200px` — imagem recortada ao conteúdo sem nós minúsculos.
+- Fundo adaptativo: `#020617` (dark mode) ou `#ffffff` (light mode), detectado em tempo real pela classe `.dark-mode` / `.dark` no `<html>`.
+- Resolução 2× (`pixelRatio: 2`) para telas retina.
+
+**Cursores multiplayer:**
+- `onPointerMove` no canvas converte coordenadas para espaço de fluxo via `screenToFlowPosition` e transmite via `updateCursorPosition()` com debounce de 50ms.
+- `<CursorOverlay>` usa `useViewport()` + `flowToScreenPosition()` para renderizar cursores SVG com badge de nome sobre o canvas; cores determinísticas por `userId` (hash → paleta de 8 cores).
+
+**Vincular materiais:**
+- Nós aceitam `attachments[]` (id, name, url) vinculados via modal que carrega `getGroupMaterials()`.
+- Badge `Paperclip` com contador no nó indica materiais vinculados.
+- Anexos listados diretamente no menu de contexto como itens clicáveis com `ExternalLink`.
+
+**Integração Kanban:**
+- "Converter em tarefa" no menu de contexto cria um cartão no Kanban (`status: 'pending'`) a partir do rótulo do nó.
+
+**Atalhos de teclado:**
+| Tecla | Ação |
+|---|---|
+| `Tab` | Cria nó filho conectado à direita |
+| `Enter` | Cria nó irmão abaixo |
+| `Delete` | Remove nó(s) selecionado(s) |
+| `Ctrl/Cmd+Z` | Desfazer |
+| `Ctrl/Cmd+Y` ou `Ctrl/Cmd+Shift+Z` | Refazer |
+
+**Persistência e performance:**
+- Auto-save com debounce de 600ms para Firestore (`groups/{groupId}/mindMap/board`).
+- `isRemoteUpdateRef` previne loop write→snapshot→write.
+- `nodeTypes` definido fora do componente — evita remount de todos os nós a cada render.
+- `memo()` nos nós e toolbar; `useCallback` em todos os handlers; `useMemo` no context value.
+
+**Responsividade:**
+- Toolbar com `overflow-x-auto scrollbar-none` e `max-w-[calc(100%-1rem)]` — nunca extrapola o container.
+- Zoom +/− ocultos em mobile (`hidden sm:inline-flex`) — substituídos por pinch-to-zoom nativo.
+- Botões da toolbar: `h-8 w-8` em mobile → `h-9 w-9` em desktop.
+- Handles dos nós: `16px` para toque confortável.
+- Altura do canvas: `clamp(340px, calc(100svh - 380px), 80svh)`.
+- Dica do empty state: "duplo clique" em desktop, "toque duplo" em mobile.
+
 ### 📈 Ferramentas Avançadas
 - **Simulador de Notas:** Planeje quanto precisa tirar para atingir sua meta de CR.
 - **Gestão de Certificados:** Adicione horas complementares e veja o impacto no seu progresso.
@@ -91,20 +163,62 @@ Uma plataforma moderna e intuitiva para estudantes da UFBA gerenciarem sua traje
 
 ## 🛠️ Stack Tecnológica
 
-O projeto foi totalmente migrado para as tecnologias mais modernas do ecossistema Web:
-
 - **Framework:** [Next.js 16.1.6 (App Router)](https://nextjs.org/)
 - **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
 - **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
 - **Componentes:** [Shadcn/UI](https://ui.shadcn.com/) & [Framer Motion](https://www.framer.com/motion/)
 - **Banco de Dados & Auth:** [Firebase](https://firebase.google.com/) (Firestore, Auth, Storage)
 - **Gráficos:** [Recharts](https://recharts.org/)
+- **Canvas interativo:** [@xyflow/react v12](https://reactflow.dev/) (Mapa Mental)
+- **Layout de grafos:** [Dagre](https://github.com/dagrejs/dagre) (Auto-layout do Mapa Mental)
+- **Exportação de imagem:** [html-to-image](https://github.com/bubkoo/html-to-image) (PNG do Mapa Mental)
 - **Relatórios:** [jsPDF](https://github.com/parallax/jsPDF) & [SheetJS (XLSX)](https://sheetjs.com/)
 - **Impressão:** API nativa do navegador (`window.print()` + `@media print`)
 
 ---
 
 ## 🔄 Changelog
+
+### v2.7 — Mapa Mental Colaborativo
+
+**Canvas e nós:**
+- Canvas interativo construído sobre `@xyflow/react` v12 com `ReactFlowProvider`, `nodeTypes` estático e `memo()` em todos os nós e toolbar.
+- CRUD completo via menu de contexto (`@radix-ui/react-context-menu`): adicionar, editar inline, duplicar, excluir, alterar forma, aplicar tema de cor WCAG.
+- 5 temas de cor pré-definidos com contraste garantido (Padrão, Destaque Escuro, Alerta, Sucesso, Atenção) com preview "Aa" no submenu.
+- Drop to Create: arrastar handle → soltar no canvas → novo nó conectado no ponto exato (`onConnectEnd` + `screenToFlowPosition`).
+
+**Histórico (Undo/Redo):**
+- Pilhas `pastRef`/`futureRef` (até 30 estados) com shallow copy de nós e arestas.
+- `pushHistory()` chamado antes de cada mutação local e no início de drag.
+- `isOwnSaveRef` resolve o bug de bounce: o próprio save no Firestore não limpa o histórico; apenas updates de outros usuários limpam.
+- Botões Undo/Redo na toolbar com estado reativo (`canUndo`/`canRedo` como `useState`), habilitados/desabilitados com feedback visual.
+
+**Multi-seleção:**
+- `Shift+Click` / `Shift+Drag` seleciona múltiplos nós (suporte nativo do React Flow).
+- Menu de contexto aplica cor ou exclusão em massa quando o nó clicado está selecionado: `deleteNodes(ids)` / `updateNodesData(ids, data)`.
+
+**Auto-layout:**
+- Botão "Organizar" aplica `rankdir: 'LR'` via Dagre + `fitView` automático após 50ms.
+
+**Exportação PNG:**
+- Estratégia oficial xyflow: captura `.react-flow__viewport` com `getNodesBounds` + `getViewportForBounds`.
+- Dimensões calculadas a partir dos bounds reais (`+200px` de padding) — sem nós minúsculos no centro.
+- Fundo detectado em runtime; arestas com `stroke` hexadecimal absoluto e `strokeWidth: 2` para garantir visibilidade.
+
+**Multiplayer:**
+- Cursores em tempo real: `onPointerMove` → debounce 50ms → `updateCursorPosition()` no Firestore.
+- `<CursorOverlay>` com `useViewport()` + `flowToScreenPosition()` para re-renderizar em pan/zoom.
+
+**Ecossistema:**
+- Vincular materiais do grupo a nós (`attachments[]` + modal + badge Paperclip).
+- Converter nó em tarefa do Kanban com um clique ("Converter em tarefa").
+
+**Responsividade:**
+- Toolbar adaptativa: zoom oculto em mobile, `overflow-x-auto`, botões `h-8` em mobile.
+- Altura do canvas com `clamp(340px, calc(100svh - 380px), 80svh)`.
+- Handles de 16px para toque confortável.
+
+---
 
 ### v2.6 — Kanban Avançado
 
@@ -211,11 +325,17 @@ O sistema implementa rigorosamente a fórmula de período letivo do SIGAA:
 Historico-Universitario/
 ├── 📁 app/               # Rotas e Páginas (Next.js App Router)
 ├── 📁 components/        # Componentes UI e lógicas de interface
-│   ├── 📁 features/      # Funcionalidades específicas (Dashboard, Summary)
+│   ├── 📁 features/      # Funcionalidades específicas
+│   │   └── 📁 groups/
+│   │       ├── 📁 components/
+│   │       │   ├── 📁 mind-map/   # Canvas, nós, toolbar, overlays
+│   │       │   └── ...            # Kanban, materiais, presença
+│   │       └── 📁 hooks/          # useMindMap, usePresence, useCursorBroadcast
 │   ├── 📁 layout/        # Cabeçalho, Rodapé, Sidebar
 │   └── 📁 ui/            # Componentes base (Shadcn)
 ├── 📁 lib/               # Utilitários, Config Firebase, Lógicas de cálculo
 ├── 📁 public/            # Assets estáticos e imagens
+├── 📁 services/          # Camada de acesso ao Firebase (Firestore, Storage)
 ├── 📁 types/             # Definições de tipos TypeScript
 ├── 📁 __tests__/         # Testes Unitários e Integração (Jest)
 └── 📁 e2e/               # Testes de Ponta a Ponta (Playwright)
