@@ -18,7 +18,7 @@ import {
 import { db } from '@/lib/firebase/config'
 import { deleteFile } from '@/services/storage.service'
 import { logger } from '@/lib/logger'
-import type { Group, GroupId, GroupMaterial, GroupMaterialId, GroupTask, GroupTaskId, TaskActivity, TaskActivityAction, TaskComment, UserId } from '@/types'
+import type { Group, GroupId, GroupMaterial, GroupMaterialId, GroupMindMap, GroupTask, GroupTaskId, MindMapEdge, MindMapNode, TaskActivity, TaskActivityAction, TaskComment, UserId } from '@/types'
 import { createGroupId, createGroupMaterialId, createGroupTaskId } from '@/lib/type-constants'
 
 /**
@@ -411,6 +411,58 @@ export async function deleteGroupTask(groupId: string, taskId: string): Promise<
         await deleteDoc(taskRef)
     } catch (error) {
         logger.error('Erro ao remover tarefa do grupo:', error)
+        throw error
+    }
+}
+
+// ===== MAPA MENTAL =====
+
+const MIND_MAP_DOC = 'board'
+
+/**
+ * Salva (cria ou sobrescreve) o mapa mental do grupo.
+ * Usa setDoc com merge:false para garantir substituição atômica completa.
+ */
+export async function saveMindMap(
+    groupId: string,
+    nodes: MindMapNode[],
+    edges: MindMapEdge[],
+    updatedBy: string
+): Promise<void> {
+    if (!db) throw new Error('Firestore não inicializado')
+    try {
+        const ref = doc(db, 'groups', groupId, 'mindMap', MIND_MAP_DOC)
+        await setDoc(ref, {
+            nodes,
+            edges,
+            updatedAt: new Date(),
+            updatedBy,
+        })
+    } catch (error) {
+        logger.error('Erro ao salvar mapa mental:', error)
+        throw error
+    }
+}
+
+/**
+ * Busca o mapa mental do grupo (leitura única).
+ * Retorna null se ainda não foi criado.
+ */
+export async function getMindMap(groupId: string): Promise<GroupMindMap | null> {
+    if (!db) throw new Error('Firestore não inicializado')
+    try {
+        const ref = doc(db, 'groups', groupId, 'mindMap', MIND_MAP_DOC)
+        const snap = await getDoc(ref)
+        if (!snap.exists()) return null
+        const data = snap.data()
+        return {
+            nodes: data.nodes ?? [],
+            edges: data.edges ?? [],
+            updatedAt: data.updatedAt?.toDate?.() ?? new Date(),
+            updatedBy: data.updatedBy ?? '',
+        } as GroupMindMap
+    } catch (error) {
+        logger.error('Erro ao buscar mapa mental:', error)
         throw error
     }
 }

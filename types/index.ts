@@ -264,6 +264,41 @@ export interface GroupTask {
   updatedAt?: Date
 }
 
+// ─── Mind Map types ───────────────────────────────────────────────────────────
+
+export interface MindMapNodeData extends Record<string, unknown> {
+  label: string
+  color?: string       // hex — cor de fundo do nó (ex: '#fef08a')
+  textColor?: string   // hex — cor do texto
+  shape?: 'rounded' | 'pill' | 'diamond'
+  fontSize?: 'sm' | 'base' | 'lg'
+  emoji?: string       // prefixo opcional (ex: '📌')
+}
+
+export interface MindMapNode {
+  id: string
+  type: 'mindMapNode'
+  position: { x: number; y: number }
+  data: MindMapNodeData
+}
+
+export interface MindMapEdge {
+  id: string
+  source: string
+  target: string
+  type?: 'smoothstep' | 'straight' | 'step' | 'default'
+  animated?: boolean
+  label?: string
+  style?: { stroke?: string }
+}
+
+export interface GroupMindMap {
+  nodes: MindMapNode[]
+  edges: MindMapEdge[]
+  updatedAt: Date
+  updatedBy: string // userId do último editor
+}
+
 // ─── Materiais types ──────────────────────────────────────────────────────────
 
 export type MaterialId = string & { readonly __brand: 'MaterialId' }

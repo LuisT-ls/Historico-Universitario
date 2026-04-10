@@ -4,7 +4,7 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { useGroupDetails } from '@/components/features/groups/hooks/use-group-details'
 import { useUserProfiles } from '@/components/features/groups/hooks/use-user-profiles'
-import { Loader2, ArrowLeft, Files, CheckSquare, LayoutDashboard, Copy, Plus, MoreVertical, Pencil, LogOut, Trash2, Users, CalendarDays, Check } from 'lucide-react'
+import { Loader2, ArrowLeft, Files, CheckSquare, LayoutDashboard, Copy, Plus, MoreVertical, Pencil, LogOut, Trash2, Users, CalendarDays, Check, Network } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -32,6 +32,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 import { MaterialList } from './material-list'
 import { TaskBoard } from './task-board'
+import { MindMapBoard } from './mind-map/mind-map-board'
 import { EditGroupDialog } from './edit-group-dialog'
 import { usePresence } from '@/components/features/groups/hooks/use-presence'
 
@@ -71,10 +72,10 @@ export function GroupDetailsPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const rawTab = searchParams.get('tab')
-    const activeTab: 'overview' | 'materials' | 'tasks' =
-        rawTab === 'materials' || rawTab === 'tasks' ? rawTab : 'overview'
+    const activeTab: 'overview' | 'materials' | 'tasks' | 'mindmap' =
+        rawTab === 'materials' || rawTab === 'tasks' || rawTab === 'mindmap' ? rawTab : 'overview'
 
-    const setActiveTab = useCallback((tab: 'overview' | 'materials' | 'tasks') => {
+    const setActiveTab = useCallback((tab: 'overview' | 'materials' | 'tasks' | 'mindmap') => {
         const params = new URLSearchParams(searchParams.toString())
         if (tab === 'overview') params.delete('tab')
         else params.set('tab', tab)
@@ -118,6 +119,7 @@ export function GroupDetailsPage() {
         { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
         { id: 'materials', label: 'Materiais', icon: Files },
         { id: 'tasks', label: 'Tarefas', icon: CheckSquare },
+        { id: 'mindmap', label: 'Mapa Mental', icon: Network },
     ]
 
     return (
@@ -311,7 +313,7 @@ export function GroupDetailsPage() {
                         return (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id as 'overview' | 'materials' | 'tasks')}
+                                onClick={() => setActiveTab(tab.id as 'overview' | 'materials' | 'tasks' | 'mindmap')}
                                 className={cn(
                                     "flex items-center gap-3 px-8 py-3.5 rounded-[1.2rem] text-sm font-black transition-all duration-300 relative",
                                     isActive
@@ -450,6 +452,13 @@ export function GroupDetailsPage() {
                                 isLoading={isMaterialsLoading}
                                 onAdd={handleAddMaterial}
                                 onDelete={handleDeleteMaterial}
+                            />
+                        )}
+
+                        {activeTab === 'mindmap' && (
+                            <MindMapBoard
+                                groupId={group.id!}
+                                currentUserId={user?.uid ?? ''}
                             />
                         )}
 
