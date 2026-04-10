@@ -10,6 +10,8 @@ import {
     useReactFlow,
     useOnSelectionChange,
     ReactFlowProvider,
+    getNodesBounds,
+    getViewportForBounds,
     type NodeTypes,
     type XYPosition,
     type OnConnectEnd,
@@ -20,16 +22,27 @@ import { toPng } from 'html-to-image'
 import { toast } from 'sonner'
 
 import { useMindMap } from '@/components/features/groups/hooks/use-mind-map'
+import { useCursorBroadcast } from '@/components/features/groups/hooks/use-cursor-broadcast'
 import { addGroupTask } from '@/services/group.service'
+import type { PresenceEntry } from '@/services/group.service'
 import { MindMapNodeComponent } from './mind-map-node'
 import { MindMapToolbar } from './mind-map-toolbar'
 import { MindMapEmptyState } from './mind-map-empty-state'
 import { MindMapContext } from './mind-map-context'
+import { CursorOverlay } from './cursor-overlay'
+import { AttachMaterialModal } from './attach-material-modal'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { GroupId, MindMapNodeData, UserId } from '@/types'
+import type { GroupId, MindMapNodeAttachment, MindMapNodeData, UserId } from '@/types'
 
-// ─── NodeTypes DEVE estar fora do componente ────────────────────────────────
+// ─── Configurações estáticas (fora do componente para evitar re-render) ──────
+// defaultEdgeOptions aplica-se a TODAS as arestas, inclusive as carregadas do
+// Firestore que não têm `style` gravado (mapas criados antes desta versão).
+const defaultEdgeOptions = {
+    type: 'smoothstep',
+    style: { strokeWidth: 2, stroke: '#64748b' }, // slate-500 — contraste em claro e escuro
+}
+
 const nodeTypes: NodeTypes = {
     mindMapNode: MindMapNodeComponent as unknown as NodeTypes[string],
 }
@@ -38,10 +51,11 @@ interface MindMapBoardProps {
     groupId: string
     currentUserId: string
     groupName?: string
+    onlineMembers?: PresenceEntry[]
 }
 
 // ─── Canvas interno ──────────────────────────────────────────────────────────
-function MindMapCanvas({ groupId, currentUserId, groupName }: MindMapBoardProps) {
+function MindMapCanvas({ groupId, currentUserId, groupName, onlineMembers = [] }: MindMapBoardProps) {
     const {
         nodes,
         edges,
@@ -58,10 +72,35 @@ function MindMapCanvas({ groupId, currentUserId, groupName }: MindMapBoardProps)
         deleteNode,
         updateNodeData,
         clearAll,
+        applyAutoLayout,
     } = useMindMap({ groupId, currentUserId })
 
-    const { zoomIn, zoomOut, fitView, screenToFlowPosition } = useReactFlow()
+    const { zoomIn, zoomOut, fitView, screenToFlowPosition, getNodes } = useReactFlow()
     const containerRef = useRef<HTMLDivElement>(null)
+
+    // ── Feature 1: Cursores multiplayer ────────────────────────────────────────
+    const broadcastCursor = useCursorBroadcast({ groupId, userId: currentUserId })
+
+    // ── Feature 3: Modal de materiais ──────────────────────────────────────────
+    const [attachModal, setAttachModal] = useState<{
+        open: boolean
+        nodeId: string
+        attachments: MindMapNodeAttachment[]
+    }>({ open: false, nodeId: '', attachments: [] })
+
+    const openAttachModal = useCallback(
+        (nodeId: string, currentAttachments: MindMapNodeData['attachments']) => {
+            setAttachModal({ open: true, nodeId, attachments: currentAttachments ?? [] })
+        },
+        []
+    )
+
+    const handleAttachConfirm = useCallback(
+        (attachments: MindMapNodeAttachment[]) => {
+            updateNodeData(attachModal.nodeId, { attachments })
+        },
+        [attachModal.nodeId, updateNodeData]
+    )
 
     // ── Fullscreen ──────────────────────────────────────────────────────────
     const [isFullscreen, setIsFullscreen] = useState(false)
@@ -120,30 +159,70 @@ function MindMapCanvas({ groupId, currentUserId, groupName }: MindMapBoardProps)
         return () => document.removeEventListener('keydown', onKeyDown)
     }, [addChildNode, addSiblingNode])
 
-    // ── Feature 2: Exportar como PNG ───────────────────────────────────────
+    // ── Feature 2: Exportar como PNG ──────────────────────────────────────
+    // Estratégia oficial do xyflow:
+    //   1. getNodes() lê os nós do store do RF (com dimensões reais medidas pelo DOM)
+    //   2. getNodesBounds() calcula o bounding-box do conteúdo
+    //   3. imageWidth/Height = bounds + 2×padding → imagem ajustada ao conteúdo
+    //   4. getViewportForBounds() devolve {x, y, zoom} que encaixa exatamente
+    //      o bounding-box na imagem sem depender do zoom atual do canvas
+    //   5. Captura .react-flow__viewport (nós + arestas SVG) com transform forçado
     const handleExport = useCallback(async () => {
-        const container = containerRef.current
-        if (!container) return
-
-        // Filtra elementos que não devem aparecer na imagem exportada
-        const filter = (domNode: Element) => {
-            const cls = domNode.classList
-            if (!cls) return true
-            if (cls.contains('react-flow__controls'))  return false
-            if (cls.contains('react-flow__minimap'))   return false
-            if (cls.contains('react-flow__panel'))     return false
-            // A toolbar tem data-export-ignore="true"
-            if ((domNode as HTMLElement).dataset?.exportIgnore === 'true') return false
-            return true
+        const currentNodes = getNodes()
+        if (currentNodes.length === 0) {
+            toast.error('Adicione nós ao mapa antes de exportar.')
+            return
         }
+
+        const PADDING = 100
+
+        const nodesBounds = getNodesBounds(currentNodes)
+        const imageWidth  = nodesBounds.width  + PADDING * 2
+        const imageHeight = nodesBounds.height + PADDING * 2
+
+        const viewportEl = containerRef.current?.querySelector(
+            '.react-flow__viewport'
+        ) as HTMLElement | null
+        if (!viewportEl) return
+
+        const { x, y, zoom } = getViewportForBounds(
+            nodesBounds,
+            imageWidth,
+            imageHeight,
+            0.5,
+            2,
+            PADDING
+        )
+
+        // Detecta dark mode pelo projeto (usa classe .dark-mode no <html>)
+        const isDark = document.documentElement.classList.contains('dark-mode') ||
+                       document.documentElement.classList.contains('dark')
+        const bgColor = isDark ? '#020617' : '#ffffff'
 
         try {
             toast.loading('Gerando imagem...', { id: 'export' })
-            const dataUrl = await toPng(container, {
+
+            const dataUrl = await toPng(viewportEl, {
                 cacheBust: true,
-                pixelRatio: 2, // resolução 2× para telas retina
-                filter: filter as (node: HTMLElement) => boolean,
-                backgroundColor: getComputedStyle(container).backgroundColor,
+                pixelRatio: 2,
+                width:  imageWidth,
+                height: imageHeight,
+                style: {
+                    width:           `${imageWidth}px`,
+                    height:          `${imageHeight}px`,
+                    transform:       `translate(${x}px, ${y}px) scale(${zoom})`,
+                    transformOrigin: '0 0',
+                },
+                backgroundColor: bgColor,
+                filter: (node: HTMLElement) => {
+                    const cls = node.classList
+                    if (!cls) return true
+                    return (
+                        !cls.contains('react-flow__controls') &&
+                        !cls.contains('react-flow__minimap')  &&
+                        !cls.contains('react-flow__panel')
+                    )
+                },
             })
 
             const filename = groupName
@@ -158,7 +237,7 @@ function MindMapCanvas({ groupId, currentUserId, groupName }: MindMapBoardProps)
         } catch {
             toast.error('Não foi possível exportar a imagem.', { id: 'export' })
         }
-    }, [groupName])
+    }, [getNodes, groupName])
 
     // ── Feature 3: Converter nó em Tarefa do Kanban ─────────────────────────
     const convertToTask = useCallback(async (label: string) => {
@@ -172,8 +251,8 @@ function MindMapCanvas({ groupId, currentUserId, groupName }: MindMapBoardProps)
 
     // ── Context value ───────────────────────────────────────────────────────
     const contextValue = useMemo(
-        () => ({ updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode, convertToTask }),
-        [updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode, convertToTask]
+        () => ({ updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode, convertToTask, openAttachModal }),
+        [updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode, convertToTask, openAttachModal]
     )
 
     // ── Toolbar handlers ────────────────────────────────────────────────────
@@ -214,6 +293,21 @@ function MindMapCanvas({ groupId, currentUserId, groupName }: MindMapBoardProps)
         addNodeFromDrop(sourceId, position)
     }, [screenToFlowPosition, addNodeFromDrop])
 
+    // ── Feature 1: Broadcast cursor no hover ───────────────────────────────
+    const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+        const container = containerRef.current
+        if (!container) return
+        const rect = container.getBoundingClientRect()
+        const flowPos = screenToFlowPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+        broadcastCursor(flowPos.x, flowPos.y)
+    }, [screenToFlowPosition, broadcastCursor])
+
+    // ── Feature 2: Auto-layout ──────────────────────────────────────────────
+    const handleAutoLayout = useCallback(() => {
+        applyAutoLayout('LR')
+        setTimeout(() => fitView({ duration: 400, padding: 0.2 }), 50)
+    }, [applyAutoLayout, fitView])
+
     // ── Duplo-clique no canvas vazio ────────────────────────────────────────
     const handleCanvasDoubleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         const target = e.target as HTMLElement
@@ -241,9 +335,18 @@ function MindMapCanvas({ groupId, currentUserId, groupName }: MindMapBoardProps)
 
     return (
         <MindMapContext.Provider value={contextValue}>
+            <AttachMaterialModal
+                open={attachModal.open}
+                onOpenChange={(open) => setAttachModal((s) => ({ ...s, open }))}
+                groupId={groupId}
+                currentAttachments={attachModal.attachments}
+                onConfirm={handleAttachConfirm}
+            />
+
             <div
                 ref={containerRef}
                 onDoubleClick={handleCanvasDoubleClick}
+                onPointerMove={handlePointerMove}
                 className={cn(
                     'mind-map-container relative w-full overflow-hidden bg-[#fafafa] dark:bg-slate-950',
                     isFullscreen
@@ -265,6 +368,7 @@ function MindMapCanvas({ groupId, currentUserId, groupName }: MindMapBoardProps)
                         onFitView={handleFitView}
                         onToggleFullscreen={toggleFullscreen}
                         onExport={handleExport}
+                        onAutoLayout={handleAutoLayout}
                     />
                 </div>
 
@@ -276,6 +380,7 @@ function MindMapCanvas({ groupId, currentUserId, groupName }: MindMapBoardProps)
                     onConnect={onConnect}
                     onConnectEnd={onConnectEnd}
                     nodeTypes={nodeTypes}
+                    defaultEdgeOptions={defaultEdgeOptions}
                     fitView
                     fitViewOptions={{ padding: 0.3 }}
                     deleteKeyCode="Delete"
@@ -310,6 +415,9 @@ function MindMapCanvas({ groupId, currentUserId, groupName }: MindMapBoardProps)
                     />
                 </ReactFlow>
 
+                {/* Feature 1: Cursores multiplayer */}
+                <CursorOverlay members={onlineMembers} />
+
                 {nodes.length === 0 && (
                     <MindMapEmptyState onAddFirstNode={handleAddNode} />
                 )}
@@ -319,10 +427,15 @@ function MindMapCanvas({ groupId, currentUserId, groupName }: MindMapBoardProps)
 }
 
 // ─── Wrapper público ─────────────────────────────────────────────────────────
-export function MindMapBoard({ groupId, currentUserId, groupName }: MindMapBoardProps) {
+export function MindMapBoard({ groupId, currentUserId, groupName, onlineMembers }: MindMapBoardProps) {
     return (
         <ReactFlowProvider>
-            <MindMapCanvas groupId={groupId} currentUserId={currentUserId} groupName={groupName} />
+            <MindMapCanvas
+                groupId={groupId}
+                currentUserId={currentUserId}
+                groupName={groupName}
+                onlineMembers={onlineMembers}
+            />
         </ReactFlowProvider>
     )
 }

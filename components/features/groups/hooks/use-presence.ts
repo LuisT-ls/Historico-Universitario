@@ -56,6 +56,8 @@ export function usePresence(groupId: string | undefined, userId: string | undefi
                         userId: d.id,
                         displayName: data.displayName ?? d.id.substring(0, 6),
                         lastSeen,
+                        cursorX: typeof data.cursorX === 'number' ? data.cursorX : undefined,
+                        cursorY: typeof data.cursorY === 'number' ? data.cursorY : undefined,
                     })
                 }
             })

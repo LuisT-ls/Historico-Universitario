@@ -9,6 +9,7 @@ interface MindMapContextValue {
     addSiblingNode: (sourcePosition: XYPosition) => void
     duplicateNode: (sourcePosition: XYPosition, data: MindMapNodeData) => void
     convertToTask: (label: string) => Promise<void>
+    openAttachModal: (nodeId: string, currentAttachments: MindMapNodeData['attachments']) => void
 }
 
 export const MindMapContext = createContext<MindMapContextValue>({
@@ -18,4 +19,5 @@ export const MindMapContext = createContext<MindMapContextValue>({
     addSiblingNode:  () => {},
     duplicateNode:   () => {},
     convertToTask:   async () => {},
+    openAttachModal: () => {},
 })

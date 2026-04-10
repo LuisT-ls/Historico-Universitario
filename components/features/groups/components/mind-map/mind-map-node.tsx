@@ -13,6 +13,8 @@ import {
     Copy,
     Plus,
     CheckSquare,
+    Paperclip,
+    ExternalLink,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -88,7 +90,7 @@ function MindMapNodeInner({
     positionAbsoluteX,
     positionAbsoluteY,
 }: NodeProps<MindMapNode>) {
-    const { updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode, convertToTask } =
+    const { updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode, convertToTask, openAttachModal } =
         useContext(MindMapContext)
 
     const [isEditing, setIsEditing] = useState(false)
@@ -215,6 +217,17 @@ function MindMapNodeInner({
                 position={Position.Right}
                 className="!w-3 !h-3 !bg-primary/70 !border-2 !border-background !rounded-full"
             />
+
+            {/* Badge de anexos */}
+            {data.attachments && data.attachments.length > 0 && (
+                <span
+                    className="absolute -top-2 -right-2 flex items-center gap-0.5 px-1.5 py-0.5 bg-primary text-primary-foreground text-[9px] font-black rounded-full shadow"
+                    title={`${data.attachments.length} material(is) vinculado(s)`}
+                >
+                    <Paperclip className="h-2.5 w-2.5" />
+                    {data.attachments.length}
+                </span>
+            )}
         </div>
     )
 
@@ -353,7 +366,38 @@ function MindMapNodeInner({
 
                 <ContextMenuSeparator />
 
-                {/* ── Grupo 5: Ação destrutiva ── */}
+                {/* ── Grupo 5: Materiais vinculados ── */}
+                <ContextMenuItem
+                    onClick={() => openAttachModal(id, data.attachments)}
+                    className="gap-2.5 rounded-xl font-semibold cursor-pointer text-sky-700 dark:text-sky-400 focus:text-sky-700 dark:focus:text-sky-400 focus:bg-sky-50 dark:focus:bg-sky-950/30"
+                >
+                    <Paperclip className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    Vincular material
+                    <span className="ml-auto text-[10px] font-medium text-muted-foreground opacity-60">
+                        {data.attachments?.length ?? 0}
+                    </span>
+                </ContextMenuItem>
+
+                {/* Listar anexos existentes */}
+                {data.attachments && data.attachments.length > 0 && (
+                    <>
+                        <ContextMenuSeparator />
+                        {data.attachments.map((att) => (
+                            <ContextMenuItem
+                                key={att.id}
+                                onClick={() => window.open(att.url, '_blank', 'noopener,noreferrer')}
+                                className="gap-2.5 rounded-xl font-medium cursor-pointer text-xs"
+                            >
+                                <ExternalLink className="h-3 w-3 opacity-50 shrink-0" aria-hidden="true" />
+                                <span className="truncate max-w-[160px]">{att.name}</span>
+                            </ContextMenuItem>
+                        ))}
+                    </>
+                )}
+
+                <ContextMenuSeparator />
+
+                {/* ── Grupo 6: Ação destrutiva ── */}
                 <ContextMenuItem
                     onClick={() => deleteNode(id)}
                     className="gap-2.5 rounded-xl font-semibold cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"

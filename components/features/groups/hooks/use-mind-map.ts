@@ -14,10 +14,14 @@ import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { saveMindMap } from '@/services/group.service'
 import { logger } from '@/lib/logger'
+import { getLayoutedElements } from '@/components/features/groups/components/mind-map/get-layouted-elements'
 import type { MindMapEdge, MindMapNode, MindMapNodeData } from '@/types'
 
 const SAVE_DEBOUNCE_MS = 600
 const MIND_MAP_DOC = 'board'
+
+// Cor neutra que contrasta em fundo claro E escuro — visível na exportação PNG
+const EDGE_STYLE = { stroke: '#64748b', strokeWidth: 2 }
 
 interface UseMindMapOptions {
     groupId: string
@@ -40,6 +44,7 @@ interface UseMindMapReturn {
     deleteNode: (nodeId: string) => void
     updateNodeData: (nodeId: string, data: Partial<MindMapNodeData>) => void
     clearAll: () => void
+    applyAutoLayout: (direction?: 'LR' | 'TB') => void
 }
 
 export function useMindMap({ groupId, currentUserId }: UseMindMapOptions): UseMindMapReturn {
@@ -136,6 +141,7 @@ export function useMindMap({ groupId, currentUserId }: UseMindMapOptions): UseMi
             target: connection.target,
             type: 'smoothstep',
             animated: false,
+            style: EDGE_STYLE,
         }
         setEdges((eds) => addEdge(newEdge, eds))
         scheduleSave()
@@ -169,6 +175,7 @@ export function useMindMap({ groupId, currentUserId }: UseMindMapOptions): UseMi
             target: newId,
             type: 'smoothstep',
             animated: false,
+            style: EDGE_STYLE,
         }
         setNodes((nds) => [...nds, newNode])
         setEdges((eds) => [...eds, newEdge])
@@ -191,6 +198,7 @@ export function useMindMap({ groupId, currentUserId }: UseMindMapOptions): UseMi
             target: childId,
             type: 'smoothstep',
             animated: false,
+            style: EDGE_STYLE,
         }
         setNodes((nds) => [...nds, newNode])
         setEdges((eds) => [...eds, newEdge])
@@ -243,6 +251,17 @@ export function useMindMap({ groupId, currentUserId }: UseMindMapOptions): UseMi
         scheduleSave()
     }, [scheduleSave])
 
+    const applyAutoLayout = useCallback((direction: 'LR' | 'TB' = 'LR') => {
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+            nodesRef.current,
+            edgesRef.current,
+            direction
+        )
+        setNodes(layoutedNodes)
+        setEdges(layoutedEdges)
+        scheduleSave()
+    }, [scheduleSave])
+
     return {
         nodes,
         edges,
@@ -259,5 +278,6 @@ export function useMindMap({ groupId, currentUserId }: UseMindMapOptions): UseMi
         deleteNode,
         updateNodeData,
         clearAll,
+        applyAutoLayout,
     }
 }

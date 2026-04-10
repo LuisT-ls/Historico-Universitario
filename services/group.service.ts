@@ -473,6 +473,8 @@ export interface PresenceEntry {
     userId: string
     displayName: string
     lastSeen: Date
+    cursorX?: number
+    cursorY?: number
 }
 
 /**
@@ -487,6 +489,22 @@ export async function setPresence(groupId: string, userId: string, displayName: 
         })
     } catch (error) {
         logger.error('Erro ao registrar presença:', error)
+    }
+}
+
+/**
+ * Atualiza apenas a posição do cursor no documento de presença (sem atualizar lastSeen)
+ */
+export async function updateCursorPosition(groupId: string, userId: string, x: number, y: number): Promise<void> {
+    if (!db) return
+    try {
+        await setDoc(
+            doc(db, 'groups', groupId, 'presence', userId),
+            { cursorX: x, cursorY: y },
+            { merge: true }
+        )
+    } catch {
+        // Falha silenciosa — cursor não é crítico
     }
 }
 

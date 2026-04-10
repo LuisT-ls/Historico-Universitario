@@ -1,7 +1,7 @@
 'use client'
 
 import { memo, useState } from 'react'
-import { Loader2, Plus, Trash2, ZoomIn, ZoomOut, Maximize2, Save, Maximize, Minimize, ImageDown } from 'lucide-react'
+import { Loader2, Plus, Trash2, ZoomIn, ZoomOut, Maximize2, Save, Maximize, Minimize, ImageDown, Wand2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
     Dialog,
@@ -24,6 +24,7 @@ interface MindMapToolbarProps {
     onFitView: () => void
     onToggleFullscreen: () => void
     onExport: () => void
+    onAutoLayout: () => void
 }
 
 function MindMapToolbarInner({
@@ -37,6 +38,7 @@ function MindMapToolbarInner({
     onFitView,
     onToggleFullscreen,
     onExport,
+    onAutoLayout,
 }: MindMapToolbarProps) {
     const [confirmClear, setConfirmClear] = useState(false)
 
@@ -89,6 +91,23 @@ function MindMapToolbarInner({
                 >
                     <Maximize2 className="h-4 w-4" aria-hidden="true" />
                 </Button>
+
+                <div className="w-px h-5 bg-border/60 mx-1" aria-hidden="true" />
+
+                {/* Auto-layout */}
+                {hasNodes && (
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={onAutoLayout}
+                        className="gap-2 px-3 font-semibold text-sm text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-colors rounded-xl"
+                        aria-label="Auto-organizar nós"
+                        title="Organiza o mapa automaticamente (layout esquerda→direita)"
+                    >
+                        <Wand2 className="h-4 w-4" aria-hidden="true" />
+                        <span className="hidden sm:inline">Organizar</span>
+                    </Button>
+                )}
 
                 <div className="w-px h-5 bg-border/60 mx-1" aria-hidden="true" />
 

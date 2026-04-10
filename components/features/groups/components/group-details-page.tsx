@@ -460,6 +460,7 @@ export function GroupDetailsPage() {
                                 groupId={group.id!}
                                 currentUserId={user?.uid ?? ''}
                                 groupName={group.name}
+                                onlineMembers={onlineMembers}
                             />
                         )}
 

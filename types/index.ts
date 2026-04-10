@@ -266,6 +266,12 @@ export interface GroupTask {
 
 // ─── Mind Map types ───────────────────────────────────────────────────────────
 
+export interface MindMapNodeAttachment {
+  id: string
+  name: string
+  url: string
+}
+
 export interface MindMapNodeData extends Record<string, unknown> {
   label: string
   color?: string       // hex — cor de fundo do nó (ex: '#fef08a')
@@ -273,6 +279,7 @@ export interface MindMapNodeData extends Record<string, unknown> {
   shape?: 'rounded' | 'pill' | 'diamond'
   fontSize?: 'sm' | 'base' | 'lg'
   emoji?: string       // prefixo opcional (ex: '📌')
+  attachments?: MindMapNodeAttachment[]
 }
 
 export interface MindMapNode {
