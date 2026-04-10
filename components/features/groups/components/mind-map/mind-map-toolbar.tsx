@@ -1,7 +1,7 @@
 'use client'
 
 import { memo, useState } from 'react'
-import { Loader2, Plus, Trash2, ZoomIn, ZoomOut, Maximize2, Save, Maximize, Minimize, ImageDown, Wand2 } from 'lucide-react'
+import { Loader2, Plus, Trash2, ZoomIn, ZoomOut, Maximize2, Save, Maximize, Minimize, ImageDown, Wand2, Undo2, Redo2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
     Dialog,
@@ -17,6 +17,8 @@ interface MindMapToolbarProps {
     isSaving: boolean
     hasNodes: boolean
     isFullscreen: boolean
+    canUndo: boolean
+    canRedo: boolean
     onAddNode: () => void
     onClearAll: () => void
     onZoomIn: () => void
@@ -25,12 +27,16 @@ interface MindMapToolbarProps {
     onToggleFullscreen: () => void
     onExport: () => void
     onAutoLayout: () => void
+    onUndo: () => void
+    onRedo: () => void
 }
 
 function MindMapToolbarInner({
     isSaving,
     hasNodes,
     isFullscreen,
+    canUndo,
+    canRedo,
     onAddNode,
     onClearAll,
     onZoomIn,
@@ -39,6 +45,8 @@ function MindMapToolbarInner({
     onToggleFullscreen,
     onExport,
     onAutoLayout,
+    onUndo,
+    onRedo,
 }: MindMapToolbarProps) {
     const [confirmClear, setConfirmClear] = useState(false)
 
@@ -56,6 +64,42 @@ function MindMapToolbarInner({
                 >
                     <Plus className="h-4 w-4" aria-hidden="true" />
                     <span className="hidden sm:inline">Adicionar nó</span>
+                </Button>
+
+                <div className="w-px h-5 bg-border/60 mx-1" aria-hidden="true" />
+
+                {/* Undo / Redo */}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onUndo}
+                    disabled={!canUndo}
+                    className={cn(
+                        'h-9 w-9 rounded-xl transition-colors',
+                        canUndo
+                            ? 'text-foreground hover:text-primary hover:bg-primary/10'
+                            : 'text-muted-foreground opacity-30 cursor-not-allowed'
+                    )}
+                    aria-label="Desfazer (Ctrl+Z)"
+                    title="Desfazer (Ctrl+Z)"
+                >
+                    <Undo2 className="h-4 w-4" aria-hidden="true" />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onRedo}
+                    disabled={!canRedo}
+                    className={cn(
+                        'h-9 w-9 rounded-xl transition-colors',
+                        canRedo
+                            ? 'text-foreground hover:text-primary hover:bg-primary/10'
+                            : 'text-muted-foreground opacity-30 cursor-not-allowed'
+                    )}
+                    aria-label="Refazer (Ctrl+Y)"
+                    title="Refazer (Ctrl+Y)"
+                >
+                    <Redo2 className="h-4 w-4" aria-hidden="true" />
                 </Button>
 
                 <div className="w-px h-5 bg-border/60 mx-1" aria-hidden="true" />

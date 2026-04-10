@@ -61,6 +61,8 @@ function MindMapCanvas({ groupId, currentUserId, groupName, onlineMembers = [] }
         edges,
         isLoading,
         isSaving,
+        canUndo,
+        canRedo,
         onNodesChange,
         onEdgesChange,
         onConnect,
@@ -70,9 +72,13 @@ function MindMapCanvas({ groupId, currentUserId, groupName, onlineMembers = [] }
         addSiblingNode,
         duplicateNode,
         deleteNode,
+        deleteNodes,
         updateNodeData,
+        updateNodesData,
         clearAll,
         applyAutoLayout,
+        undo,
+        redo,
     } = useMindMap({ groupId, currentUserId })
 
     const { zoomIn, zoomOut, fitView, screenToFlowPosition, getNodes } = useReactFlow()
@@ -138,16 +144,32 @@ function MindMapCanvas({ groupId, currentUserId, groupName, onlineMembers = [] }
 
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
-            // Não dispara se o foco está em input/textarea/button (ex: modo edição do nó)
             const tag = (document.activeElement?.tagName ?? '').toUpperCase()
-            if (['TEXTAREA', 'INPUT', 'BUTTON', 'SELECT'].includes(tag)) return
-            if (document.activeElement?.getAttribute('contenteditable') === 'true') return
+            const isTextInput = ['TEXTAREA', 'INPUT'].includes(tag) ||
+                document.activeElement?.getAttribute('contenteditable') === 'true'
+            const isInteractable = isTextInput || ['BUTTON', 'SELECT'].includes(tag)
 
+            // Undo: Ctrl+Z / Cmd+Z — funciona mesmo com button focado
+            const ctrlOrCmd = e.metaKey || e.ctrlKey
+            if (!isTextInput && ctrlOrCmd && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+                e.preventDefault()
+                undo()
+                return
+            }
+            // Redo: Ctrl+Y / Cmd+Y / Ctrl+Shift+Z / Cmd+Shift+Z
+            if (!isTextInput && ctrlOrCmd && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
+                e.preventDefault()
+                redo()
+                return
+            }
+
+            // Tab / Enter para nó selecionado — bloqueia se qualquer elemento interativo está focado
+            if (isInteractable) return
             const selected = selectedNodeRef.current
             if (!selected) return
 
             if (e.key === 'Tab') {
-                e.preventDefault() // impede navegação de foco do navegador
+                e.preventDefault()
                 addChildNode(selected.id, selected.pos)
             } else if (e.key === 'Enter') {
                 e.preventDefault()
@@ -157,7 +179,7 @@ function MindMapCanvas({ groupId, currentUserId, groupName, onlineMembers = [] }
 
         document.addEventListener('keydown', onKeyDown)
         return () => document.removeEventListener('keydown', onKeyDown)
-    }, [addChildNode, addSiblingNode])
+    }, [addChildNode, addSiblingNode, undo, redo])
 
     // ── Feature 2: Exportar como PNG ──────────────────────────────────────
     // Estratégia oficial do xyflow:
@@ -249,10 +271,22 @@ function MindMapCanvas({ groupId, currentUserId, groupName, onlineMembers = [] }
         })
     }, [groupId, currentUserId])
 
+    // getSelectedIds lê do store do RF — estável por usar getNodes (ref interna)
+    const getSelectedIds = useCallback(
+        () => getNodes().filter(n => n.selected).map(n => n.id),
+        [getNodes]
+    )
+
     // ── Context value ───────────────────────────────────────────────────────
     const contextValue = useMemo(
-        () => ({ updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode, convertToTask, openAttachModal }),
-        [updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode, convertToTask, openAttachModal]
+        () => ({
+            updateNodeData, deleteNode, addChildNode, addSiblingNode,
+            duplicateNode, convertToTask, openAttachModal,
+            deleteNodes, updateNodesData, getSelectedIds,
+        }),
+        [updateNodeData, deleteNode, addChildNode, addSiblingNode,
+         duplicateNode, convertToTask, openAttachModal,
+         deleteNodes, updateNodesData, getSelectedIds]
     )
 
     // ── Toolbar handlers ────────────────────────────────────────────────────
@@ -361,6 +395,8 @@ function MindMapCanvas({ groupId, currentUserId, groupName, onlineMembers = [] }
                         isSaving={isSaving}
                         hasNodes={nodes.length > 0}
                         isFullscreen={isFullscreen}
+                        canUndo={canUndo}
+                        canRedo={canRedo}
                         onAddNode={handleAddNode}
                         onClearAll={clearAll}
                         onZoomIn={handleZoomIn}
@@ -369,6 +405,8 @@ function MindMapCanvas({ groupId, currentUserId, groupName, onlineMembers = [] }
                         onToggleFullscreen={toggleFullscreen}
                         onExport={handleExport}
                         onAutoLayout={handleAutoLayout}
+                        onUndo={undo}
+                        onRedo={redo}
                     />
                 </div>
 

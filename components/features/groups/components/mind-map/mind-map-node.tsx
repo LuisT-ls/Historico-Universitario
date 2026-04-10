@@ -90,8 +90,19 @@ function MindMapNodeInner({
     positionAbsoluteX,
     positionAbsoluteY,
 }: NodeProps<MindMapNode>) {
-    const { updateNodeData, deleteNode, addChildNode, addSiblingNode, duplicateNode, convertToTask, openAttachModal } =
-        useContext(MindMapContext)
+    const {
+        updateNodeData, deleteNode, addChildNode, addSiblingNode,
+        duplicateNode, convertToTask, openAttachModal,
+        deleteNodes, updateNodesData, getSelectedIds,
+    } = useContext(MindMapContext)
+
+    // Retorna o conjunto de IDs a operar:
+    // se este nó está selecionado → aplica em todos os selecionados (bulk)
+    // caso contrário → opera só neste nó
+    const getTargetIds = useCallback(
+        () => selected ? getSelectedIds() : [id],
+        [selected, id, getSelectedIds]
+    )
 
     const [isEditing, setIsEditing] = useState(false)
     const [draft, setDraft]         = useState(data.label)
@@ -328,7 +339,12 @@ function MindMapNodeInner({
                             return (
                                 <ContextMenuItem
                                     key={label}
-                                    onClick={() => updateNodeData(id, { color: bg, textColor: text })}
+                                    onClick={() => {
+                                        const ids = getTargetIds()
+                                        ids.length > 1
+                                            ? updateNodesData(ids, { color: bg, textColor: text })
+                                            : updateNodeData(id, { color: bg, textColor: text })
+                                    }}
                                     className="gap-2.5 rounded-xl font-semibold cursor-pointer"
                                 >
                                     {/* Preview da combinação bg + text */}
@@ -399,11 +415,17 @@ function MindMapNodeInner({
 
                 {/* ── Grupo 6: Ação destrutiva ── */}
                 <ContextMenuItem
-                    onClick={() => deleteNode(id)}
+                    onClick={() => {
+                        const ids = getTargetIds()
+                        ids.length > 1 ? deleteNodes(ids) : deleteNode(id)
+                    }}
                     className="gap-2.5 rounded-xl font-semibold cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
                 >
                     <Trash2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    Excluir nó
+                    {selected && getSelectedIds().length > 1
+                        ? `Excluir ${getSelectedIds().length} nós`
+                        : 'Excluir nó'
+                    }
                     <Shortcut>Del</Shortcut>
                 </ContextMenuItem>
 
