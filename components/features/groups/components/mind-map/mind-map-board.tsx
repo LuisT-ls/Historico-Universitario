@@ -387,7 +387,7 @@ function MindMapCanvas({ groupId, currentUserId, groupName, onlineMembers = [] }
                         ? 'rounded-none border-0 h-screen'
                         : 'rounded-[2rem] border border-border/50'
                 )}
-                style={isFullscreen ? undefined : { height: 'calc(100vh - 380px)', minHeight: '500px' }}
+                style={isFullscreen ? undefined : { height: 'clamp(340px, calc(100svh - 380px), 80svh)' }}
             >
                 {/* data-export-ignore impede que a toolbar apareça na imagem exportada */}
                 <div data-export-ignore="true">

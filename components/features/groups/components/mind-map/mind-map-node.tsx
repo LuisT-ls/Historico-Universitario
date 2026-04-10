@@ -215,7 +215,7 @@ function MindMapNodeInner({
             <Handle
                 type="target"
                 position={Position.Left}
-                className="!w-3 !h-3 !bg-primary/70 !border-2 !border-background !rounded-full"
+                className="!w-4 !h-4 !bg-primary/70 !border-2 !border-background !rounded-full"
             />
 
             {shape === 'diamond'
@@ -226,7 +226,7 @@ function MindMapNodeInner({
             <Handle
                 type="source"
                 position={Position.Right}
-                className="!w-3 !h-3 !bg-primary/70 !border-2 !border-background !rounded-full"
+                className="!w-4 !h-4 !bg-primary/70 !border-2 !border-background !rounded-full"
             />
 
             {/* Badge de anexos */}

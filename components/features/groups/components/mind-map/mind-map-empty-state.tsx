@@ -41,7 +41,8 @@ export function MindMapEmptyState({ onAddFirstNode }: MindMapEmptyStateProps) {
                 </div>
 
                 <p className="text-xs text-muted-foreground font-medium opacity-60 pointer-events-none">
-                    Dica: clique duplo em qualquer nó para editar o texto
+                    <span className="hidden sm:inline">Dica: duplo clique no nó para editar</span>
+                    <span className="sm:hidden">Dica: toque duplo no nó para editar</span>
                 </p>
             </div>
         </div>
