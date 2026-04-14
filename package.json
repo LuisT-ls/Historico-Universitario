@@ -19,6 +19,7 @@
     "test:materials:watch": "jest --config jest.materials.config.js --watch"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.12",

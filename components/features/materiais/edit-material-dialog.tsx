@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Sparkles } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -43,13 +43,35 @@ interface EditMaterialDialogProps {
 }
 
 export function EditMaterialDialog({ material, open, onOpenChange, onSaved }: EditMaterialDialogProps) {
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+
   const {
     register,
     handleSubmit,
     reset,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
+
+  async function analyzeWithAI() {
+    setIsAnalyzing(true)
+    try {
+      const blob = await fetch(material.arquivoURL).then(r => r.blob())
+      const form = new FormData()
+      form.append('file', blob, material.nomeArquivo)
+      const res = await fetch('/api/analyze-material', { method: 'POST', body: form })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Erro desconhecido')
+      if (data.titulo)    setValue('titulo',    data.titulo,    { shouldValidate: true })
+      if (data.descricao) setValue('descricao', data.descricao, { shouldValidate: true })
+      toast.success('Sugestões geradas pela IA!')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Falha ao analisar com IA.')
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
 
   useEffect(() => {
     if (open) {
@@ -92,7 +114,22 @@ export function EditMaterialDialog({ material, open, onOpenChange, onSaved }: Ed
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
           <div className="space-y-1.5">
-            <Label htmlFor="edit-titulo">Título *</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="edit-titulo">Título *</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={analyzeWithAI}
+                disabled={isAnalyzing}
+                className="h-7 gap-1.5 text-xs text-primary dark:text-blue-400"
+              >
+                {isAnalyzing
+                  ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Analisando...</>
+                  : <><Sparkles className="h-3.5 w-3.5" /> Sugerir com IA</>
+                }
+              </Button>
+            </div>
             <Input id="edit-titulo" {...register('titulo')} />
             {errors.titulo && <p className="text-xs text-destructive">{errors.titulo.message}</p>}
           </div>

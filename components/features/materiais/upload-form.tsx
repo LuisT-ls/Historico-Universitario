@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Upload, FileText, X, Loader2 } from 'lucide-react'
+import { Upload, FileText, X, Loader2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -52,13 +52,34 @@ export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFo
   const [isDragging, setIsDragging] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   const {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
+
+  async function analyzeWithAI() {
+    if (!file) return
+    setIsAnalyzing(true)
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      const res = await fetch('/api/analyze-material', { method: 'POST', body: form })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Erro desconhecido')
+      if (data.titulo)   setValue('titulo',   data.titulo,   { shouldValidate: true })
+      if (data.descricao) setValue('descricao', data.descricao, { shouldValidate: true })
+      toast.success('Sugestões geradas pela IA!')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Falha ao analisar com IA.')
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
 
   function validateAndSetFile(selected: File | undefined) {
     setFileError(null)
@@ -152,7 +173,24 @@ export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFo
 
           {/* Título */}
           <div className="space-y-1.5">
-            <Label htmlFor="titulo">Título *</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="titulo">Título *</Label>
+              {file && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={analyzeWithAI}
+                  disabled={isAnalyzing}
+                  className="h-7 gap-1.5 text-xs text-primary dark:text-blue-400"
+                >
+                  {isAnalyzing
+                    ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Analisando...</>
+                    : <><Sparkles className="h-3.5 w-3.5" /> Sugerir com IA</>
+                  }
+                </Button>
+              )}
+            </div>
             <Input id="titulo" {...register('titulo')} placeholder="Ex: Lista 3 — Cálculo A" />
             {errors.titulo && <p className="text-xs text-destructive">{errors.titulo.message}</p>}
           </div>
