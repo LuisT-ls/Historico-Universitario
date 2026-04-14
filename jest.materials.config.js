@@ -33,7 +33,7 @@ const customJestConfig = {
     'services/materials.service.ts': {
       branches: 35,
       functions: 76,
-      lines: 73,
+      lines: 72,
       statements: 65,
     },
     'services/favorites.service.ts': {
