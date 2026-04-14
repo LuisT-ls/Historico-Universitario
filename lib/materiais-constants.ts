@@ -1,12 +1,13 @@
 import type { TipoMaterial, StatusMaterial, Curso } from '@/types'
 
 export const TIPO_MATERIAL_LABELS: Record<TipoMaterial, string> = {
-  lista:    'Lista de Exercícios',
-  apostila: 'Apostila',
-  prova:    'Prova',
-  resumo:   'Resumo',
-  slides:   'Slides',
-  outro:    'Outro',
+  lista:     'Lista de Exercícios',
+  apostila:  'Apostila',
+  prova:     'Prova',
+  resumo:    'Resumo',
+  slides:    'Slides',
+  atividade: 'Atividade',
+  outro:     'Outro',
 }
 
 export const STATUS_MATERIAL_LABELS: Record<StatusMaterial, string> = {
@@ -22,7 +23,7 @@ export const CURSO_LABELS: Record<Curso, string> = {
 }
 
 export const TIPOS_MATERIAL: TipoMaterial[] = [
-  'lista', 'apostila', 'prova', 'resumo', 'slides', 'outro',
+  'lista', 'apostila', 'prova', 'resumo', 'slides', 'atividade', 'outro',
 ]
 
 export const MAX_FILE_SIZE_MB = 10

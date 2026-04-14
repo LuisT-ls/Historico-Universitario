@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Upload, FileText, X, Loader2 } from 'lucide-react'
@@ -12,10 +12,9 @@ import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-
-
 import { Progress } from '@/components/ui/progress'
-import { addMaterial, getDisciplinas } from '@/services/materials.service'
+import { DisciplinaSearchInput } from '@/components/features/materiais/disciplina-search-input'
+import { addMaterial } from '@/services/materials.service'
 import { uploadFileWithProgress } from '@/services/storage.service'
 import { toast } from '@/lib/toast'
 import { useAuth } from '@/components/auth-provider'
@@ -53,15 +52,11 @@ export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFo
   const [isDragging, setIsDragging] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [disciplinas, setDisciplinas] = useState<string[]>([])
-
-  useEffect(() => {
-    getDisciplinas().then(setDisciplinas)
-  }, [])
 
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
@@ -203,18 +198,19 @@ export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFo
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="disciplina">Disciplina *</Label>
-              <Input
-                id="disciplina"
-                {...register('disciplina')}
-                placeholder="Ex: Cálculo A"
-                list="disciplinas-list"
-                autoComplete="off"
+              <Controller
+                name="disciplina"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <DisciplinaSearchInput
+                    id="disciplina"
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  />
+                )}
               />
-              {disciplinas.length > 0 && (
-                <datalist id="disciplinas-list">
-                  {disciplinas.map(d => <option key={d} value={d} />)}
-                </datalist>
-              )}
               {errors.disciplina && <p className="text-xs text-destructive">{errors.disciplina.message}</p>}
             </div>
             <div className="space-y-1.5">

@@ -316,6 +316,7 @@ export type TipoMaterial =
   | 'prova'
   | 'resumo'
   | 'slides'
+  | 'atividade'
   | 'outro'
 
 export type StatusMaterial = 'pending' | 'approved' | 'rejected'
