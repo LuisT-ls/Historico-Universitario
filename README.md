@@ -1,4 +1,4 @@
-# 📚 Histórico Acadêmico UFBA v2.7
+# 📚 Histórico Acadêmico UFBA v2.8
 
 > [!IMPORTANT]
 > **Aviso Legal:** Este é um projeto **independente** desenvolvido para auxiliar os estudantes do **ICTI/UFBA (Campus de Camaçari)**. Este software **não possui vínculo oficial** com a Universidade Federal da Bahia (UFBA) ou com a administração do SIGAA.
@@ -154,6 +154,11 @@ Canvas interativo de mapas mentais integrado à aba "Mapa Mental" de cada grupo 
 - Altura do canvas: `clamp(340px, calc(100svh - 380px), 80svh)`.
 - Dica do empty state: "duplo clique" em desktop, "toque duplo" em mobile.
 
+### 📂 Repositório de Materiais
+- **Busca de disciplina inteligente:** Campo de autocomplete no upload e na edição pesquisa por código (ex: `CTIA01`) ou por nome (ex: `introdução`) em todo o catálogo, independente do curso.
+- **Análise por IA (Gemini):** Botão "Sugerir com IA" analisa o PDF do material e preenche automaticamente o título e a descrição com sugestões geradas pelo Gemini 2.5 Flash. Disponível tanto no upload quanto na edição.
+- **Tipos de material:** Lista de Exercícios, Apostila, Prova, Resumo, Slides, Atividade e Outro.
+
 ### 📈 Ferramentas Avançadas
 - **Simulador de Notas:** Planeje quanto precisa tirar para atingir sua meta de CR.
 - **Gestão de Certificados:** Adicione horas complementares e veja o impacto no seu progresso.
@@ -172,12 +177,21 @@ Canvas interativo de mapas mentais integrado à aba "Mapa Mental" de cada grupo 
 - **Canvas interativo:** [@xyflow/react v12](https://reactflow.dev/) (Mapa Mental)
 - **Layout de grafos:** [Dagre](https://github.com/dagrejs/dagre) (Auto-layout do Mapa Mental)
 - **Exportação de imagem:** [html-to-image](https://github.com/bubkoo/html-to-image) (PNG do Mapa Mental)
+- **IA generativa:** [Google Gemini API](https://ai.google.dev/) via `@google/generative-ai` (análise de PDFs)
 - **Relatórios:** [jsPDF](https://github.com/parallax/jsPDF) & [SheetJS (XLSX)](https://sheetjs.com/)
 - **Impressão:** API nativa do navegador (`window.print()` + `@media print`)
 
 ---
 
 ## 🔄 Changelog
+
+### v2.8 — Materiais com IA e Busca de Disciplinas
+
+- **Autocomplete de disciplinas:** Campo de disciplina no upload e na edição passou a usar busca por autocomplete contra o catálogo local (`disciplinas.json`). Pesquisa por código (ex: `CTIA01`) ou nome (ex: `introdução`), sem depender do curso selecionado. Até 8 sugestões exibidas com código e nome; navegação por teclado (↑↓, Enter, Esc).
+- **Sugestão por IA (Gemini 2.5 Flash):** Botão "Sugerir com IA ✨" analisa o PDF via API Route server-side e preenche automaticamente título e descrição. No upload usa o arquivo recém-selecionado; na edição faz fetch do PDF já armazenado no Firebase Storage. A chave `GEMINI_API_KEY` permanece exclusivamente no servidor.
+- **Novo tipo de material:** Adicionada a opção "Atividade" à lista de tipos.
+
+---
 
 ### v2.7 — Mapa Mental Colaborativo
 
@@ -368,6 +382,9 @@ NEXT_PUBLIC_FIREBASE_API_KEY=...
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
 # ... (restante das credenciais do Firebase)
+
+# IA — análise de PDFs (opcional; sem ela o botão "Sugerir com IA" retorna erro)
+GEMINI_API_KEY=...
 ```
 
 4. Inicie o servidor de desenvolvimento:
