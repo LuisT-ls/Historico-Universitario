@@ -87,7 +87,6 @@ export async function addDiscipline(disciplina: Omit<Disciplina, 'id'>, userId: 
         }
 
         const docRef = await addDoc(collection(db, 'disciplines'), disciplineData)
-        logger.info('Disciplina adicionada com sucesso', { id: docRef.id })
         return docRef.id
     } catch (error) {
         logger.error('Erro ao adicionar disciplina:', error)
@@ -107,7 +106,6 @@ export async function updateDiscipline(id: string, data: Partial<Disciplina>): P
             ...data,
             updatedAt: new Date(),
         })
-        logger.info('Disciplina atualizada com sucesso', { id })
     } catch (error) {
         logger.error('Erro ao atualizar disciplina:', error)
         throw error
@@ -123,7 +121,6 @@ export async function deleteDiscipline(id: string): Promise<void> {
     try {
         const disciplineRef = doc(db, 'disciplines', id)
         await deleteDoc(disciplineRef)
-        logger.info('Disciplina removida com sucesso', { id })
     } catch (error) {
         logger.error('Erro ao remover disciplina:', error)
         throw error
@@ -188,7 +185,6 @@ export async function addCertificate(certificado: Omit<Certificado, 'id'>, userI
         }
 
         const docRef = await addDoc(collection(db, 'certificados'), certificadoData)
-        logger.info('Certificado adicionado com sucesso', { id: docRef.id })
         return docRef.id
     } catch (error) {
         logger.error('Erro ao adicionar certificado:', error)
@@ -208,7 +204,6 @@ export async function updateCertificate(id: string, data: Partial<Certificado>):
             ...data,
             updatedAt: new Date(),
         })
-        logger.info('Certificado atualizado com sucesso', { id })
     } catch (error) {
         logger.error('Erro ao atualizar certificado:', error)
         throw error
@@ -224,7 +219,6 @@ export async function deleteCertificate(id: string): Promise<void> {
     try {
         const certificadoRef = doc(db, 'certificados', id)
         await deleteDoc(certificadoRef)
-        logger.info('Certificado removido com sucesso', { id })
     } catch (error) {
         logger.error('Erro ao remover certificado:', error)
         throw error
@@ -327,7 +321,6 @@ export async function saveScheduleCodes(userId: string, codes: Record<string, st
     try {
         const userRef = doc(db, 'users', userId)
         await setDoc(userRef, { horarioCodes: codes }, { merge: true })
-        logger.info('Códigos de horário salvos', { userId })
     } catch (error) {
         logger.error('Erro ao salvar códigos de horário:', error)
         throw error
@@ -386,7 +379,6 @@ export async function updateProfile(userId: string, data: Partial<Profile>): Pro
         if (data.currentSemester !== undefined) firestoreData['profile.currentSemester'] = data.currentSemester
 
         await updateDoc(userRef, firestoreData)
-        logger.info('Perfil atualizado com sucesso', { userId })
     } catch (error) {
         logger.error('Erro ao atualizar perfil:', error)
         throw error

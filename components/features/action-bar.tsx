@@ -42,24 +42,12 @@ export function ActionBar({ cursoAtual, onCursoChange, onImport, cursosDisponive
 
     setIsParsing(true)
     try {
-      logger.info('Iniciando processamento do PDF...')
       const result: ParsedHistory = await parseSigaaHistory(file)
-      
-      logger.info(`PDF processado: ${result.disciplinas.length} disciplinas encontradas`)
-      
+
       if (result.disciplinas.length === 0) {
-        logger.warn('Nenhuma disciplina encontrada no PDF')
         toast.error('Não foi possível encontrar disciplinas no arquivo. Verifique se o PDF é um histórico oficial do SIGAA.')
       } else {
-        // Importar disciplinas (salvar no Firebase)
-        // Os avisos são tratados dentro do onImport para evitar toasts simultâneos
-        logger.info('Iniciando salvamento das disciplinas no Firebase...')
         await onImport(result.disciplinas, result.avisos)
-        logger.info('Disciplinas salvas com sucesso')
-
-        if (result.nomeAluno) {
-          logger.info(`Histórico de ${result.nomeAluno} importado.`)
-        }
       }
     } catch (error) {
       logger.error('Erro ao processar PDF:', error)

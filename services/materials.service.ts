@@ -158,7 +158,6 @@ export async function addMaterial(
       updatedAt: new Date(),
     }
     const docRef = await addDoc(collection(db, 'materiais'), data)
-    logger.info('Material adicionado', { id: docRef.id })
     return docRef.id
   } catch (error) {
     logger.error('Erro ao adicionar material:', error)
@@ -174,7 +173,6 @@ export async function updateMaterial(
 
   try {
     await updateDoc(doc(db, 'materiais', id), { ...data, updatedAt: new Date() })
-    logger.info('Material atualizado', { id })
   } catch (error) {
     logger.error('Erro ao atualizar material:', error)
     throw error
@@ -187,7 +185,6 @@ export async function deleteMaterial(id: string, storagePath: string): Promise<v
   try {
     await deleteFile(storagePath)
     await deleteDoc(doc(db, 'materiais', id))
-    logger.info('Material removido', { id })
   } catch (error) {
     logger.error('Erro ao remover material:', error)
     throw error

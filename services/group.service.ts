@@ -49,7 +49,6 @@ export async function createGroup(groupData: Omit<Group, 'id' | 'inviteCode' | '
         }
 
         const docRef = await addDoc(collection(db, 'groups'), newGroup)
-        logger.info('Grupo criado com sucesso', { id: docRef.id })
         return createGroupId(docRef.id)
     } catch (error) {
         logger.error('Erro ao criar grupo:', error)
@@ -156,7 +155,6 @@ export async function leaveGroup(groupId: string, userId: UserId): Promise<void>
             members: arrayRemove(userId),
             updatedAt: new Date(),
         })
-        logger.info('Usuário saiu do grupo', { groupId, userId })
     } catch (error) {
         logger.error('Erro ao sair do grupo:', error)
         throw error
@@ -176,7 +174,6 @@ export async function updateGroup(
             Object.entries({ ...data, updatedAt: new Date() }).filter(([, v]) => v !== undefined)
         )
         await updateDoc(doc(db, 'groups', groupId), payload)
-        logger.info('Grupo atualizado', { groupId })
     } catch (error) {
         logger.error('Erro ao atualizar grupo:', error)
         throw error
@@ -190,7 +187,6 @@ export async function deleteGroup(groupId: string): Promise<void> {
     if (!db) throw new Error('Firestore não inicializado')
     try {
         await deleteDoc(doc(db, 'groups', groupId))
-        logger.info('Grupo excluído', { groupId })
     } catch (error) {
         logger.error('Erro ao excluir grupo:', error)
         throw error

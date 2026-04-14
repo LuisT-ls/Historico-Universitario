@@ -21,7 +21,6 @@ export async function uploadFile(file: File, path: string): Promise<string> {
         const snapshot = await uploadBytes(storageRef, file)
         const downloadURL = await getDownloadURL(snapshot.ref)
 
-        logger.info('Arquivo enviado com sucesso', { path, downloadURL })
         return downloadURL
     } catch (error) {
         logger.error('Erro ao enviar arquivo:', error)
@@ -61,7 +60,6 @@ export async function uploadFileWithProgress(
                 },
                 async () => {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
-                    logger.info('Upload concluído', { path, downloadURL })
                     resolve(downloadURL)
                 }
             )
@@ -84,7 +82,6 @@ export async function deleteFile(path: string): Promise<void> {
         const storageRef = ref(storage, path)
         await deleteObject(storageRef)
 
-        logger.info('Arquivo removido com sucesso', { path })
     } catch (error) {
         logger.error('Erro ao remover arquivo:', error)
         throw error
