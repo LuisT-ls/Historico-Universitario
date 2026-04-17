@@ -151,9 +151,15 @@ export function SimuladorPageClient() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const response = await fetch(`/assets/data/icti/disciplinas.json?v=${new Date().getTime()}`)
-        const data = await response.json()
-        setDisciplinasData(data)
+        const ts = new Date().getTime()
+        const [icti, hum] = await Promise.all([
+          fetch(`/assets/data/icti/disciplinas.json?v=${ts}`).then(r => r.json()),
+          fetch(`/assets/data/humanidades/disciplinas.json?v=${ts}`).then(r => r.json()),
+        ])
+        setDisciplinasData({
+          catalogo: { ...icti.catalogo, ...hum.catalogo },
+          cursos: { ...icti.cursos, ...hum.cursos },
+        })
       } catch (error) {
         logger.error('Erro ao carregar base de disciplinas:', error)
       }

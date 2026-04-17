@@ -46,10 +46,13 @@ export function DisciplinaSearchInput({
 
   // Carrega o catálogo uma vez
   useEffect(() => {
-    fetch('/assets/data/icti/disciplinas.json')
-      .then(r => r.json())
-      .then(data => {
-        const entries = Object.values(data.catalogo ?? {}) as CatalogEntry[]
+    Promise.all([
+      fetch('/assets/data/icti/disciplinas.json').then(r => r.json()),
+      fetch('/assets/data/humanidades/disciplinas.json').then(r => r.json()),
+    ])
+      .then(([icti, hum]) => {
+        const merged = { ...icti.catalogo, ...hum.catalogo }
+        const entries = Object.values(merged) as CatalogEntry[]
         setCatalog(entries.sort((a, b) => a.codigo.localeCompare(b.codigo)))
       })
       .catch(() => {})

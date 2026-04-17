@@ -1,0 +1,44 @@
+{
+  "catalogo": {
+    "HACA01": {
+      "codigo": "HACA01",
+      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE I",
+      "ch": 60
+    },
+    "HACA03": {
+      "codigo": "HACA03",
+      "nome": "ESTUDOS DAS HUMANIDADES",
+      "ch": 60
+    },
+    "LETE43": {
+      "codigo": "LETE43",
+      "nome": "LÍNGUA PORTUGUESA, PODER E DIVERSIDADE CULTURAL",
+      "ch": 60
+    },
+    "HACA34": {
+      "codigo": "HACA34",
+      "nome": "ESTUDOS SOBRE A CONTEMPORANEIDADE II",
+      "ch": 60
+    },
+    "LETE45": {
+      "codigo": "LETE45",
+      "nome": "LEITURA E PRODUÇÃO DE TEXTOS EM LÍNGUA PORTUGUESA",
+      "ch": 60
+    },
+    "GHAC0019": {
+      "codigo": "GHAC0019",
+      "nome": "COMPONENTE DE HOMOLOGAÇÃO DE EXTENSÃO CURRICULAR",
+      "ch": 1
+    }
+  },
+  "cursos": {
+    "BI_HUM": [
+      { "codigo": "HACA01",   "natureza": "OB" },
+      { "codigo": "HACA03",   "natureza": "OB" },
+      { "codigo": "LETE43",   "natureza": "OB" },
+      { "codigo": "HACA34",   "natureza": "OB" },
+      { "codigo": "LETE45",   "natureza": "OB" },
+      { "codigo": "GHAC0019", "natureza": "OB" }
+    ]
+  }
+}

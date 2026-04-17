@@ -64,6 +64,7 @@ const isProfileDirty = (current: Profile | null, initial: Profile | null): boole
   if (!current || !initial) return false
   return (
     current.nome !== initial.nome ||
+    current.instituto !== initial.instituto ||
     JSON.stringify(current.cursos) !== JSON.stringify(initial.cursos) ||
     current.concentracaoBICTI !== initial.concentracaoBICTI ||
     current.cplStartYear !== initial.cplStartYear ||
@@ -111,7 +112,7 @@ export function ProfilePage() {
   const [entryInput, setEntryInput] = useState('')
   const [addCursoVisible, setAddCursoVisible] = useState(false)
   const [addCursoValue, setAddCursoValue] = useState<string>('')
-  const [bictiProgresso, setBictiProgresso] = useState<number>(0)
+  const [cursoProgresso, setCursoProgresso] = useState<number>(0)
 
   // ... (Image helper functions remain same)
   const compressImage = (file: File): Promise<string> => {
@@ -181,8 +182,7 @@ export function ProfilePage() {
             uid: createUserId(user.uid),
             nome: user.displayName || '',
             email: user.email || '',
-            curso: 'BICTI',
-            cursos: ['BICTI'] as Curso[],
+            cursos: [] as Curso[],
             matricula: '',
             institution: '',
             startYear: new Date().getFullYear(),
@@ -203,14 +203,17 @@ export function ProfilePage() {
       const [discs, certs] = await Promise.all([getDisciplines(user.uid), getCertificates(user.uid)])
       const p = overrideProfile || profile
       const periodoLetivo = p?.currentSemester || getCurrentSemester()
-      const cursoAtivo = (p?.cursos && p.cursos.length > 0 ? p.cursos[p.cursos.length - 1] : p?.curso) || 'BICTI'
-      setStatistics(calcularEstatisticas(discs, certs, cursoAtivo, p || undefined, periodoLetivo))
+      const cursoAtivo = (p?.cursos && p.cursos.length > 0 ? p.cursos[p.cursos.length - 1] : p?.curso) as Curso | undefined
+      if (cursoAtivo) setStatistics(calcularEstatisticas(discs, certs, cursoAtivo, p || undefined, periodoLetivo))
 
-      // Calcula progresso do BICTI com certificados (AC) — fiel ao status geral
-      const discsBicti = discs.filter(d => d.curso === 'BICTI')
-      const statsBicti = calcularEstatisticas(discsBicti, certs, 'BICTI')
-      const totalHorasBicti = CURSOS['BICTI']?.totalHoras ?? 2401
-      setBictiProgresso(Math.min(((statsBicti.totalCH ?? 0) / totalHorasBicti) * 100, 100))
+      // Calcula progresso do curso atual (1º da lista) para habilitar CPL
+      const cursoPrimeiro = (p?.cursos?.[0] ?? p?.curso) as Curso | undefined
+      if (cursoPrimeiro) {
+        const discsCurso = discs.filter(d => d.curso === cursoPrimeiro)
+        const statsCurso = calcularEstatisticas(discsCurso, certs, cursoPrimeiro)
+        const totalHoras = CURSOS[cursoPrimeiro]?.totalHoras ?? 2401
+        setCursoProgresso(Math.min(((statsCurso.totalCH ?? 0) / totalHoras) * 100, 100))
+      }
     } catch (error) { logger.error('Erro ao carregar estatísticas:', error) }
   }
 
@@ -220,6 +223,7 @@ export function ProfilePage() {
     try {
       await updateProfile(user.uid, {
         nome: sanitizeInput(profile.nome || ''),
+        instituto: profile.instituto,
         cursos: profile.cursos,
         concentracaoBICTI: profile.concentracaoBICTI,
         matricula: profile.matricula,
@@ -303,9 +307,9 @@ export function ProfilePage() {
 
   if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>
 
-  const cursoAtivo: Curso = (profile?.cursos && profile.cursos.length > 0
+  const cursoAtivo = ((profile?.cursos && profile.cursos.length > 0
     ? profile.cursos[profile.cursos.length - 1]
-    : profile?.curso) ?? 'BICTI'
+    : profile?.curso) ?? undefined) as Curso | undefined
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -552,7 +556,7 @@ export function ProfilePage() {
 
                             const cursoAtualKey = (profile?.cursos ?? []).at(-1)
                             const cursoAtualCfg  = cursoAtualKey ? CURSOS[cursoAtualKey] : null
-                            const progressoAtual = bictiProgresso
+                            const progressoAtual = cursoProgresso
                             const podeAdicionar  = progressoAtual >= 100
 
                             if (!addCursoVisible) {
@@ -573,7 +577,7 @@ export function ProfilePage() {
                                   <span>Adicionar progressão CPL...</span>
                                   {!podeAdicionar && (
                                     <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
-                                      {progressoAtual.toFixed(1)}% concluído
+                                      {cursoProgresso.toFixed(1)}% concluído
                                     </span>
                                   )}
                                 </button>
@@ -653,9 +657,9 @@ export function ProfilePage() {
                         </div>
                       )}
 
-                      {(profile?.cursos?.length ?? 0) === 1 && bictiProgresso < 100 && cursoAtivo === 'BICTI' && (
+                      {(profile?.cursos?.length ?? 0) === 1 && cursoProgresso < 100 && cursoAtivo && (
                         <p className="text-xs text-slate-400 pt-0.5">
-                          {`Disponível ao concluir o BICTI. Progresso atual: ${bictiProgresso.toFixed(1)}%.`}
+                          {`Disponível ao concluir ${CURSOS[cursoAtivo]?.nome ?? 'o curso atual'}. Progresso atual: ${cursoProgresso.toFixed(1)}%.`}
                         </p>
                       )}
                     </div>
@@ -759,7 +763,7 @@ export function ProfilePage() {
             {/* Curriculum - Dashboard Feel */}
             {profile && (
               <div className="h-full">
-                {CURSOS[cursoAtivo]?.metadata ? (
+                {cursoAtivo && CURSOS[cursoAtivo]?.metadata ? (
                   <Card className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-8 shadow-sm h-full flex flex-col">
                     <div className="flex items-center gap-3 mb-8">
                       <div className="p-3 bg-violet-500/10 rounded-xl"><GraduationCap className="h-6 w-6 text-violet-500" /></div>
@@ -845,11 +849,19 @@ export function ProfilePage() {
                     </div>
                   </Card>
                 ) : (
-                  // Fallback State
                   <Card className="rounded-3xl border border-dashed border-slate-300 dark:border-slate-800 bg-transparent p-12 h-full flex flex-col items-center justify-center text-center">
-                    <div className="p-4 bg-slate-100 dark:bg-slate-900 rounded-full mb-4"><Book className="h-6 w-6 text-slate-400" /></div>
-                    <h3 className="text-lg font-bold mb-1">Informações Indisponíveis</h3>
-                    <p className="text-sm text-slate-500 max-w-xs">Os detalhes curriculares para este curso ainda não foram cadastrados em nossa base.</p>
+                    <div className="p-4 bg-slate-100 dark:bg-slate-900 rounded-full mb-4"><GraduationCap className="h-6 w-6 text-slate-400" /></div>
+                    {!cursoAtivo ? (
+                      <>
+                        <h3 className="text-lg font-bold mb-1">Nenhum curso selecionado</h3>
+                        <p className="text-sm text-slate-500 max-w-xs">Configure seu instituto e curso nas <strong>Informações Acadêmicas</strong> ao lado para ver a estrutura curricular.</p>
+                      </>
+                    ) : (
+                      <>
+                        <h3 className="text-lg font-bold mb-1">Informações Indisponíveis</h3>
+                        <p className="text-sm text-slate-500 max-w-xs">Os detalhes curriculares para este curso ainda não foram cadastrados em nossa base.</p>
+                      </>
+                    )}
                   </Card>
                 )}
               </div>

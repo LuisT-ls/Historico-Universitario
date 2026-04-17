@@ -3,8 +3,12 @@ import { Disciplina, Natureza, ResultadoDisciplina, DisciplinasCatalogo } from '
 import { calcularResultado } from './utils/calculations';
 
 // Importar o catálogo de disciplinas para inferência de natureza
-import disciplinasData from '@/assets/data/icti/disciplinas.json';
-const catalogo = disciplinasData as DisciplinasCatalogo;
+import disciplinasDataIcti from '@/assets/data/icti/disciplinas.json';
+import disciplinasDataHum from '@/assets/data/humanidades/disciplinas.json';
+const catalogo: DisciplinasCatalogo = {
+  catalogo: { ...(disciplinasDataIcti as DisciplinasCatalogo).catalogo, ...(disciplinasDataHum as DisciplinasCatalogo).catalogo },
+  cursos: { ...(disciplinasDataIcti as DisciplinasCatalogo).cursos, ...(disciplinasDataHum as DisciplinasCatalogo).cursos },
+};
 
 /** Tolerância em unidades de coordenada Y para agrupar itens de texto na mesma linha do PDF */
 const PDF_LINE_Y_TOLERANCE = 5;

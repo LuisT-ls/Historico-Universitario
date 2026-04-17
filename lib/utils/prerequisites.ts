@@ -1,7 +1,8 @@
-import prereqData from '@/assets/data/icti/prerequisitos.json'
+import prereqDataIcti from '@/assets/data/icti/prerequisitos.json'
+import prereqDataHum from '@/assets/data/humanidades/prerequisitos.json'
 import type { Curso, MapaPrerequisitos } from '@/types'
 
-const mapa = prereqData as MapaPrerequisitos & { _info?: string }
+const mapa = { ...prereqDataIcti, ...prereqDataHum } as MapaPrerequisitos & { _info?: string }
 
 /**
  * Disciplinas equivalentes (mesma disciplina, códigos diferentes por curso ou versão).

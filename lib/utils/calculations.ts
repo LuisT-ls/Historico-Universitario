@@ -1,5 +1,8 @@
 import { CH_POR_CREDITO, NOTA_MINIMA_APROVACAO } from '@/lib/constants'
-import MATRIZES from '@/assets/data/icti/matrizes.json'
+import MATRIZES_ICTI from '@/assets/data/icti/matrizes.json'
+import MATRIZES_HUM from '@/assets/data/humanidades/matrizes.json'
+
+const MATRIZES = { ...MATRIZES_ICTI, ...MATRIZES_HUM }
 import type { Disciplina, Curso, Profile, MatrizCurricular } from '@/types'
 import { compararPeriodos, calcularTotalSemestresCursados } from './periods'
 

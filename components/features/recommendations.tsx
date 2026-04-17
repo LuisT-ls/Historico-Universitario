@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Lightbulb, ChevronDown, ChevronUp, PlusCircle, ArrowRight, TrendingDown } from 'lucide-react'
 import type { Disciplina, Curso, Natureza } from '@/types'
 import { CURSOS } from '@/lib/constants'
-import disciplinasData from '@/assets/data/icti/disciplinas.json'
+import disciplinasDataIcti from '@/assets/data/icti/disciplinas.json'
+import disciplinasDataHum from '@/assets/data/humanidades/disciplinas.json'
+
+const disciplinasData = {
+  catalogo: { ...disciplinasDataIcti.catalogo, ...disciplinasDataHum.catalogo },
+  cursos: { ...disciplinasDataIcti.cursos, ...disciplinasDataHum.cursos },
+}
 import { prerequisitosAtendidos } from '@/lib/utils/prerequisites'
 
 // ─── constants ────────────────────────────────────────────────────────────────

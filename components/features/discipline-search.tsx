@@ -5,7 +5,13 @@ import { Search, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Curso, Natureza } from '@/types'
-import disciplinasData from '@/assets/data/icti/disciplinas.json'
+import disciplinasDataIcti from '@/assets/data/icti/disciplinas.json'
+import disciplinasDataHum from '@/assets/data/humanidades/disciplinas.json'
+
+const disciplinasData = {
+  catalogo: { ...disciplinasDataIcti.catalogo, ...disciplinasDataHum.catalogo },
+  cursos: { ...disciplinasDataIcti.cursos, ...disciplinasDataHum.cursos },
+}
 
 import { cn } from '@/lib/utils'
 

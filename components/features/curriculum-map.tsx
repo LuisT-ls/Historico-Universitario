@@ -16,14 +16,22 @@ import { calcularEstatisticas } from '@/lib/utils'
 import { CURSOS, NATUREZA_LABELS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import disciplinasData from '@/assets/data/icti/disciplinas.json'
-import matrizesData from '@/assets/data/icti/matrizes.json'
+import disciplinasDataIcti from '@/assets/data/icti/disciplinas.json'
+import disciplinasDataHum from '@/assets/data/humanidades/disciplinas.json'
+import matrizesDataIcti from '@/assets/data/icti/matrizes.json'
+import matrizesDataHum from '@/assets/data/humanidades/matrizes.json'
 import type { DisciplinasCatalogo, MatrizCurricular } from '@/types'
 import { prerequisitosFaltando } from '@/lib/utils/prerequisites'
 
-const catalogo = (disciplinasData as DisciplinasCatalogo).catalogo
-const cursosData = (disciplinasData as DisciplinasCatalogo).cursos
-const matrizes = matrizesData as MatrizCurricular
+const catalogo = {
+  ...(disciplinasDataIcti as DisciplinasCatalogo).catalogo,
+  ...(disciplinasDataHum as DisciplinasCatalogo).catalogo,
+}
+const cursosData = {
+  ...(disciplinasDataIcti as DisciplinasCatalogo).cursos,
+  ...(disciplinasDataHum as DisciplinasCatalogo).cursos,
+}
+const matrizes = { ...matrizesDataIcti, ...matrizesDataHum } as MatrizCurricular
 
 // ─── types ────────────────────────────────────────────────────────────────────
 

@@ -1,0 +1,7 @@
+{
+  "_info": "Mapa de pré-requisitos por curso. Fonte: dados oficiais UFBA/SIGAA. Chave: código da disciplina. Valor: lista de códigos que devem estar aprovados.",
+
+  "BI_HUM": {
+    "HACA34": ["HACA01"]
+  }
+}
