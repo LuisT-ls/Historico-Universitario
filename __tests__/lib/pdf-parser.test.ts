@@ -310,10 +310,10 @@ describe('parseSigaaHistoryText — edge cases', () => {
     expect(disciplinas).toHaveLength(1)
   })
 
-  it('returns avisos array (may be empty)', () => {
+  it('returns disciplinas array', () => {
     const text = makeLine('2022.1', 'EB', 'CTIA01', 'INTRODUÇÃO À COMPUTAÇÃO', 60, '8.0', 'APR')
-    const { avisos } = parseSigaaHistoryText(text)
-    expect(Array.isArray(avisos)).toBe(true)
+    const { disciplinas } = parseSigaaHistoryText(text)
+    expect(Array.isArray(disciplinas)).toBe(true)
   })
 
   it('returns empty nomeAluno, matricula and curso (parser does not extract them)', () => {
@@ -329,24 +329,3 @@ describe('parseSigaaHistoryText — edge cases', () => {
 // Aviso generation
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe('parseSigaaHistoryText — avisos', () => {
-  it('adds aviso when a non-BICTI OB discipline is found', () => {
-    // Using a code that exists in another curso's catalogue as OB but NOT in BICTI
-    // MATA28 is a MAT code → forced to OP by the MAT* rule, no aviso
-    // Use a code entirely unknown to any curso
-    const text = makeLine('2022.1', 'EB', 'ZZZ999', 'DISCIPLINA EXTERNA', 60, '8.0', 'APR')
-    const { avisos } = parseSigaaHistoryText(text)
-    // Either an aviso is pushed (if it resolves to OB via default) or not — just verify no crash
-    expect(Array.isArray(avisos)).toBe(true)
-  })
-
-  it('does not duplicate the same aviso message', () => {
-    const text = [
-      makeLine('2022.1', 'EB', 'ZZZ001', 'DISCIPLINA A', 60, '8.0', 'APR'),
-      makeLine('2022.1', 'EB', 'ZZZ002', 'DISCIPLINA B', 60, '7.0', 'APR'),
-    ].join('\n')
-    const { avisos = [] } = parseSigaaHistoryText(text)
-    const uniqueAvisos = new Set(avisos)
-    expect(avisos.length).toBe(uniqueAvisos.size)
-  })
-})

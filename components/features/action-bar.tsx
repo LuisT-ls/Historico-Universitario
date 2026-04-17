@@ -22,7 +22,7 @@ const InfoDialog = dynamic(
 interface ActionBarProps {
   cursoAtual: Curso
   onCursoChange: (curso: Curso) => void
-  onImport: (disciplinas: Disciplina[], avisos?: string[]) => Promise<void>
+  onImport: (disciplinas: Disciplina[]) => Promise<void>
   /** Cursos disponíveis para o select. Se não informado, exibe todos os cursos. */
   cursosDisponiveis?: Curso[]
 }
@@ -47,7 +47,7 @@ export function ActionBar({ cursoAtual, onCursoChange, onImport, cursosDisponive
       if (result.disciplinas.length === 0) {
         toast.error('Não foi possível encontrar disciplinas no arquivo. Verifique se o PDF é um histórico oficial do SIGAA.')
       } else {
-        await onImport(result.disciplinas, result.avisos)
+        await onImport(result.disciplinas)
       }
     } catch (error) {
       logger.error('Erro ao processar PDF:', error)

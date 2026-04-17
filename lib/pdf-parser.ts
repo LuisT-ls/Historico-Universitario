@@ -21,7 +21,6 @@ export interface ParsedHistory {
   nomeAluno?: string;
   matricula?: string;
   curso?: string;
-  avisos?: string[];
 }
 
 /**
@@ -156,7 +155,6 @@ export function parseSigaaHistoryText(text: string): ParsedHistory {
   const lines = text.split('\n');
 
   const disciplinas: Disciplina[] = [];
-  const avisos: string[] = [];
   let nomeAluno = '';
   let matricula = '';
   let curso = '';
@@ -268,13 +266,6 @@ export function parseSigaaHistoryText(text: string): ParsedHistory {
       }
     }
 
-    if (!existeNoBicti && naturezaCatalogo === 'OB') {
-      naturezaCatalogo = 'OP';
-      if (!avisos.includes('Algumas disciplinas de outros cursos foram marcadas como OP. Revise-as no seu histórico.')) {
-        avisos.push('Algumas disciplinas de outros cursos foram marcadas como OP. Revise-as no seu histórico.');
-      }
-    }
-
     const naturezaNormal = naturezaCatalogo || mapNatureza(naturezaRaw, codigo);
     const natureza = codigo.startsWith('MAT') ? 'OP' : naturezaNormal;
 
@@ -298,7 +289,6 @@ export function parseSigaaHistoryText(text: string): ParsedHistory {
     nomeAluno,
     matricula,
     curso,
-    avisos
   };
 }
 

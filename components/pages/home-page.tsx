@@ -194,7 +194,7 @@ export function HomePage() {
     })
   }
 
-  const handleImportDisciplinas = async (disciplinasImportadas: Disciplina[], avisos?: string[]) => {
+  const handleImportDisciplinas = async (disciplinasImportadas: Disciplina[]) => {
     setIsLoading(true)
     try {
       logger.info(`Iniciando importação de ${disciplinasImportadas.length} disciplinas`)
@@ -304,18 +304,6 @@ export function HomePage() {
         toast.success(msg)
       }
 
-      // Exibir avisos após o toast de conclusão (em sequência, não simultâneo)
-      if (avisos && avisos.length > 0) {
-        avisos.forEach((aviso, i) => {
-          // Atraso inicial de 2.5s para a notificação de sucesso ser lida, mais 500ms por aviso extra
-          setTimeout(() => {
-            toast.info('Aviso de Importação', {
-              description: aviso,
-              duration: 8000
-            })
-          }, 2500 + (i * 500))
-        })
-      }
     } catch (error) {
       logger.error('Erro ao importar disciplinas:', error)
       toast.error('Erro ao importar disciplinas. Tente novamente.')

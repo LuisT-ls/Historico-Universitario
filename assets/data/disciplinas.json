@@ -774,6 +774,46 @@
       "codigo": "GCTI0006",
       "nome": "MODELAGEM 3D PARA DESENVOLVIMENTO DE PRODUTO",
       "ch": 60
+    },
+    "CTIB09": {
+      "codigo": "CTIB09",
+      "nome": "ALGORITMOS, POLÍTICA E SOCIEDADE",
+      "ch": 60
+    },
+    "GCTI0003": {
+      "codigo": "GCTI0003",
+      "nome": "ANALISE DE REDES SOCIAIS",
+      "ch": 30
+    },
+    "GCTI0004": {
+      "codigo": "GCTI0004",
+      "nome": "ARQUITETURA DA INFORMAÇÃO NAS HUMANIDADES DIGITAIS",
+      "ch": 60
+    },
+    "GCTI0005": {
+      "codigo": "GCTI0005",
+      "nome": "MÉTODOS QUANTITATIVOS, QUALITATIVOS E MISTOS DE PESQUISA",
+      "ch": 60
+    },
+    "CTIB08": {
+      "codigo": "CTIB08",
+      "nome": "INTRODUÇÃO À CIÊNCIA DE DADOS",
+      "ch": 30
+    },
+    "CTIB11": {
+      "codigo": "CTIB11",
+      "nome": "INTRODUÇÃO AO BIG DATA",
+      "ch": 30
+    },
+    "CTIB15": {
+      "codigo": "CTIB15",
+      "nome": "MODELOS LINEARES GENERALIZADOS",
+      "ch": 60
+    },
+    "CTIB18": {
+      "codigo": "CTIB18",
+      "nome": "VISUALIZAÇÃO DE DADOS",
+      "ch": 60
     }
   },
   "cursos": {
@@ -1148,6 +1188,246 @@
       },
       {
         "codigo": "GCTI0006",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA85",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIB09",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "GCTI0003",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "GCTI0004",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "GCTI0005",
+        "natureza": "OH"
+      },
+      {
+        "codigo": "CTIB89",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB69",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA94",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB80",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA87",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB71",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "GCTI0013",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB83",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB73",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB90",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA91",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB05",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA90",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA95",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA93",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "GCTI0008",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB68",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB78",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB61",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB56",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB55",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA86",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB87",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB72",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB77",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB62",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB04",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA97",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB57",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB76",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB67",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB70",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA92",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA88",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB58",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB75",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA89",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB60",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB02",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB54",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB65",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIA96",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB86",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB85",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB79",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB66",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB03",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB74",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB88",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB59",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB06",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB08",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB11",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB15",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB18",
         "natureza": "OG"
       }
     ],
