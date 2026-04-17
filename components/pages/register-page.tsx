@@ -54,7 +54,7 @@ export function RegisterPage() {
     try {
       await signUp(data.email, data.password, data.name)
       toast.success('Cadastro realizado com sucesso!')
-      router.push('/')
+      router.push('/profile')
     } catch (err: unknown) {
       const appError = handleError(err)
       setError(appError)

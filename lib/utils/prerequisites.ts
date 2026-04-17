@@ -1,4 +1,4 @@
-import prereqData from '@/assets/data/prerequisitos.json'
+import prereqData from '@/assets/data/icti/prerequisitos.json'
 import type { Curso, MapaPrerequisitos } from '@/types'
 
 const mapa = prereqData as MapaPrerequisitos & { _info?: string }

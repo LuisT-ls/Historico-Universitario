@@ -43,10 +43,10 @@ import {
   reauthenticateWithEmail,
   reauthenticateWithGoogle,
 } from '@/services/auth.service'
-import { CURSOS, CONCENTRACOES_BICTI } from '@/lib/constants'
+import { CURSOS, CONCENTRACOES_BICTI, INSTITUTOS } from '@/lib/constants'
 import { calcularEstatisticas, sanitizeInput, getCurrentSemester } from '@/lib/utils'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
-import type { Profile, Curso, ConcentracaoBICTI, UserStatistics } from '@/types'
+import type { Profile, Curso, ConcentracaoBICTI, UserStatistics, Instituto } from '@/types'
 import {
   Dialog,
   DialogContent,
@@ -311,6 +311,15 @@ export function ProfilePage() {
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-12">
+        {!isLoading && profile && (!profile.cursos || profile.cursos.length === 0) && (
+          <div className="mb-8 rounded-xl border border-amber-500/30 bg-amber-500/10 px-5 py-4 flex items-start gap-3">
+            <GraduationCap className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">Configure seu curso</p>
+              <p className="text-xs text-amber-600/80 dark:text-amber-400/80 mt-0.5">Selecione seu curso na seção <strong>Informações Acadêmicas</strong> abaixo para começar a usar o histórico.</p>
+            </div>
+          </div>
+        )}
         <div className="mb-16">
           <h1 className="text-4xl font-black tracking-tight mb-2 text-foreground tracking-wide">Meu Perfil</h1>
           <p className="text-slate-400 text-lg">Gerencie suas informações e configurações acadêmicas</p>
@@ -404,159 +413,249 @@ export function ProfilePage() {
                       </div>
                     </div>
 
+                    {/* ── Instituto ── */}
+                    <div className="space-y-1.5 col-span-1 md:col-span-2">
+                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Instituto</Label>
+                      <Select
+                        value={profile?.instituto ?? ''}
+                        onChange={e => {
+                          const val = e.target.value as Instituto | ''
+                          setProfile(prev => prev ? ({ ...prev, instituto: val || undefined }) : null)
+                        }}
+                        className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      >
+                        <option value="">Selecione o instituto...</option>
+                        {(Object.entries(INSTITUTOS) as [Instituto, typeof INSTITUTOS[Instituto]][]).map(([key, inst]) => (
+                          <option key={key} value={key}>{inst.sigla} — {inst.nome}</option>
+                        ))}
+                      </Select>
+                    </div>
+
+                    {/* ── Trajetória Acadêmica ── */}
                     <div className="space-y-1.5 col-span-1 md:col-span-2">
                       <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Trajetória Acadêmica</Label>
-                      <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
-                        {(profile?.cursos ?? []).map((curso, i, arr) => {
-                          const isAtual = i === arr.length - 1
-                          return (
-                            <div key={curso} className="flex items-center justify-between gap-3 px-4 py-3.5 bg-slate-50 dark:bg-slate-900">
-                              <div className="flex items-center gap-3 min-w-0">
-                                <div className={cn(
-                                  'h-2 w-2 rounded-full shrink-0',
-                                  isAtual ? 'bg-primary ring-4 ring-primary/20' : 'bg-slate-300 dark:bg-slate-600'
-                                )} />
-                                <span className="text-sm font-medium truncate">{CURSOS[curso]?.nome || curso}</span>
-                              </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <span className={cn(
-                                  'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full',
-                                  isAtual
-                                    ? 'text-primary bg-primary/10'
-                                    : 'text-slate-400 bg-slate-100 dark:bg-slate-800'
-                                )}>
-                                  {isAtual ? 'Atual' : 'Concluído'}
-                                </span>
-                                {isAtual && arr.length > 1 && (
-                                  <button
-                                    type="button"
-                                    title="Remover curso atual"
-                                    onClick={() => setProfile(prev => {
-                                      if (!prev?.cursos) return prev
-                                      const novos = prev.cursos.filter((_, idx) => idx !== i)
-                                      return { ...prev, cursos: novos, curso: novos[novos.length - 1], cplStartYear: undefined, cplStartSemester: undefined }
-                                    })}
-                                    className="p-1 text-slate-300 hover:text-destructive transition-colors rounded"
-                                  >
-                                    <X className="h-3.5 w-3.5" />
-                                  </button>
-                                )}
-                              </div>
+
+                      {/* Onboarding: nenhum curso ainda */}
+                      {(profile?.cursos?.length ?? 0) === 0 ? (
+                        <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-5 space-y-4">
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Selecione seu curso para começar a acompanhar o histórico acadêmico.
+                          </p>
+                          <div className="space-y-3">
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Curso</label>
+                              <Select
+                                value={addCursoValue}
+                                onChange={e => setAddCursoValue(e.target.value)}
+                                disabled={!profile?.instituto}
+                                className="h-10 px-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 w-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <option value="">{profile?.instituto ? 'Selecione o curso...' : 'Selecione o instituto primeiro'}</option>
+                                {profile?.instituto &&
+                                  INSTITUTOS[profile.instituto].cursos
+                                    .filter(k => k in CURSOS)
+                                    .map(k => (
+                                      <option key={k} value={k}>{CURSOS[k]?.nome || k}</option>
+                                    ))
+                                }
+                              </Select>
                             </div>
-                          )
-                        })}
 
-                        {/* Linha de adicionar CPL */}
-                        {(() => {
-                          const adicionados = new Set(profile?.cursos ?? [])
-                          const disponiveis = (Object.keys(CURSOS) as Curso[]).filter(k => !adicionados.has(k))
-                          if (disponiveis.length === 0) return null
+                            {addCursoValue === 'BICTI' && (
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Concentração (opcional)</label>
+                                <Select
+                                  value={profile?.concentracaoBICTI ?? ''}
+                                  onChange={e => {
+                                    const val = e.target.value as ConcentracaoBICTI | ''
+                                    setProfile(prev => prev ? ({ ...prev, concentracaoBICTI: val || undefined }) : null)
+                                  }}
+                                  className="h-10 px-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 w-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                >
+                                  <option value="">Nenhuma (BICTI geral)</option>
+                                  {(Object.entries(CONCENTRACOES_BICTI) as [ConcentracaoBICTI, { nome: string }][]).map(([key, val]) => (
+                                    <option key={key} value={key}>{val.nome}</option>
+                                  ))}
+                                </Select>
+                              </div>
+                            )}
 
-                          const bictiConcluido = bictiProgresso >= 100
-
-                          if (!addCursoVisible) {
+                            <Button
+                              type="button"
+                              size="sm"
+                              className="w-full"
+                              disabled={!addCursoValue}
+                              onClick={() => {
+                                if (!addCursoValue) return
+                                setProfile(prev => {
+                                  if (!prev) return prev
+                                  const novos = [addCursoValue as Curso]
+                                  return { ...prev, cursos: novos, curso: addCursoValue as Curso }
+                                })
+                                setAddCursoValue('')
+                              }}
+                            >
+                              <GraduationCap className="h-3.5 w-3.5 mr-2" />
+                              Confirmar curso
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        /* Lista de cursos + add CPL */
+                        <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+                          {(profile?.cursos ?? []).map((curso, i, arr) => {
+                            const isAtual = i === arr.length - 1
                             return (
-                              <div className="relative">
+                              <div key={curso} className="flex items-center justify-between gap-3 px-4 py-3.5 bg-slate-50 dark:bg-slate-900">
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <div className={cn(
+                                    'h-2 w-2 rounded-full shrink-0',
+                                    isAtual ? 'bg-primary ring-4 ring-primary/20' : 'bg-slate-300 dark:bg-slate-600'
+                                  )} />
+                                  <span className="text-sm font-medium truncate">{CURSOS[curso]?.nome || curso}</span>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className={cn(
+                                    'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full',
+                                    isAtual
+                                      ? 'text-primary bg-primary/10'
+                                      : 'text-slate-400 bg-slate-100 dark:bg-slate-800'
+                                  )}>
+                                    {isAtual ? 'Atual' : 'Concluído'}
+                                  </span>
+                                  {isAtual && arr.length > 1 && (
+                                    <button
+                                      type="button"
+                                      title="Remover curso atual"
+                                      onClick={() => setProfile(prev => {
+                                        if (!prev?.cursos) return prev
+                                        const novos = prev.cursos.filter((_, idx) => idx !== i)
+                                        return { ...prev, cursos: novos, curso: novos[novos.length - 1], cplStartYear: undefined, cplStartSemester: undefined }
+                                      })}
+                                      className="p-1 text-slate-300 hover:text-destructive transition-colors rounded"
+                                    >
+                                      <X className="h-3.5 w-3.5" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          })}
+
+                          {/* Adicionar progressão CPL */}
+                          {(() => {
+                            const adicionados  = new Set(profile?.cursos ?? [])
+                            const instituto    = profile?.instituto ?? 'ICTI'
+                            const cursosInst   = INSTITUTOS[instituto]?.cursos ?? []
+                            const disponiveis  = cursosInst.filter(k => !adicionados.has(k as Curso) && k in CURSOS)
+                            if (disponiveis.length === 0) return null
+
+                            const cursoAtualKey = (profile?.cursos ?? []).at(-1)
+                            const cursoAtualCfg  = cursoAtualKey ? CURSOS[cursoAtualKey] : null
+                            const progressoAtual = bictiProgresso
+                            const podeAdicionar  = progressoAtual >= 100
+
+                            if (!addCursoVisible) {
+                              return (
                                 <button
                                   type="button"
-                                  onClick={() => bictiConcluido && setAddCursoVisible(true)}
-                                  disabled={!bictiConcluido}
-                                  title={bictiConcluido ? undefined : `Conclua o BICTI antes de migrar para CPL (${bictiProgresso.toFixed(1)}% concluído)`}
+                                  onClick={() => podeAdicionar && setAddCursoVisible(true)}
+                                  disabled={!podeAdicionar}
+                                  title={podeAdicionar ? undefined : `Conclua ${cursoAtualCfg?.nome ?? 'o curso atual'} antes de migrar para CPL (${progressoAtual.toFixed(1)}% concluído)`}
                                   className={cn(
                                     'w-full flex items-center gap-2 px-4 py-3 text-sm transition-colors bg-white dark:bg-slate-950 group',
-                                    bictiConcluido
+                                    podeAdicionar
                                       ? 'text-slate-400 hover:text-primary hover:bg-primary/5 cursor-pointer'
                                       : 'text-slate-300 dark:text-slate-600 cursor-not-allowed'
                                   )}
                                 >
-                                  <PlusCircle className={cn('h-3.5 w-3.5', bictiConcluido && 'group-hover:scale-110 transition-transform')} />
+                                  <PlusCircle className={cn('h-3.5 w-3.5', podeAdicionar && 'group-hover:scale-110 transition-transform')} />
                                   <span>Adicionar progressão CPL...</span>
-                                  {!bictiConcluido && (
+                                  {!podeAdicionar && (
                                     <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
-                                      {bictiProgresso.toFixed(1)}% BICTI
+                                      {progressoAtual.toFixed(1)}% concluído
                                     </span>
                                   )}
                                 </button>
+                              )
+                            }
+
+                            return (
+                              <div className="flex flex-col gap-2 px-4 py-3 bg-white dark:bg-slate-950">
+                                <div className="flex items-center gap-2">
+                                  <Select
+                                    value={addCursoValue}
+                                    onChange={e => setAddCursoValue(e.target.value)}
+                                    className="flex-1 h-9 px-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                  >
+                                    <option value="">Selecione o curso...</option>
+                                    {disponiveis.map(k => (
+                                      <option key={k} value={k}>{CURSOS[k]?.nome || k}</option>
+                                    ))}
+                                  </Select>
+                                  <button
+                                    type="button"
+                                    onClick={() => { setAddCursoVisible(false); setAddCursoValue('') }}
+                                    className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors rounded shrink-0"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </button>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 space-y-1">
+                                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ingresso no CPL (ex: 2026.1)</label>
+                                    <Input
+                                      type="text"
+                                      placeholder="2026.1"
+                                      value={profile?.cplStartYear ? `${profile.cplStartYear}.${profile.cplStartSemester ?? '1'}` : ''}
+                                      onChange={e => {
+                                        const val = e.target.value
+                                        if (!/^[0-9.]*$/.test(val)) return
+                                        const parts = val.split('.')
+                                        if (parts.length > 2) return
+                                        const year = parts[0]
+                                        const sem = parts[1]
+                                        if (year.length > 4) return
+                                        if (sem && !['1', '2'].includes(sem)) return
+                                        if (year.length === 4) {
+                                          setProfile(prev => prev ? ({
+                                            ...prev,
+                                            cplStartYear: year,
+                                            cplStartSemester: (sem === '1' || sem === '2') ? sem : (prev.cplStartSemester ?? '1'),
+                                          }) : null)
+                                        }
+                                      }}
+                                      className="h-9 px-3 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-sm w-full"
+                                    />
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    className="mt-5 shrink-0"
+                                    disabled={!addCursoValue || !profile?.cplStartYear}
+                                    onClick={() => {
+                                      if (!addCursoValue) return
+                                      setProfile(prev => {
+                                        if (!prev) return prev
+                                        const novos = [...(prev.cursos ?? []), addCursoValue as Curso]
+                                        return { ...prev, cursos: novos, curso: addCursoValue as Curso }
+                                      })
+                                      setAddCursoValue('')
+                                      setAddCursoVisible(false)
+                                    }}
+                                  >
+                                    Confirmar
+                                  </Button>
+                                </div>
                               </div>
                             )
-                          }
+                          })()}
+                        </div>
+                      )}
 
-                          return (
-                            <div className="flex flex-col gap-2 px-4 py-3 bg-white dark:bg-slate-950">
-                              <div className="flex items-center gap-2">
-                                <Select
-                                  value={addCursoValue}
-                                  onChange={e => setAddCursoValue(e.target.value)}
-                                  className="flex-1 h-9 px-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                >
-                                  <option value="">Selecione o curso...</option>
-                                  {disponiveis.map(k => (
-                                    <option key={k} value={k}>{CURSOS[k]?.nome || k}</option>
-                                  ))}
-                                </Select>
-                                <button
-                                  type="button"
-                                  onClick={() => { setAddCursoVisible(false); setAddCursoValue('') }}
-                                  className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors rounded shrink-0"
-                                >
-                                  <X className="h-4 w-4" />
-                                </button>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 space-y-1">
-                                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ingresso no CPL (ex: 2026.1)</label>
-                                  <Input
-                                    type="text"
-                                    placeholder="2026.1"
-                                    value={profile?.cplStartYear ? `${profile.cplStartYear}.${profile.cplStartSemester ?? '1'}` : ''}
-                                    onChange={e => {
-                                      const val = e.target.value
-                                      if (!/^[0-9.]*$/.test(val)) return
-                                      const parts = val.split('.')
-                                      if (parts.length > 2) return
-                                      const year = parts[0]
-                                      const sem = parts[1]
-                                      if (year.length > 4) return
-                                      if (sem && !['1', '2'].includes(sem)) return
-                                      if (year.length === 4) {
-                                        setProfile(prev => prev ? ({
-                                          ...prev,
-                                          cplStartYear: year,
-                                          cplStartSemester: (sem === '1' || sem === '2') ? sem : (prev.cplStartSemester ?? '1'),
-                                        }) : null)
-                                      }
-                                    }}
-                                    className="h-9 px-3 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-sm w-full"
-                                  />
-                                </div>
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  className="mt-5 shrink-0"
-                                  disabled={!addCursoValue || !profile?.cplStartYear}
-                                  onClick={() => {
-                                    if (!addCursoValue) return
-                                    setProfile(prev => {
-                                      if (!prev) return prev
-                                      const novos = [...(prev.cursos ?? []), addCursoValue as Curso]
-                                      return { ...prev, cursos: novos, curso: addCursoValue as Curso }
-                                    })
-                                    setAddCursoValue('')
-                                    setAddCursoVisible(false)
-                                  }}
-                                >
-                                  Confirmar
-                                </Button>
-                              </div>
-                            </div>
-                          )
-                        })()}
-                      </div>
-                      {(profile?.cursos?.length ?? 0) <= 1 && (
+                      {(profile?.cursos?.length ?? 0) === 1 && bictiProgresso < 100 && cursoAtivo === 'BICTI' && (
                         <p className="text-xs text-slate-400 pt-0.5">
-                          {bictiProgresso >= 100
-                            ? 'Concluiu o BICTI? Adicione sua progressão CPL para acompanhar as disciplinas da nova graduação separadamente.'
-                            : `Disponível ao concluir o BICTI. Progresso atual: ${bictiProgresso.toFixed(1)}%.`}
+                          {`Disponível ao concluir o BICTI. Progresso atual: ${bictiProgresso.toFixed(1)}%.`}
                         </p>
                       )}
                     </div>

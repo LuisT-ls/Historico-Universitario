@@ -358,3 +358,25 @@ html:not(.dark-mode) footer a:hover:not([class*="bg-"]) {
 .dark-mode .react-flow__controls-button svg {
   fill: hsl(var(--foreground));
 }
+
+
+/* ── Landing page animations ─────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes pulse-border {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+@keyframes border-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

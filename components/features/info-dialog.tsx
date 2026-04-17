@@ -10,52 +10,16 @@ import {
 } from '@/components/ui/dialog'
 import { toast } from '@/lib/toast'
 import { isSafeExternalUrl } from '@/lib/utils'
-
-// ─── data ──────────────────────────────────────────────────────────────────────
-
-interface InfoItem {
-  label: string
-  value: string
-  href?: string
-  copyable?: boolean
-}
-
-interface InfoSection {
-  title: string
-  icon: React.ElementType
-  items: InfoItem[]
-}
-
-const SECTIONS: InfoSection[] = [
-  {
-    title: 'Emails importantes ✨',
-    icon: Mail,
-    items: [
-      { label: 'Colegiado BICTI (Prof. Carina)', value: 'colicti@ufba.br', href: 'mailto:colicti@ufba.br', copyable: true },
-      { label: 'Colegiado Eng. Produção (Prof. Renato)', value: 'renato.vivas@ufba.br', href: 'mailto:renato.vivas@ufba.br', copyable: true },
-      { label: 'Secretaria acadêmica', value: 'seacicti@ufba.br', href: 'mailto:seacicti@ufba.br', copyable: true },
-      { label: 'Secretaria acadêmica', value: 'italo.caiana@ufba.br', href: 'mailto:italo.caiana@ufba.br', copyable: true },
-      { label: 'Direção (Prof. Maiana)', value: 'icti@ufba.br', href: 'mailto:icti@ufba.br', copyable: true },
-      { label: 'NOAE', value: 'noae.icti@ufba.br', href: 'mailto:noae.icti@ufba.br', copyable: true },
-    ],
-  },
-  {
-    title: 'Documentos',
-    icon: FolderOpen,
-    items: [
-      { label: 'Drive do DA', value: 'Acesse o Drive', href: 'https://drive.google.com/drive/folders/1y9asx8s_i6nJ7Qcl1w9KTZPYCXOGlTD6' },
-    ],
-  },
-  {
-    title: 'Comunidades',
-    icon: MessageCircle,
-    items: [
-      { label: 'Grupo Informativo ICTI', value: 'WhatsApp', href: 'https://chat.whatsapp.com/Gkm4vKJcL1D3skgIcJWr4b' },
-    ],
-  },
-]
+import { INSTITUTOS } from '@/lib/constants'
+import type { Instituto } from '@/types'
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  Mail,
+  FolderOpen,
+  MessageCircle,
+}
 
 function openLink(href: string) {
   if (isSafeExternalUrl(href)) {
@@ -68,9 +32,13 @@ function openLink(href: string) {
 interface InfoDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  instituto?: Instituto
 }
 
-export function InfoDialog({ open, onOpenChange }: InfoDialogProps) {
+export function InfoDialog({ open, onOpenChange, instituto = 'ICTI' }: InfoDialogProps) {
+  const config = INSTITUTOS[instituto]
+  const sections = config?.info ?? []
+
   function handleCopy(value: string) {
     navigator.clipboard.writeText(value).then(() => {
       toast.success('Copiado para a área de transferência!')
@@ -80,13 +48,11 @@ export function InfoDialog({ open, onOpenChange }: InfoDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={[
-        // mobile — bottom sheet
         '!fixed !bottom-0 !left-0 !right-0 !top-auto',
         '!translate-x-0 !translate-y-0',
         '!max-w-full !w-full',
         '!rounded-t-2xl !rounded-b-none',
         '!p-0',
-        // desktop — centered modal
         'sm:!bottom-auto sm:!left-1/2 sm:!right-auto sm:!top-1/2',
         'sm:!-translate-x-1/2 sm:!-translate-y-1/2',
         'sm:!max-w-md',
@@ -94,7 +60,6 @@ export function InfoDialog({ open, onOpenChange }: InfoDialogProps) {
         'sm:!p-6',
       ].join(' ')}>
 
-        {/* drag handle — mobile only */}
         <div className="mx-auto mt-3 mb-1 h-1.5 w-10 rounded-full bg-muted-foreground/20 sm:hidden" />
 
         <div className="px-6 pb-2 pt-4 sm:p-0">
@@ -103,14 +68,19 @@ export function InfoDialog({ open, onOpenChange }: InfoDialogProps) {
               Informações Úteis
             </DialogTitle>
             <DialogDescription>
-              Contatos e recursos do ICTI / UFBA
+              Contatos e recursos do {config?.sigla ?? instituto} / UFBA
             </DialogDescription>
           </DialogHeader>
         </div>
 
         <div className="mt-2 px-6 pb-8 sm:px-0 sm:pb-0 sm:mt-4 space-y-5">
-          {SECTIONS.map((section) => {
-            const Icon = section.icon
+          {sections.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Nenhuma informação disponível para este instituto ainda.
+            </p>
+          )}
+          {sections.map((section) => {
+            const Icon = ICON_MAP[section.icon] ?? Mail
             return (
               <div key={section.title}>
                 <div className="flex items-center gap-2 mb-2">

@@ -19,7 +19,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { CURSOS, NATUREZA_LABELS } from '@/lib/constants'
-import disciplinasData from '@/assets/data/disciplinas.json'
+import disciplinasData from '@/assets/data/icti/disciplinas.json'
 
 import { calcularResultado, getPeriodoMaisRecente, sanitizeInput } from '@/lib/utils'
 import { PlusCircle, X } from 'lucide-react'

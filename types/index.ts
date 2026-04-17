@@ -6,8 +6,10 @@ export type GroupId = string & { readonly __brand: 'GroupId' }
 export type GroupMaterialId = string & { readonly __brand: 'GroupMaterialId' }
 export type GroupTaskId = string & { readonly __brand: 'GroupTaskId' }
 
-// Course types
-export type Curso = 'BICTI' | 'ENG_PROD' | 'ENG_ELET'
+// Institute and course types
+export type Instituto = 'ICTI' | 'HUMANIDADES'
+
+export type Curso = 'BICTI' | 'ENG_PROD' | 'ENG_ELET' | 'BI_HUM'
 
 export type ConcentracaoBICTI = 'CIENCIA_DADOS' | 'ESTUDOS_ENGENHARIA'
 
@@ -62,6 +64,7 @@ export interface ConfigConcentracao {
 
 export interface ConfigCurso {
   nome: string
+  instituto: Instituto
   requisitos: RequisitosCurso
   totalHoras: number
   concentracoes?: Record<ConcentracaoBICTI, ConfigConcentracao>
@@ -109,6 +112,8 @@ export interface Profile {
   photoURL?: string
   /** Curso ativo atual (legado — mantido para leitura retrocompatível). Use `cursos` para novos dados. */
   curso?: Curso
+  /** Instituto da UFBA ao qual o estudante pertence. */
+  instituto?: Instituto
   /** Lista de cursos em ordem cronológica. O último é o curso ativo atual. */
   cursos?: Curso[]
   /** Concentração do BICTI, se o estudante optou por uma. */
@@ -392,7 +397,7 @@ export interface DisciplinasCatalogo {
 }
 
 /** Shape of assets/data/matrizes.json — curso → semestre → lista de códigos */
-export type MatrizCurricular = Record<Curso, Record<string, string[]>>
+export type MatrizCurricular = Partial<Record<Curso, Record<string, string[]>>>
 
 /** Shape of assets/data/prerequisitos.json — curso → código → lista de pré-requisitos */
 export type MapaPrerequisitos = Partial<Record<Curso, Record<string, string[]>>>

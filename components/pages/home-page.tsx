@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getDisciplines, addDiscipline, updateDiscipline, deleteDiscipline, getCertificates, getProfile } from '@/services/firestore.service'
 import { normalizeText, compararPeriodos } from '@/lib/utils'
 import { handleError } from '@/lib/error-handler'
-import type { Curso, Disciplina, Certificado, Profile } from '@/types'
+import type { Curso, Instituto, Disciplina, Certificado, Profile } from '@/types'
 import { toast } from '@/lib/toast'
 import { logger } from '@/lib/logger'
 import { createDisciplinaId } from '@/lib/constants'
@@ -49,7 +49,7 @@ const PrintView = dynamic(() => import('@/components/features/print-view').then(
 export function HomePage() {
   const { user, loading: authLoading } = useAuth()
   const [cursoAtual, setCursoAtual] = useState<Curso>('BICTI')
-  const [cursosDisponiveis, setCursosDisponiveis] = useState<Curso[] | undefined>(undefined)
+  const [instituto, setInstituto] = useState<Instituto>('ICTI')
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
   const [certificados, setCertificados] = useState<Certificado[]>([])
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -57,30 +57,28 @@ export function HomePage() {
   const formRef = useRef<DisciplineFormRef>(null)
   const profileCourseInitialized = useRef(false)
 
-  // Inicializa o curso e os cursos disponíveis a partir do perfil uma única vez por sessão de login
+  // Inicializa o curso a partir do perfil uma única vez por sessão de login
   useEffect(() => {
     if (authLoading || !user || profileCourseInitialized.current) return
     getProfile(user.uid)
       .then((profileData) => {
         profileCourseInitialized.current = true
         if (profileData?.cursos && profileData.cursos.length > 0) {
-          setCursosDisponiveis(profileData.cursos)
           setCursoAtual(profileData.cursos[profileData.cursos.length - 1])
         } else if (profileData?.curso) {
-          setCursosDisponiveis([profileData.curso])
           setCursoAtual(profileData.curso)
         }
+        if (profileData?.instituto) setInstituto(profileData.instituto)
       })
       .catch(() => {
         profileCourseInitialized.current = true
       })
   }, [user, authLoading])
 
-  // Reseta a flag e os cursos disponíveis quando o usuário desloga
+  // Reseta a flag quando o usuário desloga
   useEffect(() => {
     if (!user) {
       profileCourseInitialized.current = false
-      setCursosDisponiveis(undefined)
     }
   }, [user])
 
@@ -118,11 +116,6 @@ export function HomePage() {
     }
     loadDisciplinas()
   }, [cursoAtual, user, authLoading, loadDisciplinas])
-
-  const handleCursoChange = (curso: Curso) => {
-    if (curso === cursoAtual) return
-    setCursoAtual(curso)
-  }
 
   const handleAddDisciplina = async (disciplina: Disciplina) => {
     try {
@@ -320,7 +313,7 @@ export function HomePage() {
         </div>
       )}
 
-      <ActionBar cursoAtual={cursoAtual} onCursoChange={handleCursoChange} onImport={handleImportDisciplinas} cursosDisponiveis={cursosDisponiveis} />
+      <ActionBar onImport={handleImportDisciplinas} instituto={instituto} />
 
       <div className="space-y-1">
         <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground/60 px-1">Busca Rápida</h2>

@@ -1,4 +1,66 @@
-import type { ConfigCurso, ConcentracaoBICTI } from '@/types'
+import type { ConfigCurso, ConcentracaoBICTI, Instituto } from '@/types'
+
+export interface InfoItem {
+  label: string
+  value: string
+  href?: string
+  copyable?: boolean
+}
+
+export interface InfoSection {
+  title: string
+  icon: string
+  items: InfoItem[]
+}
+
+export interface ConfigInstituto {
+  nome: string
+  sigla: string
+  cursos: string[]
+  info: InfoSection[]
+}
+
+export const INSTITUTOS: Record<Instituto, ConfigInstituto> = {
+  ICTI: {
+    nome: 'Instituto de Ciências, Tecnologia e Inovação',
+    sigla: 'ICTI',
+    cursos: ['BICTI', 'ENG_PROD', 'ENG_ELET'],
+    info: [
+      {
+        title: 'Emails importantes ✨',
+        icon: 'Mail',
+        items: [
+          { label: 'Colegiado BICTI (Prof. Carina)', value: 'colicti@ufba.br', href: 'mailto:colicti@ufba.br', copyable: true },
+          { label: 'Colegiado Eng. Produção (Prof. Renato)', value: 'renato.vivas@ufba.br', href: 'mailto:renato.vivas@ufba.br', copyable: true },
+          { label: 'Secretaria acadêmica', value: 'seacicti@ufba.br', href: 'mailto:seacicti@ufba.br', copyable: true },
+          { label: 'Secretaria acadêmica', value: 'italo.caiana@ufba.br', href: 'mailto:italo.caiana@ufba.br', copyable: true },
+          { label: 'Direção (Prof. Maiana)', value: 'icti@ufba.br', href: 'mailto:icti@ufba.br', copyable: true },
+          { label: 'NOAE', value: 'noae.icti@ufba.br', href: 'mailto:noae.icti@ufba.br', copyable: true },
+        ],
+      },
+      {
+        title: 'Documentos',
+        icon: 'FolderOpen',
+        items: [
+          { label: 'Drive do DA', value: 'Acesse o Drive', href: 'https://drive.google.com/drive/folders/1y9asx8s_i6nJ7Qcl1w9KTZPYCXOGlTD6' },
+        ],
+      },
+      {
+        title: 'Comunidades',
+        icon: 'MessageCircle',
+        items: [
+          { label: 'Grupo Informativo ICTI', value: 'WhatsApp', href: 'https://chat.whatsapp.com/Gkm4vKJcL1D3skgIcJWr4b' },
+        ],
+      },
+    ],
+  },
+  HUMANIDADES: {
+    nome: 'Instituto de Humanidades, Artes e Ciências',
+    sigla: 'IHAC',
+    cursos: ['BI_HUM'],
+    info: [],
+  },
+}
 
 export const CONCENTRACOES_BICTI: Record<ConcentracaoBICTI, { nome: string }> = {
   CIENCIA_DADOS: { nome: 'Ciência de Dados' },
@@ -8,6 +70,7 @@ export const CONCENTRACOES_BICTI: Record<ConcentracaoBICTI, { nome: string }> = 
 export const CURSOS: Record<string, ConfigCurso> = {
   BICTI: {
     nome: 'BICTI',
+    instituto: 'ICTI',
     requisitos: {
       AC: 240,
       LV: 360,
@@ -66,6 +129,7 @@ export const CURSOS: Record<string, ConfigCurso> = {
   },
   ENG_PROD: {
     nome: 'Engenharia de Produção',
+    instituto: 'ICTI',
     requisitos: {
       OB: 2850,
       OP: 180,
@@ -93,8 +157,35 @@ export const CURSOS: Record<string, ConfigCurso> = {
     },
     totalHoras: 3750,
   },
+  BI_HUM: {
+    nome: 'BI em Humanidades',
+    instituto: 'HUMANIDADES' as const,
+    requisitos: {
+      OB: 1360,
+      OP: 680,
+      AC: 240,
+      OX: 120,
+      LV: 120,
+    },
+    metadata: {
+      codigo: 'G20251X',
+      matrizCurricular: 'BACHARELADO INTERDISCIPLINAR EM HUMANIDADES',
+      entradaVigor: '2025.2',
+      totalMinima: 2520,
+      prazos: { minimo: 6, medio: 6, maximo: 9 },
+      limites: {
+        chObrigatoriaAula: 1360,
+        chOptativaMinima: 680,
+        chComplementarMinima: 240,
+        chEletivaMaxima: 120,
+        chPeriodoMaxima: 540,
+      },
+    },
+    totalHoras: 2520,
+  },
   ENG_ELET: {
     nome: 'Engenharia Elétrica',
+    instituto: 'ICTI',
     requisitos: {
       AC: 340,
       OB: 2910,

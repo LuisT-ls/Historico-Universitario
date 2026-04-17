@@ -46,7 +46,7 @@ export function DisciplinaSearchInput({
 
   // Carrega o catálogo uma vez
   useEffect(() => {
-    fetch('/assets/data/disciplinas.json')
+    fetch('/assets/data/icti/disciplinas.json')
       .then(r => r.json())
       .then(data => {
         const entries = Object.values(data.catalogo ?? {}) as CatalogEntry[]

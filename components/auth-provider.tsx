@@ -45,7 +45,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               name: user.displayName || '',
               email: user.email || '',
               photoURL: user.photoURL || '',
-              profile: { course: 'BICTI' },
               settings: { privacy: 'private' },
               createdAt: new Date(),
             })

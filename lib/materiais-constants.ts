@@ -20,6 +20,7 @@ export const CURSO_LABELS: Record<Curso, string> = {
   BICTI:    'BICTI',
   ENG_PROD: 'Eng. Produção',
   ENG_ELET: 'Eng. Elétrica',
+  BI_HUM:   'BI em Humanidades',
 }
 
 export const TIPOS_MATERIAL: TipoMaterial[] = [

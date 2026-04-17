@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { signInWithEmail, signInWithGoogle } from '@/services/auth.service'
+import { getProfile } from '@/services/firestore.service'
 import { handleError, type AppError } from '@/lib/error-handler'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -42,8 +43,10 @@ export function LoginPage() {
     setError(null)
 
     try {
-      await signInWithEmail(data.email, data.password)
-      router.push('/')
+      const user = await signInWithEmail(data.email, data.password)
+      const profile = await getProfile(user.uid)
+      const hasCourse = profile?.cursos && profile.cursos.length > 0
+      router.push(hasCourse ? '/' : '/profile')
     } catch (err: unknown) {
       setError(handleError(err))
     } finally {
@@ -56,8 +59,10 @@ export function LoginPage() {
     setError(null)
 
     try {
-      await signInWithGoogle()
-      router.push('/')
+      const user = await signInWithGoogle()
+      const profile = await getProfile(user.uid)
+      const hasCourse = profile?.cursos && profile.cursos.length > 0
+      router.push(hasCourse ? '/' : '/profile')
     } catch (err: unknown) {
       setError(handleError(err))
     } finally {
