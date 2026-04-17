@@ -423,7 +423,7 @@ export function LandingPage() {
               <span className={cn(hCls, 'text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums')}>
                 <StatCounter raw={s.value} color={s.color} />
               </span>
-              <span className="text-[0.6875rem] font-medium" style={{ color: C.textMuted }}>
+              <span className="text-[0.6875rem] font-medium" style={{ color: C.textSecondary }}>
                 {s.label}
               </span>
             </div>
@@ -615,7 +615,7 @@ export function LandingPage() {
                         <span className="font-semibold text-slate-200 truncate transition-colors group-hover/row:text-white">
                           {d.name}
                         </span>
-                        <span className="font-mono text-[10px] text-slate-500 mt-0.5">
+                        <span className="font-mono text-[10px] text-slate-400 mt-0.5">
                           {d.code}
                         </span>
                       </div>
@@ -714,7 +714,7 @@ export function LandingPage() {
                   >
                     {step.title}
                   </h3>
-                  <p className="text-xs leading-[1.65]" style={{ color: C.textMuted }}>
+                  <p className="text-xs leading-[1.65]" style={{ color: C.textSecondary }}>
                     {step.description}
                   </p>
                 </div>
