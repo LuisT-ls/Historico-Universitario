@@ -749,6 +749,31 @@
       "codigo": "GCTI0012",
       "nome": "QUÍMICA",
       "ch": 60
+    },
+    "CTIB07": {
+      "codigo": "CTIB07",
+      "nome": "INTELIGÊNCIA ARTIFICIAL",
+      "ch": 60
+    },
+    "CTIB10": {
+      "codigo": "CTIB10",
+      "nome": "APRENDIZAGEM DE MÁQUINA",
+      "ch": 60
+    },
+    "CTIB12": {
+      "codigo": "CTIB12",
+      "nome": "MINERAÇÃO DE DADOS",
+      "ch": 60
+    },
+    "CTIB16": {
+      "codigo": "CTIB16",
+      "nome": "PROCESSAMENTO DE ALTO DESEMPENHO",
+      "ch": 60
+    },
+    "GCTI0006": {
+      "codigo": "GCTI0006",
+      "nome": "MODELAGEM 3D PARA DESENVOLVIMENTO DE PRODUTO",
+      "ch": 60
     }
   },
   "cursos": {
@@ -1103,6 +1128,26 @@
       },
       {
         "codigo": "CTIA32",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB07",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB10",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB12",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "CTIB16",
+        "natureza": "OG"
+      },
+      {
+        "codigo": "GCTI0006",
         "natureza": "OG"
       }
     ],

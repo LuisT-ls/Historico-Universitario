@@ -3,6 +3,17 @@ import type { Curso, MapaPrerequisitos } from '@/types'
 
 const mapa = prereqData as MapaPrerequisitos & { _info?: string }
 
+/**
+ * Disciplinas equivalentes (mesma disciplina, códigos diferentes por curso ou versão).
+ * Completar qualquer código do grupo satisfaz pré-requisitos que exijam outro código do grupo.
+ */
+const EQUIVALENCIAS: Record<string, string[]> = {
+  'CTIA45':   ['GCTI0008'], // Física I — código ENG / código BICTI
+  'GCTI0008': ['CTIA45'],
+  'CTIA79':   ['GCTI0013'], // Desenho Técnico I — código CTIA / código GCTI
+  'GCTI0013': ['CTIA79'],
+}
+
 /** Remove sufixo de turma de códigos vindos do SIGAA (ex: "CTIA01A" → "CTIA01"). */
 function normCodigo(c: string): string {
   return c.length >= 6 && c.endsWith('A') ? c.slice(0, -1) : c
@@ -14,8 +25,18 @@ export function getPrerequisitos(codigo: string, curso: Curso): string[] {
 }
 
 /**
+ * Verifica se um código (ou qualquer um dos seus equivalentes) está na lista de aprovados.
+ */
+function estaAprovado(codigo: string, aprovadosNorm: Set<string>): boolean {
+  const norm = normCodigo(codigo.toUpperCase())
+  if (aprovadosNorm.has(norm)) return true
+  // Verifica equivalentes (ex: GCTI0008 satisfaz CTIA45 e vice-versa)
+  return (EQUIVALENCIAS[norm] ?? []).some(eq => aprovadosNorm.has(normCodigo(eq.toUpperCase())))
+}
+
+/**
  * Retorna true se todos os pré-requisitos da disciplina estão na lista de aprovados.
- * Disciplinas sem pré-requisitos sempre retornam true.
+ * Respeita equivalências de código (ex: GCTI0008 ↔ CTIA45).
  */
 export function prerequisitosAtendidos(
   codigo: string,
@@ -25,7 +46,7 @@ export function prerequisitosAtendidos(
   const prereqs = getPrerequisitos(codigo, curso)
   if (prereqs.length === 0) return true
   const aprovadosNorm = new Set(codigosAprovados.map(c => normCodigo(c.toUpperCase())))
-  return prereqs.every(p => aprovadosNorm.has(normCodigo(p.toUpperCase())))
+  return prereqs.every(p => estaAprovado(p, aprovadosNorm))
 }
 
 /**
@@ -40,7 +61,7 @@ export function prerequisitosFaltando(
   const prereqs = getPrerequisitos(codigo, curso)
   if (prereqs.length === 0) return []
   const aprovadosNorm = new Set(codigosAprovados.map(c => normCodigo(c.toUpperCase())))
-  return prereqs.filter(p => !aprovadosNorm.has(normCodigo(p.toUpperCase())))
+  return prereqs.filter(p => !estaAprovado(p, aprovadosNorm))
 }
 
 /**
@@ -50,8 +71,9 @@ export function prerequisitosFaltando(
 export function dependentes(codigo: string, curso: Curso): string[] {
   const cursoPrer = mapa[curso] ?? {}
   const norm = normCodigo(codigo.toUpperCase())
+  const equivalentes = new Set([norm, ...(EQUIVALENCIAS[norm] ?? []).map(e => normCodigo(e.toUpperCase()))])
   return Object.entries(cursoPrer)
-    .filter(([, prereqs]) => prereqs.some(p => normCodigo(p.toUpperCase()) === norm))
+    .filter(([, prereqs]) => prereqs.some(p => equivalentes.has(normCodigo(p.toUpperCase()))))
     .map(([cod]) => cod)
 }
 
