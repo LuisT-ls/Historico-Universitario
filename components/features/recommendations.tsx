@@ -7,6 +7,7 @@ import { Lightbulb, ChevronDown, ChevronUp, PlusCircle, ArrowRight, TrendingDown
 import type { Disciplina, Curso, Natureza } from '@/types'
 import { CURSOS } from '@/lib/constants'
 import disciplinasData from '@/assets/data/disciplinas.json'
+import { prerequisitosAtendidos } from '@/lib/utils/prerequisites'
 
 // ─── constants ────────────────────────────────────────────────────────────────
 
@@ -96,9 +97,17 @@ export function Recommendations({ disciplinas, cursoAtual, onSelect }: Recommend
         .map(d => normCodigo(d.codigo))
     )
 
-    // All pending disciplines (from curriculum, not yet done)
+    // Lista de códigos aprovados (para checar pré-requisitos)
+    const codigosAprovados = disciplinas
+      .filter(d => (d.resultado === 'AP' && !d.trancamento) || d.dispensada)
+      .map(d => d.codigo)
+
+    // All pending disciplines (from curriculum, not yet done) — apenas desbloqueadas
     const pendentes = cursoDisciplinas
-      .filter(({ codigo }) => !codigosFeitos.has(codigo))
+      .filter(({ codigo }) =>
+        !codigosFeitos.has(codigo) &&
+        prerequisitosAtendidos(codigo, cursoAtual, codigosAprovados)
+      )
       .map(({ codigo, natureza }) => ({
         codigo,
         natureza,

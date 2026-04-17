@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge'
 import disciplinasData from '@/assets/data/disciplinas.json'
 import matrizesData from '@/assets/data/matrizes.json'
 import type { DisciplinasCatalogo, MatrizCurricular } from '@/types'
+import { prerequisitosFaltando } from '@/lib/utils/prerequisites'
 
 const catalogo = (disciplinasData as DisciplinasCatalogo).catalogo
 const cursosData = (disciplinasData as DisciplinasCatalogo).cursos
@@ -26,7 +27,7 @@ const matrizes = matrizesData as MatrizCurricular
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
-type StatusDisc = 'aprovado' | 'emcurso' | 'reprovado' | 'trancado' | 'pendente'
+type StatusDisc = 'aprovado' | 'emcurso' | 'reprovado' | 'trancado' | 'pendente' | 'bloqueada'
 
 interface CatalogItem {
   codigo: string
@@ -36,6 +37,8 @@ interface CatalogItem {
   status: StatusDisc
   nota?: number
   periodo?: string
+  /** Códigos de pré-requisitos ainda não cumpridos (apenas quando status === 'bloqueada') */
+  prereqFaltando?: string[]
 }
 
 interface Props {
@@ -87,20 +90,35 @@ const STATUS_CONFIG: Record<StatusDisc, { icon: React.ReactNode; label: string; 
     dot: 'text-muted-foreground/40',
     row: 'text-muted-foreground',
   },
+  bloqueada: {
+    icon: <Circle className="h-4 w-4 shrink-0 opacity-40" />,
+    label: 'Bloqueada',
+    dot: 'text-muted-foreground/20',
+    row: 'text-muted-foreground/50',
+  },
 }
 
 // ─── sub-components ───────────────────────────────────────────────────────────
 
-function DiscRow({ item }: { item: CatalogItem }) {
+function DiscRow({ item, catalogo: cat }: { item: CatalogItem; catalogo: Record<string, { nome: string; ch: number }> }) {
   const cfg = STATUS_CONFIG[item.status]
+  const prereqTooltip = item.prereqFaltando && item.prereqFaltando.length > 0
+    ? `Requer: ${item.prereqFaltando.map(c => cat[c]?.nome ?? c).join(', ')}`
+    : item.nome
+
   return (
     <li className={cn('flex items-center gap-2 py-1.5 text-sm border-b border-border/30 last:border-0', cfg.row)}>
       <span className="shrink-0">{cfg.icon}</span>
-      <span className="flex-1 min-w-0 leading-snug" title={item.nome}>
+      <span className="flex-1 min-w-0 leading-snug" title={prereqTooltip}>
         {item.nome}
+        {item.status === 'bloqueada' && item.prereqFaltando && item.prereqFaltando.length > 0 && (
+          <span className="ml-1 text-[10px] font-medium opacity-60">
+            — falta {item.prereqFaltando.map(c => cat[c]?.nome ?? c).join(', ')}
+          </span>
+        )}
       </span>
       <div className="flex items-center gap-2 shrink-0 text-xs">
-        {item.nota !== undefined && item.nota >= 0 && item.status !== 'pendente' && (
+        {item.nota !== undefined && item.nota >= 0 && item.status !== 'pendente' && item.status !== 'bloqueada' && (
           <span
             className={cn(
               'font-bold tabular-nums px-1.5 py-0.5 rounded-md text-[10px]',
@@ -122,7 +140,7 @@ function DiscRow({ item }: { item: CatalogItem }) {
   )
 }
 
-function SemesterCard({ semestre, items }: { semestre: number; items: CatalogItem[] }) {
+function SemesterCard({ semestre, items, catalogo: cat }: { semestre: number; items: CatalogItem[]; catalogo: Record<string, { nome: string; ch: number }> }) {
   const concluidas = items.filter((i) => i.status === 'aprovado').length
   const total = items.length
   const allDone = concluidas === total
@@ -173,7 +191,7 @@ function SemesterCard({ semestre, items }: { semestre: number; items: CatalogIte
       {/* Discipline list */}
       <ul className="px-4 py-1">
         {items.map((item) => (
-          <DiscRow key={item.codigo} item={item} />
+          <DiscRow key={item.codigo} item={item} catalogo={cat} />
         ))}
       </ul>
     </div>
@@ -186,12 +204,14 @@ function NaturezaCard({
   requiredCH,
   completedCH,
   certificates,
+  catalogo: cat,
 }: {
   natureza: Natureza
   items: CatalogItem[]
   requiredCH: number
   completedCH: number
   certificates?: number
+  catalogo: Record<string, { nome: string; ch: number }>
 }) {
   const percent = Math.min(100, requiredCH > 0 ? Math.round((completedCH / requiredCH) * 100) : 0)
   const complete = completedCH >= requiredCH
@@ -249,7 +269,7 @@ function NaturezaCard({
       {items.length > 0 ? (
         <ul className="px-4 py-1">
           {items.map((item) => (
-            <DiscRow key={item.codigo} item={item} />
+            <DiscRow key={item.codigo} item={item} catalogo={cat} />
           ))}
         </ul>
       ) : (
@@ -273,6 +293,17 @@ function NaturezaCard({
 // ─── main component ───────────────────────────────────────────────────────────
 
 export function CurriculumMap({ disciplinas, certificados, curso }: Props) {
+  // Set de códigos aprovados (para verificação de pré-requisitos)
+  const codigosAprovados = useMemo(() => {
+    const approved: string[] = []
+    for (const d of disciplinas) {
+      if ((d.resultado === 'AP' && !d.trancamento) || d.dispensada) {
+        approved.push(d.codigo)
+      }
+    }
+    return approved
+  }, [disciplinas])
+
   // Lookup by codigo (primary)
   const byCode = useMemo(() => {
     const map = new Map<string, Disciplina[]>()
@@ -332,7 +363,7 @@ export function CurriculumMap({ disciplinas, certificados, curso }: Props) {
       const entry = catalogo[code]
       if (!entry) return []
       const matches = findMatches(code, entry.nome)
-      const status = getBestStatus(matches)
+      let status = getBestStatus(matches)
       // Nota e período sempre da tentativa aprovada — nunca de trancamentos ou reprovações
       const approvedMatch = matches.find(
         (d) => (d.resultado === 'AP' && !d.trancamento) || d.dispensada,
@@ -340,6 +371,17 @@ export function CurriculumMap({ disciplinas, certificados, curso }: Props) {
       const cursoDisciplinas = cursosData[curso] ?? []
       const courseEntry = cursoDisciplinas.find((c) => c.codigo === code)
       const natureza = naturezaOverride ?? (courseEntry?.natureza as Natureza) ?? 'OB'
+
+      // Verifica pré-requisitos: disciplina pendente com pré-req não cumprido → bloqueada
+      let prereqFaltando: string[] | undefined
+      if (status === 'pendente') {
+        const faltando = prerequisitosFaltando(code, curso, codigosAprovados)
+        if (faltando.length > 0) {
+          status = 'bloqueada'
+          prereqFaltando = faltando
+        }
+      }
+
       return [
         {
           codigo: code,
@@ -349,6 +391,7 @@ export function CurriculumMap({ disciplinas, certificados, curso }: Props) {
           status,
           nota: approvedMatch?.nota,
           periodo: approvedMatch?.periodo,
+          prereqFaltando,
         },
       ]
     })
@@ -517,7 +560,7 @@ export function CurriculumMap({ disciplinas, certificados, curso }: Props) {
             {Object.entries(mandatoryItems)
               .sort(([a], [b]) => parseInt(a) - parseInt(b))
               .map(([sem, items]) => (
-                <SemesterCard key={sem} semestre={parseInt(sem)} items={items} />
+                <SemesterCard key={sem} semestre={parseInt(sem)} items={items} catalogo={catalogo} />
               ))}
           </div>
         </section>
@@ -539,6 +582,7 @@ export function CurriculumMap({ disciplinas, certificados, curso }: Props) {
                 requiredCH={cursoConfig.requisitos[nat] ?? 0}
                 completedCH={stats.horasPorNatureza?.[nat] ?? 0}
                 certificates={nat === 'AC' ? acCerts : undefined}
+                catalogo={catalogo}
               />
             ))}
           </div>

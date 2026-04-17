@@ -382,3 +382,6 @@ export interface DisciplinasCatalogo {
 /** Shape of assets/data/matrizes.json — curso → semestre → lista de códigos */
 export type MatrizCurricular = Record<Curso, Record<string, string[]>>
 
+/** Shape of assets/data/prerequisitos.json — curso → código → lista de pré-requisitos */
+export type MapaPrerequisitos = Partial<Record<Curso, Record<string, string[]>>>
+
