@@ -73,6 +73,11 @@ interface SummaryProps {
 
 export function Summary({ disciplinas, certificados = [], cursoAtual, profile }: SummaryProps) {
   const cursoConfig = CURSOS[cursoAtual]
+  const requisitos = (
+    cursoAtual === 'BICTI' && profile?.concentracaoBICTI
+      ? cursoConfig.concentracoes?.[profile.concentracaoBICTI]?.requisitos
+      : undefined
+  ) ?? cursoConfig.requisitos
 
   const estatisticas = useMemo(() => {
     // Filtrar disciplinas válidas para cálculos
@@ -129,6 +134,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
       AC: 0,
       LV: 0,
       OB: 0,
+      OC: 0,
       OG: 0,
       OH: 0,
       OP: 0,
@@ -138,9 +144,9 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
 
     // Calcular horas por natureza usando a natureza real da disciplina
     disciplinasAprovadas.forEach((d) => {
-      const natureza = d.natureza
-      if (natureza && horasPorNatureza[natureza as Natureza] !== undefined) {
-        horasPorNatureza[natureza as Natureza] += d.ch
+      const natureza = d.natureza as Natureza
+      if (natureza && natureza in horasPorNatureza) {
+        horasPorNatureza[natureza] += d.ch
       }
     })
 
@@ -158,23 +164,23 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
     // Any category that exceeds its requirement overflows to Livre (LV)
     let totalExcessoLV = 0
 
-    const naturezasParaRedistribuir = ['OX', 'OG', 'OH', 'OZ', 'OP']
+    const naturezasParaRedistribuir: Natureza[] = ['OC', 'OX', 'OG', 'OH', 'OZ', 'OP']
 
-    naturezasParaRedistribuir.forEach((nat) => {
-      const natureza = nat as Natureza
-      const requisito = cursoConfig.requisitos[natureza]
+    naturezasParaRedistribuir.forEach((natureza) => {
+      const requisito = requisitos[natureza]
+      const atual = horasPorNatureza[natureza] ?? 0
 
-      if (requisito !== undefined && horasPorNatureza[natureza] > requisito) {
-        const excesso = horasPorNatureza[natureza] - requisito
+      if (requisito !== undefined && atual > requisito) {
+        const excesso = atual - requisito
         totalExcessoLV += excesso
-        horasPorNatureza[natureza] = requisito // Cap original category
+        horasPorNatureza[natureza] = requisito
       }
     })
 
     // Add all excesses to LV and then cap LV based on its own requirement
     horasPorNatureza.LV += totalExcessoLV
-    if (cursoConfig.requisitos.LV && horasPorNatureza.LV > cursoConfig.requisitos.LV) {
-      horasPorNatureza.LV = cursoConfig.requisitos.LV
+    if (requisitos.LV && horasPorNatureza.LV > requisitos.LV) {
+      horasPorNatureza.LV = requisitos.LV
     }
 
     // Total CH recalculado com as horas limitadas
@@ -319,8 +325,6 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
       semestralization,
     }
   }, [disciplinas, certificados, cursoConfig.totalHoras, cursoAtual, profile])
-
-  const requisitos = cursoConfig.requisitos
 
   return (
     <div className="space-y-6">

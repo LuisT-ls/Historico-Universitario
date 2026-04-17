@@ -92,6 +92,7 @@ export function GradePage() {
           disciplinas={disciplinas}
           certificados={certificados}
           curso={curso}
+          profile={profile}
         />
       )}
     </div>

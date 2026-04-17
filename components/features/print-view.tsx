@@ -25,6 +25,7 @@ interface PrintViewProps {
 
 const NATUREZA_NOME: Record<string, string> = {
   OB: 'Obrigatória',
+  OC: 'Opt. de Concentração',
   OX: 'Ext. Obrigatória',
   OG: 'Opt. Grande Área',
   OH: 'Opt. Humanística',
@@ -49,6 +50,11 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
 
   const { stats, disciplinasPorPeriodo } = useMemo(() => {
     const config = CURSOS[cursoAtual]
+    const requisitos = (
+      cursoAtual === 'BICTI' && profile?.concentracaoBICTI
+        ? config.concentracoes?.[profile.concentracaoBICTI]?.requisitos
+        : undefined
+    ) ?? config.requisitos
 
     // Approved / dispensed disciplines
     const aprovadas = disciplinas.filter(d => (d.resultado === 'AP' || d.dispensada) && !d.emcurso)
@@ -56,12 +62,12 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
 
     // Hours by natureza with redistribution (mirrors Summary logic)
     const horasPorNatureza: Record<Natureza, number> = {
-      AC: 0, LV: 0, OB: 0, OG: 0, OH: 0, OP: 0, OX: 0, OZ: 0,
+      AC: 0, LV: 0, OB: 0, OC: 0, OG: 0, OH: 0, OP: 0, OX: 0, OZ: 0,
     }
     aprovadas.forEach(d => {
-      const nat = d.natureza
-      if (nat && horasPorNatureza[nat as Natureza] !== undefined) {
-        horasPorNatureza[nat as Natureza] += d.ch
+      const nat = d.natureza as Natureza
+      if (nat && nat in horasPorNatureza) {
+        horasPorNatureza[nat] += d.ch
       }
     })
     // AC from certificates
@@ -70,16 +76,17 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
 
     // Redistribution excess → LV
     let excessoLV = 0
-    for (const nat of ['OX', 'OG', 'OH', 'OZ', 'OP'] as Natureza[]) {
-      const req = config.requisitos[nat] ?? 0
-      if (req > 0 && horasPorNatureza[nat] > req) {
-        excessoLV += horasPorNatureza[nat] - req
+    for (const nat of ['OC', 'OX', 'OG', 'OH', 'OZ', 'OP'] as Natureza[]) {
+      const req = requisitos[nat] ?? 0
+      const atual = horasPorNatureza[nat] ?? 0
+      if (req > 0 && atual > req) {
+        excessoLV += atual - req
         horasPorNatureza[nat] = req
       }
     }
     horasPorNatureza.LV += excessoLV
-    if (config.requisitos.LV && horasPorNatureza.LV > config.requisitos.LV) {
-      horasPorNatureza.LV = config.requisitos.LV
+    if (requisitos.LV && horasPorNatureza.LV > requisitos.LV) {
+      horasPorNatureza.LV = requisitos.LV
     }
 
     const totalCH = Object.values(horasPorNatureza).reduce((s, h) => s + h, 0)
@@ -120,6 +127,7 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
       stats: {
         cr, mediaGeral, totalCH, progresso, semestre, previsao,
         horasPorNatureza, totalAprovacoes, totalReprovacoes, totalTrancamentos,
+        requisitos,
       },
       disciplinasPorPeriodo,
     }
@@ -192,11 +200,11 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
         <tbody>
           {(Object.entries(stats.horasPorNatureza) as [Natureza, number][])
             .filter(([nat, h]) => {
-              const req = config.requisitos[nat] ?? 0
+              const req = stats.requisitos[nat] ?? 0
               return req > 0 || h > 0
             })
             .map(([nat, h]) => {
-              const req = config.requisitos[nat] ?? 0
+              const req = stats.requisitos[nat] ?? 0
               const pct = req > 0 ? Math.min((h / req) * 100, 100) : 0
               return (
                 <tr key={nat} style={{ borderBottom: '1px solid #eee' }}>

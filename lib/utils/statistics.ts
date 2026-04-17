@@ -17,6 +17,11 @@ export function calcularEstatisticas(
 ): UserStatistics {
   // Configuração do curso para limites e redistribuição
   const cursoConfig = CURSOS[curso]
+  const requisitos = (
+    curso === 'BICTI' && profile?.concentracaoBICTI
+      ? cursoConfig.concentracoes?.[profile.concentracaoBICTI]?.requisitos
+      : undefined
+  ) ?? cursoConfig.requisitos
 
   // Total de disciplinas cadastradas
   const totalDisciplines = disciplinas.length
@@ -53,6 +58,7 @@ export function calcularEstatisticas(
     AC: 0,
     LV: 0,
     OB: 0,
+    OC: 0,
     OG: 0,
     OH: 0,
     OP: 0,
@@ -67,11 +73,11 @@ export function calcularEstatisticas(
     const isCompleted = (d.resultado === 'AP' || d.dispensada) && !d.emcurso
 
     if (isCompleted && d.ch) {
-      const natureza = d.natureza
+      const natureza = d.natureza as Natureza
 
       if (natureza && natureza !== 'AC') {
-        if (horasPorNatureza[natureza as Natureza] !== undefined) {
-          horasPorNatureza[natureza as Natureza] += d.ch
+        if (natureza in horasPorNatureza) {
+          horasPorNatureza[natureza] += d.ch
         }
       } else if (natureza === 'AC') {
         horasPorNatureza.AC += d.ch
@@ -90,22 +96,20 @@ export function calcularEstatisticas(
   // Any category that exceeds its requirement overflows to Livre (LV)
   let totalExcessoLV = 0
 
-  Object.keys(horasPorNatureza).forEach((nat) => {
-    const natureza = nat as Natureza
-    if (natureza === 'LV' || natureza === 'OB' || natureza === 'AC') return
+  const naturezasParaRedistribuir: Natureza[] = ['OC', 'OX', 'OG', 'OH', 'OZ', 'OP']
+  naturezasParaRedistribuir.forEach((natureza) => {
+    const req = requisitos?.[natureza]
+    const atual = horasPorNatureza[natureza] ?? 0
 
-    const requisito = cursoConfig?.requisitos?.[natureza] as number
-
-    if (requisito !== undefined && horasPorNatureza[natureza] > requisito) {
-      const excesso = horasPorNatureza[natureza] - requisito
-      totalExcessoLV += excesso
-      horasPorNatureza[natureza] = requisito // Cap original category
+    if (req !== undefined && atual > req) {
+      totalExcessoLV += atual - req
+      horasPorNatureza[natureza] = req
     }
   })
 
   // Add all excesses to LV, then cap LV (alinhado com o Summary)
   horasPorNatureza.LV += totalExcessoLV
-  const reqLV = cursoConfig?.requisitos?.LV
+  const reqLV = requisitos?.LV
   if (reqLV !== undefined && horasPorNatureza.LV > reqLV) {
     horasPorNatureza.LV = reqLV
   }

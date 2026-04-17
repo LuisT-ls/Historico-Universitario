@@ -11,7 +11,7 @@ import {
   GraduationCap,
   LayoutGrid,
 } from 'lucide-react'
-import type { Disciplina, Certificado, Curso, Natureza } from '@/types'
+import type { Disciplina, Certificado, Curso, Natureza, Profile } from '@/types'
 import { calcularEstatisticas } from '@/lib/utils'
 import { CURSOS, NATUREZA_LABELS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -45,6 +45,7 @@ interface Props {
   disciplinas: Disciplina[]
   certificados: Certificado[]
   curso: Curso
+  profile?: Profile
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -292,7 +293,7 @@ function NaturezaCard({
 
 // ─── main component ───────────────────────────────────────────────────────────
 
-export function CurriculumMap({ disciplinas, certificados, curso }: Props) {
+export function CurriculumMap({ disciplinas, certificados, curso, profile }: Props) {
   // Set de códigos aprovados (para verificação de pré-requisitos)
   const codigosAprovados = useMemo(() => {
     const approved: string[] = []
@@ -415,12 +416,17 @@ export function CurriculumMap({ disciplinas, certificados, curso }: Props) {
 
   // Elective categories: naturezas with required CH > 0, excluding OB
   const cursoConfig = CURSOS[curso]
+  const requisitos = (
+    curso === 'BICTI' && profile?.concentracaoBICTI
+      ? cursoConfig.concentracoes?.[profile.concentracaoBICTI]?.requisitos
+      : undefined
+  ) ?? cursoConfig.requisitos
   const electiveNaturezas = useMemo(
     () =>
-      (Object.keys(cursoConfig.requisitos) as Natureza[]).filter(
-        (n) => n !== 'OB' && (cursoConfig.requisitos[n] ?? 0) > 0,
+      (Object.keys(requisitos) as Natureza[]).filter(
+        (n) => n !== 'OB' && (requisitos[n] ?? 0) > 0,
       ),
-    [curso],
+    [curso, profile?.concentracaoBICTI],
   )
 
   // Build elective items: student disciplines grouped by natureza, excluding mandatory ones
@@ -452,8 +458,8 @@ export function CurriculumMap({ disciplinas, certificados, curso }: Props) {
 
   // Stats for summary
   const stats = useMemo(
-    () => calcularEstatisticas(disciplinas, certificados, curso),
-    [disciplinas, certificados, curso],
+    () => calcularEstatisticas(disciplinas, certificados, curso, profile),
+    [disciplinas, certificados, curso, profile],
   )
 
   // Total mandatory progress
@@ -579,7 +585,7 @@ export function CurriculumMap({ disciplinas, certificados, curso }: Props) {
                 key={nat}
                 natureza={nat}
                 items={electiveItems[nat] ?? []}
-                requiredCH={cursoConfig.requisitos[nat] ?? 0}
+                requiredCH={requisitos[nat] ?? 0}
                 completedCH={stats.horasPorNatureza?.[nat] ?? 0}
                 certificates={nat === 'AC' ? acCerts : undefined}
                 catalogo={catalogo}

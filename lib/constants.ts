@@ -1,4 +1,9 @@
-import type { ConfigCurso } from '@/types'
+import type { ConfigCurso, ConcentracaoBICTI } from '@/types'
+
+export const CONCENTRACOES_BICTI: Record<ConcentracaoBICTI, { nome: string }> = {
+  CIENCIA_DADOS: { nome: 'Ciência de Dados' },
+  ESTUDOS_ENGENHARIA: { nome: 'Estudos de Engenharia' },
+}
 
 export const CURSOS: Record<string, ConfigCurso> = {
   BICTI: {
@@ -12,6 +17,32 @@ export const CURSOS: Record<string, ConfigCurso> = {
       OP: 0,
       OX: 180,
       OZ: 120,
+    },
+    concentracoes: {
+      CIENCIA_DADOS: {
+        nome: 'Ciência de Dados',
+        requisitos: {
+          AC: 240,
+          LV: 360,
+          OB: 601,
+          OH: 120,
+          OG: 240,
+          OZ: 120,
+          OX: 180,
+        },
+      },
+      ESTUDOS_ENGENHARIA: {
+        nome: 'Estudos de Engenharia',
+        requisitos: {
+          AC: 240,
+          LV: 360,
+          OB: 601,
+          OC: 60,
+          OH: 120,
+          OZ: 120,
+          OX: 180,
+        },
+      },
     },
     metadata: {
       codigo: 'G20251X',
@@ -97,6 +128,7 @@ export const NATUREZA_LABELS: Record<string, string> = {
   AC: 'AC - Atividade Complementar',
   LV: 'LV - Componente Livre',
   OB: 'OB - Obrigatória',
+  OC: 'OC - Optativa de Concentração',
   OG: 'OG - Optativa da Grande Área',
   OH: 'OH - Optativa Humanística',
   OP: 'OP - Optativa',

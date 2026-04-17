@@ -9,10 +9,13 @@ export type GroupTaskId = string & { readonly __brand: 'GroupTaskId' }
 // Course types
 export type Curso = 'BICTI' | 'ENG_PROD' | 'ENG_ELET'
 
+export type ConcentracaoBICTI = 'CIENCIA_DADOS' | 'ESTUDOS_ENGENHARIA'
+
 export type Natureza =
   | 'AC'
   | 'LV'
   | 'OB'
+  | 'OC'
   | 'OG'
   | 'OH'
   | 'OP'
@@ -44,6 +47,7 @@ export interface RequisitosCurso {
   AC?: number
   LV?: number
   OB?: number
+  OC?: number
   OG?: number
   OH?: number
   OP?: number
@@ -51,10 +55,16 @@ export interface RequisitosCurso {
   OZ?: number
 }
 
+export interface ConfigConcentracao {
+  nome: string
+  requisitos: RequisitosCurso
+}
+
 export interface ConfigCurso {
   nome: string
   requisitos: RequisitosCurso
   totalHoras: number
+  concentracoes?: Record<ConcentracaoBICTI, ConfigConcentracao>
   metadata?: {
     codigo?: string
     matrizCurricular?: string
@@ -101,6 +111,8 @@ export interface Profile {
   curso?: Curso
   /** Lista de cursos em ordem cronológica. O último é o curso ativo atual. */
   cursos?: Curso[]
+  /** Concentração do BICTI, se o estudante optou por uma. */
+  concentracaoBICTI?: ConcentracaoBICTI
   /** Ano de início do CPL (progressão linear após BICTI). Ex: 2026 */
   cplStartYear?: string | number
   /** Semestre de início do CPL. '1' ou '2' */
@@ -376,7 +388,7 @@ export interface CursoDisciplinaEntry {
 /** Shape of assets/data/disciplinas.json */
 export interface DisciplinasCatalogo {
   catalogo: Record<string, CatalogoDisciplina>
-  cursos: Record<Curso, CursoDisciplinaEntry[]>
+  cursos: Record<string, CursoDisciplinaEntry[]>
 }
 
 /** Shape of assets/data/matrizes.json — curso → semestre → lista de códigos */

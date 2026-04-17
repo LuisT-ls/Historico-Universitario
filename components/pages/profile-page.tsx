@@ -43,10 +43,10 @@ import {
   reauthenticateWithEmail,
   reauthenticateWithGoogle,
 } from '@/services/auth.service'
-import { CURSOS } from '@/lib/constants'
+import { CURSOS, CONCENTRACOES_BICTI } from '@/lib/constants'
 import { calcularEstatisticas, sanitizeInput, getCurrentSemester } from '@/lib/utils'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
-import type { Profile, Curso, UserStatistics } from '@/types'
+import type { Profile, Curso, ConcentracaoBICTI, UserStatistics } from '@/types'
 import {
   Dialog,
   DialogContent,
@@ -65,6 +65,7 @@ const isProfileDirty = (current: Profile | null, initial: Profile | null): boole
   return (
     current.nome !== initial.nome ||
     JSON.stringify(current.cursos) !== JSON.stringify(initial.cursos) ||
+    current.concentracaoBICTI !== initial.concentracaoBICTI ||
     current.cplStartYear !== initial.cplStartYear ||
     current.cplStartSemester !== initial.cplStartSemester ||
     current.matricula !== initial.matricula ||
@@ -220,6 +221,7 @@ export function ProfilePage() {
       await updateProfile(user.uid, {
         nome: sanitizeInput(profile.nome || ''),
         cursos: profile.cursos,
+        concentracaoBICTI: profile.concentracaoBICTI,
         matricula: profile.matricula,
         institution: profile.institution,
         startYear: profile.startYear,
@@ -558,6 +560,26 @@ export function ProfilePage() {
                         </p>
                       )}
                     </div>
+
+                    {cursoAtivo === 'BICTI' && (
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Concentração BICTI</Label>
+                        <Select
+                          value={profile?.concentracaoBICTI ?? ''}
+                          onChange={e => {
+                            const val = e.target.value as ConcentracaoBICTI | ''
+                            setProfile(prev => prev ? ({ ...prev, concentracaoBICTI: val || undefined }) : null)
+                          }}
+                          className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        >
+                          <option value="">Nenhuma (BICTI geral)</option>
+                          {(Object.entries(CONCENTRACOES_BICTI) as [ConcentracaoBICTI, { nome: string }][]).map(([key, val]) => (
+                            <option key={key} value={key}>{val.nome}</option>
+                          ))}
+                        </Select>
+                        <p className="text-[11px] text-slate-400">Selecione se está seguindo uma trilha de concentração específica.</p>
+                      </div>
+                    )}
 
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Ano Ingresso</Label>

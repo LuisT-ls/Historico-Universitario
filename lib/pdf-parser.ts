@@ -72,7 +72,7 @@ const mapNatureza = (natureza: string, codigo: string): Natureza => {
   }
 
   // Se for uma das naturezas conhecidas, retorna ela mesma
-  const validNatures: Natureza[] = ['AC', 'LV', 'OB', 'OG', 'OH', 'OP', 'OX', 'OZ'];
+  const validNatures: Natureza[] = ['AC', 'LV', 'OB', 'OC', 'OG', 'OH', 'OP', 'OX', 'OZ'];
   if (validNatures.includes(n as Natureza)) return n as Natureza;
 
   return 'OB'; // Padrão
