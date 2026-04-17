@@ -4,12 +4,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/components/auth-provider'
 import { getDisciplines, getCertificates, getProfile } from '@/services/firestore.service'
 import { CurriculumMap } from '@/components/features/curriculum-map'
-import { PrereqGraph } from '@/components/features/prereq-graph'
 import type { Disciplina, Certificado, Curso, Profile } from '@/types'
 import { CURSOS } from '@/lib/constants'
-import { Loader2, LayoutGrid, GitBranch, ChevronDown, ChevronUp } from 'lucide-react'
+import { Loader2, LayoutGrid } from 'lucide-react'
 import { Select } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
 
 export function GradePage() {
   const { user, loading: authLoading } = useAuth()
@@ -18,7 +16,6 @@ export function GradePage() {
   const [profile, setProfile] = useState<Profile | undefined>()
   const [curso, setCurso] = useState<Curso>('BICTI')
   const [isLoading, setIsLoading] = useState(false)
-  const [showGraph, setShowGraph] = useState(false)
 
   const load = useCallback(async () => {
     if (!user) return
@@ -91,43 +88,11 @@ export function GradePage() {
           <Loader2 className="h-6 w-6 animate-spin text-primary" aria-hidden="true" />
         </div>
       ) : (
-        <>
-          <CurriculumMap
-            disciplinas={disciplinas}
-            certificados={certificados}
-            curso={curso}
-          />
-
-          {/* Mapa de pré-requisitos */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                <span className="w-1 h-5 rounded-full bg-violet-500 inline-block" aria-hidden="true" />
-                Mapa de Pré-Requisitos
-              </h2>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowGraph(v => !v)}
-                className="text-muted-foreground gap-1.5"
-              >
-                {showGraph
-                  ? <><ChevronUp className="h-4 w-4" />Ocultar</>
-                  : <><GitBranch className="h-4 w-4" />Ver grafo</>
-                }
-              </Button>
-            </div>
-            {showGraph && (
-              <PrereqGraph disciplinas={disciplinas} curso={curso} />
-            )}
-            {!showGraph && (
-              <p className="text-sm text-muted-foreground">
-                Visualize as dependências entre disciplinas e identifique quais estão bloqueadas.
-              </p>
-            )}
-          </section>
-        </>
+        <CurriculumMap
+          disciplinas={disciplinas}
+          certificados={certificados}
+          curso={curso}
+        />
       )}
     </div>
   )
