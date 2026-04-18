@@ -8,6 +8,8 @@ jest.mock('@/services/storage.service', () => ({
   deleteFile: jest.fn().mockResolvedValue(undefined),
 }))
 
+const mockDeleteFile = jest.fn().mockResolvedValue(undefined)
+
 const mockCollection = jest.fn()
 const mockDoc = jest.fn()
 const mockGetDocs = jest.fn()
@@ -39,6 +41,7 @@ jest.mock('@/lib/firebase/config', () => ({
 import {
   getMateriais,
   getMaterialById,
+  getMeusMateriais,
   addMaterial,
   updateMaterial,
   deleteMaterial,
@@ -46,6 +49,7 @@ import {
   incrementViews,
   getRelatedMateriais,
   getDisciplinas,
+  getAllMateriais,
 } from '@/services/materials.service'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -90,6 +94,10 @@ beforeEach(() => {
   mockDoc.mockReturnValue('doc-ref')
   mockQuery.mockImplementation((...args: any[]) => args[0])
   mockWhere.mockReturnValue('where-clause')
+  // restore deleteFile default after clearAllMocks
+  const storageService = require('@/services/storage.service')
+  storageService.deleteFile.mockResolvedValue(undefined)
+  mockDeleteFile.mockResolvedValue(undefined)
 })
 
 describe('getMateriais', () => {
@@ -117,6 +125,30 @@ describe('getMateriais', () => {
     expect(result[0].curso).toBe('BICTI')
   })
 
+  it('filtra por lista de cursos (cursos[])', async () => {
+    const docs = [
+      makeDocSnap('m1', { curso: 'BICTI' }),
+      makeDocSnap('m2', { curso: 'ENG_PROD' }),
+      makeDocSnap('m3', { curso: 'ADM' }),
+    ]
+    mockGetDocs.mockResolvedValue(makeSnapshot(docs))
+
+    const result = await getMateriais({ cursos: ['BICTI', 'ADM'] })
+    expect(result).toHaveLength(2)
+    expect(result.map(m => m.curso)).toEqual(expect.arrayContaining(['BICTI', 'ADM']))
+  })
+
+  it('não aplica filtro cursos quando o array está vazio', async () => {
+    const docs = [
+      makeDocSnap('m1', { curso: 'BICTI' }),
+      makeDocSnap('m2', { curso: 'ENG_PROD' }),
+    ]
+    mockGetDocs.mockResolvedValue(makeSnapshot(docs))
+
+    const result = await getMateriais({ cursos: [] })
+    expect(result).toHaveLength(2)
+  })
+
   it('filtra por tipo', async () => {
     const docs = [
       makeDocSnap('m1', { tipo: 'prova' }),
@@ -127,6 +159,30 @@ describe('getMateriais', () => {
     const result = await getMateriais({ tipo: 'prova' })
     expect(result).toHaveLength(1)
     expect(result[0].tipo).toBe('prova')
+  })
+
+  it('filtra por semestre', async () => {
+    const docs = [
+      makeDocSnap('m1', { semestre: '2024.1' }),
+      makeDocSnap('m2', { semestre: '2024.2' }),
+    ]
+    mockGetDocs.mockResolvedValue(makeSnapshot(docs))
+
+    const result = await getMateriais({ semestre: '2024.1' })
+    expect(result).toHaveLength(1)
+    expect(result[0].semestre).toBe('2024.1')
+  })
+
+  it('filtra por disciplina (case-insensitive, parcial)', async () => {
+    const docs = [
+      makeDocSnap('m1', { disciplina: 'Cálculo A' }),
+      makeDocSnap('m2', { disciplina: 'Álgebra Linear' }),
+    ]
+    mockGetDocs.mockResolvedValue(makeSnapshot(docs))
+
+    const result = await getMateriais({ disciplina: 'cálculo' })
+    expect(result).toHaveLength(1)
+    expect(result[0].disciplina).toBe('Cálculo A')
   })
 
   it('filtra por busca no título', async () => {
@@ -188,6 +244,41 @@ describe('getMaterialById', () => {
     const result = await getMaterialById('inexistente')
     expect(result).toBeNull()
   })
+
+  it('lança erro quando Firestore não está inicializado', async () => {
+    jest.resetModules()
+    jest.doMock('@/lib/firebase/config', () => ({ db: null }))
+    const { getMaterialById: getMaterialByIdNoDb } = require('@/services/materials.service')
+    await expect(getMaterialByIdNoDb('m1')).rejects.toThrow('Firestore não inicializado')
+    jest.dontMock('@/lib/firebase/config')
+  })
+
+  it('lança erro quando Firestore falha', async () => {
+    mockGetDoc.mockRejectedValue(new Error('Network error'))
+    await expect(getMaterialById('m1')).rejects.toThrow()
+  })
+})
+
+describe('getMeusMateriais', () => {
+  it('retorna materiais do usuário ordenados por data', async () => {
+    const createdAtOld: any = { toDate: () => new Date('2023-01-01') }
+    const createdAtNew: any = { toDate: () => new Date('2024-06-01') }
+    const docs = [
+      makeDocSnap('m1', { uploadedBy: 'uid-1', titulo: 'Antigo', createdAt: createdAtOld }),
+      makeDocSnap('m2', { uploadedBy: 'uid-1', titulo: 'Recente', createdAt: createdAtNew }),
+    ]
+    mockGetDocs.mockResolvedValue(makeSnapshot(docs))
+
+    const result = await getMeusMateriais('uid-1')
+    expect(result).toHaveLength(2)
+    expect(result[0].titulo).toBe('Recente')
+    expect(result[1].titulo).toBe('Antigo')
+  })
+
+  it('lança erro quando Firestore falha', async () => {
+    mockGetDocs.mockRejectedValue(new Error('Permission denied'))
+    await expect(getMeusMateriais('uid-1')).rejects.toThrow()
+  })
 })
 
 describe('addMaterial', () => {
@@ -215,6 +306,27 @@ describe('addMaterial', () => {
     expect(callData.status).toBe('approved')
     expect(callData.downloadsCount).toBe(0)
   })
+
+  it('lança erro quando Firestore falha', async () => {
+    mockAddDoc.mockRejectedValue(new Error('Write failed'))
+    await expect(
+      addMaterial(
+        {
+          titulo: 'Novo',
+          curso: 'BICTI',
+          disciplina: 'Cálculo A',
+          semestre: '2024.1',
+          tipo: 'resumo',
+          uploadedBy: 'uid-1' as any,
+          uploaderName: 'Aluno',
+          arquivoURL: 'https://example.com/file.pdf',
+          storagePath: 'materiais/uid-1/file.pdf',
+          nomeArquivo: 'file.pdf',
+        },
+        'uid-1' as any
+      )
+    ).rejects.toThrow()
+  })
 })
 
 describe('updateMaterial', () => {
@@ -234,6 +346,19 @@ describe('updateMaterial', () => {
     expect(data.titulo).toBe('Título Atualizado')
     expect(data.updatedAt).toBeInstanceOf(Date)
   })
+
+  it('lança erro quando Firestore falha', async () => {
+    mockUpdateDoc.mockRejectedValue(new Error('Update failed'))
+    await expect(
+      updateMaterial('m1', {
+        titulo: 'Título',
+        curso: 'BICTI',
+        disciplina: 'Cálculo A',
+        semestre: '2024.1',
+        tipo: 'resumo',
+      })
+    ).rejects.toThrow()
+  })
 })
 
 describe('deleteMaterial', () => {
@@ -245,6 +370,12 @@ describe('deleteMaterial', () => {
 
     expect(deleteFile).toHaveBeenCalledWith('materiais/uid-1/file.pdf')
     expect(mockDeleteDoc).toHaveBeenCalledTimes(1)
+  })
+
+  it('lança erro quando deleteFile falha', async () => {
+    const storageService = require('@/services/storage.service')
+    storageService.deleteFile.mockRejectedValueOnce(new Error('Storage error'))
+    await expect(deleteMaterial('m1', 'materiais/uid-1/file.pdf')).rejects.toThrow('Storage error')
   })
 })
 
@@ -343,5 +474,27 @@ describe('getDisciplinas', () => {
     mockGetDocs.mockRejectedValue(new Error('Offline'))
     const result = await getDisciplinas()
     expect(result).toEqual([])
+  })
+})
+
+describe('getAllMateriais', () => {
+  it('retorna todos os materiais sem filtro de status, ordenados por data', async () => {
+    const createdAtOld: any = { toDate: () => new Date('2023-01-01') }
+    const createdAtNew: any = { toDate: () => new Date('2024-06-01') }
+    const docs = [
+      makeDocSnap('m1', { titulo: 'Antigo', status: 'pending', createdAt: createdAtOld }),
+      makeDocSnap('m2', { titulo: 'Aprovado', status: 'approved', createdAt: createdAtNew }),
+    ]
+    mockGetDocs.mockResolvedValue(makeSnapshot(docs))
+
+    const result = await getAllMateriais()
+    expect(result).toHaveLength(2)
+    expect(result[0].titulo).toBe('Aprovado')
+    expect(result[1].titulo).toBe('Antigo')
+  })
+
+  it('lança erro quando Firestore falha', async () => {
+    mockGetDocs.mockRejectedValue(new Error('Permission denied'))
+    await expect(getAllMateriais()).rejects.toThrow()
   })
 })
