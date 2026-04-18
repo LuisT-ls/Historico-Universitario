@@ -72,9 +72,10 @@ export function PdfPreview({ url }: PdfPreviewProps) {
 
         await task.promise
         if (!cancelled) setLoading(false)
-      } catch (e: any) {
+      } catch (e: unknown) {
         // 'RenderingCancelledException' é esperado ao trocar de página rapidamente
-        if (!cancelled && e?.name !== 'RenderingCancelledException') {
+        const name = e instanceof Error ? e.name : ''
+        if (!cancelled && name !== 'RenderingCancelledException') {
           setError(true)
           setLoading(false)
         }

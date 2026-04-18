@@ -1,12 +1,18 @@
-import type { UserStatistics } from '@/types'
+import type { Disciplina, Profile, UserStatistics } from '@/types'
 import { calcularCR } from './utils/calculations'
 
-/**
- * Gera e inicia o download de um arquivo JSON contendo o backup dos dados.
- * 
- * @param backup - Objeto contendo os dados do histórico e perfil para exportação
- */
-export function exportAsJSON(backup: any) {
+export interface ExportBackup {
+  exportedAt: string
+  disciplines: Disciplina[]
+  profile: Profile | null
+  user: {
+    uid: string
+    email: string | null
+    displayName: string | null
+  }
+}
+
+export function exportAsJSON(backup: ExportBackup): void {
     const dataStr = JSON.stringify(backup, null, 2)
     const dataBlob = new Blob([dataStr], { type: 'application/json' })
 
@@ -20,18 +26,7 @@ export function exportAsJSON(backup: any) {
     setTimeout(() => URL.revokeObjectURL(link.href), 100)
 }
 
-/**
- * Gera e inicia o download de um arquivo Excel (.xlsx) formatado.
- * Cria abas separadas para o resumo geral e para cada período letivo.
- *
- * Usa ExcelJS (substitui xlsx 0.18.5 que possuía CVE-2023-30533).
- *
- * @param backup - Objeto de backup (usado para dados do perfil)
- * @param disciplinas - Lista completa de disciplinas
- * @param statistics - Estatísticas calculadas do usuário
- */
-export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: UserStatistics) {
-    // Importação dinâmica para reduzir o bundle inicial
+export async function exportAsXLSX(backup: ExportBackup, disciplinas: Disciplina[], statistics: UserStatistics): Promise<void> {
     const { default: ExcelJS } = await import('exceljs')
     const workbook = new ExcelJS.Workbook()
 
@@ -59,8 +54,7 @@ export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: 
         ['CR (Coeficiente de Rendimento)', cr.toFixed(2)],
     ])
 
-    // Agrupar disciplinas por período
-    const disciplinasPorPeriodo: { [key: string]: any[] } = {}
+    const disciplinasPorPeriodo: Record<string, Disciplina[]> = {}
     disciplinas.forEach((d) => {
         const periodo = d.periodo || 'Sem Período'
         if (!disciplinasPorPeriodo[periodo]) {
@@ -69,26 +63,23 @@ export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: 
         disciplinasPorPeriodo[periodo].push(d)
     })
 
-    // Ordenar períodos
     const periodosOrdenados = Object.keys(disciplinasPorPeriodo).sort((a, b) => {
         if (a === 'Sem Período') return 1
         if (b === 'Sem Período') return -1
         return a.localeCompare(b)
     })
 
-    // Criar aba para cada período
     periodosOrdenados.forEach((periodo) => {
-        // Nome da aba (máximo 31 caracteres — limite do formato .xlsx)
         const nomeAba = periodo.length > 31 ? periodo.substring(0, 28) + '...' : periodo
         const ws = workbook.addWorksheet(nomeAba)
         ws.columns = [
-            { width: 10 },  // Código
-            { width: 50 },  // Disciplina
-            { width: 10 },  // Natureza
-            { width: 8 },   // CH
-            { width: 8 },   // Nota
-            { width: 12 },  // Resultado
-            { width: 30 },  // Curso
+            { width: 10 },
+            { width: 50 },
+            { width: 10 },
+            { width: 8 },
+            { width: 8 },
+            { width: 12 },
+            { width: 30 },
         ]
         ws.addRow(['Código', 'Disciplina', 'Natureza', 'CH', 'Nota', 'Resultado', 'Curso'])
         disciplinasPorPeriodo[periodo].forEach((d) => {
@@ -96,24 +87,22 @@ export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: 
         })
     })
 
-    // Aba: Todas as Disciplinas (visão completa)
     const wsTodas = workbook.addWorksheet('Todas')
     wsTodas.columns = [
-        { width: 10 },  // Período
-        { width: 10 },  // Código
-        { width: 50 },  // Disciplina
-        { width: 10 },  // Natureza
-        { width: 8 },   // CH
-        { width: 8 },   // Nota
-        { width: 12 },  // Resultado
-        { width: 30 },  // Curso
+        { width: 10 },
+        { width: 10 },
+        { width: 50 },
+        { width: 10 },
+        { width: 8 },
+        { width: 8 },
+        { width: 12 },
+        { width: 30 },
     ]
     wsTodas.addRow(['Período', 'Código', 'Disciplina', 'Natureza', 'CH', 'Nota', 'Resultado', 'Curso'])
     disciplinas.forEach((d) => {
         wsTodas.addRow([d.periodo, d.codigo, d.nome, d.natureza, d.ch, d.nota, d.resultado || '-', d.curso])
     })
 
-    // Gerar buffer e iniciar download no browser
     const buffer = await workbook.xlsx.writeBuffer()
     const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -128,18 +117,7 @@ export async function exportAsXLSX(backup: any, disciplinas: any[], statistics: 
     setTimeout(() => URL.revokeObjectURL(url), 100)
 }
 
-
-/**
- * Gera e inicia o download de um arquivo PDF formatado e profissional.
- * Inclui cabeçalho com dados do aluno, resumo estatístico e tabelas por período.
- * utiliza jspdf e jspdf-autotable.
- * 
- * @param backup - Objeto de backup (usado para dados do perfil)
- * @param disciplinas - Lista completa de disciplinas
- * @param statistics - Estatísticas calculadas do usuário
- */
-export async function exportAsPDF(backup: any, disciplinas: any[], statistics: UserStatistics) {
-    // Importações dinâmicas para reduzir o bundle inicial
+export async function exportAsPDF(backup: ExportBackup, disciplinas: Disciplina[], statistics: UserStatistics): Promise<void> {
     const { default: jsPDF } = await import('jspdf')
     const { default: autoTable } = await import('jspdf-autotable')
 
@@ -147,7 +125,6 @@ export async function exportAsPDF(backup: any, disciplinas: any[], statistics: U
     const pageWidth = doc.internal.pageSize.getWidth()
     const dateStr = new Date().toLocaleDateString('pt-BR')
 
-    // Cabeçalho
     doc.setFontSize(18)
     doc.setFont('helvetica', 'bold')
     doc.text('Histórico Acadêmico', pageWidth / 2, 20, { align: 'center' })
@@ -156,7 +133,6 @@ export async function exportAsPDF(backup: any, disciplinas: any[], statistics: U
     doc.setFont('helvetica', 'normal')
     doc.text(`Exportado em: ${dateStr}`, pageWidth / 2, 28, { align: 'center' })
 
-    // Informações do Perfil
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
     doc.text('Informações do Aluno', 14, 40)
@@ -177,13 +153,11 @@ export async function exportAsPDF(backup: any, disciplinas: any[], statistics: U
         yPos += 6
     })
 
-    // Estatísticas
     yPos += 4
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
     doc.text('Estatísticas', 14, yPos)
 
-    // Calcular CR corretamente
     const cr = calcularCR(disciplinas)
 
     yPos += 8
@@ -201,8 +175,7 @@ export async function exportAsPDF(backup: any, disciplinas: any[], statistics: U
         yPos += 6
     })
 
-    // Agrupar disciplinas por período
-    const disciplinasPorPeriodo: { [key: string]: any[] } = {}
+    const disciplinasPorPeriodo: Record<string, Disciplina[]> = {}
     disciplinas.forEach((d) => {
         const periodo = d.periodo || 'Sem período'
         if (!disciplinasPorPeriodo[periodo]) {
@@ -211,37 +184,32 @@ export async function exportAsPDF(backup: any, disciplinas: any[], statistics: U
         disciplinasPorPeriodo[periodo].push(d)
     })
 
-    // Ordenar períodos
     const periodosOrdenados = Object.keys(disciplinasPorPeriodo).sort((a, b) => {
         if (a === 'Sem período') return 1
         if (b === 'Sem período') return -1
         return a.localeCompare(b)
     })
 
-    // Criar tabela para cada período
     yPos += 8
-    periodosOrdenados.forEach((periodo, index) => {
+    periodosOrdenados.forEach((periodo) => {
         const disciplinasDoPeriodo = disciplinasPorPeriodo[periodo]
 
-        // Verificar se precisa de nova página
         if (yPos > 240) {
             doc.addPage()
             yPos = 20
         }
 
-        // Título do período
         doc.setFontSize(12)
         doc.setFont('helvetica', 'bold')
         doc.text(`${periodo}`, 14, yPos)
         yPos += 6
 
-        // Dados da tabela
         const tableData = disciplinasDoPeriodo.map((d) => [
             d.codigo,
             d.nome.length > 40 ? d.nome.substring(0, 37) + '...' : d.nome,
             d.natureza,
             d.ch.toString(),
-            d.nota.toFixed(1),
+            (d.nota ?? 0).toFixed(1),
             d.resultado || '-',
         ])
 
@@ -258,12 +226,13 @@ export async function exportAsPDF(backup: any, disciplinas: any[], statistics: U
             },
         })
 
-        // Atualizar yPos após a tabela
+        // jspdf-autotable extends jsPDF at runtime; the property is not in the type definitions
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         yPos = (doc as any).lastAutoTable.finalY + 8
     })
 
-    // Rodapé
-    const totalPages = (doc as any).internal.getNumberOfPages()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const totalPages = (doc.internal as any).getNumberOfPages() as number
     for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i)
         doc.setFontSize(8)
@@ -276,6 +245,5 @@ export async function exportAsPDF(backup: any, disciplinas: any[], statistics: U
         )
     }
 
-    // Salvar PDF
     doc.save(`historico-universitario-${new Date().toISOString().split('T')[0]}.pdf`)
 }

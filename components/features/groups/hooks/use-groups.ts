@@ -55,8 +55,8 @@ export function useGroups() {
             toast.success('Você entrou no grupo com sucesso!')
             await loadGroups()
             return true
-        } catch (err: any) {
-            toast.error(err.message || 'Código de convite inválido')
+        } catch (err: unknown) {
+            toast.error(err instanceof Error ? err.message : 'Código de convite inválido')
             return false
         }
     }
