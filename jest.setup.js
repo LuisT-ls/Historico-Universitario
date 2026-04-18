@@ -43,3 +43,15 @@ jest.mock('@/lib/firebase/config', () => ({
 //   error: jest.fn(),
 //   warn: jest.fn(),
 // }
+
+afterEach(() => {
+  // Clear all timers
+  jest.clearAllTimers();
+  // Clear all mocks
+  jest.clearAllMocks();
+});
+
+// Add global error handlers for unhandled rejections
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
+});

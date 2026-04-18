@@ -10,6 +10,9 @@ const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
   forceExit: true,
+  detectOpenHandles: true,
+  testTimeout: 10000,
+  maxWorkers: '50%',
   moduleNameMapper: {
     // Mapear imports do Next.js
     '^@/(.*)$': '<rootDir>/$1',
