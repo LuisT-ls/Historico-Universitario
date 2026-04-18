@@ -29,6 +29,15 @@
       "collectionGroup": "materiais",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "curso", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "materiais",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "tipo", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
