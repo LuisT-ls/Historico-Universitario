@@ -243,11 +243,12 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 
         const data = userSnap.data()
         const cursosRaw: Curso[] | undefined = data.profile?.courses
-        const cursoLegado: Curso = data.profile?.course || 'BICTI'
-        // Normaliza: se `courses` array existir usa ele; senão monta a partir do campo legado `course`
+        const cursoLegado: Curso | undefined = data.profile?.course || undefined
+        // Normaliza: se `courses` array existir e não estiver vazio usa ele;
+        // senão, usa o campo legado `course` se existir; senão array vazio (onboarding)
         const cursos: Curso[] = Array.isArray(cursosRaw) && cursosRaw.length > 0
             ? cursosRaw
-            : [cursoLegado]
+            : cursoLegado ? [cursoLegado] : []
         return {
             uid: createUserId(userId),
             nome: data.name || '',
@@ -255,6 +256,9 @@ export async function getProfile(userId: string): Promise<Profile | null> {
             photoURL: data.photoURL || '',
             curso: cursos[cursos.length - 1],
             cursos,
+            instituto: data.profile?.instituto,
+            concentracaoBICTI: data.profile?.concentracaoBICTI,
+            concentracaoBIHUM: data.profile?.concentracaoBIHUM,
             matricula: data.profile?.enrollment || '',
             institution: data.profile?.institution || '',
             startYear: data.profile?.startYear,
@@ -369,6 +373,9 @@ export async function updateProfile(userId: string, data: Partial<Profile>): Pro
         } else if (data.curso !== undefined) {
             firestoreData['profile.course'] = data.curso
         }
+        if (data.instituto !== undefined) firestoreData['profile.instituto'] = data.instituto
+        if (data.concentracaoBICTI !== undefined) firestoreData['profile.concentracaoBICTI'] = data.concentracaoBICTI
+        if (data.concentracaoBIHUM !== undefined) firestoreData['profile.concentracaoBIHUM'] = data.concentracaoBIHUM
         if (data.matricula !== undefined) firestoreData['profile.enrollment'] = data.matricula
         if (data.institution !== undefined) firestoreData['profile.institution'] = data.institution
         if (data.startYear !== undefined) firestoreData['profile.startYear'] = data.startYear

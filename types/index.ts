@@ -13,6 +13,13 @@ export type Curso = 'BICTI' | 'ENG_PROD' | 'ENG_ELET' | 'BI_HUM'
 
 export type ConcentracaoBICTI = 'CIENCIA_DADOS' | 'ESTUDOS_ENGENHARIA'
 
+export type ConcentracaoBIHUM =
+  | 'ESTUDOS_JURIDICOS'
+  | 'ESCRITA_CRIATIVA'
+  | 'ESTUDOS_SUBJETIVIDADE'
+  | 'POLITICAS_CULTURA'
+  | 'RELACOES_INTERNACIONAIS'
+
 export type Natureza =
   | 'AC'
   | 'LV'
@@ -118,6 +125,8 @@ export interface Profile {
   cursos?: Curso[]
   /** Concentração do BICTI, se o estudante optou por uma. */
   concentracaoBICTI?: ConcentracaoBICTI
+  /** Concentração do BI em Humanidades, se o estudante optou por uma. */
+  concentracaoBIHUM?: ConcentracaoBIHUM
   /** Ano de início do CPL (progressão linear após BICTI). Ex: 2026 */
   cplStartYear?: string | number
   /** Semestre de início do CPL. '1' ou '2' */

@@ -1,4 +1,4 @@
-import type { ConfigCurso, ConcentracaoBICTI, Instituto } from '@/types'
+import type { ConfigCurso, ConcentracaoBICTI, ConcentracaoBIHUM, Instituto } from '@/types'
 
 export interface InfoItem {
   label: string
@@ -65,6 +65,14 @@ export const INSTITUTOS: Record<Instituto, ConfigInstituto> = {
 export const CONCENTRACOES_BICTI: Record<ConcentracaoBICTI, { nome: string }> = {
   CIENCIA_DADOS: { nome: 'Ciência de Dados' },
   ESTUDOS_ENGENHARIA: { nome: 'Estudos de Engenharia' },
+}
+
+export const CONCENTRACOES_BIHUM: Record<ConcentracaoBIHUM, { nome: string }> = {
+  ESTUDOS_JURIDICOS:      { nome: 'Estudos Jurídicos' },
+  ESCRITA_CRIATIVA:       { nome: 'Escrita Criativa' },
+  ESTUDOS_SUBJETIVIDADE:  { nome: 'Estudos da Subjetividade e do Comportamento Humano' },
+  POLITICAS_CULTURA:      { nome: 'Políticas e Gestão da Cultura' },
+  RELACOES_INTERNACIONAIS:{ nome: 'Relações Internacionais' },
 }
 
 export const CURSOS: Record<string, ConfigCurso> = {

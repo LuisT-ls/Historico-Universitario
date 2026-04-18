@@ -43,10 +43,10 @@ import {
   reauthenticateWithEmail,
   reauthenticateWithGoogle,
 } from '@/services/auth.service'
-import { CURSOS, CONCENTRACOES_BICTI, INSTITUTOS } from '@/lib/constants'
+import { CURSOS, CONCENTRACOES_BICTI, CONCENTRACOES_BIHUM, INSTITUTOS } from '@/lib/constants'
 import { calcularEstatisticas, sanitizeInput, getCurrentSemester } from '@/lib/utils'
 import { getFirebaseErrorMessage } from '@/lib/error-handler'
-import type { Profile, Curso, ConcentracaoBICTI, UserStatistics, Instituto } from '@/types'
+import type { Profile, Curso, ConcentracaoBICTI, ConcentracaoBIHUM, UserStatistics, Instituto } from '@/types'
 import {
   Dialog,
   DialogContent,
@@ -67,6 +67,7 @@ const isProfileDirty = (current: Profile | null, initial: Profile | null): boole
     current.instituto !== initial.instituto ||
     JSON.stringify(current.cursos) !== JSON.stringify(initial.cursos) ||
     current.concentracaoBICTI !== initial.concentracaoBICTI ||
+    current.concentracaoBIHUM !== initial.concentracaoBIHUM ||
     current.cplStartYear !== initial.cplStartYear ||
     current.cplStartSemester !== initial.cplStartSemester ||
     current.matricula !== initial.matricula ||
@@ -226,6 +227,7 @@ export function ProfilePage() {
         instituto: profile.instituto,
         cursos: profile.cursos,
         concentracaoBICTI: profile.concentracaoBICTI,
+        concentracaoBIHUM: profile.concentracaoBIHUM,
         matricula: profile.matricula,
         institution: profile.institution,
         startYear: profile.startYear,
@@ -311,8 +313,8 @@ export function ProfilePage() {
     ? profile.cursos[profile.cursos.length - 1]
     : profile?.curso) ?? undefined) as Curso | undefined
 
-  // Preview no painel direito: curso confirmado ou curso selecionado no formulário de onboarding
-  const cursoParaEstrutura = (cursoAtivo ?? (addCursoValue as Curso | undefined)) as Curso | undefined
+  // Preview no painel direito: curso em seleção tem prioridade, senão usa o ativo
+  const cursoParaEstrutura = (addCursoValue || cursoAtivo || undefined) as Curso | undefined
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -507,6 +509,7 @@ export function ProfilePage() {
                                     cursos: novos,
                                     curso: addCursoValue as Curso,
                                     concentracaoBICTI: updated.concentracaoBICTI,
+                                    concentracaoBIHUM: updated.concentracaoBIHUM,
                                   })
                                   toast.success('Curso configurado!')
                                 } catch { toast.error('Erro ao salvar curso') } finally { setIsSaving(false) }
@@ -694,6 +697,26 @@ export function ProfilePage() {
                           ))}
                         </Select>
                         <p className="text-[11px] text-slate-400">Selecione se está seguindo uma trilha de concentração específica.</p>
+                      </div>
+                    )}
+
+                    {cursoAtivo === 'BI_HUM' && (
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Habilitação BI em Humanidades</Label>
+                        <Select
+                          value={profile?.concentracaoBIHUM ?? ''}
+                          onChange={e => {
+                            const val = e.target.value as ConcentracaoBIHUM | ''
+                            setProfile(prev => prev ? ({ ...prev, concentracaoBIHUM: val || undefined }) : null)
+                          }}
+                          className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        >
+                          <option value="">Nenhuma (BI em Humanidades geral)</option>
+                          {(Object.entries(CONCENTRACOES_BIHUM) as [ConcentracaoBIHUM, { nome: string }][]).map(([key, val]) => (
+                            <option key={key} value={key}>{val.nome}</option>
+                          ))}
+                        </Select>
+                        <p className="text-[11px] text-slate-400">Selecione sua habilitação se já definiu uma trilha específica.</p>
                       </div>
                     )}
 
