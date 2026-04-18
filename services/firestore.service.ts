@@ -9,6 +9,9 @@ import {
     query,
     where,
     setDoc,
+    writeBatch,
+    type DocumentReference,
+    type DocumentData,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import type { Disciplina, Certificado, Profile, Curso } from '@/types'
@@ -392,4 +395,55 @@ export async function updateProfile(userId: string, data: Partial<Profile>): Pro
         logger.error('Erro ao atualizar perfil:', error)
         throw error
     }
+}
+
+// ===== CASCADE DELETE =====
+
+const BATCH_LIMIT = 500
+
+async function deleteInBatches(refs: DocumentReference<DocumentData>[]): Promise<void> {
+    for (let i = 0; i < refs.length; i += BATCH_LIMIT) {
+        const batch = writeBatch(db!)
+        refs.slice(i, i + BATCH_LIMIT).forEach(ref => batch.delete(ref))
+        await batch.commit()
+    }
+}
+
+/**
+ * Apaga todos os dados Firestore do usuário em lotes atômicos antes de
+ * remover a conta do Firebase Auth.
+ *
+ * Coleções limpas:
+ *  - disciplines          (root, field userId)
+ *  - certificados         (root, field userId)
+ *  - materiais            (root, field uploadedBy — materiais enviados pelo usuário)
+ *  - users/{uid}/favorites (subcoleção)
+ *  - users/{uid}          (documento de perfil)
+ *
+ * Observação: likes e ratings do usuário em materiais de terceiros ficam
+ * como registros órfãos — não causam problemas funcionais pois o userId
+ * deixa de existir no Auth.
+ */
+export async function deleteUserData(userId: string): Promise<void> {
+    if (!db) throw new Error('Firestore não inicializado')
+
+    const refs: DocumentReference<DocumentData>[] = []
+
+    const [disciplinesSnap, certSnap, materiaisSnap, favsSnap] = await Promise.all([
+        getDocs(query(collection(db, 'disciplines'), where('userId', '==', userId))),
+        getDocs(query(collection(db, 'certificados'), where('userId', '==', userId))),
+        getDocs(query(collection(db, 'materiais'), where('uploadedBy', '==', userId))),
+        getDocs(collection(db, 'users', userId, 'favorites')),
+    ])
+
+    disciplinesSnap.forEach(d => refs.push(d.ref))
+    certSnap.forEach(d => refs.push(d.ref))
+    materiaisSnap.forEach(d => refs.push(d.ref))
+    favsSnap.forEach(d => refs.push(d.ref))
+
+    // Profile document last so reads above still work if interrupted
+    refs.push(doc(db, 'users', userId))
+
+    await deleteInBatches(refs)
+    logger.info('Dados do usuário limpos com sucesso')
 }

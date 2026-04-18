@@ -2,6 +2,7 @@ import {
     getDisciplines, addDiscipline, updateDiscipline, deleteDiscipline,
     getCertificates, addCertificate, updateCertificate, deleteCertificate,
     getProfile, updateProfile, getScheduleCodes, saveScheduleCodes, getUserRole,
+    deleteUserData,
 } from '@/services/firestore.service'
 
 jest.mock('@/lib/logger', () => ({
@@ -22,6 +23,9 @@ const mockDeleteDoc = jest.fn()
 const mockSetDoc = jest.fn()
 const mockQuery = jest.fn()
 const mockWhere = jest.fn()
+const mockBatchDelete = jest.fn()
+const mockBatchCommit = jest.fn()
+const mockWriteBatch = jest.fn()
 
 jest.mock('firebase/firestore', () => ({
     collection: (...args: any[]) => mockCollection(...args),
@@ -34,6 +38,7 @@ jest.mock('firebase/firestore', () => ({
     setDoc: (...args: any[]) => mockSetDoc(...args),
     query: (...args: any[]) => mockQuery(...args),
     where: (...args: any[]) => mockWhere(...args),
+    writeBatch: (...args: any[]) => mockWriteBatch(...args),
 }))
 
 const disciplinaDocData = {
@@ -78,6 +83,9 @@ beforeEach(() => {
     mockDoc.mockReturnValue('docRef')
     mockQuery.mockReturnValue('queryRef')
     mockWhere.mockReturnValue('whereClause')
+    mockBatchDelete.mockReturnValue(undefined)
+    mockBatchCommit.mockResolvedValue(undefined)
+    mockWriteBatch.mockReturnValue({ delete: mockBatchDelete, commit: mockBatchCommit })
 })
 
 // ===== getDisciplines =====
@@ -541,5 +549,76 @@ describe('getProfile — cursos array normalization', () => {
         const result = await getProfile('user123')
         expect(result?.cursos).toEqual(['BICTI', 'CPL'])
         expect(result?.curso).toBe('CPL')
+    })
+})
+
+// ===== deleteUserData =====
+
+function makeRefSnap(refId: string) {
+    return { ref: { id: refId } }
+}
+
+function makeEmptySnapshot() {
+    return { forEach: (_cb: any) => {} }
+}
+
+function makeSnapshot(refs: ReturnType<typeof makeRefSnap>[]) {
+    return { forEach: (cb: any) => refs.forEach(cb) }
+}
+
+describe('deleteUserData', () => {
+    it('deleta disciplines, certificados, materiais, favorites e o doc do perfil', async () => {
+        mockGetDocs
+            .mockResolvedValueOnce(makeSnapshot([makeRefSnap('disc1'), makeRefSnap('disc2')])) // disciplines
+            .mockResolvedValueOnce(makeSnapshot([makeRefSnap('cert1')]))                       // certificados
+            .mockResolvedValueOnce(makeSnapshot([makeRefSnap('mat1')]))                        // materiais
+            .mockResolvedValueOnce(makeSnapshot([makeRefSnap('fav1'), makeRefSnap('fav2')]))   // favorites
+
+        await deleteUserData('user123')
+
+        // 2 disc + 1 cert + 1 mat + 2 fav + 1 profile = 7 total → 1 batch
+        expect(mockWriteBatch).toHaveBeenCalledTimes(1)
+        expect(mockBatchDelete).toHaveBeenCalledTimes(7)
+        expect(mockBatchCommit).toHaveBeenCalledTimes(1)
+    })
+
+    it('executa múltiplos batches quando há mais de 500 documentos', async () => {
+        // Gera 501 refs simuladas para disciplines
+        const manyRefs = Array.from({ length: 501 }, (_, i) => makeRefSnap(`disc${i}`))
+        mockGetDocs
+            .mockResolvedValueOnce(makeSnapshot(manyRefs)) // disciplines: 501 docs
+            .mockResolvedValueOnce(makeEmptySnapshot())     // certificados: 0
+            .mockResolvedValueOnce(makeEmptySnapshot())     // materiais: 0
+            .mockResolvedValueOnce(makeEmptySnapshot())     // favorites: 0
+
+        await deleteUserData('user123')
+
+        // 501 discipline refs + 1 profile doc = 502 → 2 batches (500 + 2)
+        expect(mockWriteBatch).toHaveBeenCalledTimes(2)
+        expect(mockBatchCommit).toHaveBeenCalledTimes(2)
+    })
+
+    it('funciona corretamente quando o usuário não tem documentos', async () => {
+        mockGetDocs.mockResolvedValue(makeEmptySnapshot())
+
+        await deleteUserData('user123')
+
+        // Apenas o doc de perfil → 1 batch com 1 delete
+        expect(mockWriteBatch).toHaveBeenCalledTimes(1)
+        expect(mockBatchDelete).toHaveBeenCalledTimes(1)
+        expect(mockBatchCommit).toHaveBeenCalledTimes(1)
+    })
+
+    it('lança erro quando Firestore não está inicializado', async () => {
+        jest.resetModules()
+        jest.doMock('@/lib/firebase/config', () => ({ db: null }))
+        const { deleteUserData: deleteUserDataNoDb } = require('@/services/firestore.service')
+        await expect(deleteUserDataNoDb('user123')).rejects.toThrow('Firestore não inicializado')
+        jest.dontMock('@/lib/firebase/config')
+    })
+
+    it('lança erro quando getDocs falha', async () => {
+        mockGetDocs.mockRejectedValue(new Error('Network error'))
+        await expect(deleteUserData('user123')).rejects.toThrow('Network error')
     })
 })

@@ -16,6 +16,7 @@ import {
     type ActionCodeSettings,
 } from 'firebase/auth'
 import { auth, googleProvider } from '@/lib/firebase/config'
+import { deleteUserData } from '@/services/firestore.service'
 import { logger } from '@/lib/logger'
 
 /**
@@ -186,6 +187,7 @@ export async function deleteAccount(): Promise<void> {
     if (!auth?.currentUser) throw new Error('Usuário não autenticado')
 
     try {
+        await deleteUserData(auth.currentUser.uid)
         await deleteUser(auth.currentUser)
         logger.info('Conta deletada com sucesso')
     } catch (error) {

@@ -13,6 +13,7 @@ const mockReauthenticateWithCredential = jest.fn()
 const mockReauthenticateWithPopup = jest.fn()
 const mockDeleteUser = jest.fn()
 const mockEmailAuthProviderCredential = jest.fn().mockReturnValue('emailCredential')
+const mockDeleteUserData = jest.fn()
 
 jest.mock('firebase/auth', () => ({
     signInWithEmailAndPassword: (...args: any[]) => mockSignInWithEmailAndPassword(...args),
@@ -30,6 +31,10 @@ jest.mock('firebase/auth', () => ({
     EmailAuthProvider: {
         credential: (...args: any[]) => mockEmailAuthProviderCredential(...args),
     },
+}))
+
+jest.mock('@/services/firestore.service', () => ({
+    deleteUserData: (...args: any[]) => mockDeleteUserData(...args),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -289,22 +294,41 @@ describe('updatePassword', () => {
 // ===== deleteAccount =====
 
 describe('deleteAccount', () => {
-    it('deletes the current user account', async () => {
+    it('limpa dados Firestore antes de deletar o usuário do Auth', async () => {
         const { deleteAccount } = await import('@/services/auth.service')
+        mockDeleteUserData.mockResolvedValue(undefined)
         mockDeleteUser.mockResolvedValue(undefined)
+
         await deleteAccount()
+
+        expect(mockDeleteUserData).toHaveBeenCalledWith('user123')
         expect(mockDeleteUser).toHaveBeenCalledWith((firebaseConfig.auth as any).currentUser)
+
+        // deleteUserData deve ser chamado ANTES de deleteUser
+        const deleteDataOrder = mockDeleteUserData.mock.invocationCallOrder[0]
+        const deleteUserOrder = mockDeleteUser.mock.invocationCallOrder[0]
+        expect(deleteDataOrder).toBeLessThan(deleteUserOrder)
     })
 
     it('throws when user is not authenticated', async () => {
         const { deleteAccount } = await import('@/services/auth.service')
         ;(firebaseConfig.auth as any).currentUser = undefined
         await expect(deleteAccount()).rejects.toThrow('Usuário não autenticado')
+        expect(mockDeleteUserData).not.toHaveBeenCalled()
     })
 
-    it('throws and propagates deletion errors', async () => {
+    it('throws and propagates error when deleteUserData fails, without calling deleteUser', async () => {
         const { deleteAccount } = await import('@/services/auth.service')
+        mockDeleteUserData.mockRejectedValue(new Error('Firestore não inicializado'))
+        await expect(deleteAccount()).rejects.toThrow('Firestore não inicializado')
+        expect(mockDeleteUser).not.toHaveBeenCalled()
+    })
+
+    it('throws and propagates Auth deletion errors after data cleanup', async () => {
+        const { deleteAccount } = await import('@/services/auth.service')
+        mockDeleteUserData.mockResolvedValue(undefined)
         mockDeleteUser.mockRejectedValue(new Error('requires-recent-login'))
         await expect(deleteAccount()).rejects.toThrow('requires-recent-login')
+        expect(mockDeleteUserData).toHaveBeenCalledTimes(1)
     })
 })
