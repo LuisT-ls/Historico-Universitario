@@ -311,6 +311,9 @@ export function ProfilePage() {
     ? profile.cursos[profile.cursos.length - 1]
     : profile?.curso) ?? undefined) as Curso | undefined
 
+  // Preview no painel direito: curso confirmado ou curso selecionado no formulário de onboarding
+  const cursoParaEstrutura = (cursoAtivo ?? (addCursoValue as Curso | undefined)) as Curso | undefined
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <Header />
@@ -425,6 +428,7 @@ export function ProfilePage() {
                         onChange={e => {
                           const val = e.target.value as Instituto | ''
                           setProfile(prev => prev ? ({ ...prev, instituto: val || undefined }) : null)
+                          setAddCursoValue('')
                         }}
                         className="h-11 px-4 rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 w-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                       >
@@ -488,18 +492,27 @@ export function ProfilePage() {
                               type="button"
                               size="sm"
                               className="w-full"
-                              disabled={!addCursoValue}
-                              onClick={() => {
-                                if (!addCursoValue) return
-                                setProfile(prev => {
-                                  if (!prev) return prev
-                                  const novos = [addCursoValue as Curso]
-                                  return { ...prev, cursos: novos, curso: addCursoValue as Curso }
-                                })
+                              disabled={!addCursoValue || isSaving}
+                              onClick={async () => {
+                                if (!addCursoValue || !user || !profile) return
+                                const novos = [addCursoValue as Curso]
+                                const updated: Profile = { ...profile, cursos: novos, curso: addCursoValue as Curso }
+                                setProfile(updated)
+                                setInitialProfile(updated)
                                 setAddCursoValue('')
+                                setIsSaving(true)
+                                try {
+                                  await updateProfile(user.uid, {
+                                    instituto: updated.instituto,
+                                    cursos: novos,
+                                    curso: addCursoValue as Curso,
+                                    concentracaoBICTI: updated.concentracaoBICTI,
+                                  })
+                                  toast.success('Curso configurado!')
+                                } catch { toast.error('Erro ao salvar curso') } finally { setIsSaving(false) }
                               }}
                             >
-                              <GraduationCap className="h-3.5 w-3.5 mr-2" />
+                              {isSaving ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> : <GraduationCap className="h-3.5 w-3.5 mr-2" />}
                               Confirmar curso
                             </Button>
                           </div>
@@ -763,11 +776,16 @@ export function ProfilePage() {
             {/* Curriculum - Dashboard Feel */}
             {profile && (
               <div className="h-full">
-                {cursoAtivo && CURSOS[cursoAtivo]?.metadata ? (
+                {cursoParaEstrutura && CURSOS[cursoParaEstrutura]?.metadata ? (
                   <Card className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-8 shadow-sm h-full flex flex-col">
                     <div className="flex items-center gap-3 mb-8">
                       <div className="p-3 bg-violet-500/10 rounded-xl"><GraduationCap className="h-6 w-6 text-violet-500" /></div>
-                      <h2 className="text-2xl font-bold tracking-tight text-foreground">Estrutura Curricular</h2>
+                      <div>
+                        <h2 className="text-2xl font-bold tracking-tight text-foreground">Estrutura Curricular</h2>
+                        {!cursoAtivo && cursoParaEstrutura && (
+                          <p className="text-[11px] text-amber-500 font-medium mt-0.5">Pré-visualização — confirme o curso para salvar</p>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex-1 space-y-8">
@@ -779,7 +797,7 @@ export function ProfilePage() {
                             <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm"><Book className="h-4 w-4 text-slate-400" /></div>
                             <div>
                               <p className="text-[10px] font-bold text-slate-400 uppercase">Matriz Curricular</p>
-                              <p className="text-sm font-semibold text-foreground line-clamp-1">{CURSOS[cursoAtivo].metadata?.matrizCurricular}</p>
+                              <p className="text-sm font-semibold text-foreground line-clamp-1">{CURSOS[cursoParaEstrutura].metadata?.matrizCurricular}</p>
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-3">
@@ -787,14 +805,14 @@ export function ProfilePage() {
                               <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm"><Calendar className="h-4 w-4 text-slate-400" /></div>
                               <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase">Vigor</p>
-                                <p className="text-sm font-semibold text-foreground">{CURSOS[cursoAtivo].metadata?.entradaVigor}</p>
+                                <p className="text-sm font-semibold text-foreground">{CURSOS[cursoParaEstrutura].metadata?.entradaVigor}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
                               <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm"><Building className="h-4 w-4 text-slate-400" /></div>
                               <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase">Código</p>
-                                <p className="text-sm font-semibold text-foreground">{CURSOS[cursoAtivo].metadata?.codigo}</p>
+                                <p className="text-sm font-semibold text-foreground">{CURSOS[cursoParaEstrutura].metadata?.codigo}</p>
                               </div>
                             </div>
                           </div>
@@ -805,17 +823,15 @@ export function ProfilePage() {
                       <div className="space-y-6">
                         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Progresso & Limites</h3>
 
-                        {/* Integralização Progress Bar */}
                         <div className="space-y-2">
                           <div className="flex justify-between text-xs">
                             <span className="font-medium">Integralização do Curso</span>
-                            <span className="text-slate-500">{CURSOS[cursoAtivo].metadata?.prazos?.medio} semestres (médio)</span>
+                            <span className="text-slate-500">{CURSOS[cursoParaEstrutura].metadata?.prazos?.medio} semestres (médio)</span>
                           </div>
                           <div className="relative pt-1">
-                            {/* Only visual representation for now as we don't have current term easily accessible here without calculation */}
                             <div className="flex justify-between text-[10px] text-slate-300 dark:text-slate-700 mb-1 px-1">
-                              <span>Min: {CURSOS[cursoAtivo].metadata?.prazos?.minimo}</span>
-                              <span>Max: {CURSOS[cursoAtivo].metadata?.prazos?.maximo}</span>
+                              <span>Min: {CURSOS[cursoParaEstrutura].metadata?.prazos?.minimo}</span>
+                              <span>Max: {CURSOS[cursoParaEstrutura].metadata?.prazos?.maximo}</span>
                             </div>
                             <Progress value={50} className="h-2.5 bg-slate-100 dark:bg-slate-800" />
                           </div>
@@ -823,26 +839,25 @@ export function ProfilePage() {
 
                         <div className="border-t border-slate-100 dark:border-slate-900 my-4"></div>
 
-                        {/* Class Hours Distribution Grid */}
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
                             <p className="text-[10px] uppercase font-bold text-slate-400">Obrigatórias</p>
-                            <p className="text-lg font-bold">{CURSOS[cursoAtivo].metadata?.limites?.chObrigatoriaAula}h</p>
+                            <p className="text-lg font-bold">{CURSOS[cursoParaEstrutura].metadata?.limites?.chObrigatoriaAula}h</p>
                             <Progress value={100} className="h-1.5 bg-slate-100 dark:bg-slate-800 [&>div]:bg-blue-500" />
                           </div>
                           <div className="space-y-1">
                             <p className="text-[10px] uppercase font-bold text-slate-400">Optativas (Min)</p>
-                            <p className="text-lg font-bold">{CURSOS[cursoAtivo].metadata?.limites?.chOptativaMinima}h</p>
+                            <p className="text-lg font-bold">{CURSOS[cursoParaEstrutura].metadata?.limites?.chOptativaMinima}h</p>
                             <Progress value={40} className="h-1.5 bg-slate-100 dark:bg-slate-800 [&>div]:bg-purple-500" />
                           </div>
                           <div className="space-y-1">
                             <p className="text-[10px] uppercase font-bold text-slate-400">Complementar (Min)</p>
-                            <p className="text-lg font-bold">{CURSOS[cursoAtivo].metadata?.limites?.chComplementarMinima}h</p>
+                            <p className="text-lg font-bold">{CURSOS[cursoParaEstrutura].metadata?.limites?.chComplementarMinima}h</p>
                             <Progress value={30} className="h-1.5 bg-slate-100 dark:bg-slate-800 [&>div]:bg-amber-500" />
                           </div>
                           <div className="space-y-1 text-slate-400">
                             <p className="text-[10px] uppercase font-bold">Max. Período</p>
-                            <p className="text-lg font-bold">{CURSOS[cursoAtivo].metadata?.limites?.chPeriodoMaxima}h</p>
+                            <p className="text-lg font-bold">{CURSOS[cursoParaEstrutura].metadata?.limites?.chPeriodoMaxima}h</p>
                           </div>
                         </div>
                       </div>

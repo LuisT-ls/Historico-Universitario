@@ -4,34 +4,32 @@ test.describe('Página Inicial', () => {
   test('deve carregar a página inicial', async ({ page }) => {
     await page.goto('/')
 
-    // Verificar se o título está presente (usar main para evitar duplicação com logo)
-    await expect(page.getByRole('main').getByRole('heading', { name: 'Histórico Acadêmico' })).toBeVisible()
+    // Unauthenticated users see the landing page
+    await expect(page.locator('h1').first()).toBeVisible()
   })
 
-  test('deve exibir seleção de curso', async ({ page }) => {
+  test('deve exibir conteúdo da landing page para usuários não autenticados', async ({ page }) => {
     await page.goto('/')
 
-    // Verificar se os cursos estão presentes (usar seletor específico)
-    await expect(page.locator('strong', { hasText: 'BICTI' }).first()).toBeVisible()
+    // Landing page shows CTA links to register/login
+    const ctaLink = page.getByRole('link', { name: /começar|entrar|login|cadastro/i }).first()
+    await expect(ctaLink).toBeVisible()
   })
 
   test('deve navegar para página de login quando não autenticado', async ({ page }) => {
     await page.goto('/')
 
-    // Verificar se há link/botão de login
-    const loginButton = page.getByRole('link', { name: /entrar|login/i })
-    if (await loginButton.isVisible()) {
-      await loginButton.click()
+    const loginLink = page.getByRole('link', { name: /entrar|login/i }).first()
+    if (await loginLink.isVisible()) {
+      await loginLink.click()
       await expect(page).toHaveURL(/.*login.*/)
     }
   })
 
   test('deve ser responsiva em mobile', async ({ page }) => {
-    // Simular dispositivo móvel
     await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/')
 
-    // Verificar se o conteúdo está visível (usar main para evitar duplicação)
-    await expect(page.getByRole('main').getByRole('heading', { name: 'Histórico Acadêmico' })).toBeVisible()
+    await expect(page.locator('h1').first()).toBeVisible()
   })
 })
