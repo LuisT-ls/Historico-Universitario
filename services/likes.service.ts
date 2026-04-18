@@ -1,18 +1,11 @@
-import { doc, getDoc, runTransaction } from 'firebase/firestore'
+import { getDoc, runTransaction } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
-
-function likeRef(materialId: string, userId: string) {
-  return doc(db!, 'materiais', materialId, 'likes', userId)
-}
-
-function materialRef(materialId: string) {
-  return doc(db!, 'materiais', materialId)
-}
+import { refs } from '@/lib/firebase/collection-refs'
 
 export async function isLiked(materialId: string, userId: string): Promise<boolean> {
   if (!db) return false
   try {
-    const snap = await getDoc(likeRef(materialId, userId))
+    const snap = await getDoc(refs.materialSubDoc(materialId, 'likes', userId))
     return snap.exists()
   } catch {
     return false
@@ -22,27 +15,33 @@ export async function isLiked(materialId: string, userId: string): Promise<boole
 export async function addLike(materialId: string, userId: string): Promise<void> {
   if (!db) return
   await runTransaction(db, async (tx) => {
-    const likeSnap = await tx.get(likeRef(materialId, userId))
+    const likeRef = refs.materialSubDoc(materialId, 'likes', userId)
+    const materialRef = refs.material(materialId)
+
+    const likeSnap = await tx.get(likeRef)
     if (likeSnap.exists()) return // already liked — idempotent
 
-    const matSnap = await tx.get(materialRef(materialId))
+    const matSnap = await tx.get(materialRef)
     const current: number = matSnap.data()?.likesCount ?? 0
 
-    tx.set(likeRef(materialId, userId), { likedAt: new Date() })
-    tx.update(materialRef(materialId), { likesCount: current + 1 })
+    tx.set(likeRef, { likedAt: new Date() })
+    tx.update(materialRef, { likesCount: current + 1 })
   })
 }
 
 export async function removeLike(materialId: string, userId: string): Promise<void> {
   if (!db) return
   await runTransaction(db, async (tx) => {
-    const likeSnap = await tx.get(likeRef(materialId, userId))
+    const likeRef = refs.materialSubDoc(materialId, 'likes', userId)
+    const materialRef = refs.material(materialId)
+
+    const likeSnap = await tx.get(likeRef)
     if (!likeSnap.exists()) return // not liked — idempotent
 
-    const matSnap = await tx.get(materialRef(materialId))
+    const matSnap = await tx.get(materialRef)
     const current: number = matSnap.data()?.likesCount ?? 0
 
-    tx.delete(likeRef(materialId, userId))
-    tx.update(materialRef(materialId), { likesCount: Math.max(0, current - 1) })
+    tx.delete(likeRef)
+    tx.update(materialRef, { likesCount: Math.max(0, current - 1) })
   })
 }

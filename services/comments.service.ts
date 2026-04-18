@@ -1,17 +1,12 @@
-import {
-  collection, addDoc, getDocs, deleteDoc, doc, query, orderBy,
-} from 'firebase/firestore'
+import { addDoc, getDocs, deleteDoc, query, orderBy } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
+import { refs } from '@/lib/firebase/collection-refs'
 import type { MaterialComment } from '@/types'
-
-function commentsRef(materialId: string) {
-  return collection(db!, 'materiais', materialId, 'comments')
-}
 
 export async function getComments(materialId: string): Promise<MaterialComment[]> {
   if (!db) return []
   try {
-    const q = query(commentsRef(materialId), orderBy('createdAt', 'asc'))
+    const q = query(refs.materialSubCollection(materialId, 'comments'), orderBy('createdAt', 'asc'))
     const snap = await getDocs(q)
     return snap.docs.map(d => ({
       id: d.id,
@@ -39,11 +34,11 @@ export async function addComment(
     text: text.trim(),
     createdAt: new Date(),
   }
-  const ref = await addDoc(commentsRef(materialId), data)
-  return { id: ref.id, ...data }
+  const docRef = await addDoc(refs.materialSubCollection(materialId, 'comments'), data)
+  return { id: docRef.id, ...data }
 }
 
 export async function deleteComment(materialId: string, commentId: string): Promise<void> {
   if (!db) return
-  await deleteDoc(doc(db, 'materiais', materialId, 'comments', commentId))
+  await deleteDoc(refs.materialSubDoc(materialId, 'comments', commentId))
 }

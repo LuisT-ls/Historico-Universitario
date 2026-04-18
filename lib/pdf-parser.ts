@@ -10,8 +10,8 @@ const catalogo: DisciplinasCatalogo = {
   cursos: { ...(disciplinasDataIcti as DisciplinasCatalogo).cursos, ...(disciplinasDataHum as DisciplinasCatalogo).cursos },
 };
 
-/** Tolerância em unidades de coordenada Y para agrupar itens de texto na mesma linha do PDF */
-const PDF_LINE_Y_TOLERANCE = 5;
+/** Default Y-coordinate tolerance for grouping text items into the same line */
+const DEFAULT_PDF_LINE_Y_TOLERANCE = 5;
 
 // Configurar o worker do PDF.js
 // O arquivo worker é copiado de node_modules para public/ via script postinstall
@@ -88,7 +88,7 @@ const mapNatureza = (natureza: string, codigo: string): Natureza => {
 /**
  * Extrai o texto de um PDF usando PDF.js preservando a estrutura de linhas
  */
-export async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<string> {
+export async function extractTextFromPDF(arrayBuffer: ArrayBuffer, yTolerance = DEFAULT_PDF_LINE_Y_TOLERANCE): Promise<string> {
   try {
     const loadingTask = pdfjs.getDocument({
       data: arrayBuffer,
@@ -125,7 +125,7 @@ export async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<stri
 
         // Se a diferença de Y for pequena (mesma linha), agrupar
         // Threshold de 5 unidades é seguro para a maioria dos PDFs
-        if (Math.abs(item.y - prevItem.y) < PDF_LINE_Y_TOLERANCE) {
+        if (Math.abs(item.y - prevItem.y) < yTolerance) {
           currentLine.push(item);
         } else {
           // Nova linha: ordenar a anterior por X e salvar
@@ -287,8 +287,8 @@ export function parseSigaaHistoryText(text: string): ParsedHistory {
  * Parseia o histórico escolar da UFBA a partir de um arquivo PDF.
  * Extrai o texto via PDF.js e delega o parsing para parseSigaaHistoryText.
  */
-export async function parseSigaaHistory(file: File): Promise<ParsedHistory> {
+export async function parseSigaaHistory(file: File, yTolerance = DEFAULT_PDF_LINE_Y_TOLERANCE): Promise<ParsedHistory> {
   const arrayBuffer = await file.arrayBuffer();
-  const text = await extractTextFromPDF(arrayBuffer);
+  const text = await extractTextFromPDF(arrayBuffer, yTolerance);
   return parseSigaaHistoryText(text);
 }
