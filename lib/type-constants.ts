@@ -6,6 +6,7 @@ import type { ResultadoDisciplina, StatusCertificado, TipoCertificado } from '@/
 export const RESULTADO_LABELS: Record<ResultadoDisciplina, string> = {
     AP: 'Aprovado',
     RR: 'Reprovado',
+    RF: 'Rep. por Falta',
     TR: 'Trancado',
     DP: 'Dispensado',
 } as const

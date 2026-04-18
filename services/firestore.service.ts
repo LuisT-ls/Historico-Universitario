@@ -50,6 +50,19 @@ export async function getDisciplines(userId: string): Promise<Disciplina[]> {
                 resultado = undefined
             }
 
+            // Migração: dados importados antes do fix mapeavam REPF→'RR'.
+            // REPF sempre chega com nota=0 (SIGAA exibe '--') e sem nenhum flag.
+            // Converter para 'RF' para que não entre no denominador do CR.
+            if (
+                resultado === 'RR' &&
+                nota === 0 &&
+                !data.trancamento &&
+                !data.dispensada &&
+                !data.emcurso
+            ) {
+                resultado = 'RF'
+            }
+
             disciplinas.push({
                 id: createDisciplinaId(doc.id),
                 periodo: data.periodo || '',

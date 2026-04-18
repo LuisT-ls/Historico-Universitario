@@ -62,8 +62,8 @@ export function AcademicHistory({
         // Primeiro por código
         if (a.codigo < b.codigo) return -1
         if (a.codigo > b.codigo) return 1
-        // Depois por status (AP primeiro, depois TR, depois RR)
-        const statusOrder: Record<string, number> = { AP: 0, TR: 1, RR: 2, DP: 3 }
+        // Depois por status (AP primeiro, depois TR, depois RR/RF)
+        const statusOrder: Record<string, number> = { AP: 0, TR: 1, RR: 2, RF: 3, DP: 4 }
         const orderA = statusOrder[a.resultado || ''] ?? 4
         const orderB = statusOrder[b.resultado || ''] ?? 4
         return orderA - orderB
@@ -83,6 +83,8 @@ export function AcademicHistory({
         return 'Aprovado'
       case 'RR':
         return 'Reprovado'
+      case 'RF':
+        return 'Rep. por Falta'
       case 'TR':
         return 'Trancado'
       case 'DP':
@@ -98,6 +100,8 @@ export function AcademicHistory({
         return 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20'
       case 'RR':
         return 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
+      case 'RF':
+        return 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20'
       case 'TR':
         return 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20'
       case 'DP':
