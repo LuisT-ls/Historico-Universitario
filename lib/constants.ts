@@ -173,9 +173,41 @@ export const CURSOS: Record<string, ConfigCurso> = {
       OP: 1740,
       AC: 360,
     },
+    concentracoes: {
+      ESTUDOS_JURIDICOS: {
+        nome: 'Estudos Jurídicos',
+        matrizCurricular: 'HUMANIDADES - SALVADOR - BACHARELADO - Presencial - ESTUDOS JURÍDICOS',
+        totalHoras: 2401,
+        requisitos: { OB: 721, OP: 1320, AC: 360 },
+      },
+      ESCRITA_CRIATIVA: {
+        nome: 'Escrita Criativa',
+        matrizCurricular: 'HUMANIDADES - SALVADOR - BACHARELADO - Presencial - ESCRITA CRIATIVA',
+        totalHoras: 2401,
+        requisitos: { OB: 721, OP: 1320, AC: 360 },
+      },
+      ESTUDOS_SUBJETIVIDADE: {
+        nome: 'Estudos da Subjetividade e do Comportamento Humano',
+        matrizCurricular: 'HUMANIDADES - SALVADOR - BACHARELADO - Presencial - ESTUDOS DA SUBJETIVIDADE E DO COMPORTAMENTO HUMANO',
+        totalHoras: 2401,
+        requisitos: { OB: 421, OP: 1620, AC: 360 },
+      },
+      POLITICAS_CULTURA: {
+        nome: 'Políticas e Gestão da Cultura',
+        matrizCurricular: 'HUMANIDADES - SALVADOR - BACHARELADO - Presencial - POLÍTICAS E GESTÃO DA CULTURA',
+        totalHoras: 2401,
+        requisitos: { OB: 661, OP: 1380, AC: 360 },
+      },
+      RELACOES_INTERNACIONAIS: {
+        nome: 'Relações Internacionais',
+        matrizCurricular: 'HUMANIDADES - SALVADOR - BACHARELADO - Presencial - RELAÇÕES INTERNACIONAIS',
+        totalHoras: 2401,
+        requisitos: { OB: 661, OP: 1380, AC: 360 },
+      },
+    } satisfies Record<string, import('@/types').ConfigConcentracao>,
     metadata: {
       codigo: 'G20251',
-      matrizCurricular: 'HUMANIDADES - SALVADOR - BACHARELADO - Presencial - MT',
+      matrizCurricular: 'HUMANIDADES - SALVADOR - BACHARELADO - Presencial',
       entradaVigor: '2025.2',
       totalMinima: 2401,
       prazos: { minimo: 6, medio: 6, maximo: 9 },

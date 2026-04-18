@@ -316,6 +316,16 @@ export function ProfilePage() {
   // Preview no painel direito: curso em seleção tem prioridade, senão usa o ativo
   const cursoParaEstrutura = (addCursoValue || cursoAtivo || undefined) as Curso | undefined
 
+  // Habilitação/concentração ativa para sobrescrever requisitos no painel direito
+  const concentracaoKey = cursoParaEstrutura === 'BI_HUM'
+    ? (profile?.concentracaoBIHUM ?? undefined)
+    : cursoParaEstrutura === 'BICTI'
+    ? (profile?.concentracaoBICTI ?? undefined)
+    : undefined
+  const configConcentracao = cursoParaEstrutura && concentracaoKey
+    ? CURSOS[cursoParaEstrutura]?.concentracoes?.[concentracaoKey]
+    : undefined
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <Header />
@@ -846,8 +856,14 @@ export function ProfilePage() {
                       </div>
                     </div>
 
+                    {(() => {
+                      const cfg = cursoParaEstrutura ? CURSOS[cursoParaEstrutura] : null
+                      const matriz = configConcentracao?.matrizCurricular ?? cfg?.metadata?.matrizCurricular
+                      const totalH = configConcentracao?.totalHoras ?? cfg?.totalHoras
+                      const req = configConcentracao?.requisitos ?? cfg?.requisitos ?? {}
+                      const meta = cfg?.metadata
+                      return (
                     <div className="flex-1 space-y-8">
-                      {/* Key Details List */}
                       <div className="space-y-4">
                         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Informações Principais</h3>
                         <div className="space-y-3">
@@ -855,7 +871,7 @@ export function ProfilePage() {
                             <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm"><Book className="h-4 w-4 text-slate-400" /></div>
                             <div>
                               <p className="text-[10px] font-bold text-slate-400 uppercase">Matriz Curricular</p>
-                              <p className="text-sm font-semibold text-foreground line-clamp-1">{CURSOS[cursoParaEstrutura].metadata?.matrizCurricular}</p>
+                              <p className="text-sm font-semibold text-foreground line-clamp-2">{matriz}</p>
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-3">
@@ -863,33 +879,32 @@ export function ProfilePage() {
                               <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm"><Calendar className="h-4 w-4 text-slate-400" /></div>
                               <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase">Vigor</p>
-                                <p className="text-sm font-semibold text-foreground">{CURSOS[cursoParaEstrutura].metadata?.entradaVigor}</p>
+                                <p className="text-sm font-semibold text-foreground">{meta?.entradaVigor}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
                               <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm"><Building className="h-4 w-4 text-slate-400" /></div>
                               <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase">Código</p>
-                                <p className="text-sm font-semibold text-foreground">{CURSOS[cursoParaEstrutura].metadata?.codigo}</p>
+                                <p className="text-sm font-semibold text-foreground">{meta?.codigo}</p>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Limits & Deadlines Visualization */}
                       <div className="space-y-6">
                         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Progresso & Limites</h3>
 
                         <div className="space-y-2">
                           <div className="flex justify-between text-xs">
                             <span className="font-medium">Integralização do Curso</span>
-                            <span className="text-slate-500">{CURSOS[cursoParaEstrutura].metadata?.prazos?.medio} semestres (médio)</span>
+                            <span className="text-slate-500">{meta?.prazos?.medio} semestres (médio)</span>
                           </div>
                           <div className="relative pt-1">
                             <div className="flex justify-between text-[10px] text-slate-300 dark:text-slate-700 mb-1 px-1">
-                              <span>Min: {CURSOS[cursoParaEstrutura].metadata?.prazos?.minimo}</span>
-                              <span>Max: {CURSOS[cursoParaEstrutura].metadata?.prazos?.maximo}</span>
+                              <span>Min: {meta?.prazos?.minimo}</span>
+                              <span>Max: {meta?.prazos?.maximo}</span>
                             </div>
                             <Progress value={50} className="h-2.5 bg-slate-100 dark:bg-slate-800" />
                           </div>
@@ -900,26 +915,28 @@ export function ProfilePage() {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
                             <p className="text-[10px] uppercase font-bold text-slate-400">Obrigatórias</p>
-                            <p className="text-lg font-bold">{CURSOS[cursoParaEstrutura].metadata?.limites?.chObrigatoriaAula}h</p>
+                            <p className="text-lg font-bold">{req.OB ?? meta?.limites?.chObrigatoriaAula}h</p>
                             <Progress value={100} className="h-1.5 bg-slate-100 dark:bg-slate-800 [&>div]:bg-blue-500" />
                           </div>
                           <div className="space-y-1">
                             <p className="text-[10px] uppercase font-bold text-slate-400">Optativas (Min)</p>
-                            <p className="text-lg font-bold">{CURSOS[cursoParaEstrutura].metadata?.limites?.chOptativaMinima}h</p>
+                            <p className="text-lg font-bold">{req.OP ?? meta?.limites?.chOptativaMinima}h</p>
                             <Progress value={40} className="h-1.5 bg-slate-100 dark:bg-slate-800 [&>div]:bg-purple-500" />
                           </div>
                           <div className="space-y-1">
                             <p className="text-[10px] uppercase font-bold text-slate-400">Complementar (Min)</p>
-                            <p className="text-lg font-bold">{CURSOS[cursoParaEstrutura].metadata?.limites?.chComplementarMinima}h</p>
+                            <p className="text-lg font-bold">{req.AC ?? meta?.limites?.chComplementarMinima}h</p>
                             <Progress value={30} className="h-1.5 bg-slate-100 dark:bg-slate-800 [&>div]:bg-amber-500" />
                           </div>
                           <div className="space-y-1 text-slate-400">
-                            <p className="text-[10px] uppercase font-bold">Max. Período</p>
-                            <p className="text-lg font-bold">{CURSOS[cursoParaEstrutura].metadata?.limites?.chPeriodoMaxima}h</p>
+                            <p className="text-[10px] uppercase font-bold">Total</p>
+                            <p className="text-lg font-bold">{totalH}h</p>
                           </div>
                         </div>
                       </div>
                     </div>
+                      )
+                    })()}
                   </Card>
                 ) : (
                   <Card className="rounded-3xl border border-dashed border-slate-300 dark:border-slate-800 bg-transparent p-12 h-full flex flex-col items-center justify-center text-center">

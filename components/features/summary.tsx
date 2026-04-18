@@ -73,9 +73,13 @@ interface SummaryProps {
 
 export function Summary({ disciplinas, certificados = [], cursoAtual, profile }: SummaryProps) {
   const cursoConfig = CURSOS[cursoAtual]
+  const concentracaoKey =
+    cursoAtual === 'BICTI' ? profile?.concentracaoBICTI :
+    cursoAtual === 'BI_HUM' ? profile?.concentracaoBIHUM :
+    undefined
   const requisitos = (
-    cursoAtual === 'BICTI' && profile?.concentracaoBICTI
-      ? cursoConfig.concentracoes?.[profile.concentracaoBICTI]?.requisitos
+    concentracaoKey
+      ? cursoConfig.concentracoes?.[concentracaoKey]?.requisitos
       : undefined
   ) ?? cursoConfig.requisitos
 

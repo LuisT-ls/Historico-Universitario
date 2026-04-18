@@ -17,9 +17,13 @@ export function calcularEstatisticas(
 ): UserStatistics {
   // Configuração do curso para limites e redistribuição
   const cursoConfig = CURSOS[curso]
+  const concentracaoKey =
+    curso === 'BICTI' ? profile?.concentracaoBICTI :
+    curso === 'BI_HUM' ? profile?.concentracaoBIHUM :
+    undefined
   const requisitos = (
-    curso === 'BICTI' && profile?.concentracaoBICTI
-      ? cursoConfig.concentracoes?.[profile.concentracaoBICTI]?.requisitos
+    concentracaoKey
+      ? cursoConfig.concentracoes?.[concentracaoKey]?.requisitos
       : undefined
   ) ?? cursoConfig.requisitos
 

@@ -67,6 +67,8 @@ export interface RequisitosCurso {
 export interface ConfigConcentracao {
   nome: string
   requisitos: RequisitosCurso
+  totalHoras?: number
+  matrizCurricular?: string
 }
 
 export interface ConfigCurso {
@@ -74,7 +76,7 @@ export interface ConfigCurso {
   instituto: Instituto
   requisitos: RequisitosCurso
   totalHoras: number
-  concentracoes?: Record<ConcentracaoBICTI, ConfigConcentracao>
+  concentracoes?: Record<string, ConfigConcentracao>
   metadata?: {
     codigo?: string
     matrizCurricular?: string
