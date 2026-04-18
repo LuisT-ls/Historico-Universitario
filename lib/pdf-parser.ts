@@ -167,7 +167,6 @@ export function parseSigaaHistoryText(text: string): ParsedHistory {
   const rowRegex = /^(\d{4}\.\d|--)?\s*(EB|EP|EC|OP|AC|OB|LV|OG|OH|OX|OZ)?\s*([A-Z]{2,4}[0-9]{2,4}[A-Z0-9]?)\s+(.+?)\s+(\d+)\s+([\d\.,-]+)\s+(APR|REP|REPF|REPMF|TRANC|DISP|MATR|CANC|INCORP|CUMP|TRANS)/i;
 
   let currentPeriod = '';
-  const bictiDisciplinas = catalogo.cursos.BICTI;
 
   for (const line of lines) {
     const trimmedLine = line.trim();
@@ -242,36 +241,24 @@ export function parseSigaaHistoryText(text: string): ParsedHistory {
 
     const { resultado, trancamento, dispensada, emcurso } = mapSituacao(situacaoRaw);
 
-    const discBicti = bictiDisciplinas.find((d) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
-    if (discBicti) {
-      const itemCatalogo = catalogo.catalogo[discBicti.codigo];
-      if (itemCatalogo?.nome) nome = itemCatalogo.nome.toUpperCase();
-    } else {
-      for (const cursoDisciplinas of Object.values(catalogo.cursos)) {
-        const discOutro = cursoDisciplinas.find((d) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
-        if (discOutro) {
-          const itemCatalogo = catalogo.catalogo[discOutro.codigo];
-          if (itemCatalogo?.nome) {
-            nome = itemCatalogo.nome.toUpperCase();
-            break;
-          }
+    for (const cursoDisciplinas of Object.values(catalogo.cursos)) {
+      const disc = cursoDisciplinas.find((d) => d.codigo === codigo || (d.codigo.length > 3 && codigo.startsWith(d.codigo)));
+      if (disc) {
+        const itemCatalogo = catalogo.catalogo[disc.codigo];
+        if (itemCatalogo?.nome) {
+          nome = itemCatalogo.nome.toUpperCase();
+          break;
         }
       }
     }
 
-    let naturezaCatalogo = findNaturezaNoCatalogo(codigo, nome);
-    let existeNoBicti = bictiDisciplinas.some((d) => d.codigo === codigo);
-    if (!existeNoBicti) {
-      const itemCatalogo = Object.values(catalogo.catalogo).find(
-        (d) => d.nome.toUpperCase() === nome.toUpperCase()
-      );
-      if (itemCatalogo) {
-        existeNoBicti = bictiDisciplinas.some((d) => d.codigo === itemCatalogo.codigo);
-      }
-    }
-
-    const naturezaNormal = naturezaCatalogo || mapNatureza(naturezaRaw, codigo);
-    const natureza = codigo.startsWith('MAT') ? 'OP' : naturezaNormal;
+    const naturezaCatalogo = findNaturezaNoCatalogo(codigo, nome);
+    // For non-catalog MAT codes, SIGAA frequently exports them as EB even when
+    // they are optional in the student's curriculum — default to OP as a best guess.
+    const naturezaFallback = (!naturezaCatalogo && codigo.startsWith('MAT'))
+      ? 'OP'
+      : mapNatureza(naturezaRaw, codigo);
+    const natureza = naturezaCatalogo ?? naturezaFallback;
 
     disciplinas.push({
       periodo,

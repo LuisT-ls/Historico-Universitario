@@ -326,6 +326,49 @@ describe('parseSigaaHistoryText — edge cases', () => {
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Humanidades (BI_HUM) course support
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('parseSigaaHistoryText — BI_HUM course', () => {
+  it('resolves name from BI_HUM catalogue for HACA01', () => {
+    const text = makeLine('2023.1', 'EB', 'HACA01', 'ESTUDOS SOBRE A CONTEMPORANEIDADE', 68, '8.0', 'APR')
+    const { disciplinas } = parseSigaaHistoryText(text)
+    expect(disciplinas).toHaveLength(1)
+    expect(disciplinas[0].nome).toBe('ESTUDOS SOBRE A CONTEMPORANEIDADE I')
+  })
+
+  it('resolves natureza OB for HACA01 from BI_HUM catalogue', () => {
+    const text = makeLine('2023.1', 'EB', 'HACA01', 'ESTUDOS SOBRE A CONTEMPORANEIDADE I', 68, '8.0', 'APR')
+    const { disciplinas } = parseSigaaHistoryText(text)
+    expect(disciplinas[0].natureza).toBe('OB')
+  })
+
+  it('resolves BI_HUM discipline not present in BICTI', () => {
+    const text = makeLine('2023.2', 'EP', 'FCH001', 'INTRODUÇÃO À FILOSOFIA', 68, '9.0', 'APR')
+    const { disciplinas } = parseSigaaHistoryText(text)
+    expect(disciplinas).toHaveLength(1)
+    expect(disciplinas[0].codigo).toBe('FCH001')
+  })
+
+  it('resolves MATC65 natureza as OP from BI_HUM catalogue (not hardcoded override)', () => {
+    const text = makeLine('2024.1', 'EB', 'MATC65', 'MATEMÁTICA', 68, '7.5', 'APR')
+    const { disciplinas } = parseSigaaHistoryText(text)
+    expect(disciplinas[0].natureza).toBe('OP')
+  })
+
+  it('parses a full BI_HUM semester without losing disciplines', () => {
+    const text = [
+      makeLine('2023.1', 'EB', 'HACA01', 'ESTUDOS SOBRE A CONTEMPORANEIDADE I', 68, '8.0', 'APR'),
+      makeLine('2023.1', 'EB', 'LETE43', 'LÍNGUA PORTUGUESA', 68, '7.5', 'APR'),
+      makeLine('2023.1', 'EP', 'FCH001', 'INTRODUÇÃO À FILOSOFIA', 68, '9.0', 'APR'),
+    ].join('\n')
+    const { disciplinas } = parseSigaaHistoryText(text)
+    expect(disciplinas).toHaveLength(3)
+    expect(disciplinas.every(d => d.periodo === '2023.1')).toBe(true)
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Aviso generation
 // ─────────────────────────────────────────────────────────────────────────────
 
