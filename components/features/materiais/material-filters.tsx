@@ -3,36 +3,55 @@
 import { Search, X, SlidersHorizontal } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
 import { CURSO_LABELS, TIPO_MATERIAL_LABELS, TIPOS_MATERIAL } from '@/lib/materiais-constants'
 import type { MaterialFilters } from '@/services/materials.service'
-import { CURSOS } from '@/lib/constants'
-import type { Curso } from '@/types'
+import { CURSOS, INSTITUTOS } from '@/lib/constants'
+import type { Curso, Instituto } from '@/types'
 
 interface MaterialFiltersProps {
   filters: MaterialFilters
   onChange: (filters: MaterialFilters) => void
+  instituto: string
+  onInstitutoChange: (v: string) => void
   total?: number
   disciplinas?: string[]
 }
 
-export function MaterialFiltersBar({ filters, onChange, total, disciplinas = [] }: MaterialFiltersProps) {
-  const hasActiveFilters = !!(filters.curso || filters.tipo || filters.search)
-
+export function MaterialFiltersBar({
+  filters,
+  onChange,
+  instituto,
+  onInstitutoChange,
+  total,
+  disciplinas = [],
+}: MaterialFiltersProps) {
   function set(key: keyof MaterialFilters, value: string) {
     onChange({ ...filters, [key]: value || undefined })
   }
 
   function reset() {
     onChange({})
+    onInstitutoChange('')
   }
 
+  const cursosDoInstituto = instituto
+    ? (INSTITUTOS[instituto as Instituto]?.cursos ?? [])
+    : Object.keys(CURSOS)
+
+  const hasActiveFilters = !!(filters.curso || filters.tipo || filters.search || instituto)
+
   const activeChips = [
-    filters.search      && { key: 'search',      label: `"${filters.search}"` },
-    filters.curso       && { key: 'curso',       label: CURSO_LABELS[filters.curso as Curso] ?? filters.curso },
-    filters.tipo        && { key: 'tipo',        label: TIPO_MATERIAL_LABELS[filters.tipo as keyof typeof TIPO_MATERIAL_LABELS] },
-    filters.disciplina  && { key: 'disciplina',  label: filters.disciplina },
-  ].filter(Boolean) as { key: keyof MaterialFilters; label: string }[]
+    instituto      && { key: 'instituto' as const, label: INSTITUTOS[instituto as Instituto]?.sigla ?? instituto },
+    filters.search && { key: 'search'    as const, label: `"${filters.search}"` },
+    filters.curso  && { key: 'curso'     as const, label: CURSO_LABELS[filters.curso as Curso] ?? filters.curso },
+    filters.tipo   && { key: 'tipo'      as const, label: TIPO_MATERIAL_LABELS[filters.tipo as keyof typeof TIPO_MATERIAL_LABELS] },
+    filters.disciplina && { key: 'disciplina' as const, label: filters.disciplina },
+  ].filter(Boolean) as { key: string; label: string }[]
+
+  function removeChip(key: string) {
+    if (key === 'instituto') { onInstitutoChange(''); onChange({ ...filters, curso: undefined }); return }
+    set(key as keyof MaterialFilters, '')
+  }
 
   return (
     <div className="space-y-3">
@@ -52,13 +71,25 @@ export function MaterialFiltersBar({ filters, onChange, total, disciplinas = [] 
         {/* Selects */}
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:flex-nowrap">
           <Select
+            value={instituto}
+            onChange={e => { onInstitutoChange(e.target.value); onChange({ ...filters, curso: undefined }) }}
+            className="h-9 text-sm sm:w-40"
+            aria-label="Filtrar por instituto"
+          >
+            <option value="">Todos os institutos</option>
+            {(Object.keys(INSTITUTOS) as Instituto[]).map(inst => (
+              <option key={inst} value={inst}>{INSTITUTOS[inst].sigla}</option>
+            ))}
+          </Select>
+
+          <Select
             value={filters.curso ?? ''}
             onChange={e => set('curso', e.target.value)}
-            className="h-9 text-sm sm:w-48"
+            className="h-9 text-sm sm:w-44"
             aria-label="Filtrar por curso"
           >
-            <option value="">Todos os cursos</option>
-            {Object.keys(CURSOS).map(curso => (
+            <option value="">{instituto ? 'Todos os cursos' : 'Todos os cursos'}</option>
+            {cursosDoInstituto.map(curso => (
               <option key={curso} value={curso}>
                 {CURSO_LABELS[curso as keyof typeof CURSO_LABELS] ?? curso}
               </option>
@@ -108,7 +139,7 @@ export function MaterialFiltersBar({ filters, onChange, total, disciplinas = [] 
               {activeChips.map(chip => (
                 <button
                   key={chip.key}
-                  onClick={() => set(chip.key, '')}
+                  onClick={() => removeChip(chip.key)}
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-primary/10 text-primary dark:bg-blue-500/10 dark:text-blue-400 hover:bg-primary/20 dark:hover:bg-blue-500/20 transition-colors"
                   aria-label={`Remover filtro ${chip.label}`}
                 >

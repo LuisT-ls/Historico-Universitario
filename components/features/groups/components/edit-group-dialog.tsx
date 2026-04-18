@@ -18,6 +18,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { useState, useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
 import type { Group } from '@/types'
+import { useAuth } from '@/components/auth-provider'
+import { getProfile } from '@/services/firestore.service'
+import { CURSOS } from '@/lib/constants'
 
 const editGroupSchema = z.object({
     name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres').max(50, 'Nome muito longo'),
@@ -38,7 +41,24 @@ interface EditGroupDialogProps {
  * Diálogo para editar nome, código da disciplina e descrição de um grupo.
  */
 export function EditGroupDialog({ open, onOpenChange, group, onSave }: EditGroupDialogProps) {
+    const { user } = useAuth()
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [subjectPlaceholder, setSubjectPlaceholder] = useState('Ex. CTIA01')
+    const [namePlaceholder, setNamePlaceholder] = useState('Ex. Introdução à Computação')
+
+    useEffect(() => {
+        if (!open || !user) return
+        getProfile(user.uid).then(profile => {
+            const cursoAtivo = profile?.cursos?.at(-1)
+            if (cursoAtivo && CURSOS[cursoAtivo]?.instituto === 'HUMANIDADES') {
+                setSubjectPlaceholder('Ex. HACA01')
+                setNamePlaceholder('Ex. Estudos das Humanidades')
+            } else {
+                setSubjectPlaceholder('Ex. CTIA01')
+                setNamePlaceholder('Ex. Introdução à Computação')
+            }
+        })
+    }, [open, user])
 
     const form = useForm<EditGroupFormValues>({
         resolver: zodResolver(editGroupSchema),
@@ -89,7 +109,7 @@ export function EditGroupDialog({ open, onOpenChange, group, onSave }: EditGroup
                             <Label htmlFor="edit-name" className="font-semibold">Nome do Grupo *</Label>
                             <Input
                                 id="edit-name"
-                                placeholder="Ex. Introdução à Computação"
+                                placeholder={namePlaceholder}
                                 {...form.register('name')}
                                 className={form.formState.errors.name ? 'border-destructive focus-visible:ring-destructive' : ''}
                                 aria-invalid={!!form.formState.errors.name}
@@ -105,7 +125,7 @@ export function EditGroupDialog({ open, onOpenChange, group, onSave }: EditGroup
                             <Label htmlFor="edit-subjectCode" className="font-semibold">Código da Disciplina (Opcional)</Label>
                             <Input
                                 id="edit-subjectCode"
-                                placeholder="Ex. CTIA01"
+                                placeholder={subjectPlaceholder}
                                 {...form.register('subjectCode')}
                             />
                         </div>

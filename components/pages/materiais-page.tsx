@@ -7,7 +7,10 @@ import { MaterialFiltersBar } from '@/components/features/materiais/material-fil
 import { AddMaterialSheet } from '@/components/features/materiais/add-material-sheet'
 import { Select } from '@/components/ui/select'
 import { getMateriais, getDisciplinas, type MaterialFilters } from '@/services/materials.service'
-import type { Material } from '@/types'
+import { getProfile } from '@/services/firestore.service'
+import { useAuth } from '@/components/auth-provider'
+import { CURSOS, INSTITUTOS } from '@/lib/constants'
+import type { Instituto, Material } from '@/types'
 
 type SortOption = 'recent' | 'oldest' | 'most_downloaded' | 'most_liked' | 'most_rated' | 'most_viewed'
 
@@ -57,8 +60,10 @@ function CardSkeleton() {
 }
 
 export function MateriaisPage() {
+  const { user } = useAuth()
   const [materiais, setMateriais] = useState<Material[]>([])
   const [filters, setFilters] = useState<MaterialFilters>({})
+  const [instituto, setInstituto] = useState<string>('')
   const [sort, setSort] = useState<SortOption>('recent')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -66,18 +71,37 @@ export function MateriaisPage() {
 
   const sorted = useMemo(() => sortMateriais(materiais, sort), [materiais, sort])
 
+  // Load user profile to default the instituto filter
+  useEffect(() => {
+    if (!user) return
+    getProfile(user.uid).then(profile => {
+      const cursoAtivo = profile?.cursos?.at(-1)
+      if (cursoAtivo) {
+        const inst = CURSOS[cursoAtivo]?.instituto
+        if (inst) setInstituto(inst)
+      }
+    })
+  }, [user])
+
   useEffect(() => {
     getDisciplinas().then(setDisciplinas)
   }, [])
 
+  // Compute effective filters: when no specific curso, scope to the selected instituto
+  const effectiveFilters = useMemo<MaterialFilters>(() => {
+    if (filters.curso || !instituto) return filters
+    const cursosDoInstituto = INSTITUTOS[instituto as Instituto]?.cursos
+    return cursosDoInstituto ? { ...filters, cursos: cursosDoInstituto } : filters
+  }, [filters, instituto])
+
   const loadMateriais = useCallback(() => {
     setLoading(true)
     setError(null)
-    getMateriais(filters)
+    getMateriais(effectiveFilters)
       .then(setMateriais)
       .catch(() => setError('Erro ao carregar materiais.'))
       .finally(() => setLoading(false))
-  }, [filters])
+  }, [effectiveFilters])
 
   useEffect(() => {
     loadMateriais()
@@ -98,7 +122,7 @@ export function MateriaisPage() {
                 Materiais Acadêmicos
               </h1>
               <p className="text-sm text-muted-foreground">
-                Repositório colaborativo do ICTI / UFBA
+                Repositório colaborativo {instituto ? `do ${INSTITUTOS[instituto as Instituto]?.sigla}` : 'ICTI / IHAC'} / UFBA
               </p>
             </div>
           </div>
@@ -128,6 +152,8 @@ export function MateriaisPage() {
         <MaterialFiltersBar
           filters={filters}
           onChange={setFilters}
+          instituto={instituto}
+          onInstitutoChange={inst => { setInstituto(inst); setFilters(f => ({ ...f, curso: undefined })) }}
           total={loading ? undefined : materiais.length}
           disciplinas={disciplinas}
         />

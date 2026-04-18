@@ -16,10 +16,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 import { UserId } from '@/types'
+import { getProfile } from '@/services/firestore.service'
+import { CURSOS } from '@/lib/constants'
 
 const groupSchema = z.object({
     name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres').max(50, 'Nome muito longo'),
@@ -41,6 +43,23 @@ interface CreateGroupDialogProps {
  */
 export function CreateGroupDialog({ open, onOpenChange, onSuccess, userId }: CreateGroupDialogProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [subjectPlaceholder, setSubjectPlaceholder] = useState('Ex. CTIA01')
+
+    const [namePlaceholder, setNamePlaceholder] = useState('Ex. Introdução à Computação')
+
+    useEffect(() => {
+        if (!open || !userId) return
+        getProfile(userId).then(profile => {
+            const cursoAtivo = profile?.cursos?.at(-1)
+            if (cursoAtivo && CURSOS[cursoAtivo]?.instituto === 'HUMANIDADES') {
+                setSubjectPlaceholder('Ex. HACA01')
+                setNamePlaceholder('Ex. Estudos das Humanidades')
+            } else {
+                setSubjectPlaceholder('Ex. CTIA01')
+                setNamePlaceholder('Ex. Introdução à Computação')
+            }
+        })
+    }, [open, userId])
 
     const form = useForm<GroupFormValues>({
         resolver: zodResolver(groupSchema),
@@ -86,7 +105,7 @@ export function CreateGroupDialog({ open, onOpenChange, onSuccess, userId }: Cre
                             <Label htmlFor="name" className="font-semibold">Nome do Grupo *</Label>
                             <Input
                                 id="name"
-                                placeholder="Ex. Introdução à Computação"
+                                placeholder={namePlaceholder}
                                 {...form.register('name')}
                                 className={form.formState.errors.name ? 'border-destructive focus-visible:ring-destructive' : ''}
                             />
@@ -98,7 +117,7 @@ export function CreateGroupDialog({ open, onOpenChange, onSuccess, userId }: Cre
                             <Label htmlFor="subjectCode" className="font-semibold">Código da Disciplina (Opcional)</Label>
                             <Input
                                 id="subjectCode"
-                                placeholder="Ex. CTIA01"
+                                placeholder={subjectPlaceholder}
                                 {...form.register('subjectCode')}
                             />
                         </div>

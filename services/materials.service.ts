@@ -56,6 +56,7 @@ function docToMaterial(docSnap: QueryDocumentSnapshot<DocumentData> | DocumentSn
 
 export interface MaterialFilters {
   curso?: string
+  cursos?: string[]
   disciplina?: string
   semestre?: string
   tipo?: string
@@ -83,6 +84,8 @@ export async function getMateriais(filters: MaterialFilters = {}): Promise<Mater
     // filtros client-side
     if (filters.curso) {
       materiais = materiais.filter(m => m.curso === filters.curso)
+    } else if (filters.cursos && filters.cursos.length > 0) {
+      materiais = materiais.filter(m => filters.cursos!.includes(m.curso))
     }
     if (filters.tipo) {
       materiais = materiais.filter(m => m.tipo === filters.tipo)
