@@ -318,7 +318,9 @@ describe('getProfile', () => {
         })
         const result = await getProfile('user123')
         expect(result?.nome).toBe('')
-        expect(result?.curso).toBe('BICTI')
+        // No legacy course field → cursos should be empty, curso undefined (onboarding flow)
+        expect(result?.cursos).toEqual([])
+        expect(result?.curso).toBeUndefined()
         expect(result?.matricula).toBe('')
         expect(result?.suspensions).toBe(0)
     })
@@ -500,12 +502,11 @@ describe('updateProfile — cursos array', () => {
         }))
     })
 
-    it('falls back profile.course to "BICTI" when cursos array is empty', async () => {
+    it('does not set profile.course when cursos array is empty', async () => {
         await updateProfile('user123', { cursos: [] as any[] })
-        expect(mockUpdateDoc).toHaveBeenCalledWith('docRef', expect.objectContaining({
-            'profile.courses': [],
-            'profile.course': 'BICTI',
-        }))
+        const call = mockUpdateDoc.mock.calls[0][1]
+        expect(call['profile.courses']).toEqual([])
+        expect(call['profile.course']).toBeUndefined()
     })
 
     it('maps cplStartYear and cplStartSemester fields', async () => {

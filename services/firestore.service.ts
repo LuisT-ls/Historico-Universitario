@@ -260,7 +260,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
             concentracaoBICTI: data.profile?.concentracaoBICTI,
             concentracaoBIHUM: data.profile?.concentracaoBIHUM,
             matricula: data.profile?.enrollment || '',
-            institution: data.profile?.institution || '',
+            institution: data.profile?.institution || 'Universidade Federal da Bahia',
             startYear: data.profile?.startYear,
             startSemester: data.profile?.startSemester,
             cplStartYear: data.profile?.cplStartYear,
@@ -369,7 +369,9 @@ export async function updateProfile(userId: string, data: Partial<Profile>): Pro
         if (data.cursos !== undefined) {
             firestoreData['profile.courses'] = data.cursos
             // Mantém `profile.course` em sincronia com o curso ativo (último da lista)
-            firestoreData['profile.course'] = data.cursos[data.cursos.length - 1] ?? 'BICTI'
+            if (data.cursos.length > 0) {
+                firestoreData['profile.course'] = data.cursos[data.cursos.length - 1]
+            }
         } else if (data.curso !== undefined) {
             firestoreData['profile.course'] = data.curso
         }

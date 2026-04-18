@@ -185,7 +185,7 @@ export function ProfilePage() {
             email: user.email || '',
             cursos: [] as Curso[],
             matricula: '',
-            institution: '',
+            institution: 'Universidade Federal da Bahia',
             startYear: new Date().getFullYear(),
             startSemester: '1',
             suspensions: 0,
@@ -445,12 +445,28 @@ export function ProfilePage() {
                     <div className="space-y-1.5 col-span-1 md:col-span-2">
                       <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Trajetória Acadêmica</Label>
 
-                      {/* Onboarding: nenhum curso ainda */}
-                      {(profile?.cursos?.length ?? 0) === 0 ? (
+                      {/* Onboarding: sem curso ou instituto não bate com o curso ativo */}
+                      {(() => {
+                        const institutoAtual = profile?.instituto
+                        const institutoDoAtivo = cursoAtivo ? CURSOS[cursoAtivo]?.instituto : undefined
+                        const mismatch = institutoAtual && institutoDoAtivo && institutoAtual !== institutoDoAtivo
+                        return (profile?.cursos?.length ?? 0) === 0 || mismatch
+                      })() ? (
                         <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-5 space-y-4">
-                          <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Selecione seu curso para começar a acompanhar o histórico acadêmico.
-                          </p>
+                          {(() => {
+                            const institutoAtual = profile?.instituto
+                            const institutoDoAtivo = cursoAtivo ? CURSOS[cursoAtivo]?.instituto : undefined
+                            const mismatch = institutoAtual && institutoDoAtivo && institutoAtual !== institutoDoAtivo
+                            return mismatch ? (
+                              <p className="text-sm text-amber-600 dark:text-amber-400">
+                                O instituto selecionado não corresponde ao curso atual. Escolha o curso correto para este instituto.
+                              </p>
+                            ) : (
+                              <p className="text-sm text-slate-500 dark:text-slate-400">
+                                Selecione seu curso para começar a acompanhar o histórico acadêmico.
+                              </p>
+                            )
+                          })()}
                           <div className="space-y-3">
                             <div className="space-y-1">
                               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Curso</label>
@@ -484,6 +500,25 @@ export function ProfilePage() {
                                 >
                                   <option value="">Nenhuma (BICTI geral)</option>
                                   {(Object.entries(CONCENTRACOES_BICTI) as [ConcentracaoBICTI, { nome: string }][]).map(([key, val]) => (
+                                    <option key={key} value={key}>{val.nome}</option>
+                                  ))}
+                                </Select>
+                              </div>
+                            )}
+
+                            {addCursoValue === 'BI_HUM' && (
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Habilitação (opcional)</label>
+                                <Select
+                                  value={profile?.concentracaoBIHUM ?? ''}
+                                  onChange={e => {
+                                    const val = e.target.value as ConcentracaoBIHUM | ''
+                                    setProfile(prev => prev ? ({ ...prev, concentracaoBIHUM: val || undefined }) : null)
+                                  }}
+                                  className="h-10 px-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 w-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                >
+                                  <option value="">Nenhuma (BI em Humanidades geral)</option>
+                                  {(Object.entries(CONCENTRACOES_BIHUM) as [ConcentracaoBIHUM, { nome: string }][]).map(([key, val]) => (
                                     <option key={key} value={key}>{val.nome}</option>
                                   ))}
                                 </Select>
@@ -680,7 +715,7 @@ export function ProfilePage() {
                       )}
                     </div>
 
-                    {cursoAtivo === 'BICTI' && (
+                    {cursoAtivo === 'BICTI' && profile?.instituto === 'ICTI' && (
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Concentração BICTI</Label>
                         <Select
@@ -700,7 +735,7 @@ export function ProfilePage() {
                       </div>
                     )}
 
-                    {cursoAtivo === 'BI_HUM' && (
+                    {cursoAtivo === 'BI_HUM' && profile?.instituto === 'HUMANIDADES' && (
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Habilitação BI em Humanidades</Label>
                         <Select
