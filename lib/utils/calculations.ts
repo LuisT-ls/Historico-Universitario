@@ -63,8 +63,11 @@ export function calcularMediaGeral(
 }
 
 /**
- * Calcula o Coeficiente de Rendimento (CR) seguindo as regras acadêmicas:
- * Desconsidera dispensas e Atividades Complementares (AC).
+ * Calcula o Coeficiente de Rendimento (CR) seguindo as regras do SIGAA/UFBA:
+ * CR = Σ(nota × CH) / Σ(CH), considerando apenas disciplinas com resultado
+ * 'AP' (Aprovado) ou 'RR' (Reprovado/Reprovado por Falta).
+ *
+ * Excluídas: Trancadas, Canceladas, Dispensadas, Equivalências e Em Curso.
  *
  * @param disciplinas - Lista de disciplinas
  * @returns Valor do CR (0 a 10)
@@ -77,10 +80,15 @@ export function calcularCR(
     natureza?: string
     trancamento?: boolean
     emcurso?: boolean
+    resultado?: string
   }>
 ): number {
   const disciplinasValidas = disciplinas.filter(
     (d) =>
+      // Apenas AP (Aprovado) ou RR (Reprovado por nota) compõem o CR.
+      // RF (Reprovado por Falta/REPF) é excluído do numerador E do denominador.
+      (d.resultado === 'AP' || d.resultado === 'RR') &&
+      // Defesa extra: dispensadas manuais recebem resultado='AP' via calcularResultado
       !d.dispensada &&
       d.natureza !== 'AC' &&
       d.nota !== null &&

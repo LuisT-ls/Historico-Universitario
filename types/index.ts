@@ -32,7 +32,9 @@ export type Natureza =
   | 'OZ'
 
 // Discipline result types
-export type ResultadoDisciplina = 'AP' | 'RR' | 'TR' | 'DP'
+// 'AP' = Aprovado, 'RR' = Reprovado (por nota), 'RF' = Reprovado por Falta,
+// 'TR' = Trancado/Cancelado, 'DP' = Dispensado/Equivalência/Em Curso
+export type ResultadoDisciplina = 'AP' | 'RR' | 'RF' | 'TR' | 'DP'
 
 // Discipline interface
 export interface Disciplina {

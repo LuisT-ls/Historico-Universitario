@@ -51,10 +51,9 @@ export function calcularEstatisticas(
       !d.trancamento
   )
 
-  const averageGrade =
-    disciplinasParaMedia.length > 0
-      ? disciplinasParaMedia.reduce((sum, d) => sum + d.nota, 0) / disciplinasParaMedia.length
-      : 0
+  const totalPCH = disciplinasParaMedia.reduce((sum, d) => sum + d.nota * d.ch, 0)
+  const totalCHMedia = disciplinasParaMedia.reduce((sum, d) => sum + d.ch, 0)
+  const averageGrade = totalCHMedia > 0 ? totalPCH / totalCHMedia : 0
 
   // Calculation of hours by nature with logic ported from Summary component
   // Initialize with zeros

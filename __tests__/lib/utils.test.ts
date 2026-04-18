@@ -133,32 +133,32 @@ describe('lib/utils', () => {
 
     it('deve ignorar disciplinas dispensadas', () => {
       const disciplinas = [
-        { nota: 8, ch: 60, dispensada: true },
-        { nota: 7, ch: 60, dispensada: false },
+        { nota: 8, ch: 60, dispensada: true, resultado: 'AP' },
+        { nota: 7, ch: 60, dispensada: false, resultado: 'AP' },
       ]
       expect(calcularCR(disciplinas)).toBe(7)
     })
 
     it('deve ignorar AC', () => {
       const disciplinas = [
-        { nota: 8, ch: 60, natureza: 'AC' },
-        { nota: 7, ch: 60, natureza: 'OB' },
+        { nota: 8, ch: 60, natureza: 'AC', resultado: 'AP' },
+        { nota: 7, ch: 60, natureza: 'OB', resultado: 'AP' },
       ]
       expect(calcularCR(disciplinas)).toBe(7)
     })
 
     it('deve calcular CR corretamente', () => {
       const disciplinas = [
-        { nota: 8, ch: 60 },
-        { nota: 7, ch: 60 },
+        { nota: 8, ch: 60, resultado: 'AP' },
+        { nota: 7, ch: 60, resultado: 'RR' },
       ]
       expect(calcularCR(disciplinas)).toBe(7.5)
     })
 
     it('deve ignorar disciplinas em curso', () => {
       const disciplinas = [
-        { nota: 8, ch: 60, emcurso: false },
-        { nota: 0, ch: 60, emcurso: true },
+        { nota: 8, ch: 60, emcurso: false, resultado: 'AP' },
+        { nota: 0, ch: 60, emcurso: true, resultado: undefined },
       ]
       expect(calcularCR(disciplinas)).toBe(8)
     })
@@ -359,24 +359,24 @@ describe('lib/utils', () => {
     describe('calcularCR', () => {
       it('deve ignorar nota negativa no cálculo do CR', () => {
         const disciplinas = [
-          { nota: 8, ch: 60 },
-          { nota: -3, ch: 60 }, // inválida
+          { nota: 8, ch: 60, resultado: 'AP' },
+          { nota: -3, ch: 60, resultado: 'RR' }, // nota inválida
         ]
         expect(calcularCR(disciplinas)).toBe(8)
       })
 
       it('deve ignorar nota acima de 10 no cálculo do CR', () => {
         const disciplinas = [
-          { nota: 7, ch: 60 },
-          { nota: 11, ch: 60 }, // inválida
+          { nota: 7, ch: 60, resultado: 'AP' },
+          { nota: 11, ch: 60, resultado: 'AP' }, // nota inválida
         ]
         expect(calcularCR(disciplinas)).toBe(7)
       })
 
       it('deve ignorar ch <= 0 no cálculo do CR', () => {
         const disciplinas = [
-          { nota: 8, ch: 60 },
-          { nota: 9, ch: 0 },  // inválida
+          { nota: 8, ch: 60, resultado: 'AP' },
+          { nota: 9, ch: 0, resultado: 'AP' },  // ch inválida
         ]
         expect(calcularCR(disciplinas)).toBe(8)
       })
