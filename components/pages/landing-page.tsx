@@ -257,7 +257,7 @@ export function LandingPage() {
           --c-success: #10B981;
         }
       `}} />
-      <div
+      <main
         className={cn('w-full overflow-x-hidden', dmSans.className)}
         style={{ background: C.bgBase }}
       >
@@ -860,7 +860,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      </div>
+      </main>
     </>
   )
 }
