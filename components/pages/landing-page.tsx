@@ -27,8 +27,9 @@ import {
 
 const bricolage = Bricolage_Grotesque({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['800'],
   display: 'swap',
+  preload: true,
 })
 
 const dmSans = DM_Sans({
@@ -307,7 +308,6 @@ export function LandingPage() {
             style={{
               color: C.textPrimary,
               letterSpacing: '-0.04em',
-              filter: 'drop-shadow(0 0 40px rgba(59,130,246,0.2))',
             }}
           >
             Controle total sobre{' '}
