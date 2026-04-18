@@ -129,13 +129,13 @@ describe('getMateriais', () => {
     const docs = [
       makeDocSnap('m1', { curso: 'BICTI' }),
       makeDocSnap('m2', { curso: 'ENG_PROD' }),
-      makeDocSnap('m3', { curso: 'ADM' }),
+      makeDocSnap('m3', { curso: 'BI_HUM' }),
     ]
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 
-    const result = await getMateriais({ cursos: ['BICTI', 'ADM'] })
+    const result = await getMateriais({ cursos: ['BICTI', 'BI_HUM'] })
     expect(result).toHaveLength(2)
-    expect(result.map(m => m.curso)).toEqual(expect.arrayContaining(['BICTI', 'ADM']))
+    expect(result.map(m => m.curso)).toEqual(expect.arrayContaining(['BICTI', 'BI_HUM']))
   })
 
   it('não aplica filtro cursos quando o array está vazio', async () => {
@@ -264,8 +264,8 @@ describe('getMeusMateriais', () => {
     const createdAtOld: any = { toDate: () => new Date('2023-01-01') }
     const createdAtNew: any = { toDate: () => new Date('2024-06-01') }
     const docs = [
-      makeDocSnap('m1', { uploadedBy: 'uid-1', titulo: 'Antigo', createdAt: createdAtOld }),
-      makeDocSnap('m2', { uploadedBy: 'uid-1', titulo: 'Recente', createdAt: createdAtNew }),
+      makeDocSnap('m1', { uploadedBy: 'uid-1' as any, titulo: 'Antigo', createdAt: createdAtOld }),
+      makeDocSnap('m2', { uploadedBy: 'uid-1' as any, titulo: 'Recente', createdAt: createdAtNew }),
     ]
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 

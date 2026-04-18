@@ -235,6 +235,8 @@ export function LandingPage() {
           --c-border: rgba(0, 0, 0, 0.08);
           --c-borderStrong: rgba(0, 0, 0, 0.15);
           --c-accent: #2563EB;
+          --c-accentLight: #1D4ED8;
+          --c-accentPurple: #4338CA;
           --c-textPrimary: #0F172A;
           --c-textSecondary: #475569;
           --c-textMuted: #64748B;
@@ -247,6 +249,8 @@ export function LandingPage() {
           --c-border: rgba(255, 255, 255, 0.07);
           --c-borderStrong: rgba(255, 255, 255, 0.12);
           --c-accent: #3B82F6;
+          --c-accentLight: #60A5FA;
+          --c-accentPurple: #818CF8;
           --c-textPrimary: #F1F5F9;
           --c-textSecondary: #94A3B8;
           --c-textMuted: #475569;
@@ -312,7 +316,7 @@ export function LandingPage() {
           >
             Controle total sobre{' '}
             <br className="hidden sm:block" />
-            <span style={{ color: '#818CF8' }}>
+            <span style={{ color: 'var(--c-accentPurple)' }}>
               sua graduação
             </span>
           </h1>
@@ -524,15 +528,15 @@ export function LandingPage() {
           {/* Copy */}
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
-              <Sparkles className="w-4 h-4 text-blue-400" />
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-400">Importação Inteligente</span>
+              <Sparkles className="w-4 h-4" style={{ color: 'var(--c-accentLight)' }} />
+              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--c-accentLight)' }}>Importação Inteligente</span>
             </div>
             
             <h2
               className={cn(hCls, 'mb-6 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1]')}
               style={{ color: C.textPrimary, letterSpacing: '-0.03em' }}
             >
-              Do SIGAA para o painel<br />em <span className="text-blue-400">menos de 30 segundos</span>
+              Do SIGAA para o painel<br />em <span style={{ color: 'var(--c-accentLight)' }}>menos de 30 segundos</span>
             </h2>
             
             <p className="mb-8 text-lg leading-relaxed font-medium" style={{ color: C.textSecondary }}>
@@ -549,7 +553,7 @@ export function LandingPage() {
               ].map(item => (
                 <li key={item} className="flex items-center gap-3 font-medium text-sm" style={{ color: C.textPrimary }}>
                   <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/20 shrink-0">
-                    <CheckCircle2 className="w-4 h-4 text-blue-400" />
+                    <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--c-accentLight)' }} />
                   </div>
                   {item}
                 </li>
@@ -586,8 +590,8 @@ export function LandingPage() {
                     Importar Histórico
                   </p>
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                    <p className="text-xs font-medium text-blue-400">
+                    <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--c-accentLight)' }} />
+                    <p className="text-xs font-medium" style={{ color: 'var(--c-accentLight)' }}>
                       Lendo arquivo PDF...
                     </p>
                   </div>
@@ -649,8 +653,8 @@ export function LandingPage() {
               {/* Footer with progress bar */}
               <div className="mt-6 pt-5 border-t border-white/10 relative z-10">
                 <div className="flex items-center justify-between text-xs font-semibold mb-3">
-                  <span className="text-slate-400">Processando grade...</span>
-                  <span className="text-blue-400">100%</span>
+                  <span style={{ color: C.textMuted }}>Processando grade...</span>
+                  <span style={{ color: 'var(--c-accentLight)' }}>100%</span>
                 </div>
                 <div className="w-full h-1.5 rounded-full overflow-hidden bg-slate-800/80 shadow-inner">
                   <div
@@ -698,7 +702,7 @@ export function LandingPage() {
                     style={{
                       background:  'rgba(59,130,246,0.08)',
                       border:      '1px solid rgba(59,130,246,0.2)',
-                      color:       '#60A5FA',
+                      color:       'var(--c-accentLight)',
                       boxShadow:   '0 0 0 6px rgba(59,130,246,0.05), inset 0 0 16px rgba(59,130,246,0.06)',
                     }}
                   >
@@ -766,14 +770,14 @@ export function LandingPage() {
           >
             Sua graduação merece{' '}
             <br className="hidden md:block" />
-            <span style={{ color: '#818CF8' }}>
+            <span style={{ color: 'var(--c-accentPurple)' }}>
               mais organização
             </span>
           </h2>
 
           <p
             className="mb-12 text-lg sm:text-xl max-w-[600px] mx-auto leading-relaxed"
-            style={{ color: '#94A3B8' }}
+            style={{ color: C.textSecondary }}
           >
             Junte-se aos estudantes da UFBA que acompanham seu progresso com clareza
             e planejam a formatura sem surpresas.
