@@ -15,8 +15,8 @@ import { getPeriodoMaisRecente, sanitizeInput, calcularCR, calcularCreditos, cal
 import { PlusCircle, X, TrendingUp, TrendingDown, Calculator, Trash2, Search, GraduationCap, Book, CheckCircle, Clock, Star, Loader2 } from 'lucide-react'
 import { logger } from '@/lib/logger'
 import { useAuth } from '@/components/auth-provider'
-import { getDisciplines } from '@/services/firestore.service'
-import type { Curso, Disciplina, Natureza } from '@/types'
+import { getDisciplines, getProfile } from '@/services/firestore.service'
+import type { Curso, Disciplina, Natureza, Profile } from '@/types'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface DisciplinaData {
@@ -70,7 +70,8 @@ interface ImpactMetrics {
 
 export function SimuladorPageClient() {
   const { user, loading: authLoading } = useAuth()
-  const [cursoAtual, setCursoAtual] = useState<Curso>('BICTI')
+  const [cursoAtual, setCursoAtual] = useState<Curso | undefined>(undefined)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [confirmandoLimpar, setConfirmandoLimpar] = useState(false)
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
   const [disciplinasSimuladas, setDisciplinasSimuladas] = useState<Disciplina[]>([])
@@ -103,7 +104,20 @@ export function SimuladorPageClient() {
   const natureza = watch('natureza')
   const nome = watch('nome')
   const isAC = natureza === 'AC'
-  const naturezasDisponiveis = Object.keys(CURSOS[cursoAtual]?.requisitos || {}) as Natureza[]
+
+  const naturezasDisponiveis = useMemo<Natureza[]>(() => {
+    if (!cursoAtual) return []
+    const cursoConfig = CURSOS[cursoAtual]
+    if (!cursoConfig) return []
+    const concentracaoKey =
+      cursoAtual === 'BICTI' ? profile?.concentracaoBICTI :
+      cursoAtual === 'BI_HUM' ? profile?.concentracaoBIHUM :
+      undefined
+    const requisitos = (concentracaoKey
+      ? cursoConfig.concentracoes?.[concentracaoKey]?.requisitos
+      : undefined) ?? cursoConfig.requisitos
+    return Object.keys(requisitos) as Natureza[]
+  }, [cursoAtual, profile])
 
   // Carregar disciplinas reais do usuário
   const loadDisciplinas = useCallback(async () => {
@@ -114,20 +128,24 @@ export function SimuladorPageClient() {
 
     setIsLoading(true)
     try {
-      const docs = await getDisciplines(user.uid)
+      const [docs, userProfile] = await Promise.all([
+        getDisciplines(user.uid),
+        getProfile(user.uid),
+      ])
       setDisciplinas(docs)
+      setProfile(userProfile)
 
-      // Tentar pegar o curso mais comum nas disciplinas
-      if (docs.length > 0) {
+      // Derive active course from profile
+      const cursoFromProfile = userProfile?.cursos?.at(-1) as Curso | undefined
+      if (cursoFromProfile) {
+        setCursoAtual(cursoFromProfile)
+      } else if (docs.length > 0) {
         const counts: Record<string, number> = {}
-        docs.forEach(d => {
-          if (d.curso) counts[d.curso] = (counts[d.curso] || 0) + 1
-        })
+        docs.forEach(d => { if (d.curso) counts[d.curso] = (counts[d.curso] || 0) + 1 })
         const mainCourse = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] as Curso
         if (mainCourse) setCursoAtual(mainCourse)
       }
 
-      // Definir período padrão para simulação
       const ultimo = getPeriodoMaisRecente(docs)
       if (ultimo) {
         const [ano, sem] = ultimo.split('.').map(Number)
@@ -185,7 +203,7 @@ export function SimuladorPageClient() {
     if (disciplina) {
       // Find nature for current course if possible
       let natureza: Natureza = 'OP' // Default
-      const cursoDisciplinas = normalizedData.cursos?.[cursoAtual] || []
+      const cursoDisciplinas = (cursoAtual ? normalizedData.cursos?.[cursoAtual] : undefined) || []
       const courseDiscipline = cursoDisciplinas.find((d: any) => d.codigo === codigoUpper)
 
       if (courseDiscipline) {
@@ -208,7 +226,7 @@ export function SimuladorPageClient() {
 
     const termNormalized = normalizeText(nome.trim())
     const normalizedData = disciplinasData as any
-    const cursoDisciplinas = normalizedData.cursos?.[cursoAtual] || []
+    const cursoDisciplinas = (cursoAtual ? normalizedData.cursos?.[cursoAtual] : undefined) || []
 
     // Mapear combinando com o catálogo
     const disciplinasCompletas = cursoDisciplinas.map((d: any) => ({
@@ -236,7 +254,7 @@ export function SimuladorPageClient() {
     setShowResults(false)
   }
 
-  const cursoConfig = CURSOS[cursoAtual]
+  const cursoConfig = cursoAtual ? CURSOS[cursoAtual] : undefined
 
   const metricasAtuais = useMemo(() => {
     const aprovadas = disciplinas.filter(d => d.resultado === 'AP')
@@ -348,7 +366,7 @@ export function SimuladorPageClient() {
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">Código</Label>
-                      <Input {...register('codigo')} placeholder="Ex: CTIA01" className="rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700" />
+                      <Input {...register('codigo')} placeholder={cursoAtual === 'BI_HUM' ? 'Ex: HACA01' : 'Ex: CTIA01'} className="rounded-xl bg-background dark:bg-slate-800/50 border-border dark:border-slate-700" />
                     </div>
                   </div>
 
