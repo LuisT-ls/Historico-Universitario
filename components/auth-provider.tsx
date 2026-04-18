@@ -1,9 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { onAuthStateChanged, type User } from 'firebase/auth'
-import { auth, db } from '@/lib/firebase/config'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import type { User } from 'firebase/auth'
 import { logger } from '@/lib/logger'
 
 interface AuthContextType {
@@ -28,37 +26,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!auth) {
-      setLoading(false)
-      return
+    let unsubscribe: (() => void) | undefined
+    let mounted = true
+
+    const initAuth = async () => {
+      try {
+        // Importação dinâmica para tirar o Firebase do bundle inicial (reduz ~200KiB do block render)
+        const { onAuthStateChanged } = await import('firebase/auth')
+        const { doc, getDoc, setDoc } = await import('firebase/firestore')
+        const { auth, db } = await import('@/lib/firebase/config')
+
+        if (!auth) {
+          if (mounted) setLoading(false)
+          return
+        }
+
+        const unsub = onAuthStateChanged(auth, async (currentUser) => {
+          if (!mounted) return
+          setUser(currentUser)
+
+          if (currentUser && db) {
+            try {
+              const userRef = doc(db, 'users', currentUser.uid)
+              const snap = await getDoc(userRef)
+              if (!snap.exists()) {
+                await setDoc(userRef, {
+                  name: currentUser.displayName || '',
+                  email: currentUser.email || '',
+                  photoURL: currentUser.photoURL || '',
+                  settings: { privacy: 'private' },
+                  createdAt: new Date(),
+                })
+              }
+            } catch (error) {
+              logger.error('Falha ao criar documento do usuário no primeiro login', error)
+            }
+          }
+
+          if (mounted) setLoading(false)
+        })
+
+        if (mounted) {
+          unsubscribe = unsub
+        } else {
+          unsub()
+        }
+      } catch (err) {
+        logger.error('Erro ao carregar Firebase Auth dinamicamente', err)
+        if (mounted) setLoading(false)
+      }
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user)
+    // Usamos setTimeout para despriorizar a inicialização do Firebase e do iframe
+    // permitindo que o FCP/LCP da landing page aconteça primeiro.
+    const timer = setTimeout(() => {
+      if (mounted) initAuth()
+    }, 10)
 
-      if (user && db) {
-        try {
-          const userRef = doc(db, 'users', user.uid)
-          const snap = await getDoc(userRef)
-          if (!snap.exists()) {
-            await setDoc(userRef, {
-              name: user.displayName || '',
-              email: user.email || '',
-              photoURL: user.photoURL || '',
-              settings: { privacy: 'private' },
-              createdAt: new Date(),
-            })
-          }
-        } catch (error) {
-          // Não bloqueia o login — o documento pode ser criado manualmente na página de perfil
-          logger.error('Falha ao criar documento do usuário no primeiro login', error)
-        }
-      }
-
-      setLoading(false)
-    })
-
-    return () => unsubscribe()
+    return () => {
+      mounted = false
+      clearTimeout(timer)
+      if (unsubscribe) unsubscribe()
+    }
   }, [])
 
   return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>

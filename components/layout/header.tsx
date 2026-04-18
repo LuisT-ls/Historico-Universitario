@@ -6,11 +6,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/components/auth-provider'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { GraduationCap, User, LogOut, LogIn, Menu, Home, Clock, Calculator, CalendarRange, LayoutGrid, Users, ChevronDown, BookOpen, Upload, ShieldCheck } from 'lucide-react'
-import { getUserRole } from '@/services/firestore.service'
+import { LogOut, LogIn, Menu, Home, Clock, Calculator, CalendarRange, LayoutGrid, Users, ChevronDown, BookOpen, Upload, ShieldCheck, GraduationCap, User } from 'lucide-react'
 import type { UserRole } from '@/types'
-import { signOut } from '@/services/auth.service'
-import { getProfile } from '@/services/firestore.service'
 import Image from 'next/image'
 import { cn, clearUserData } from '@/lib/utils'
 import { logger } from '@/lib/logger'
@@ -41,10 +38,14 @@ export function Header() {
   // Carrega a foto de perfil personalizada do Firestore
   useEffect(() => {
     if (!user) { setProfilePhotoURL(null); setUserRole('usuario'); return }
-    getProfile(user.uid).then((profile) => {
-      setProfilePhotoURL(profile?.photoURL || null)
-    }).catch(() => {})
-    getUserRole(user.uid).then(setUserRole).catch(() => {})
+    
+    // Importação dinâmica para evitar que o Header coloque o Firebase no bundle inicial
+    import('@/services/firestore.service').then(({ getProfile, getUserRole }) => {
+      getProfile(user.uid).then((profile) => {
+        setProfilePhotoURL(profile?.photoURL || null)
+      }).catch(() => {})
+      getUserRole(user.uid).then(setUserRole).catch(() => {})
+    }).catch(err => logger.error('Erro ao carregar serviços Firestore', err))
   }, [user])
 
   useEffect(() => {
@@ -71,6 +72,7 @@ export function Header() {
   const handleLogout = async () => {
     try {
       clearUserData()
+      const { signOut } = await import('@/services/auth.service')
       await signOut()
       router.push('/')
       router.refresh()
