@@ -59,7 +59,7 @@ const C = {
 const STATS = [
   { value: '6+',   label: 'Ferramentas integradas',      color: '#3B82F6' },
   { value: '100%', label: 'Gratuito para sempre',         color: '#10B981' },
-  { value: '3',    label: 'Cursos suportados',            color: '#6366F1' },
+  { value: '4',    label: 'Cursos suportados',            color: '#6366F1' },
   { value: 'UFBA', label: 'Universidade Federal da Bahia', color: '#F59E0B' },
 ]
 
@@ -241,6 +241,8 @@ export function LandingPage() {
           --c-textSecondary: #475569;
           --c-textMuted: #64748B;
           --c-success: #059669;
+          --c-heroSubtext: #334155;
+          --c-rowIndex: #64748B;
         }
         .dark-mode {
           --c-bgBase: #080B14;
@@ -255,6 +257,8 @@ export function LandingPage() {
           --c-textSecondary: #94A3B8;
           --c-textMuted: #475569;
           --c-success: #10B981;
+          --c-heroSubtext: #CBD5E1;
+          --c-rowIndex: #94A3B8;
         }
       `}} />
       <main
@@ -324,10 +328,10 @@ export function LandingPage() {
           {/* Subheadline */}
           <p
             className="text-lg sm:text-xl md:text-2xl max-w-[640px] leading-relaxed mb-12 text-center"
-            style={{ color: '#334155' }}
+            style={{ color: 'var(--c-heroSubtext)' }}
           >
             Importe seu histórico do SIGAA, acompanhe seu CR, visualize requisitos e
-            planeje cada semestre — <span className="text-[#475569]">num único painel.</span>
+            planeje cada semestre — <span style={{ color: 'var(--c-heroSubtext)' }}>num único painel.</span>
           </p>
 
           {/* CTAs */}
@@ -619,7 +623,7 @@ export function LandingPage() {
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div
                         className="flex items-center justify-center w-8 h-8 rounded-lg text-[10px] font-bold font-mono shrink-0 transition-colors"
-                        style={{ background: C.bgElevatedGradientEnd, color: C.textMuted, border: `1px solid ${C.border}` }}
+                        style={{ background: C.bgElevatedGradientEnd, color: 'var(--c-rowIndex)', border: `1px solid ${C.border}` }}
                       >
                         {index + 1}
                       </div>
@@ -627,7 +631,7 @@ export function LandingPage() {
                         <span className="font-semibold truncate" style={{ color: C.textPrimary }}>
                           {d.name}
                         </span>
-                        <span className="font-mono text-[10px] mt-0.5" style={{ color: C.textMuted }}>
+                        <span className="font-mono text-[10px] mt-0.5" style={{ color: 'var(--c-rowIndex)' }}>
                           {d.code}
                         </span>
                       </div>

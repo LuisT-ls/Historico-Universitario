@@ -8,7 +8,7 @@ jest.mock('@/services/storage.service', () => ({
   deleteFile: jest.fn().mockResolvedValue(undefined),
 }))
 
-const mockDeleteFile = jest.fn().mockResolvedValue(undefined)
+import * as storageServiceModule from '@/services/storage.service'
 
 const mockCollection = jest.fn()
 const mockDoc = jest.fn()
@@ -95,9 +95,7 @@ beforeEach(() => {
   mockQuery.mockImplementation((...args: any[]) => args[0])
   mockWhere.mockReturnValue('where-clause')
   // restore deleteFile default after clearAllMocks
-  const storageService = require('@/services/storage.service')
-  storageService.deleteFile.mockResolvedValue(undefined)
-  mockDeleteFile.mockResolvedValue(undefined)
+  jest.mocked(storageServiceModule.deleteFile).mockResolvedValue(undefined)
 })
 
 describe('getMateriais', () => {
@@ -363,18 +361,16 @@ describe('updateMaterial', () => {
 
 describe('deleteMaterial', () => {
   it('remove o arquivo do Storage e o documento do Firestore', async () => {
-    const { deleteFile } = require('@/services/storage.service')
     mockDeleteDoc.mockResolvedValue(undefined)
 
     await deleteMaterial('m1', 'materiais/uid-1/file.pdf')
 
-    expect(deleteFile).toHaveBeenCalledWith('materiais/uid-1/file.pdf')
+    expect(storageServiceModule.deleteFile).toHaveBeenCalledWith('materiais/uid-1/file.pdf')
     expect(mockDeleteDoc).toHaveBeenCalledTimes(1)
   })
 
   it('lança erro quando deleteFile falha', async () => {
-    const storageService = require('@/services/storage.service')
-    storageService.deleteFile.mockRejectedValueOnce(new Error('Storage error'))
+    jest.mocked(storageServiceModule.deleteFile).mockRejectedValueOnce(new Error('Storage error'))
     await expect(deleteMaterial('m1', 'materiais/uid-1/file.pdf')).rejects.toThrow('Storage error')
   })
 })
