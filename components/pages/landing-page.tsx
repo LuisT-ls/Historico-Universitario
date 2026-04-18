@@ -295,7 +295,7 @@ export function LandingPage() {
             <Sparkles className="relative h-3.5 w-3.5 shrink-0" style={{ color: '#60A5FA' }} />
             <span
               className="relative text-[0.6875rem] font-semibold tracking-wide"
-              style={{ color: '#93C5FD' }}
+              style={{ color: '#1D4ED8' }}
             >
               Gratuito para estudantes da UFBA
             </span>
@@ -320,10 +320,10 @@ export function LandingPage() {
           {/* Subheadline */}
           <p
             className="text-lg sm:text-xl md:text-2xl max-w-[640px] leading-relaxed mb-12 text-center"
-            style={{ color: '#94A3B8' }}
+            style={{ color: '#334155' }}
           >
             Importe seu histórico do SIGAA, acompanhe seu CR, visualize requisitos e
-            planeje cada semestre — <span className="text-[#CBD5E1]">num único painel.</span>
+            planeje cada semestre — <span className="text-[#475569]">num único painel.</span>
           </p>
 
           {/* CTAs */}
@@ -367,21 +367,21 @@ export function LandingPage() {
               <button
                 className="group flex w-full sm:w-auto items-center justify-center h-14 px-8 rounded-full text-base font-semibold transition-all duration-300 ease-out"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#CBD5E1',
+                  background: 'transparent',
+                  border: `1px solid ${C.borderStrong}`,
+                  color: C.textSecondary,
                   backdropFilter: 'blur(12px)',
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
-                  e.currentTarget.style.color = '#F8FAFC'
+                  e.currentTarget.style.background = C.bgElevated
+                  e.currentTarget.style.borderColor = C.accent
+                  e.currentTarget.style.color = C.textPrimary
                   e.currentTarget.style.transform = 'translateY(-2px)'
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
-                  e.currentTarget.style.color = '#CBD5E1'
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.borderColor = C.borderStrong
+                  e.currentTarget.style.color = C.textSecondary
                   e.currentTarget.style.transform = 'translateY(0)'
                 }}
               >
@@ -450,25 +450,26 @@ export function LandingPage() {
                   key={f.title}
                   className="group relative rounded-[2rem] p-8 overflow-hidden transition-all duration-500 ease-out cursor-default"
                   style={{
-                    background: `linear-gradient(180deg, ${C.bgElevated} 0%, rgba(15,23,42,0.4) 100%)`,
+                    background: `linear-gradient(180deg, ${C.bgElevated} 0%, ${C.bgElevatedGradientEnd} 100%)`,
                     border: `1px solid ${C.border}`,
                     borderTop: `2px solid rgba(${rgb}, 0.35)`,
+                    boxShadow: `0 1px 3px ${C.border}`,
                   }}
                   onMouseEnter={e => {
                     const el = e.currentTarget
                     el.style.transform = 'translateY(-4px)'
                     el.style.borderColor = `rgba(${rgb}, 0.3)`
                     el.style.borderTopColor = f.accentHex
-                    el.style.boxShadow = `0 20px 40px rgba(0,0,0,0.4), 0 0 40px rgba(${rgb},0.08)`
-                    el.style.background = `linear-gradient(180deg, ${C.bgElevated} 0%, rgba(${rgb},0.04) 100%)`
+                    el.style.boxShadow = `0 20px 40px rgba(0,0,0,0.15), 0 0 40px rgba(${rgb},0.08)`
+                    el.style.background = `linear-gradient(180deg, ${C.bgElevated} 0%, rgba(${rgb},0.06) 100%)`
                   }}
                   onMouseLeave={e => {
                     const el = e.currentTarget
                     el.style.transform = 'translateY(0)'
                     el.style.borderColor = C.border
                     el.style.borderTopColor = `rgba(${rgb}, 0.35)`
-                    el.style.boxShadow = 'none'
-                    el.style.background = `linear-gradient(180deg, ${C.bgElevated} 0%, rgba(15,23,42,0.4) 100%)`
+                    el.style.boxShadow = `0 1px 3px ${C.border}`
+                    el.style.background = `linear-gradient(180deg, ${C.bgElevated} 0%, ${C.bgElevatedGradientEnd} 100%)`
                   }}
                 >
                   {/* Subtle top glow inside the card */}
@@ -559,41 +560,34 @@ export function LandingPage() {
           {/* Mock card + floating badges */}
           <div className="relative group perspective-1000">
 
-            {/* Glowing orb behind card */}
-            <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-500/20 blur-[100px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000"
-              aria-hidden
-            />
-
             {/* Main Card */}
             <div
-              className="relative rounded-[2rem] p-6 sm:p-8 backdrop-blur-md overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_-15px_rgba(59,130,246,0.2)]"
+              className="relative rounded-[2rem] p-6 sm:p-8 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_-15px_rgba(59,130,246,0.15)]"
               style={{
-                background:  'linear-gradient(180deg, rgba(30,41,59,0.5) 0%, rgba(15,23,42,0.8) 100%)',
-                border:      `1px solid rgba(255,255,255,0.08)`,
-                borderTop:   `1px solid rgba(255,255,255,0.15)`,
-                boxShadow:   '0 25px 50px -12px rgba(0,0,0,0.5)',
+                background: `linear-gradient(180deg, ${C.bgElevated} 0%, ${C.bgElevatedGradientEnd} 100%)`,
+                border:     `1px solid ${C.borderStrong}`,
+                borderTop:  `1px solid ${C.borderStrong}`,
+                boxShadow:  `0 8px 32px rgba(0,0,0,0.08), 0 1px 0 ${C.border}`,
               }}
             >
-              {/* Internal glow */}
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent" />
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-blue-500/10 blur-3xl rounded-full pointer-events-none" />
+              {/* Internal subtle glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-blue-500/05 blur-3xl rounded-full pointer-events-none" />
 
               {/* Card header */}
               <div className="flex items-center gap-4 mb-6 relative z-10">
                 <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner"
-                  style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(99,102,241,0.2) 100%)', border: '1px solid rgba(96,165,250,0.3)' }}
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+                  style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(99,102,241,0.15) 100%)', border: '1px solid rgba(96,165,250,0.3)' }}
                 >
-                  <FileUp className="h-5 w-5 text-blue-400 drop-shadow-md" />
+                  <FileUp className="h-5 w-5 text-blue-500 drop-shadow-md" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className={cn(hCls, 'text-base font-extrabold text-white mb-0.5')}>
+                  <p className={cn(hCls, 'text-base font-extrabold mb-0.5')} style={{ color: C.textPrimary }}>
                     Importar Histórico
                   </p>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                    <p className="text-xs font-medium text-blue-300">
+                    <p className="text-xs font-medium text-blue-400">
                       Lendo arquivo PDF...
                     </p>
                   </div>
@@ -601,34 +595,48 @@ export function LandingPage() {
               </div>
 
               {/* Discipline rows */}
-              <div className="space-y-2 relative z-10">
+              <div className="space-y-1 relative z-10">
                 {MOCK_DISCIPLINES.map((d, index) => (
                   <div
                     key={d.code}
-                    className="group/row flex items-center justify-between px-4 py-3 rounded-2xl text-sm transition-all duration-300 hover:bg-white/[0.04] hover:shadow-lg hover:shadow-black/20 cursor-default border border-transparent hover:border-white/[0.05]"
+                    className="group/row flex items-center justify-between px-4 py-3 rounded-2xl text-sm transition-all duration-300 cursor-default"
+                    style={{ border: `1px solid transparent` }}
+                    onMouseEnter={e => {
+                      const el = e.currentTarget
+                      el.style.background = C.bgElevatedGradientEnd
+                      el.style.borderColor = C.border
+                    }}
+                    onMouseLeave={e => {
+                      const el = e.currentTarget
+                      el.style.background = 'transparent'
+                      el.style.borderColor = 'transparent'
+                    }}
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-800/50 text-[10px] font-bold text-slate-400 font-mono shrink-0 shadow-inner group-hover/row:text-slate-300 group-hover/row:bg-slate-700/50 transition-colors">
+                      <div
+                        className="flex items-center justify-center w-8 h-8 rounded-lg text-[10px] font-bold font-mono shrink-0 transition-colors"
+                        style={{ background: C.bgElevatedGradientEnd, color: C.textMuted, border: `1px solid ${C.border}` }}
+                      >
                         {index + 1}
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="font-semibold text-slate-200 truncate transition-colors group-hover/row:text-white">
+                        <span className="font-semibold truncate" style={{ color: C.textPrimary }}>
                           {d.name}
                         </span>
-                        <span className="font-mono text-[10px] text-slate-400 mt-0.5">
+                        <span className="font-mono text-[10px] mt-0.5" style={{ color: C.textMuted }}>
                           {d.code}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0 ml-3">
-                      <span className="font-bold text-slate-300 tabular-nums">
+                      <span className="font-bold tabular-nums" style={{ color: C.textSecondary }}>
                         {d.nota}
                       </span>
                       <span
                         className={cn(
-                          "text-[10px] font-extrabold px-2 py-1 rounded-md shadow-sm transition-colors",
-                          d.ok ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 group-hover/row:bg-emerald-500/20" 
-                               : "bg-red-500/10 text-red-400 border border-red-500/20 group-hover/row:bg-red-500/20"
+                          "text-[10px] font-extrabold px-2 py-1 rounded-md transition-colors",
+                          d.ok ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/25"
+                               : "bg-red-500/10 text-red-500 border border-red-500/25"
                         )}
                       >
                         {d.status}
@@ -774,31 +782,30 @@ export function LandingPage() {
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 w-full">
 
-            {/* White shimmer */}
+            {/* Primary — shimmer */}
             <Link href="/register" className="w-full sm:w-auto">
               <button
                 className="group relative flex w-full sm:w-auto items-center justify-center h-14 px-8 rounded-full text-base font-bold overflow-hidden transition-all duration-300 ease-out"
                 style={{
-                  background: '#F1F5F9',
-                  color: '#0F172A',
-                  boxShadow: '0 4px 20px rgba(241,245,249,0.1)',
+                  background: 'linear-gradient(135deg, #2563EB 0%, #4F46E5 100%)',
+                  color: '#fff',
+                  boxShadow: '0 4px 20px rgba(59,130,246,0.18)',
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.filter = 'brightness(0.95)'
+                  e.currentTarget.style.boxShadow = '0 0 30px rgba(59,130,246,0.4), 0 4px 20px rgba(59,130,246,0.18)'
                   e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = '0 0 30px rgba(241,245,249,0.2), 0 4px 20px rgba(241,245,249,0.1)'
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.filter = 'brightness(1)'
+                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(59,130,246,0.18)'
                   e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(241,245,249,0.1)'
                 }}
               >
+                {/* Shimmer sweep */}
                 <span
                   className="absolute inset-0 -translate-x-full"
                   style={{
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.05) 50%, transparent 100%)',
-                    animation:  'shimmer 2.5s ease-in-out infinite',
+                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
+                    animation: 'shimmer 2.5s ease-in-out infinite',
                   }}
                   aria-hidden
                 />
@@ -812,21 +819,21 @@ export function LandingPage() {
               <button
                 className="group flex w-full sm:w-auto items-center justify-center h-14 px-8 rounded-full text-base font-semibold transition-all duration-300 ease-out"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#CBD5E1',
+                  background: 'transparent',
+                  border: `1px solid ${C.borderStrong}`,
+                  color: C.textSecondary,
                   backdropFilter: 'blur(12px)',
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
-                  e.currentTarget.style.color = '#F8FAFC'
+                  e.currentTarget.style.background = C.bgElevated
+                  e.currentTarget.style.borderColor = C.accent
+                  e.currentTarget.style.color = C.textPrimary
                   e.currentTarget.style.transform = 'translateY(-2px)'
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
-                  e.currentTarget.style.color = '#CBD5E1'
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.borderColor = C.borderStrong
+                  e.currentTarget.style.color = C.textSecondary
                   e.currentTarget.style.transform = 'translateY(0)'
                 }}
               >
