@@ -292,7 +292,7 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
             <Label htmlFor="codigo">Código</Label>
             <Input
               id="codigo"
-              placeholder="Ex: CTIA01 ou AC"
+              placeholder={CURSOS[cursoAtual]?.instituto === 'HUMANIDADES' ? 'Ex: HACA01 ou AC' : 'Ex: CTIA01 ou AC'}
               {...register('codigo')}
               aria-invalid={errors.codigo ? 'true' : 'false'}
             />
@@ -306,7 +306,7 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
           <Label htmlFor="nome">Nome da Disciplina</Label>
           <Input
             id="nome"
-            placeholder="Ex: Introdução a Computação"
+            placeholder={CURSOS[cursoAtual]?.instituto === 'HUMANIDADES' ? 'Ex: Estudos das Humanidades' : 'Ex: Introdução a Computação'}
             {...register('nome')}
             aria-invalid={errors.nome ? 'true' : 'false'}
           />
