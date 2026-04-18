@@ -8,6 +8,9 @@ import {
   deleteDoc,
   query,
   where,
+  orderBy,
+  limit,
+  startAfter,
   increment,
   type QueryDocumentSnapshot,
   type DocumentSnapshot,
@@ -63,50 +66,77 @@ export interface MaterialFilters {
   search?: string
 }
 
+export interface MateriaisPage {
+  items: Material[]
+  nextCursor: QueryDocumentSnapshot<DocumentData> | null
+}
+
+export const PAGE_SIZE = 12
+
 /**
- * Busca materiais aprovados com filtros opcionais.
- * Filtros de texto (search, disciplina, semestre) são aplicados no cliente
- * para evitar necessidade de índices compostos no Firestore.
+ * Busca materiais aprovados com filtros e paginação server-side.
+ *
+ * Filtros Firestore (server-side): status, curso/cursos, tipo, orderBy createdAt DESC, limit.
+ * Filtros client-side (não suportados pelo Firestore): disciplina (contains), semestre, search.
+ *
+ * Quando pageSize é null, não aplica limit (usar apenas com filtros de texto ativos).
  */
-export async function getMateriais(filters: MaterialFilters = {}): Promise<Material[]> {
+export async function getMateriais(
+  filters: MaterialFilters = {},
+  pageSize: number | null = PAGE_SIZE,
+  cursor: QueryDocumentSnapshot<DocumentData> | null = null,
+): Promise<MateriaisPage> {
   if (!db) throw new Error('Firestore não inicializado')
 
   try {
     const ref = collection(db, 'materiais')
-    const q = query(ref, where('status', '==', 'approved'))
 
-    const snapshot = await getDocs(q)
-    let materiais: Material[] = snapshot.docs.map(docToMaterial)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const constraints: any[] = [where('status', '==', 'approved')]
 
-    // ordenação client-side (mais recentes primeiro)
-    materiais.sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
-
-    // filtros client-side
     if (filters.curso) {
-      materiais = materiais.filter(m => m.curso === filters.curso)
+      constraints.push(where('curso', '==', filters.curso))
     } else if (filters.cursos && filters.cursos.length > 0) {
-      materiais = materiais.filter(m => filters.cursos!.includes(m.curso))
+      constraints.push(where('curso', 'in', filters.cursos))
     }
+
     if (filters.tipo) {
-      materiais = materiais.filter(m => m.tipo === filters.tipo)
+      constraints.push(where('tipo', '==', filters.tipo))
     }
+
+    constraints.push(orderBy('createdAt', 'desc'))
+
+    if (pageSize !== null) {
+      constraints.push(limit(pageSize))
+      if (cursor) constraints.push(startAfter(cursor))
+    }
+
+    const snapshot = await getDocs(query(ref, ...constraints))
+
+    let items: Material[] = snapshot.docs.map(docToMaterial)
+
+    // client-side filters (Firestore doesn't support text contains or arbitrary equality after orderBy)
     if (filters.semestre) {
-      materiais = materiais.filter(m => m.semestre === filters.semestre)
+      items = items.filter(m => m.semestre === filters.semestre)
     }
     if (filters.disciplina) {
       const d = filters.disciplina.toLowerCase()
-      materiais = materiais.filter(m => m.disciplina.toLowerCase().includes(d))
+      items = items.filter(m => m.disciplina.toLowerCase().includes(d))
     }
     if (filters.search) {
       const s = filters.search.toLowerCase()
-      materiais = materiais.filter(m =>
+      items = items.filter(m =>
         m.titulo.toLowerCase().includes(s) ||
         m.disciplina.toLowerCase().includes(s) ||
         m.descricao?.toLowerCase().includes(s)
       )
     }
 
-    return materiais
+    const lastDoc = snapshot.docs[snapshot.docs.length - 1] ?? null
+    const nextCursor =
+      pageSize !== null && snapshot.docs.length === pageSize ? lastDoc : null
+
+    return { items, nextCursor }
   } catch (error) {
     logger.error('Erro ao buscar materiais:', error)
     throw error
@@ -133,10 +163,13 @@ export async function getMeusMateriais(userId: string): Promise<Material[]> {
 
   try {
     const ref = collection(db, 'materiais')
-    const q = query(ref, where('uploadedBy', '==', userId))
+    const q = query(
+      ref,
+      where('uploadedBy', '==', userId),
+      orderBy('createdAt', 'desc'),
+    )
     const snapshot = await getDocs(q)
-    const materiais = snapshot.docs.map(docToMaterial)
-    return materiais.sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
+    return snapshot.docs.map(docToMaterial)
   } catch (error) {
     logger.error('Erro ao buscar meus materiais:', error)
     throw error
@@ -216,12 +249,17 @@ export async function getRelatedMateriais(disciplina: string, excludeId: string)
   if (!db) return []
   try {
     const ref = collection(db, 'materiais')
-    const q = query(ref, where('status', '==', 'approved'), where('disciplina', '==', disciplina))
+    const q = query(
+      ref,
+      where('status', '==', 'approved'),
+      where('disciplina', '==', disciplina),
+      orderBy('downloadsCount', 'desc'),
+      limit(5),
+    )
     const snapshot = await getDocs(q)
     return snapshot.docs
       .map(docToMaterial)
       .filter(m => m.id !== excludeId)
-      .sort((a, b) => (b.downloadsCount ?? 0) - (a.downloadsCount ?? 0))
       .slice(0, 4)
   } catch {
     return []

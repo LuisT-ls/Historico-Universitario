@@ -19,6 +19,9 @@ const mockUpdateDoc = jest.fn()
 const mockDeleteDoc = jest.fn()
 const mockQuery = jest.fn()
 const mockWhere = jest.fn()
+const mockOrderBy = jest.fn()
+const mockLimit = jest.fn()
+const mockStartAfter = jest.fn()
 const mockIncrement = jest.fn((n: number) => n)
 
 jest.mock('firebase/firestore', () => ({
@@ -31,6 +34,9 @@ jest.mock('firebase/firestore', () => ({
   deleteDoc: (...args: any[]) => mockDeleteDoc(...args),
   query: (...args: any[]) => mockQuery(...args),
   where: (...args: any[]) => mockWhere(...args),
+  orderBy: (...args: any[]) => mockOrderBy(...args),
+  limit: (...args: any[]) => mockLimit(...args),
+  startAfter: (...args: any[]) => mockStartAfter(...args),
   increment: (n: number) => mockIncrement(n),
 }))
 
@@ -50,6 +56,7 @@ import {
   getRelatedMateriais,
   getDisciplinas,
   getAllMateriais,
+  PAGE_SIZE,
 } from '@/services/materials.service'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -94,12 +101,15 @@ beforeEach(() => {
   mockDoc.mockReturnValue('doc-ref')
   mockQuery.mockImplementation((...args: any[]) => args[0])
   mockWhere.mockReturnValue('where-clause')
+  mockOrderBy.mockReturnValue('orderby-clause')
+  mockLimit.mockReturnValue('limit-clause')
+  mockStartAfter.mockReturnValue('startafter-clause')
   // restore deleteFile default after clearAllMocks
   jest.mocked(storageServiceModule.deleteFile).mockResolvedValue(undefined)
 })
 
 describe('getMateriais', () => {
-  it('retorna lista de materiais aprovados', async () => {
+  it('retorna lista de materiais aprovados com nextCursor null quando abaixo do pageSize', async () => {
     const docs = [
       makeDocSnap('m1', { titulo: 'Lista 1', status: 'approved' }),
       makeDocSnap('m2', { titulo: 'Lista 2', status: 'approved' }),
@@ -107,59 +117,55 @@ describe('getMateriais', () => {
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 
     const result = await getMateriais()
-    expect(result).toHaveLength(2)
-    expect(result[0].titulo).toBe('Lista 1')
+    expect(result.items).toHaveLength(2)
+    expect(result.items[0].titulo).toBe('Lista 1')
+    expect(result.nextCursor).toBeNull()
   })
 
-  it('filtra por curso', async () => {
-    const docs = [
-      makeDocSnap('m1', { curso: 'BICTI' }),
-      makeDocSnap('m2', { curso: 'ENG_PROD' }),
-    ]
+  it('retorna nextCursor quando há exatamente pageSize documentos', async () => {
+    const docs = Array.from({ length: PAGE_SIZE }, (_, i) =>
+      makeDocSnap(`m${i}`, { titulo: `Material ${i}` })
+    )
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 
-    const result = await getMateriais({ curso: 'BICTI' })
-    expect(result).toHaveLength(1)
-    expect(result[0].curso).toBe('BICTI')
+    const result = await getMateriais()
+    expect(result.items).toHaveLength(PAGE_SIZE)
+    expect(result.nextCursor).not.toBeNull()
   })
 
-  it('filtra por lista de cursos (cursos[])', async () => {
-    const docs = [
-      makeDocSnap('m1', { curso: 'BICTI' }),
-      makeDocSnap('m2', { curso: 'ENG_PROD' }),
-      makeDocSnap('m3', { curso: 'BI_HUM' }),
-    ]
+  it('envia where("curso") quando filtro curso está ativo', async () => {
+    const docs = [makeDocSnap('m1', { curso: 'BICTI' })]
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 
-    const result = await getMateriais({ cursos: ['BICTI', 'BI_HUM'] })
-    expect(result).toHaveLength(2)
-    expect(result.map(m => m.curso)).toEqual(expect.arrayContaining(['BICTI', 'BI_HUM']))
+    await getMateriais({ curso: 'BICTI' })
+    expect(mockWhere).toHaveBeenCalledWith('curso', '==', 'BICTI')
+  })
+
+  it('envia where("curso", "in", [...]) quando filtro cursos[] está ativo', async () => {
+    const docs = [makeDocSnap('m1', { curso: 'BICTI' })]
+    mockGetDocs.mockResolvedValue(makeSnapshot(docs))
+
+    await getMateriais({ cursos: ['BICTI', 'BI_HUM'] })
+    expect(mockWhere).toHaveBeenCalledWith('curso', 'in', ['BICTI', 'BI_HUM'])
   })
 
   it('não aplica filtro cursos quando o array está vazio', async () => {
-    const docs = [
-      makeDocSnap('m1', { curso: 'BICTI' }),
-      makeDocSnap('m2', { curso: 'ENG_PROD' }),
-    ]
+    const docs = [makeDocSnap('m1', {})]
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 
-    const result = await getMateriais({ cursos: [] })
-    expect(result).toHaveLength(2)
+    await getMateriais({ cursos: [] })
+    expect(mockWhere).not.toHaveBeenCalledWith('curso', 'in', expect.anything())
   })
 
-  it('filtra por tipo', async () => {
-    const docs = [
-      makeDocSnap('m1', { tipo: 'prova' }),
-      makeDocSnap('m2', { tipo: 'resumo' }),
-    ]
+  it('envia where("tipo") quando filtro tipo está ativo', async () => {
+    const docs = [makeDocSnap('m1', { tipo: 'prova' })]
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 
-    const result = await getMateriais({ tipo: 'prova' })
-    expect(result).toHaveLength(1)
-    expect(result[0].tipo).toBe('prova')
+    await getMateriais({ tipo: 'prova' })
+    expect(mockWhere).toHaveBeenCalledWith('tipo', '==', 'prova')
   })
 
-  it('filtra por semestre', async () => {
+  it('filtra por semestre no client-side', async () => {
     const docs = [
       makeDocSnap('m1', { semestre: '2024.1' }),
       makeDocSnap('m2', { semestre: '2024.2' }),
@@ -167,58 +173,70 @@ describe('getMateriais', () => {
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 
     const result = await getMateriais({ semestre: '2024.1' })
-    expect(result).toHaveLength(1)
-    expect(result[0].semestre).toBe('2024.1')
+    expect(result.items).toHaveLength(1)
+    expect(result.items[0].semestre).toBe('2024.1')
   })
 
-  it('filtra por disciplina (case-insensitive, parcial)', async () => {
+  it('filtra por disciplina (client-side, case-insensitive, parcial)', async () => {
     const docs = [
       makeDocSnap('m1', { disciplina: 'Cálculo A' }),
       makeDocSnap('m2', { disciplina: 'Álgebra Linear' }),
     ]
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 
-    const result = await getMateriais({ disciplina: 'cálculo' })
-    expect(result).toHaveLength(1)
-    expect(result[0].disciplina).toBe('Cálculo A')
+    const result = await getMateriais({ disciplina: 'cálculo' }, null)
+    expect(result.items).toHaveLength(1)
+    expect(result.items[0].disciplina).toBe('Cálculo A')
   })
 
-  it('filtra por busca no título', async () => {
+  it('filtra por busca no título (client-side)', async () => {
     const docs = [
       makeDocSnap('m1', { titulo: 'Lista de Cálculo', disciplina: 'Matematica' }),
       makeDocSnap('m2', { titulo: 'Prova de Biologia', disciplina: 'Biologia' }),
     ]
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 
-    const result = await getMateriais({ search: 'cálculo' })
-    expect(result).toHaveLength(1)
-    expect(result[0].titulo).toBe('Lista de Cálculo')
+    const result = await getMateriais({ search: 'cálculo' }, null)
+    expect(result.items).toHaveLength(1)
+    expect(result.items[0].titulo).toBe('Lista de Cálculo')
   })
 
-  it('filtra por busca na disciplina', async () => {
+  it('filtra por busca na disciplina (client-side)', async () => {
     const docs = [
       makeDocSnap('m1', { titulo: 'Lista 1', disciplina: 'Física Básica' }),
       makeDocSnap('m2', { titulo: 'Lista 2', disciplina: 'Algebra Linear' }),
     ]
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 
-    const result = await getMateriais({ search: 'física' })
-    expect(result).toHaveLength(1)
-    expect(result[0].disciplina).toBe('Física Básica')
+    const result = await getMateriais({ search: 'física' }, null)
+    expect(result.items).toHaveLength(1)
+    expect(result.items[0].disciplina).toBe('Física Básica')
   })
 
-  it('ordena por mais recentes por padrão', async () => {
-    const createdAtOld: any = { toDate: () => new Date('2023-01-01') }
-    const createdAtNew: any = { toDate: () => new Date('2024-06-01') }
-    const docs = [
-      makeDocSnap('m1', { titulo: 'Antigo', createdAt: createdAtOld }),
-      makeDocSnap('m2', { titulo: 'Recente', createdAt: createdAtNew }),
-    ]
-    mockGetDocs.mockResolvedValue(makeSnapshot(docs))
+  it('usa orderBy("createdAt", "desc") server-side', async () => {
+    mockGetDocs.mockResolvedValue(makeSnapshot([makeDocSnap('m1', {})]))
+    await getMateriais()
+    expect(mockOrderBy).toHaveBeenCalledWith('createdAt', 'desc')
+  })
 
-    const result = await getMateriais()
-    expect(result[0].titulo).toBe('Recente')
-    expect(result[1].titulo).toBe('Antigo')
+  it('usa limit(pageSize) quando pageSize não é null', async () => {
+    mockGetDocs.mockResolvedValue(makeSnapshot([]))
+    await getMateriais({}, PAGE_SIZE)
+    expect(mockLimit).toHaveBeenCalledWith(PAGE_SIZE)
+  })
+
+  it('não usa limit quando pageSize é null (modo texto)', async () => {
+    mockGetDocs.mockResolvedValue(makeSnapshot([]))
+    await getMateriais({ search: 'algo' }, null)
+    expect(mockLimit).not.toHaveBeenCalled()
+  })
+
+  it('usa startAfter quando cursor é fornecido', async () => {
+    const fakeCursor = makeDocSnap('m0', {}) as any
+    mockGetDocs.mockResolvedValue(makeSnapshot([makeDocSnap('m1', {})]))
+
+    await getMateriais({}, PAGE_SIZE, fakeCursor)
+    expect(mockStartAfter).toHaveBeenCalledWith(fakeCursor)
   })
 
   it('lança erro quando Firestore falha', async () => {
@@ -258,19 +276,18 @@ describe('getMaterialById', () => {
 })
 
 describe('getMeusMateriais', () => {
-  it('retorna materiais do usuário ordenados por data', async () => {
-    const createdAtOld: any = { toDate: () => new Date('2023-01-01') }
-    const createdAtNew: any = { toDate: () => new Date('2024-06-01') }
+  it('retorna materiais do usuário usando orderBy server-side', async () => {
     const docs = [
-      makeDocSnap('m1', { uploadedBy: 'uid-1' as any, titulo: 'Antigo', createdAt: createdAtOld }),
-      makeDocSnap('m2', { uploadedBy: 'uid-1' as any, titulo: 'Recente', createdAt: createdAtNew }),
+      makeDocSnap('m1', { uploadedBy: 'uid-1' as any, titulo: 'Recente' }),
+      makeDocSnap('m2', { uploadedBy: 'uid-1' as any, titulo: 'Antigo' }),
     ]
     mockGetDocs.mockResolvedValue(makeSnapshot(docs))
 
     const result = await getMeusMateriais('uid-1')
     expect(result).toHaveLength(2)
+    // Order comes from Firestore (orderBy server-side); mocked docs come in given order
     expect(result[0].titulo).toBe('Recente')
-    expect(result[1].titulo).toBe('Antigo')
+    expect(mockOrderBy).toHaveBeenCalledWith('createdAt', 'desc')
   })
 
   it('lança erro quando Firestore falha', async () => {
@@ -432,16 +449,11 @@ describe('getRelatedMateriais', () => {
     expect(result.length).toBeLessThanOrEqual(4)
   })
 
-  it('ordena por downloads (mais baixados primeiro)', async () => {
-    const docs = [
-      makeDocSnap('m1', { disciplina: 'Cálculo A', downloadsCount: 5 }),
-      makeDocSnap('m2', { disciplina: 'Cálculo A', downloadsCount: 20 }),
-      makeDocSnap('m3', { disciplina: 'Cálculo A', downloadsCount: 1 }),
-    ]
-    mockGetDocs.mockResolvedValue(makeSnapshot(docs))
-
-    const result = await getRelatedMateriais('Cálculo A', 'm99')
-    expect(result[0].downloadsCount).toBe(20)
+  it('usa orderBy downloadsCount desc e limit server-side', async () => {
+    mockGetDocs.mockResolvedValue(makeSnapshot([]))
+    await getRelatedMateriais('Cálculo A', 'm99')
+    expect(mockOrderBy).toHaveBeenCalledWith('downloadsCount', 'desc')
+    expect(mockLimit).toHaveBeenCalledWith(5)
   })
 
   it('retorna array vazio em caso de erro', async () => {

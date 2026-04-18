@@ -1,14 +1,16 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { BookOpen, Upload, Users, TrendingUp } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { BookOpen, Upload, Users, TrendingUp, Loader2 } from 'lucide-react'
 import { MaterialCard } from '@/components/features/materiais/material-card'
 import { MaterialFiltersBar } from '@/components/features/materiais/material-filters'
 import { AddMaterialSheet } from '@/components/features/materiais/add-material-sheet'
 import { Select } from '@/components/ui/select'
-import { getMateriais, getDisciplinas, type MaterialFilters } from '@/services/materials.service'
+import { Button } from '@/components/ui/button'
+import { getDisciplinas, type MaterialFilters } from '@/services/materials.service'
 import { getProfile } from '@/services/firestore.service'
 import { useAuth } from '@/components/auth-provider'
+import { usePaginatedMateriais } from '@/lib/hooks/use-paginated-materiais'
 import { CURSOS, INSTITUTOS } from '@/lib/constants'
 import type { Instituto, Material } from '@/types'
 
@@ -24,6 +26,7 @@ const SORT_LABELS: Record<SortOption, string> = {
 }
 
 function sortMateriais(list: Material[], sort: SortOption): Material[] {
+  if (sort === 'recent') return list // already sorted server-side
   return [...list].sort((a, b) => {
     switch (sort) {
       case 'oldest':          return (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0)
@@ -31,7 +34,7 @@ function sortMateriais(list: Material[], sort: SortOption): Material[] {
       case 'most_liked':      return (b.likesCount ?? 0) - (a.likesCount ?? 0)
       case 'most_rated':      return (b.ratingAvg ?? 0) - (a.ratingAvg ?? 0) || (b.ratingCount ?? 0) - (a.ratingCount ?? 0)
       case 'most_viewed':     return (b.viewsCount ?? 0) - (a.viewsCount ?? 0)
-      default:                return (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0)
+      default:                return 0
     }
   })
 }
@@ -61,15 +64,10 @@ function CardSkeleton() {
 
 export function MateriaisPage() {
   const { user } = useAuth()
-  const [materiais, setMateriais] = useState<Material[]>([])
   const [filters, setFilters] = useState<MaterialFilters>({})
   const [instituto, setInstituto] = useState<string>('')
   const [sort, setSort] = useState<SortOption>('recent')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [disciplinas, setDisciplinas] = useState<string[]>([])
-
-  const sorted = useMemo(() => sortMateriais(materiais, sort), [materiais, sort])
 
   // Load user profile to default the instituto filter
   useEffect(() => {
@@ -94,18 +92,10 @@ export function MateriaisPage() {
     return cursosDoInstituto ? { ...filters, cursos: cursosDoInstituto } : filters
   }, [filters, instituto])
 
-  const loadMateriais = useCallback(() => {
-    setLoading(true)
-    setError(null)
-    getMateriais(effectiveFilters)
-      .then(setMateriais)
-      .catch(() => setError('Erro ao carregar materiais.'))
-      .finally(() => setLoading(false))
-  }, [effectiveFilters])
+  const { items, loading, loadingMore, hasMore, error, loadMore, reload } =
+    usePaginatedMateriais(effectiveFilters)
 
-  useEffect(() => {
-    loadMateriais()
-  }, [loadMateriais])
+  const sorted = useMemo(() => sortMateriais(items, sort), [items, sort])
 
   return (
     <main className="container py-8 px-4 max-w-6xl">
@@ -131,8 +121,8 @@ export function MateriaisPage() {
             <div className="flex flex-wrap gap-3 mt-4">
               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/70 dark:bg-slate-800/70 border border-border/50 dark:border-slate-700 text-xs text-muted-foreground backdrop-blur-sm">
                 <BookOpen className="h-3 w-3" />
-                <span className="font-medium text-foreground dark:text-slate-200">{materiais.length}</span>
-                {materiais.length === 1 ? 'material disponível' : 'materiais disponíveis'}
+                <span className="font-medium text-foreground dark:text-slate-200">{items.length}{hasMore ? '+' : ''}</span>
+                {items.length === 1 ? 'material disponível' : 'materiais disponíveis'}
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/70 dark:bg-slate-800/70 border border-border/50 dark:border-slate-700 text-xs text-muted-foreground backdrop-blur-sm">
                 <Users className="h-3 w-3" />
@@ -154,7 +144,7 @@ export function MateriaisPage() {
           onChange={setFilters}
           instituto={instituto}
           onInstitutoChange={inst => { setInstituto(inst); setFilters(f => ({ ...f, curso: undefined })) }}
-          total={loading ? undefined : materiais.length}
+          total={loading ? undefined : items.length}
           disciplinas={disciplinas}
         />
         <div className="flex justify-end">
@@ -181,13 +171,13 @@ export function MateriaisPage() {
           <TrendingUp className="h-10 w-10 mx-auto mb-3 opacity-30" />
           <p className="font-medium">{error}</p>
           <button
-            onClick={loadMateriais}
+            onClick={reload}
             className="mt-3 text-sm text-primary dark:text-blue-400 hover:underline"
           >
             Tentar novamente
           </button>
         </div>
-      ) : materiais.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <div className="text-center py-24">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted mb-4">
             <BookOpen className="h-8 w-8 text-muted-foreground/40" />
@@ -198,14 +188,33 @@ export function MateriaisPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sorted.map(m => (
-            <MaterialCard key={m.id} material={m} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {sorted.map(m => (
+              <MaterialCard key={m.id} material={m} />
+            ))}
+          </div>
+
+          {hasMore && (
+            <div className="flex justify-center mt-8">
+              <Button
+                variant="outline"
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="h-10 px-8 rounded-xl"
+              >
+                {loadingMore ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Carregando...</>
+                ) : (
+                  'Carregar mais'
+                )}
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
-      <AddMaterialSheet onSuccess={loadMateriais} />
+      <AddMaterialSheet onSuccess={reload} />
     </main>
   )
 }
