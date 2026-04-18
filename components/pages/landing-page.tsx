@@ -28,8 +28,9 @@ import {
 const bricolage = Bricolage_Grotesque({
   subsets: ['latin'],
   weight: ['800'],
-  display: 'swap',
+  display: 'fallback',
   preload: true,
+  adjustFontFallback: true,
 })
 
 const dmSans = DM_Sans({
@@ -226,45 +227,10 @@ export function LandingPage() {
   const hCls = bricolage.className
 
   return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: `
-        :root {
-          --c-bgBase: #FAFAFA;
-          --c-bgElevated: #FFFFFF;
-          --c-bgElevatedGradientEnd: rgba(241, 245, 249, 0.8);
-          --c-border: rgba(0, 0, 0, 0.08);
-          --c-borderStrong: rgba(0, 0, 0, 0.15);
-          --c-accent: #2563EB;
-          --c-accentLight: #1D4ED8;
-          --c-accentPurple: #4338CA;
-          --c-textPrimary: #0F172A;
-          --c-textSecondary: #475569;
-          --c-textMuted: #64748B;
-          --c-success: #059669;
-          --c-heroSubtext: #334155;
-          --c-rowIndex: #64748B;
-        }
-        .dark-mode {
-          --c-bgBase: #080B14;
-          --c-bgElevated: #161B27;
-          --c-bgElevatedGradientEnd: rgba(15, 23, 42, 0.4);
-          --c-border: rgba(255, 255, 255, 0.07);
-          --c-borderStrong: rgba(255, 255, 255, 0.12);
-          --c-accent: #3B82F6;
-          --c-accentLight: #60A5FA;
-          --c-accentPurple: #818CF8;
-          --c-textPrimary: #F1F5F9;
-          --c-textSecondary: #94A3B8;
-          --c-textMuted: #475569;
-          --c-success: #10B981;
-          --c-heroSubtext: #CBD5E1;
-          --c-rowIndex: #94A3B8;
-        }
-      `}} />
-      <main
-        className={cn('w-full overflow-x-hidden', dmSans.className)}
-        style={{ background: C.bgBase }}
-      >
+    <main
+      className={cn('w-full overflow-x-hidden', dmSans.className)}
+      style={{ background: C.bgBase }}
+    >
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
       <section
@@ -865,6 +831,5 @@ export function LandingPage() {
       </section>
 
       </main>
-    </>
   )
 }
