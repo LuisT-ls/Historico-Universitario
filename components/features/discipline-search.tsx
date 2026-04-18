@@ -5,6 +5,7 @@ import { Search, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Curso, Natureza } from '@/types'
+import { CURSOS } from '@/lib/constants'
 import disciplinasDataIcti from '@/assets/data/icti/disciplinas.json'
 import disciplinasDataHum from '@/assets/data/humanidades/disciplinas.json'
 
@@ -188,7 +189,9 @@ export function DisciplineSearch({ cursoAtual, onSelect }: DisciplineSearchProps
         <Input
           ref={inputRef}
           type="text"
-          placeholder="Buscar disciplina por nome ou código (ex: Cálculo, CTIA01)..."
+          placeholder={CURSOS[cursoAtual]?.instituto === 'HUMANIDADES'
+            ? 'Buscar disciplina por nome ou código (ex: Humanidades, HACA01)...'
+            : 'Buscar disciplina por nome ou código (ex: Cálculo, CTIA01)...'}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyDown={handleKeyDown}

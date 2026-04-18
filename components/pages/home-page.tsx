@@ -16,7 +16,7 @@ import { createDisciplinaId } from '@/lib/constants'
 
 const ActionBar = dynamic(() => import('@/components/features/action-bar').then(mod => mod.ActionBar), {
   ssr: false,
-  loading: () => <div className="h-14 animate-pulse bg-muted/10 rounded-xl mb-6" />
+  loading: () => <div className="h-9 mb-6" />
 })
 
 const DisciplineSearch = dynamic(() => import('@/components/features/discipline-search').then(mod => mod.DisciplineSearch), {

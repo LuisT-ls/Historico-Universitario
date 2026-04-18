@@ -9,9 +9,9 @@ export function Footer() {
           <section>
             <h2 className="text-lg font-bold text-foreground dark:text-slate-100 mb-6 tracking-tight">Sobre o Projeto</h2>
             <p className="text-sm text-muted-foreground dark:text-slate-400 leading-relaxed">
-              O Histórico Acadêmico é uma ferramenta desenvolvida para auxiliar estudantes dos
-              cursos de BICTI, Engenharia de Produção e Engenharia Elétrica no acompanhamento do
-              seu progresso acadêmico de forma simples e intuitiva.
+              O Histórico Acadêmico é uma ferramenta desenvolvida para auxiliar estudantes da UFBA
+              no acompanhamento do seu progresso acadêmico de forma simples e intuitiva, abrangendo
+              os cursos do ICTI e do IHAC.
             </p>
           </section>
 
