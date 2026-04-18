@@ -4,7 +4,6 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { Upload, FileText, X, Loader2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,17 +23,9 @@ import {
   getSemestres, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB,
 } from '@/lib/materiais-constants'
 import type { Curso, TipoMaterial, UserId } from '@/types'
+import { materialSchema, type MaterialFormValues } from '@/lib/schemas'
 
-const schema = z.object({
-  titulo:     z.string().min(3, 'Mínimo 3 caracteres').max(100),
-  descricao:  z.string().max(500).optional(),
-  curso:      z.string().min(1, 'Selecione o curso'),
-  disciplina: z.string().min(2, 'Informe a disciplina').max(100),
-  semestre:   z.string().min(1, 'Selecione o semestre'),
-  tipo:       z.string().min(1, 'Selecione o tipo'),
-})
-
-type FormValues = z.infer<typeof schema>
+type FormValues = MaterialFormValues
 
 interface UploadMaterialFormProps {
   onSuccess?: () => void
@@ -60,7 +51,7 @@ export function UploadMaterialForm({ onSuccess, bare = false }: UploadMaterialFo
     control,
     setValue,
     formState: { errors },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) })
+  } = useForm<FormValues>({ resolver: zodResolver(materialSchema) })
 
   async function analyzeWithAI() {
     if (!file) return

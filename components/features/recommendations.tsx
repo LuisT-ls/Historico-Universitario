@@ -45,13 +45,13 @@ type Motivo =
 interface DiscRecomendada {
   codigo: string
   nome: string
-  natureza: string
+  natureza: Natureza
   ch?: number
   motivo: Motivo
 }
 
 interface DeficitInfo {
-  natureza: string
+  natureza: Natureza
   feitas: number
   exigidas: number
   faltando: number
@@ -78,7 +78,7 @@ function nextSeqNome(nome: string): string | null {
 interface RecommendationsProps {
   disciplinas: Disciplina[]
   cursoAtual: Curso
-  onSelect: (d: { codigo: string; nome: string; natureza: string; ch?: number }) => void
+  onSelect: (d: { codigo: string; nome: string; natureza: Natureza; ch?: number }) => void
 }
 
 export function Recommendations({ disciplinas, cursoAtual, onSelect }: RecommendationsProps) {
@@ -87,7 +87,7 @@ export function Recommendations({ disciplinas, cursoAtual, onSelect }: Recommend
   // ── 1. base data ──
   const { recommendations, deficits, podeFormarEsteSemestre } = useMemo(() => {
     const data = disciplinasData as any
-    const cursoDisciplinas: { codigo: string; natureza: string }[] = data.cursos[cursoAtual] ?? []
+    const cursoDisciplinas: { codigo: string; natureza: Natureza }[] = data.cursos[cursoAtual] ?? []
     const catalogo: Record<string, { nome: string; ch: number }> = data.catalogo
     const config = CURSOS[cursoAtual]
 
@@ -136,7 +136,7 @@ export function Recommendations({ disciplinas, cursoAtual, onSelect }: Recommend
       const feitas = horasFeitasPorNat[nat as Natureza] ?? 0
       const faltando = Math.max(0, exigidas - feitas)
       if (faltando > 0) {
-        deficits.push({ natureza: nat, feitas, exigidas: exigidas as number, faltando })
+        deficits.push({ natureza: nat as Natureza, feitas, exigidas: exigidas as number, faltando })
       }
     })
     // Sort by deficit percentage (most urgent first)

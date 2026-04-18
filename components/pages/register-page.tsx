@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { signUp } from '@/services/auth.service'
+import { registerSchema, type RegisterFormData } from '@/lib/schemas'
 import { handleError, type AppError } from '@/lib/error-handler'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -18,20 +18,6 @@ import Image from 'next/image'
 import { toast } from '@/lib/toast'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
-
-const registerSchema = z
-  .object({
-    name: z.string().min(3, 'O nome deve ter no mínimo 3 caracteres'),
-    email: z.string().email('Email inválido'),
-    password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'As senhas não coincidem',
-    path: ['confirmPassword'],
-  })
-
-type RegisterFormData = z.infer<typeof registerSchema>
 
 export function RegisterPage() {
   const router = useRouter()

@@ -77,6 +77,7 @@ export function CertificadosPage() {
           setShowForm={formLogic.setShowForm}
           formData={formLogic.formData}
           setFormData={formLogic.setFormData}
+          formErrors={formLogic.formErrors}
           isSubmitting={formLogic.isSubmitting}
           editingId={formLogic.editingId}
           handleSubmit={formLogic.handleSubmit}

@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { signInWithEmail, signInWithGoogle } from '@/services/auth.service'
+import { loginSchema, type LoginFormData } from '@/lib/schemas'
 import { getProfile } from '@/services/firestore.service'
 import { handleError, type AppError } from '@/lib/error-handler'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,13 +17,6 @@ import { Mail, Lock, Loader2, AlertCircle, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
-
-const loginSchema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
-})
-
-type LoginFormData = z.infer<typeof loginSchema>
 
 export function LoginPage() {
   const router = useRouter()

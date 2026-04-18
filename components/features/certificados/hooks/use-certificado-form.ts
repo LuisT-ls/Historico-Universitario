@@ -8,6 +8,7 @@ import { logger } from '@/lib/logger'
 import type { TipoCertificado, StatusCertificado, Certificado } from '@/types'
 import { createUserId } from '@/lib/constants'
 import { dateToISO } from './use-date-mask'
+import { certificadoSchema, type CertificadoFormErrors } from '@/lib/schemas'
 
 export interface CertificadoFormData {
     titulo: string
@@ -20,33 +21,28 @@ export interface CertificadoFormData {
     linkExterno: string
 }
 
+const EMPTY_FORM: CertificadoFormData = {
+    titulo: '',
+    tipo: '' as TipoCertificado | '',
+    instituicao: '',
+    cargaHoraria: '',
+    dataInicio: '',
+    dataFim: '',
+    descricao: '',
+    linkExterno: '',
+}
+
 export const useCertificadoForm = (loadCertificados: () => Promise<void>) => {
     const { user } = useAuth()
     const [showForm, setShowForm] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
-    const [formData, setFormData] = useState<CertificadoFormData>({
-        titulo: '',
-        tipo: '' as TipoCertificado | '',
-        instituicao: '',
-        cargaHoraria: '',
-        dataInicio: '',
-        dataFim: '',
-        descricao: '',
-        linkExterno: '',
-    })
+    const [formData, setFormData] = useState<CertificadoFormData>(EMPTY_FORM)
+    const [formErrors, setFormErrors] = useState<CertificadoFormErrors>({})
 
     const resetForm = useCallback(() => {
-        setFormData({
-            titulo: '',
-            tipo: '' as TipoCertificado | '',
-            instituicao: '',
-            cargaHoraria: '',
-            dataInicio: '',
-            dataFim: '',
-            descricao: '',
-            linkExterno: '',
-        })
+        setFormData(EMPTY_FORM)
+        setFormErrors({})
         setEditingId(null)
     }, [])
 
@@ -61,9 +57,9 @@ export const useCertificadoForm = (loadCertificados: () => Promise<void>) => {
             descricao: certificado.descricao || '',
             linkExterno: certificado.linkExterno || '',
         })
+        setFormErrors({})
         setEditingId(certificado.id || null)
         setShowForm(true)
-        // Scroll suave para o formulário
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }, [])
 
@@ -72,43 +68,68 @@ export const useCertificadoForm = (loadCertificados: () => Promise<void>) => {
             e.preventDefault()
             if (!user) return
 
+            // Converter datas DD/MM/AAAA → ISO antes de validar
+            let dataInicioFinal = formData.dataInicio
+            if (dataInicioFinal && dataInicioFinal.includes('/')) {
+                dataInicioFinal = dateToISO(dataInicioFinal)
+            }
+
+            let dataFimFinal = formData.dataFim
+            if (dataFimFinal && dataFimFinal.includes('/')) {
+                dataFimFinal = dateToISO(dataFimFinal)
+            }
+
+            // Validar com Zod antes de qualquer operação no Firestore
+            const validation = certificadoSchema.safeParse({
+                titulo: formData.titulo,
+                tipo: formData.tipo || undefined,
+                instituicao: formData.instituicao || undefined,
+                cargaHoraria: formData.cargaHoraria,
+                dataInicio: dataInicioFinal,
+                dataFim: dataFimFinal || undefined,
+                descricao: formData.descricao || undefined,
+                linkExterno: formData.linkExterno || undefined,
+            })
+
+            if (!validation.success) {
+                const errors: CertificadoFormErrors = {}
+                validation.error.issues.forEach((issue) => {
+                    const field = String(issue.path[0])
+                    if (field && !errors[field]) {
+                        errors[field] = issue.message
+                    }
+                })
+                setFormErrors(errors)
+                return
+            }
+
+            setFormErrors({})
             setIsSubmitting(true)
 
             try {
-                // Garantir que as datas estejam em ISO antes de enviar
-                let dataInicioFinal = formData.dataInicio
-                if (dataInicioFinal && dataInicioFinal.includes('/')) {
-                    dataInicioFinal = dateToISO(dataInicioFinal)
-                }
-
-                let dataFimFinal = formData.dataFim
-                if (dataFimFinal && dataFimFinal.includes('/')) {
-                    dataFimFinal = dateToISO(dataFimFinal)
-                }
+                const data = validation.data
 
                 const certificadoData = {
                     userId: createUserId(user.uid),
-                    titulo: sanitizeInput(formData.titulo),
-                    tipo: (formData.tipo || 'outro') as TipoCertificado,
-                    instituicao: formData.instituicao ? sanitizeInput(formData.instituicao) : '',
-                    cargaHoraria: parseInt(formData.cargaHoraria),
+                    titulo: sanitizeInput(data.titulo),
+                    tipo: (data.tipo ?? 'outro') as TipoCertificado,
+                    instituicao: data.instituicao ? sanitizeInput(data.instituicao) : '',
+                    cargaHoraria: data.cargaHoraria,
                     dataInicio: dataInicioFinal,
                     dataFim: dataFimFinal || '',
-                    descricao: formData.descricao ? sanitizeLongText(formData.descricao) : undefined,
-                    linkExterno: formData.linkExterno ? sanitizeInput(formData.linkExterno) : undefined,
+                    descricao: data.descricao ? sanitizeLongText(data.descricao) : undefined,
+                    linkExterno: data.linkExterno ? sanitizeInput(data.linkExterno) : undefined,
                     status: 'aprovado' as StatusCertificado,
                     updatedAt: new Date(),
                 }
 
                 if (editingId) {
-                    // Atualizar certificado existente
                     await updateCertificate(editingId, certificadoData)
                     toast.success('Certificado atualizado!', {
                         description: certificadoData.titulo,
                         duration: 3000,
                     })
                 } else {
-                    // Criar novo certificado
                     const novoCertificado: Omit<Certificado, 'id'> = {
                         ...certificadoData,
                         userId: certificadoData.userId as Certificado['userId'],
@@ -139,6 +160,7 @@ export const useCertificadoForm = (loadCertificados: () => Promise<void>) => {
     return {
         formData,
         setFormData,
+        formErrors,
         showForm,
         setShowForm,
         isSubmitting,

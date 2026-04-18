@@ -234,7 +234,7 @@ export function LandingPage() {
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
       <section
-        className="relative isolate flex flex-col items-center justify-center text-center min-h-[92vh] px-4 py-32 cursor-crosshair"
+        className="relative isolate flex flex-col items-center justify-center text-center min-h-[92vh] px-4 py-32"
       >
         {/* Mesh blobs — no dot grid */}
         <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>

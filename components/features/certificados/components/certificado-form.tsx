@@ -9,6 +9,7 @@ import { Select } from '@/components/ui/select'
 import { TIPOS_CERTIFICADO } from '../constants'
 import { useDateMask, formatDateToDisplay } from '../hooks/use-date-mask'
 import type { CertificadoFormData } from '../hooks/use-certificado-form'
+import type { CertificadoFormErrors } from '@/lib/schemas'
 import { parseCertificadoPDF } from '@/lib/certificate-ocr'
 
 const FIELD_LABELS: Record<string, string> = {
@@ -24,6 +25,7 @@ interface CertificadoFormProps {
     setShowForm: (show: boolean) => void
     formData: CertificadoFormData
     setFormData: React.Dispatch<React.SetStateAction<CertificadoFormData>>
+    formErrors?: CertificadoFormErrors
     isSubmitting: boolean
     editingId: string | null
     handleSubmit: (e: React.FormEvent) => void
@@ -31,7 +33,7 @@ interface CertificadoFormProps {
 }
 
 export const CertificadoForm = memo<CertificadoFormProps>(
-    ({ showForm, setShowForm, formData, setFormData, isSubmitting, editingId, handleSubmit, resetForm }) => {
+    ({ showForm, setShowForm, formData, setFormData, formErrors = {}, isSubmitting, editingId, handleSubmit, resetForm }) => {
         const { handleDateChange } = useDateMask()
         const ocrInputRef = useRef<HTMLInputElement>(null)
         const [isOcrLoading, setIsOcrLoading] = useState(false)
@@ -141,8 +143,11 @@ export const CertificadoForm = memo<CertificadoFormProps>(
                                     value={formData.titulo}
                                     onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
                                     placeholder="Ex: Curso de Python para Iniciantes"
-                                    required
+                                    aria-invalid={!!formErrors.titulo}
                                 />
+                                {formErrors.titulo && (
+                                    <p className="text-sm text-destructive">{formErrors.titulo}</p>
+                                )}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="tipo">Tipo de Atividade (Opcional)</Label>
@@ -169,7 +174,11 @@ export const CertificadoForm = memo<CertificadoFormProps>(
                                     value={formData.instituicao}
                                     onChange={(e) => setFormData({ ...formData, instituicao: e.target.value })}
                                     placeholder="Ex: Universidade Federal da Bahia"
+                                    aria-invalid={!!formErrors.instituicao}
                                 />
+                                {formErrors.instituicao && (
+                                    <p className="text-sm text-destructive">{formErrors.instituicao}</p>
+                                )}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="cargaHoraria">Carga Horária (horas)</Label>
@@ -180,8 +189,11 @@ export const CertificadoForm = memo<CertificadoFormProps>(
                                     value={formData.cargaHoraria}
                                     onChange={(e) => setFormData({ ...formData, cargaHoraria: e.target.value })}
                                     placeholder="Ex: 20"
-                                    required
+                                    aria-invalid={!!formErrors.cargaHoraria}
                                 />
+                                {formErrors.cargaHoraria && (
+                                    <p className="text-sm text-destructive">{formErrors.cargaHoraria}</p>
+                                )}
                             </div>
                         </div>
 
@@ -196,7 +208,7 @@ export const CertificadoForm = memo<CertificadoFormProps>(
                                         maxLength={10}
                                         value={formatDateToDisplay(formData.dataInicio)}
                                         onChange={(e) => handleDateChange(e.target.value, 'dataInicio', setFormData)}
-                                        required
+                                        aria-invalid={!!formErrors.dataInicio}
                                         className="pr-10"
                                     />
                                     <div className="absolute right-0 top-0 h-full flex items-center pr-3">
@@ -220,6 +232,9 @@ export const CertificadoForm = memo<CertificadoFormProps>(
                                         />
                                     </div>
                                 </div>
+                                {formErrors.dataInicio && (
+                                    <p className="text-sm text-destructive">{formErrors.dataInicio}</p>
+                                )}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="dataFim">Data de Conclusão (Opcional)</Label>
@@ -231,6 +246,7 @@ export const CertificadoForm = memo<CertificadoFormProps>(
                                         maxLength={10}
                                         value={formatDateToDisplay(formData.dataFim)}
                                         onChange={(e) => handleDateChange(e.target.value, 'dataFim', setFormData)}
+                                        aria-invalid={!!formErrors.dataFim}
                                         className="pr-10"
                                     />
                                     <div className="absolute right-0 top-0 h-full flex items-center pr-3">
@@ -254,6 +270,9 @@ export const CertificadoForm = memo<CertificadoFormProps>(
                                         />
                                     </div>
                                 </div>
+                                {formErrors.dataFim && (
+                                    <p className="text-sm text-destructive">{formErrors.dataFim}</p>
+                                )}
                             </div>
                         </div>
 
@@ -266,6 +285,9 @@ export const CertificadoForm = memo<CertificadoFormProps>(
                                 placeholder="Descreva brevemente a atividade realizada..."
                                 rows={3}
                             />
+                            {formErrors.descricao && (
+                                <p className="text-sm text-destructive">{formErrors.descricao}</p>
+                            )}
                         </div>
 
                         <div className="space-y-2">
@@ -276,10 +298,15 @@ export const CertificadoForm = memo<CertificadoFormProps>(
                                 value={formData.linkExterno}
                                 onChange={(e) => setFormData({ ...formData, linkExterno: e.target.value })}
                                 placeholder="https://drive.google.com/..."
+                                aria-invalid={!!formErrors.linkExterno}
                             />
-                            <p className="text-xs text-muted-foreground">
-                                Opcional: Adicione um link para visualização do comprovante
-                            </p>
+                            {formErrors.linkExterno ? (
+                                <p className="text-sm text-destructive">{formErrors.linkExterno}</p>
+                            ) : (
+                                <p className="text-xs text-muted-foreground">
+                                    Opcional: Adicione um link para visualização do comprovante
+                                </p>
+                            )}
                         </div>
 
                         <div className="flex gap-2">

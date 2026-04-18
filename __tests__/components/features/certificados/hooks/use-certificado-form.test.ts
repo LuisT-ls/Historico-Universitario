@@ -144,18 +144,24 @@ describe('useCertificadoForm', () => {
             })
         })
 
-        it('should submit even with empty form (validation is UI responsibility)', async () => {
+        it('should block submission and set formErrors when form is empty', async () => {
             ; (addDoc as jest.Mock).mockResolvedValue({ id: 'test' })
             const { result } = renderHook(() => useCertificadoForm(mockOnSuccess))
 
-            // Try to submit empty form
             await act(async () => {
                 const mockEvent = { preventDefault: jest.fn() } as any
                 await result.current.handleSubmit(mockEvent)
             })
 
-            // Hook doesn't validate - UI is responsible for that
-            expect(addDoc).toHaveBeenCalled()
+            // Zod validation blocks submission — Firestore is never called
+            expect(addDoc).not.toHaveBeenCalled()
+
+            // Errors are exposed per field so the UI can display them
+            expect(result.current.formErrors).toMatchObject({
+                titulo: expect.any(String),
+                cargaHoraria: expect.any(String),
+                dataInicio: expect.any(String),
+            })
         })
 
         it('should convert cargaHoraria string to number', async () => {

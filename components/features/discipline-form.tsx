@@ -3,7 +3,6 @@
 import { useState, forwardRef, useImperativeHandle, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -32,42 +31,9 @@ import { PlusCircle, X } from 'lucide-react'
 import { logger } from '@/lib/logger'
 import { createDisciplinaId } from '@/lib/constants'
 import type { Curso, Disciplina, Natureza } from '@/types'
+import { disciplinaSchema, type DisciplinaFormValues } from '@/lib/schemas'
 
-const disciplineSchema = z
-  .object({
-    periodo: z.string()
-      .min(1, 'Período é obrigatório')
-      .regex(/^\d{4}\.[12]$/, 'Formato inválido. Use AAAA.S (ex: 2026.1)'),
-    codigo: z.string().min(1, 'Código é obrigatório'),
-    nome: z.string().min(1, 'Nome é obrigatório'),
-    natureza: z.string().min(1, 'Natureza é obrigatória'),
-    ch: z.preprocess(
-      (val) => (val === '' || val === undefined ? undefined : Number(val)),
-      z.number().min(1, 'Carga horária deve ser maior que 0')
-    ),
-    nota: z.preprocess(
-      (val) => (val === '' || val === undefined ? undefined : Number(val)),
-      z.number().min(0).max(10, 'Nota deve estar entre 0 e 10').optional()
-    ),
-    trancamento: z.boolean().optional(),
-    dispensada: z.boolean().optional(),
-    emcurso: z.boolean().optional(),
-  })
-  .refine(
-    (data) => {
-      // AC não precisa de nota
-      if (data.natureza === 'AC') return true
-      // Outras naturezas precisam de nota se não for trancamento, dispensada ou em curso
-      if (data.trancamento || data.dispensada || data.emcurso) return true
-      return data.nota !== undefined && data.nota !== null
-    },
-    {
-      message: 'Nota é obrigatória para esta natureza',
-      path: ['nota'],
-    }
-  )
-
-type DisciplineFormData = z.infer<typeof disciplineSchema>
+type DisciplineFormData = DisciplinaFormValues
 
 interface DisciplineFormProps {
   cursoAtual: Curso
@@ -78,7 +44,7 @@ interface DisciplineFormProps {
 }
 
 export interface DisciplineFormRef {
-  fillForm: (disciplina: { codigo: string; nome: string; natureza: string; ch?: number }) => void
+  fillForm: (disciplina: { codigo: string; nome: string; natureza: Natureza; ch?: number }) => void
   editDiscipline: (disciplina: Disciplina, index: number) => void
   resetForm: () => void
 }
@@ -97,14 +63,14 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
       watch,
       setValue,
     } = useForm<DisciplineFormData>({
-      resolver: zodResolver(disciplineSchema),
+      resolver: zodResolver(disciplinaSchema),
       defaultValues: {
         periodo: getPeriodoMaisRecente(disciplinas) || '',
         codigo: '',
         nome: '',
-        natureza: '',
-        ch: '' as any, // string vazia para mostrar placeholder
-        nota: '' as any, // string vazia para mostrar placeholder
+        natureza: undefined,
+        ch: undefined,
+        nota: undefined,
         trancamento: false,
         dispensada: false,
         emcurso: false,
@@ -159,7 +125,7 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
 
     // Expor métodos para preencher formulário via ref
     useImperativeHandle(ref, () => ({
-      fillForm: (disciplina: { codigo: string; nome: string; natureza: string; ch?: number }) => {
+      fillForm: (disciplina: { codigo: string; nome: string; natureza: Natureza; ch?: number }) => {
         setValue('codigo', disciplina.codigo)
         setValue('nome', disciplina.nome)
         setValue('natureza', disciplina.natureza)
@@ -201,9 +167,9 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
           periodo: getPeriodoMaisRecente(disciplinas) || '',
           codigo: '',
           nome: '',
-          natureza: '',
-          ch: '' as any, // string vazia para mostrar placeholder
-          nota: '' as any, // string vazia para mostrar placeholder
+          natureza: undefined,
+          ch: undefined,
+          nota: undefined,
           trancamento: false,
           dispensada: false,
           emcurso: false,
@@ -257,9 +223,9 @@ export const DisciplineForm = forwardRef<DisciplineFormRef, DisciplineFormProps>
           periodo: data.periodo, // Manter o período para facilitar múltiplas adições
           codigo: '',
           nome: '',
-          natureza: '',
-          ch: '' as any,
-          nota: '' as any,
+          natureza: undefined,
+          ch: undefined,
+          nota: undefined,
           trancamento: false,
           dispensada: false,
           emcurso: false,
