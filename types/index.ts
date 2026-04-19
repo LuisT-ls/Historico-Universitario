@@ -33,8 +33,8 @@ export type Natureza =
 
 // Discipline result types
 // 'AP' = Aprovado, 'RR' = Reprovado (por nota), 'RF' = Reprovado por Falta,
-// 'TR' = Trancado/Cancelado, 'DP' = Dispensado/Equivalência/Em Curso
-export type ResultadoDisciplina = 'AP' | 'RR' | 'RF' | 'TR' | 'DP'
+// 'RMF' = Reprovado por Média e Falta, 'TR' = Trancado/Cancelado, 'DP' = Dispensado/Equivalência/Em Curso
+export type ResultadoDisciplina = 'AP' | 'RR' | 'RF' | 'RMF' | 'TR' | 'DP'
 
 // Discipline interface
 export interface Disciplina {

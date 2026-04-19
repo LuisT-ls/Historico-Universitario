@@ -62,7 +62,7 @@ function getBestStatus(matches: Disciplina[]): StatusDisc {
   if (!matches.length) return 'pendente'
   if (matches.some((d) => (d.resultado === 'AP' && !d.trancamento) || d.dispensada)) return 'aprovado'
   if (matches.some((d) => d.emcurso)) return 'emcurso'
-  if (matches.some((d) => d.resultado === 'RR' && !d.trancamento)) return 'reprovado'
+  if (matches.some((d) => (d.resultado === 'RR' || d.resultado === 'RF' || d.resultado === 'RMF') && !d.trancamento)) return 'reprovado'
   if (matches.some((d) => d.trancamento)) return 'trancado'
   return 'pendente'
 }

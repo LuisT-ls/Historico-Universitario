@@ -7,6 +7,7 @@ export const RESULTADO_LABELS: Record<ResultadoDisciplina, string> = {
     AP: 'Aprovado',
     RR: 'Reprovado',
     RF: 'Rep. por Falta',
+    RMF: 'Rep. Média/Falta',
     TR: 'Trancado',
     DP: 'Dispensado',
 } as const

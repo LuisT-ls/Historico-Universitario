@@ -38,6 +38,8 @@ const NATUREZA_NOME: Record<string, string> = {
 const RESULTADO_NOME: Record<string, string> = {
   AP: 'Aprovado',
   RR: 'Reprovado',
+  RF: 'Rep. por Falta',
+  RMF: 'Rep. Média/Falta',
   TR: 'Trancado',
   DP: 'Dispensado',
 }
@@ -109,7 +111,7 @@ export function PrintView({ disciplinas, certificados, cursoAtual, profile }: Pr
     )
 
     const totalAprovacoes = disciplinas.filter(d => d.resultado === 'AP' && !d.emcurso && !d.dispensada && d.natureza !== 'AC').length
-    const totalReprovacoes = disciplinas.filter(d => d.resultado === 'RR').length
+    const totalReprovacoes = disciplinas.filter(d => d.resultado === 'RR' || d.resultado === 'RF' || d.resultado === 'RMF').length
     const totalTrancamentos = disciplinas.filter(d => d.resultado === 'TR').length
 
     // Group disciplines by period

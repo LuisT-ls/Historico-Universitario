@@ -44,8 +44,11 @@ const mapSituacao = (situacao: string): {
   if (s === 'REP') {
     return { resultado: 'RR', trancamento: false, dispensada: false, emcurso: false };
   }
-  if (s === 'REPF' || s === 'REPMF') {
+  if (s === 'REPF') {
     return { resultado: 'RF', trancamento: false, dispensada: false, emcurso: false };
+  }
+  if (s === 'REPMF') {
+    return { resultado: 'RMF', trancamento: false, dispensada: false, emcurso: false };
   }
   if (s === 'TRANC' || s === 'CANC') {
     return { resultado: 'TR', trancamento: true, dispensada: false, emcurso: false };

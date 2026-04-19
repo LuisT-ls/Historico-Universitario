@@ -64,10 +64,10 @@ export function calcularMediaGeral(
 
 /**
  * Calcula o Coeficiente de Rendimento (CR) seguindo as regras do SIGAA/UFBA:
- * CR = Σ(nota × CH) / Σ(CH), considerando apenas disciplinas com resultado
- * 'AP' (Aprovado) ou 'RR' (Reprovado/Reprovado por Falta).
+ * CR = Σ(nota × CH) / Σ(CH)
  *
- * Excluídas: Trancadas, Canceladas, Dispensadas, Equivalências e Em Curso.
+ * Entram: APR→'AP' (Aprovado), REP→'RR' (Reprovado por nota).
+ * Excluídos: REPF/REPMF→'RF', TRANC/CANC→'TR', DISP/CUMP/TRANS/INCORP→'DP', MATR.
  *
  * @param disciplinas - Lista de disciplinas
  * @returns Valor do CR (0 a 10)

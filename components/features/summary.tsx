@@ -98,16 +98,16 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
     // Disciplinas AC (apenas aprovadas contam para progresso)
     const disciplinasAC = disciplinas.filter((d) => d.natureza === 'AC' && (d.resultado === 'AP' || d.dispensada) && !d.emcurso)
 
-    // Disciplinas com nota válida
+    // Disciplinas com nota válida para "Média" — apenas APR e REP (nota por desempenho).
+    // RF (REPF) e RMF (REPMF) têm nota=0 por ausência, não por desempenho: excluídas.
     const disciplinasComNota = disciplinas.filter(
       (d) =>
+        (d.resultado === 'AP' || d.resultado === 'RR') &&
         d.nota !== null &&
         d.nota !== undefined &&
         !d.dispensada &&
         d.natureza !== 'AC' &&
-        d.resultado !== 'TR' &&
-        !d.emcurso &&
-        d.resultado !== 'DP'
+        !d.emcurso
     )
 
     // Disciplinas em curso (apenas MATR; dispensadas/transferidas não são em andamento)
@@ -121,7 +121,7 @@ export function Summary({ disciplinas, certificados = [], cursoAtual, profile }:
       (d) => !d.dispensada && d.natureza !== 'AC'
     ).length
     const totalReprovacoes = disciplinas.filter(
-      (d) => d.resultado === 'RR' && d.natureza !== 'AC'
+      (d) => (d.resultado === 'RR' || d.resultado === 'RF' || d.resultado === 'RMF') && d.natureza !== 'AC'
     ).length
     const totalTrancamentos = disciplinas.filter((d) => d.resultado === 'TR').length
     const totalDispensadas = disciplinas.filter((d) => d.dispensada).length
